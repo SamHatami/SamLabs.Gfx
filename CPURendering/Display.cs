@@ -7,14 +7,14 @@ namespace CPURendering;
 
 public class Display
 {
-    private IntPtr _window;
-    private IntPtr _renderer;
-    private IntPtr _frameBufferTexture;
-    private uint[] _frameBuffer;
     private float[] _depthBuffer;
+    private uint[] _frameBuffer;
+    private IntPtr _frameBufferTexture;
     private int _pitch;
-    private int _windowWidth;
+    private IntPtr _renderer;
+    private IntPtr _window;
     private int _windowHeight;
+    private int _windowWidth;
 
     public void InitializeWindow(int width, int height, string title = "Sam Labs - CPU Rendering")
     {
@@ -46,87 +46,69 @@ public class Display
         if (posY >= _windowHeight || posY < 0)
             return;
 
-        for (int y = posY; y < posY + size && y < _windowHeight; y++)
-        {
-            for (int x = posX; x < posX + size && x < _windowWidth; x++)
-            {
-                if (x >= 0 && y >= 0)
-                {
-                    _frameBuffer[(_windowWidth * y) + x] = color;
-                }
-            }
-        }
+        for (var y = posY; y < posY + size && y < _windowHeight; y++)
+        for (var x = posX; x < posX + size && x < _windowWidth; x++)
+            if (x >= 0 && y >= 0)
+                _frameBuffer[_windowWidth * y + x] = color;
     }
+
     public void DrawLine(Vector3 p0, Vector3 p1, uint color)
     {
-        int dX = (int)(p1.X - p0.X);
-        int dy = (int)(p1.Y - p0.Y);
+        var dX = (int)(p1.X - p0.X);
+        var dy = (int)(p1.Y - p0.Y);
 
-        int sideLength = Math.Abs(dX) >= Math.Abs(dy) ? Math.Abs(dX) : Math.Abs(dy);
+        var sideLength = Math.Abs(dX) >= Math.Abs(dy) ? Math.Abs(dX) : Math.Abs(dy);
 
-        float xInc = dX / (float)sideLength;
-        float yInc = dy / (float)sideLength;
+        var xInc = dX / (float)sideLength;
+        var yInc = dy / (float)sideLength;
 
         float x = (int)p0.X;
         float y = (int)p0.X;
 
-        for (int i = 0; i <= sideLength; i++) {
+        for (var i = 0; i <= sideLength; i++)
+        {
             DrawPixel((int)Math.Round(x), (int)Math.Round(y), color);
             x += xInc;
             y += yInc;
         }
     }
+
     private void DrawPixel(int x, int y, uint color)
     {
-        if (x >= 0 && x < _windowWidth && y >= 0 && y < _windowHeight)
-        {
-            _frameBuffer[(_windowWidth * y) + x] = color;
-        }
+        if (x >= 0 && x < _windowWidth && y >= 0 && y < _windowHeight) _frameBuffer[_windowWidth * y + x] = color;
     }
+
     public void DrawGrid(uint color)
     {
-        int gridStep = 10;
-        for (int y = 0; y < _windowHeight; y++)
-        {
-            for (int x = 0; x < _windowWidth; x++)
-            {
-                if (x % gridStep == 0 || y % gridStep == 0)
-                    _frameBuffer[(_windowWidth * y) + x] = color;
-            }
-        }
+        var gridStep = 10;
+        for (var y = 0; y < _windowHeight; y++)
+        for (var x = 0; x < _windowWidth; x++)
+            if (x % gridStep == 0 || y % gridStep == 0)
+                _frameBuffer[_windowWidth * y + x] = color;
     }
+
     public void DrawRect(int startX, int startY, int width, int height, uint color)
     {
-        for (int y = startY; y < height + startY && y < _windowHeight; y++)
-        {
-            for (int x = startX; x < width + startX && x < _windowWidth; x++)
-            {
-                if (x >= 0 && y >= 0 && x < _windowWidth && y < _windowHeight)
-                {
-                    _frameBuffer[(_windowWidth * y) + x] = color;
-                }
-            }
-        }
+        for (var y = startY; y < height + startY && y < _windowHeight; y++)
+        for (var x = startX; x < width + startX && x < _windowWidth; x++)
+            if (x >= 0 && y >= 0 && x < _windowWidth && y < _windowHeight)
+                _frameBuffer[_windowWidth * y + x] = color;
     }
+
     public void ClearColorBuffer()
     {
         SDL.SetRenderDrawColor(_renderer, 0, 0, 0, 255);
-        if(!SDL.RenderClear(_renderer))
-        {
+        if (!SDL.RenderClear(_renderer))
             SDL.LogError(SDL.LogCategory.Application, $"Failed to clear color buffer: {SDL.GetError()}");
-        }
     }
-    public  void RenderColorBuffer()
+
+    public void RenderColorBuffer()
     {
         var byteSpan = MemoryMarshal.AsBytes(_frameBuffer.AsSpan());
-        if(!SDL.UpdateTexture(_frameBufferTexture, IntPtr.Zero, byteSpan, _pitch))
-        {
+        if (!SDL.UpdateTexture(_frameBufferTexture, IntPtr.Zero, byteSpan, _pitch))
             SDL.LogError(SDL.LogCategory.Application, $"Failed to update texture: {SDL.GetError()}");
-        }
-        if(!SDL.RenderTexture(_renderer, _frameBufferTexture, IntPtr.Zero, IntPtr.Zero))
-        {
+        if (!SDL.RenderTexture(_renderer, _frameBufferTexture, IntPtr.Zero, IntPtr.Zero))
             SDL.LogError(SDL.LogCategory.Application, $"Failed to render texture: {SDL.GetError()}");
-        }
     }
 
     public void Render()
@@ -135,6 +117,7 @@ public class Display
         RenderColorBuffer();
         SDL.RenderPresent(_renderer);
     }
+
     private void PrintFrameBufferSize()
     {
         var structSize = Unsafe.SizeOf<byte>();

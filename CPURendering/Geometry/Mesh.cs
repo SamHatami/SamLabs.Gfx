@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace CPURendering;
+namespace CPURendering.Geometry;
 
 public struct Mesh
 {

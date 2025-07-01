@@ -7,7 +7,6 @@ public static class InputHandler
     public static bool HandleInput()
     {
         while (SDL.PollEvent(out var e))
-        {
             switch ((SDL.EventType)e.Type)
             {
                 case SDL.EventType.Quit:
@@ -17,8 +16,7 @@ public static class InputHandler
                         return false;
                     break;
             }
-        }
-        
+
         return true;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace CPURendering;
+namespace CPURendering.Geometry;
 
 public struct Face
 {
@@ -10,7 +10,7 @@ public struct Face
     public int UvA;
     public int UvB;
     public int UvC;
-    Vector3 Normal;
+    private Vector3 Normal;
 
     public Face(int a, int b, int c, Vector3 normal)
     {
