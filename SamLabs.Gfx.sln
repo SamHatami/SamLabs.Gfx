@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Run", "Run\Run.csproj", "{B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CPURendering", "CPURendering\CPURendering.csproj", "{919BC0EC-9FA4-4BDF-8795-355B6103A8E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{06B47154-0434-4D96-B76D-F50C73F15DEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{919BC0EC-9FA4-4BDF-8795-355B6103A8E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{919BC0EC-9FA4-4BDF-8795-355B6103A8E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{919BC0EC-9FA4-4BDF-8795-355B6103A8E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06B47154-0434-4D96-B76D-F50C73F15DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06B47154-0434-4D96-B76D-F50C73F15DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06B47154-0434-4D96-B76D-F50C73F15DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06B47154-0434-4D96-B76D-F50C73F15DEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
