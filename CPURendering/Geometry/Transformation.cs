@@ -39,10 +39,29 @@ public static class Transformation
     {
         var scaleMatrix = Matrix4x4.Identity;
 
-        scaleMatrix[0, 0] = scale.X;
-        scaleMatrix[1, 1] = scale.Y;
-        scaleMatrix[2, 2] = scale.Z;
+        scaleMatrix.M11 = scale.X;
+        scaleMatrix.M22 = scale.Y;
+        scaleMatrix.M33 = scale.Z;
 
         return scaleMatrix;
     }
+
+    public static Matrix4x4 Translation(Vector3 translation)
+    {
+        var translationMatrix = Matrix4x4.Identity;
+
+        translationMatrix[0, 3] = translation.X;
+        translationMatrix[1, 3] = translation.Y;
+        translationMatrix[2, 3] = translation.Z;
+
+        return translationMatrix;
+
+    }
+
+    public static Matrix4x4 Projection(Matrix4x4 perspectiveMatrix, Vector4 v)
+    {
+
+        var screenSpace = Vector4.Transform(v,perspectiveMatrix);
+    }
+    
 }
