@@ -46,7 +46,7 @@ public static class Transformation
         return scaleMatrix;
     }
 
-    public static Matrix4x4 Translation(Vector3 translation)
+    public static Matrix4x4 Translate(Vector3 translation)
     {
         var translationMatrix = Matrix4x4.Identity;
 
@@ -57,11 +57,17 @@ public static class Transformation
         return translationMatrix;
 
     }
-
-    public static Matrix4x4 Projection(Matrix4x4 perspectiveMatrix, Vector4 v)
-    {
-
-        var screenSpace = Vector4.Transform(v,perspectiveMatrix);
-    }
     
+    public static Vector4 Project(Matrix4x4 projection, Vector4 v)
+    {
+        //Transform the position vector by the projectionmatrix
+        v = Vector4.Transform(v, projection);
+        
+        //perform the perspective divide by the original z-value, stored in w.
+        v.X /= v.W;
+        v.Y /= v.W;
+        v.Z /= v.W;
+        
+        return v;
+    }
 }
