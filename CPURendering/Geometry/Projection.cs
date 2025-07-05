@@ -23,13 +23,13 @@ public class Projection
     {
         CreatePerspectiveMatrix(screen, near, far);
     }
-    private void CreatePerspectiveMatrix(Screen screen, float near, float far)
+    private void CreatePerspectiveMatrix(Screen screen, float zNear, float zFar)
     {
         var projection = new Matrix4x4();
         var a = screen.InverseAspectRatio;
-        var f = (float)Math.Tan(screen.Fov / 2);
-        var zClip = far / (far - near);
-        var zNearClip =  - far * near / (far - near);
+        var f = 1/(float)Math.Tan(screen.Fov / 2);
+        var zClip = zFar / (zFar - zNear);
+        var zNearClip =  - zFar * zNear / (zFar - zNear);
         
         projection.M11 = a*f;
         projection.M22 = f;
