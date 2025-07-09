@@ -11,7 +11,7 @@ Console.WriteLine("Hello, World!");
 var display = new Display();
 var running = true;
 var height = 800;
-var width = 800;
+var width = 1200;
 display.InitializeWindow(width, height);
 var screen = new Screen(width, height, (float)Math.PI/3);
 var project = new Projection(screen,0.1f,100);
@@ -24,14 +24,14 @@ for (int i = 0; i < cubePoint.Length; i++)
 
 var worldMatrix = Matrix4x4.Identity;
 
-var scaleVector = new Vector3(10,10,10);
+var scaleVector = new Vector3(100,100,1);
 var scaleMatrix = Transformation.Scale(scaleVector);
 
 // var rotationsMatrixX = Transformation.Rotate(0, Axis.X);
 // var rotationsMatrixY = Transformation.Rotate(0, Axis.Y);
 // var rotationsMatrixZ = Transformation.Rotate(0, Axis.Z);
 
-var translations = new Vector3(width/2, height/2, 0);
+var translations = new Vector3(0f, 0f, -2);
 var translateMatrix = Transformation.Translate(translations);
 
 worldMatrix = Matrix4x4.Multiply(worldMatrix, scaleMatrix);
@@ -46,7 +46,8 @@ for (int i = 0; i < cube.Length; i++)
 for (int i = 0; i < cube.Length; i++)
 {
     cube[i] = Transformation.Project(project.ProjectionMatrix, cube[i]);
-    
+    cube[i].X += width/2;  
+    cube[i].Y += height/2;
 }
 
 while (InputHandler.HandleInput())
