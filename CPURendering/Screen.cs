@@ -8,13 +8,13 @@ public class Screen
     public float AspectRatio { get;}
     public float InverseAspectRatio { get;  }
 
-    public Screen(int width, int height, float fov = 90)
+    public Screen(int width, int height, float fov)
     {
         Fov = fov;
         Width = width;
         Height = height;
         AspectRatio = (float)Width / Height;
-        InverseAspectRatio = 1 / AspectRatio;
+        InverseAspectRatio = (float)Height / Width;
     }
 
 

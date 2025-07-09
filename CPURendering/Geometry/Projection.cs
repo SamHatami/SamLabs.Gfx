@@ -25,20 +25,22 @@ public class Projection
     }
     private void CreatePerspectiveMatrix(Screen screen, float zNear, float zFar)
     {
-        var projection = new Matrix4x4();
-        var a = screen.InverseAspectRatio;
-        var f = 1/(float)Math.Tan(screen.Fov / 2);
-        var zClip = zFar / (zFar - zNear);
-        var zNearClip =  - zFar * zNear / (zFar - zNear);
+        // var projection = new Matrix4x4();
+        // var a = screen.InverseAspectRatio;
+        // var f = 1/(float)Math.Tan(screen.Fov*0.5);
+        // var zClip = - zFar / (zFar - zNear);
+        // var zNearClip =  - zFar * zNear / (zFar - zNear);
+        //
+        // projection.M11 = a*f;
+        // projection.M22 = f;
+        // projection.M33 = zClip;
+        // projection.M43 = zNearClip;
+        // projection.M34 = -1;
         
-        projection.M11 = a*f;
-        projection.M22 = f;
-        projection.M33 = zClip;
-        projection.M34 = zNearClip;
-        projection.M43 = 1;
-        
-        ProjectionMatrix = projection;
+        // ProjectionMatrix  = projection;
 
+        //The same as
+       ProjectionMatrix =  Matrix4x4.CreatePerspectiveFieldOfView(screen.Fov, screen.AspectRatio, zNear, zFar);
     }
     
 }

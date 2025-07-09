@@ -63,7 +63,7 @@ public class Display
         var yInc = dy / (float)sideLength;
 
         float x = (int)p0.X;
-        float y = (int)p0.X;
+        float y = (int)p0.Y;
 
         for (var i = 0; i <= sideLength; i++)
         {

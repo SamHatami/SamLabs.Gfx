@@ -43,6 +43,8 @@ public static class Transformation
         scaleMatrix.M22 = scale.Y;
         scaleMatrix.M33 = scale.Z;
 
+        return Matrix4x4.CreateScale(scale);
+
         return scaleMatrix;
     }
 
@@ -50,11 +52,11 @@ public static class Transformation
     {
         var translationMatrix = Matrix4x4.Identity;
 
-        translationMatrix[0, 3] = translation.X;
-        translationMatrix[1, 3] = translation.Y;
-        translationMatrix[2, 3] = translation.Z;
+        translationMatrix.M41 = translation.X;
+        translationMatrix.M42 = translation.Y;
+        translationMatrix.M43 = translation.Z;
 
-        return translationMatrix;
+        return Matrix4x4.CreateTranslation(translation);
 
     }
     
@@ -62,12 +64,12 @@ public static class Transformation
     {
         //Transform the position vector by the projectionmatrix
         v = Vector4.Transform(v, projection);
-        
+
         //perform the perspective divide by the original z-value, stored in w.
+        if (v.W == 0.0f) return v;
         v.X /= v.W;
         v.Y /= v.W;
         v.Z /= v.W;
-        
         return v;
     }
 }

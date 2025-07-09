@@ -2,6 +2,7 @@
 
 using System.Numerics;
 using CPURendering;
+using CPURendering.Enums;
 using CPURendering.Geometry;
 using Run;
 
@@ -9,24 +10,44 @@ Console.WriteLine("Hello, World!");
 
 var display = new Display();
 var running = true;
-
-display.InitializeWindow(800, 600);
-var screen = new Screen(800, 600, 60);
-var project = new Projection(screen,0.1f,100f);
-var cubePoint = TestGeometries.GetUnitCubePointCloud(5);
+var height = 800;
+var width = 800;
+display.InitializeWindow(width, height);
+var screen = new Screen(width, height, (float)Math.PI/3);
+var project = new Projection(screen,0.1f,100);
+var cubePoint = TestGeometries.GetUnitCubePointCloud();
 var cube  = new Vector4[cubePoint.Length];
 
 for (int i = 0; i < cubePoint.Length; i++)
     cube[i] = new Vector4(cubePoint[i], 1);
 
-var scaleVector = new Vector3(50f, 50f, 500f);
+
+var worldMatrix = Matrix4x4.Identity;
+
+var scaleVector = new Vector3(10,10,10);
 var scaleMatrix = Transformation.Scale(scaleVector);
 
-for (int i = 0; i < cube.Length; i++)
-    cube[i] = Vector4.Transform(cube[i], scaleMatrix); 
+// var rotationsMatrixX = Transformation.Rotate(0, Axis.X);
+// var rotationsMatrixY = Transformation.Rotate(0, Axis.Y);
+// var rotationsMatrixZ = Transformation.Rotate(0, Axis.Z);
+
+var translations = new Vector3(width/2, height/2, 0);
+var translateMatrix = Transformation.Translate(translations);
+
+worldMatrix = Matrix4x4.Multiply(worldMatrix, scaleMatrix);
+// worldMatrix = Matrix4x4.Multiply(rotationsMatrixX, worldMatrix);
+// worldMatrix = Matrix4x4.Multiply(rotationsMatrixY, worldMatrix);
+// worldMatrix = Matrix4x4.Multiply(rotationsMatrixZ, worldMatrix);
+worldMatrix = Matrix4x4.Multiply(worldMatrix, translateMatrix);
 
 for (int i = 0; i < cube.Length; i++)
-    cube[i] = Transformation.Project(project.ProjectionMatrix,cube[i]); 
+    cube[i] = Vector4.Transform(cube[i], worldMatrix); 
+
+for (int i = 0; i < cube.Length; i++)
+{
+    cube[i] = Transformation.Project(project.ProjectionMatrix, cube[i]);
+    
+}
 
 while (InputHandler.HandleInput())
 {

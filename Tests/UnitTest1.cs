@@ -16,6 +16,6 @@ public class UnitTest1
     [Fact]
     public void CubePoints()
     {
-        var cube = TestGeometries.GetUnitCubePointCloud(4);
+        var cube = TestGeometries.GetUnitCubePointCloud();
     } 
 }
