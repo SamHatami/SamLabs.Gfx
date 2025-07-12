@@ -4,6 +4,7 @@ using System.Numerics;
 using CPURendering;
 using CPURendering.Enums;
 using CPURendering.Geometry;
+using CPURendering.View;
 using Run;
 
 Console.WriteLine("Hello, World!");
@@ -14,6 +15,7 @@ var height = 800;
 var width = 1200;
 display.InitializeWindow(width, height);
 var screen = new Screen(width, height, (float)Math.PI/3);
+var camera = new Camera();
 var project = new Projection(screen,0.1f,100);
 var cubePoint = TestGeometries.GetUnitCubePointCloud();
 var cube  = new Vector4[cubePoint.Length];
@@ -40,8 +42,14 @@ worldMatrix = Matrix4x4.Multiply(worldMatrix, scaleMatrix);
 // worldMatrix = Matrix4x4.Multiply(rotationsMatrixZ, worldMatrix);
 worldMatrix = Matrix4x4.Multiply(worldMatrix, translateMatrix);
 
+var viewMatrix = camera.LookAt(new Vector3(0, 0f, -10f));
+
 for (int i = 0; i < cube.Length; i++)
-    cube[i] = Vector4.Transform(cube[i], worldMatrix); 
+{
+    cube[i] = Vector4.Transform(cube[i], worldMatrix);
+    cube[i] = Vector4.Transform(cube[i], viewMatrix);
+}
+
 
 for (int i = 0; i < cube.Length; i++)
 {

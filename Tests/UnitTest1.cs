@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using System.Reflection;
 using System.Runtime.InteropServices.Marshalling;
+using CPURendering;
 using CPURendering.Enums;
 using CPURendering.Geometry;
 
@@ -17,5 +19,15 @@ public class UnitTest1
     public void CubePoints()
     {
         var cube = TestGeometries.GetUnitCubePointCloud();
-    } 
+    }
+
+    [Fact]
+    public void ObjReaderTest()
+    {
+        var exePath = Assembly.GetExecutingAssembly().Location;
+        
+        var fullPath = Path.Combine(Path.GetDirectoryName(exePath),"Geometry\\Cube.obj");
+        
+        var cube = MeshReader.ReadFromFile(fullPath);
+    }
 }

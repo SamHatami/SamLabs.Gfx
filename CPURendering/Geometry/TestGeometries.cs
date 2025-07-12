@@ -21,5 +21,28 @@ public static class TestGeometries
         }
         return cubePoints;
     }
+
+    // public static Mesh CreateCubeMesh()
+    // {
+    //     var cubeMesh = new Mesh();
+    //     cubeMesh.Vertices = new Vector3[8]
+    //     {
+    //         new (-1f, -1f, -1f), 
+    //         new (-1f, 1f, -1f),
+    //         new (1f, 1f, -1f),
+    //         new (1f, -1f, -1f),
+    //         new (1f, 1f, 1f),
+    //         new (1f, -1f, 1f),
+    //         new (-1f, 1f, 1f),
+    //         new (-1f, -1f, 1f)
+    //     };
+    //     
+    //     cubeMesh.Faces = new []
+    //     {
+    //         new Face()
+    //     }
+    //     
+    //     
+    // }
     
 }

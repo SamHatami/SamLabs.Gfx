@@ -10,7 +10,7 @@ public struct Face
     public int UvA;
     public int UvB;
     public int UvC;
-    private Vector3 Normal;
+    public Vector3 Normal;
 
     public Face(int a, int b, int c, Vector3 normal)
     {
