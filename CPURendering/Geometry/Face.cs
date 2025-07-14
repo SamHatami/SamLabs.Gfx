@@ -4,19 +4,17 @@ namespace CPURendering.Geometry;
 
 public struct Face
 {
-    public int A;
-    public int B;
-    public int C;
-    public int UvA;
-    public int UvB;
-    public int UvC;
+    public int[] VertIndices;
+    public int[] VertTextureIndices;
+    public int[] VertNormalIndices;
     public Vector3 Normal;
 
-    public Face(int a, int b, int c, Vector3 normal)
+    public Face(int[] vertIndices, int[] vertTextureIndices, int[] vertNormalIndices)
     {
-        A = a;
-        B = b;
-        C = c;
-        Normal = normal;
+        VertIndices = vertIndices;
+        VertTextureIndices = vertTextureIndices;
+        VertNormalIndices = vertNormalIndices;
+        
+        //Face Normal
     }
 }

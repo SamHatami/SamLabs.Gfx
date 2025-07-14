@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using CPURendering.Geometry;
 
 namespace CPURendering;
@@ -32,7 +33,6 @@ public struct MeshReader
                 return null;
 
             var mesh = new Mesh();
-            
             var meshVerts = new List<Vector3>();
             var meshVertNormals = new List<Vector3>();
             var meshTextureCoordinates = new List<TextureCoordinate>();
@@ -58,9 +58,10 @@ public struct MeshReader
                     case "f": //face
                         ExtractFace(line, meshFaces, meshVerts);
                         break;
+                    case "g":
+                        //extract smoothing groups
+                    break;
                 }
-                
-                
             }
 
             mesh.Vertices = meshVerts.ToArray();
@@ -71,32 +72,27 @@ public struct MeshReader
 
     private static void ExtractFace(string line, List<Face> faces, List<Vector3> meshVerts)
     {
-        //v/v/v t/t/t n/n/n
-        var newFace = new Face();
-        var lineData = line.Split(" ");
-        var verts = lineData[1].Split("/");
-        var textVerts = lineData[2].Split("/");
-        var vertexOrder  = lineData[3].Split("/");
+       
+        //v/t/n v/t/n v/t/n ....
+        var matches = Regex.Matches(line, @"\d/\d/\d");
         
-        newFace.A = int.Parse(verts[0]);
-        newFace.B = int.Parse(verts[1]);
-        newFace.C = int.Parse(verts[2]);
+        if(matches.Count > 4)  //only support triangulated mesh for now
+            return;
         
-        newFace.UvA = int.Parse(textVerts[0]);
-        newFace.UvB = int.Parse(textVerts[1]);
-        newFace.UvC = int.Parse(textVerts[2]);
+        var vertIndices = new List<int>();
+        var vertTextureIndices = new List<int>();
+        var vertNormalIndices = new List<int>();
         
-        //Get Normal from vertex index order in norma
-        var v1 = int.Parse(vertexOrder[0]);
-        var v2 = int.Parse(vertexOrder[1]);
-        var v3 = int.Parse(vertexOrder[2]);
-
-        var vectorV1V2 = Vector3.Subtract(meshVerts[newFace.B], meshVerts[v1-1]);
-        var vectorV2V3 = Vector3.Subtract(meshVerts[v3-1], meshVerts[v1-1]);
-
-        newFace.Normal = Vector3.Normalize(Vector3.Cross(vectorV1V2, vectorV2V3));
+        for(int i = 0; i < matches.Count; i++)
+        {
+            var vertexData = matches[i].Value.Split('/');
+            vertIndices.Add(int.Parse(vertexData[i])-1);
+            vertTextureIndices.Add(int.Parse(vertexData[i])-1);
+            vertNormalIndices.Add(int.Parse(vertexData[i])-1);
+        }
         
-        faces.Add(newFace);
+        
+        faces.Add(new Face(vertIndices.ToArray(), vertTextureIndices.ToArray(), vertNormalIndices.ToArray()));
     }
 
     private static void ExtractTextureCoordinate(string line, List<TextureCoordinate> meshTextureCoordinates)
