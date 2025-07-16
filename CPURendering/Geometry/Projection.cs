@@ -43,6 +43,19 @@ public class Projection
        ProjectionMatrix =  Matrix4x4.CreatePerspectiveFieldOfView(screen.Fov, screen.AspectRatio, zNear, zFar);
     }
     
+    public static Vector4 Project(Matrix4x4 projection, Vector4 v)
+    {
+        //Transform the position vector by the projectionmatrix
+        v = Vector4.Transform(v, projection);
+
+        //perform the perspective divide by the original z-value, stored in w.
+        if (v.W == 0.0f) return v;
+        v.X /= v.W;
+        v.Y /= v.W;
+        v.Z /= v.W;
+        return v;
+    }
+    
 }
 
 public enum ProjectionType

@@ -1,4 +1,5 @@
-﻿using SDL3;
+﻿using System.Numerics;
+using SDL3;
 
 namespace Run;
 
@@ -19,4 +20,5 @@ public static class InputHandler
 
         return true;
     }
+    
 }

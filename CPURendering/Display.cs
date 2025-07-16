@@ -8,6 +8,7 @@ namespace CPURendering;
 public class Display
 {
     private float[] _depthBuffer;
+    private uint[] _backBuffer;
     private uint[] _frameBuffer;
     private IntPtr _frameBufferTexture;
     private int _pitch;
@@ -31,6 +32,7 @@ public class Display
             SDL.LogError(SDL.LogCategory.Application, $"Failed to create window and renderer: {0} {SDL.GetError()}");
 
         _pitch = _windowWidth * sizeof(uint);
+        _backBuffer = new uint[width * height];
         _frameBuffer = new uint[width * height];
         _depthBuffer = new float[width * height];
         _frameBufferTexture =
@@ -49,7 +51,7 @@ public class Display
         for (var y = posY; y < posY + size && y < _windowHeight; y++)
         for (var x = posX; x < posX + size && x < _windowWidth; x++)
             if (x >= 0 && y >= 0)
-                _frameBuffer[_windowWidth * y + x] = color;
+                _backBuffer[_windowWidth * y + x] = color;
     }
 
     public void DrawLine(Vector3 p0, Vector3 p1, uint color)
@@ -75,7 +77,7 @@ public class Display
 
     private void DrawPixel(int x, int y, uint color)
     {
-        if (x >= 0 && x < _windowWidth && y >= 0 && y < _windowHeight) _frameBuffer[_windowWidth * y + x] = color;
+        if (x >= 0 && x < _windowWidth && y >= 0 && y < _windowHeight) _backBuffer[_windowWidth * y + x] = color;
     }
 
     public void DrawGrid(uint color)
@@ -84,7 +86,7 @@ public class Display
         for (var y = 0; y < _windowHeight; y++)
         for (var x = 0; x < _windowWidth; x++)
             if (x % gridStep == 0 || y % gridStep == 0)
-                _frameBuffer[_windowWidth * y + x] = color;
+                _backBuffer[_windowWidth * y + x] = color;
     }
 
     public void DrawRect(int startX, int startY, int width, int height, uint color)
@@ -92,11 +94,12 @@ public class Display
         for (var y = startY; y < height + startY && y < _windowHeight; y++)
         for (var x = startX; x < width + startX && x < _windowWidth; x++)
             if (x >= 0 && y >= 0 && x < _windowWidth && y < _windowHeight)
-                _frameBuffer[_windowWidth * y + x] = color;
+                _backBuffer[_windowWidth * y + x] = color;
     }
 
     public void ClearColorBuffer()
     {
+        Array.Clear(_frameBuffer, 0, _frameBuffer.Length);
         SDL.SetRenderDrawColor(_renderer, 0, 0, 0, 255);
         if (!SDL.RenderClear(_renderer))
             SDL.LogError(SDL.LogCategory.Application, $"Failed to clear color buffer: {SDL.GetError()}");
@@ -104,6 +107,10 @@ public class Display
 
     public void RenderColorBuffer()
     {
+        (_frameBuffer, _backBuffer) = (_backBuffer, _frameBuffer);
+        
+        Array.Clear(_backBuffer, 0, _backBuffer.Length);
+        
         var byteSpan = MemoryMarshal.AsBytes(_frameBuffer.AsSpan());
         if (!SDL.UpdateTexture(_frameBufferTexture, IntPtr.Zero, byteSpan, _pitch))
             SDL.LogError(SDL.LogCategory.Application, $"Failed to update texture: {SDL.GetError()}");
