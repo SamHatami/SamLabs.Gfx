@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
 using SDL3;
 
 namespace CPURendering;
@@ -25,6 +26,8 @@ public class Display
             return;
         }
 
+        TTF.Init();
+        
         _windowWidth = width;
         _windowHeight = height;
         SDL.SetHint("RenderDriver", "Software");
@@ -54,7 +57,7 @@ public class Display
                 _backBuffer[_windowWidth * y + x] = color;
     }
 
-    public void DrawLine(Vector3 p0, Vector3 p1, uint color)
+    public void DrawLine(Vector2 p0, Vector2 p1, uint color)
     {
         var dX = (int)(p1.X - p0.X);
         var dy = (int)(p1.Y - p0.Y);
@@ -122,9 +125,30 @@ public class Display
     {
         ClearColorBuffer();
         RenderColorBuffer();
+        DisplayInformation();
         SDL.RenderPresent(_renderer);
     }
 
+    public void DisplayInformation()
+    {
+        var font = TTF.OpenFont("Sans.ttf", 16);
+        var color = new SDL.Color
+        {
+            R = 255,
+            B = 255,
+            G = 255
+        };
+        var textSurface = TTF.RenderTextSolid(font, "Hello World",UIntPtr.Zero, color);
+        var textTexture = SDL.CreateTextureFromSurface(_renderer, textSurface);
+        SDL.Rect rect = new SDL.Rect()
+        {
+            X = 10,
+            Y = 10,
+            W = 100,
+            H = 100
+        };
+
+    }
     private void PrintFrameBufferSize()
     {
         var structSize = Unsafe.SizeOf<byte>();

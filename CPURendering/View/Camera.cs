@@ -6,7 +6,7 @@ public class Camera
 {
     public Vector3 Direction { get; }
     public Vector3 Position { get; }
-    public Vector3 Target { get; }
+    public Vector3 Target { get; set; }
     public Vector3 Up { get; }
 
 

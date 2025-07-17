@@ -2,7 +2,7 @@
 
 namespace CPURendering.Geometry;
 
-public struct Face
+public struct Face //this is a triangular face for now
 {
     public int[] VertIndices;
     public int[] VertTextureIndices;

@@ -74,7 +74,7 @@ public struct MeshReader
     {
        
         //v/t/n v/t/n v/t/n ....
-        var matches = Regex.Matches(line, @"\d/\d/\d");
+        var matches = Regex.Matches(line, @"\d+/\d+/\d+");
         
         if(matches.Count > 4)  //only support triangulated mesh for now
             return;
@@ -83,12 +83,12 @@ public struct MeshReader
         var vertTextureIndices = new List<int>();
         var vertNormalIndices = new List<int>();
         
-        for(int i = 0; i < matches.Count; i++)
+        for(var i = 0; i < matches.Count; i++)
         {
             var vertexData = matches[i].Value.Split('/');
-            vertIndices.Add(int.Parse(vertexData[i])-1);
-            vertTextureIndices.Add(int.Parse(vertexData[i])-1);
-            vertNormalIndices.Add(int.Parse(vertexData[i])-1);
+            vertIndices.Add(int.Parse(vertexData[0])-1);
+            vertTextureIndices.Add(int.Parse(vertexData[1])-1);
+            vertNormalIndices.Add(int.Parse(vertexData[2])-1);
         }
         
         
