@@ -25,4 +25,9 @@ public struct Mesh
         PivotPoint = pivotPoint;
         Name = name;
     }
+    
+    public Mesh Clone()
+    {
+        return new Mesh(Vertices, TextureCoordinates, Faces, Rotation, Scale, Position, PivotPoint, Name);
+    }
 }

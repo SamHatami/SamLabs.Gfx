@@ -57,6 +57,13 @@ public class Display
                 _backBuffer[_windowWidth * y + x] = color;
     }
 
+    public void DrawFilledCircle(int posX, int posY, int radius, uint color)
+    {
+        //TBD
+    }
+    
+    
+
     public void DrawLine(Vector2 p0, Vector2 p1, uint color)
     {
         var dX = (int)(p1.X - p0.X);
@@ -78,7 +85,7 @@ public class Display
         }
     }
 
-    private void DrawPixel(int x, int y, uint color)
+    public void DrawPixel(int x, int y, uint color)
     {
         if (x >= 0 && x < _windowWidth && y >= 0 && y < _windowHeight) _backBuffer[_windowWidth * y + x] = color;
     }
@@ -125,12 +132,14 @@ public class Display
     {
         ClearColorBuffer();
         RenderColorBuffer();
-        DisplayInformation();
         SDL.RenderPresent(_renderer);
     }
 
-    public void DisplayInformation()
+    public void DisplayInformation() // The entire writing text will probably be the next big thing
     {
+        
+        //https://gist.github.com/stavrossk/5004111
+        //https://dev.to/deusinmachina/sdl-tutorial-in-c-part-2-displaying-text-o55
         var font = TTF.OpenFont("Sans.ttf", 16);
         var color = new SDL.Color
         {

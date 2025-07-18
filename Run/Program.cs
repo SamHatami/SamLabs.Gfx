@@ -10,6 +10,9 @@ using Run;
 using SDL3;
 
 //break this out to managers and handlers
+
+
+
 var display = new Display();
 var running = true;
 var height = 800;
@@ -24,6 +27,7 @@ float deltaTime = 0;
 var prevFrameTime = 0;
 
 Mesh cube = ImportTestCube();
+
 SDL.CaptureMouse(true);
 
 float mouseX = 0;
@@ -91,24 +95,28 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
         transformedVertices[i].Y = -(height / 2) * transformedVertices[i].Y + (height / 2); // Note the Y flip
     }
 
-    //Render each rendermode
-    for (int i = 0; i < transformedVertices.Length; i++)
-        display.DrawPoint((int)transformedVertices[i].X, (int)transformedVertices[i].Y, 4, 0xFF0000FF);
 
     //Render triangles
     List<Triangle> triangles = [];
     for (var i = 0; i < cube.Faces.Length; i++)
     {
-        var tri = new Triangle();
-        tri.Vertices[0] = transformedVertices[cube.Faces[i].VertIndices[0]];
-        tri.Vertices[1] = transformedVertices[cube.Faces[i].VertIndices[1]];
-        tri.Vertices[2] = transformedVertices[cube.Faces[i].VertIndices[2]];
-        
+        var vertices = new Vector4[3];
+        vertices[0] = transformedVertices[cube.Faces[i].VertIndices[0]];
+        vertices[1] = transformedVertices[cube.Faces[i].VertIndices[1]];
+        vertices[2] = transformedVertices[cube.Faces[i].VertIndices[2]];
+
+        var tri = new Triangle(vertices);
+
         triangles.Add(tri);       
     }
+    
+    triangles = rasteriser.CullBackFaces(triangles, camera.Direction);
 
     foreach (var t in triangles)
     {
-        rasteriser.DrawTriangleEdges(t);
+        rasteriser.DrawFilledTriangle(t);
+        // rasteriser.DrawTriangleEdges(t);
+        // rasteriser.DrawVertices(t,0xFF0000FF);
     }
+    
 }
