@@ -29,12 +29,12 @@ public class Rasterizer
         }
     }
 
-    //https://fgiesen.wordpress.com/2013/02/10/optimizing-the-basic-rasterizer/
+    //https://fgiesen.wordpress.com/2013/02/10/optimizing--basic-rasterizer/
     public void DrawFilledTriangle(Triangle triangle, uint color = 0xFF00FFFF)
     {
         var boundingBox = triangle.GetBoundingBox2D();
 
-        _display.DrawBoundingBox(boundingBox);
+        // _display.DrawBoundingBox(boundingBox);
         
         //Cant find why the ordering becomes wrong here for me,
         //but this rendering techinque uses CCW winding for vertex order 
@@ -89,8 +89,9 @@ public class Rasterizer
 
     bool IsTopLeft(Vector2 v1, Vector2 v2)
     {
+        const float EPSILON = 0.0001f;
         // Top edge: horizontal edge with v2 to the right of v1
-        if (v1.Y == v2.Y && v2.X > v1.X) return true;
+        if (Math.Abs(v1.Y - v2.Y) < EPSILON && v2.X > v1.X) return true;
     
         // Left edge: v2 is above v1 (smaller Y)
         if (v2.Y < v1.Y) return true;

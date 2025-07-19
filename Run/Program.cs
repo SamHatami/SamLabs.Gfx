@@ -17,7 +17,8 @@ var display = new Display();
 var running = true;
 var height = 800;
 var width = 1200;
-display.InitializeWindow(width, height);
+int SSAA = 1;
+display.InitializeWindow(width, height, samplingSize:SSAA,sampling:false);
 var rasteriser = new Rasterizer(display);
 var screen = new Screen(width, height, (float)Math.PI / 3);
 var camera = new Camera();
@@ -69,7 +70,7 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     var rotationsMatrixY = Matrix4x4.CreateRotationY(cube.Rotation.Y);
     var rotationsMatrixZ = Matrix4x4.CreateRotationZ(cube.Rotation.Z);
 
-    var translations = new Vector3(-1f, 0f, -10f);
+    var translations = new Vector3(-0f, 0f, -5f);
 
     var translateMatrix = Matrix4x4.CreateTranslation(translations);
 
@@ -91,10 +92,10 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     
     for (int i = 0; i < transformedVertices.Length; i++)
     {
-        transformedVertices[i].X = (width / 2) * transformedVertices[i].X + (width / 2);
-        transformedVertices[i].Y = -(height / 2) * transformedVertices[i].Y + (height / 2); // Note the Y flip
+        transformedVertices[i].X = (transformedVertices[i].X * width / 2) * SSAA + (width / 2) * SSAA;
+        transformedVertices[i].Y = -(transformedVertices[i].Y * height / 2) * SSAA + (height / 2) * SSAA;
     }
-
+    
 
     //Render triangles
     List<Triangle> triangles = []; //make this global for the entire "scene"
@@ -114,8 +115,8 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
 
     foreach (var t in triangles)
     {
-        rasteriser.DrawFilledTriangle(t);
-        //rasteriser.DrawTriangleEdges(t);
+        //rasteriser.DrawFilledTriangle(t, 0x00FFFFFF);
+        rasteriser.DrawTriangleEdges(t);
         rasteriser.DrawVertices(t,0xFF0000FF);
     }
     
