@@ -9,12 +9,12 @@ public struct Face //this is a triangular face for now
     public int[] VertNormalIndices;
     public Vector3 Normal;
 
-    public Face(int[] vertIndices, int[] vertTextureIndices, int[] vertNormalIndices)
+    public Face(int[] vertIndices, int[] vertTextureIndices, int[] vertNormalIndices, Vector3 normal)
     {
         VertIndices = vertIndices;
         VertTextureIndices = vertTextureIndices;
         VertNormalIndices = vertNormalIndices;
         
-        //Face Normal
+        Normal = normal;
     }
 }

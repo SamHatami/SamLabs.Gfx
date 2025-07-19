@@ -7,6 +7,7 @@ public struct Mesh
 {
     public string Name { get; set;}
     public Vector3[] Vertices { get; set;}
+    public Vector3[] VertexNormals { get; set;}
     public TextureCoordinate[] TextureCoordinates { get; set;}
     public Face[] Faces { get; set;}
     public Vector3 Rotation { get; set;}

@@ -67,6 +67,7 @@ public struct MeshReader
             mesh.Vertices = meshVerts.ToArray();
             mesh.Faces = meshFaces.ToArray();
             mesh.TextureCoordinates  = meshTextureCoordinates.ToArray();
+            mesh.VertexNormals = meshVertNormals.ToArray();
             return mesh;
     }
 
@@ -82,7 +83,7 @@ public struct MeshReader
         var vertIndices = new List<int>();
         var vertTextureIndices = new List<int>();
         var vertNormalIndices = new List<int>();
-        
+        var Normal = Vector3.Zero;
         for(var i = 0; i < matches.Count; i++)
         {
             var vertexData = matches[i].Value.Split('/');
@@ -91,8 +92,12 @@ public struct MeshReader
             vertNormalIndices.Add(int.Parse(vertexData[2])-1);
         }
         
+        var edge1 = meshVerts[vertIndices[1]] - meshVerts[vertIndices[0]];
+        var edge2 = meshVerts[vertIndices[2]] - meshVerts[vertIndices[0]];
+        Normal = Vector3.Normalize(Vector3.Cross(edge1, edge2));
         
-        faces.Add(new Face(vertIndices.ToArray(), vertTextureIndices.ToArray(), vertNormalIndices.ToArray()));
+        
+        faces.Add(new Face(vertIndices.ToArray(), vertTextureIndices.ToArray(), vertNormalIndices.ToArray(), Normal));
     }
 
     private static void ExtractTextureCoordinate(string line, List<TextureCoordinate> meshTextureCoordinates)

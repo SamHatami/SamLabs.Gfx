@@ -7,6 +7,8 @@ public struct Triangle
     public Vector4[] Vertices { get; private set; } = new Vector4[3];
     private float avarageDepth;
     public Vector3 Normal { get; private set; }
+    
+    public Vector3 FaceNormal { get; set; }
 
     public Triangle(Vector4[] vertices)
     {

@@ -87,7 +87,24 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     {
         transformedVertices[i] = Vector4.Transform(cube.Vertices[i].ToVector4(), worldMatrix); //World Space
         transformedVertices[i] = Vector4.Transform(transformedVertices[i], viewMatrix); //View Space
+    }
+    
+    //transform the face normals aswell
+
+    for (int i = 0; i < cube.Faces.Length; i++)
+    {
+        var faceNormal = cube.VertexNormals[cube.Faces[i].VertNormalIndices[0]];
+        var transformedFaceNormal = Vector4.Transform(faceNormal.ToVector4(), worldMatrix);
+        transformedFaceNormal = Vector4.Transform(transformedFaceNormal, viewMatrix);
+        cube.Faces[i].Normal = Vector3.Normalize(transformedFaceNormal.AsVector3());
+    }
+    
+    //all is in screenspace here now
+
+    for (int i = 0; i < cube.Vertices.Length; i++)
+    {
         transformedVertices[i] = Projection.Project(project.ProjectionMatrix, transformedVertices[i]); //Screen Space
+        
     }
     
     for (int i = 0; i < transformedVertices.Length; i++)
@@ -107,17 +124,46 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
         vertices[2] = transformedVertices[cube.Faces[i].VertIndices[2]];
 
         var tri = new Triangle(vertices);
+        tri.FaceNormal = cube.Faces[i].Normal;
 
         triangles.Add(tri);       
     }
     
     triangles = rasteriser.CullBackFaces(triangles, camera.Direction);
+    
+
 
     foreach (var t in triangles)
     {
-        //rasteriser.DrawFilledTriangle(t, 0x00FFFFFF);
+        
+        uint color = GetShade(t.FaceNormal, Vector3.Normalize(new Vector3(-1,-.5f,-1)), 0xFFFFFFFF);
+        
+        rasteriser.DrawFilledTriangle(t, color);
         rasteriser.DrawTriangleEdges(t);
         rasteriser.DrawVertices(t,0xFF0000FF);
     }
     
+}
+
+uint GetShade(Vector3 normal, Vector3 lightDirection, uint color)
+{
+    var intensity = Math.Clamp(Vector3.Dot(normal, lightDirection),0,1); 
+
+    byte originalRed = (byte)(color >> 24);
+    byte originalGreen = (byte)(color >> 16);
+    byte originalBlue = (byte)(color >> 8);
+
+    // Modify color components based on intensity
+    byte red = ClampToByte(originalRed * intensity);
+    byte green = ClampToByte(originalGreen * intensity);
+    byte blue = ClampToByte(originalBlue * intensity);
+    
+
+    // Calculate the color of the pixel
+    return (uint)((red << 24) | (green << 16) | (blue << 8) | 0xFF);
+}
+
+byte ClampToByte(float value)
+{
+    return (byte)Math.Clamp(value, 0, 255);
 }
