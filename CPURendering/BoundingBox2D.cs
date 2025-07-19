@@ -2,9 +2,9 @@
 
 public struct BoundingBox2D
 {
-    public float MinX;
-    public float MaxX;
-    public float MinY;
-    public float MaxY;
+    public int MinX;
+    public int MaxX;
+    public int MinY;
+    public int MaxY;
     
 }

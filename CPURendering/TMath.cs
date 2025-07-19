@@ -60,7 +60,6 @@ public static class TMath
 
     public static BoundingBox2D GetBoundingBox2D(this Triangle triangle)
     {
-        
         Vector2 v0 = triangle.Vertices[0].AsVector2();
         Vector2 v1 = triangle.Vertices[1].AsVector2();
         Vector2 v2 = triangle.Vertices[2].AsVector2();
@@ -69,10 +68,14 @@ public static class TMath
         var max = Vector2.Max(Vector2.Max(v0, v1), v2);
         return new BoundingBox2D()
         {
-            MaxX = max.X,
-            MaxY = max.Y,
-            MinX = min.X,
-            MinY = min.Y
+            // MaxX = (int)Math.Round(max.X / 2, MidpointRounding.AwayFromZero)*2,
+            // MaxY = (int)Math.Round(max.Y / 2, MidpointRounding.AwayFromZero)*2,
+            // MinX = (int)Math.Round(min.X / 2, MidpointRounding.AwayFromZero)*2,
+            // MinY = (int)Math.Round(min.Y / 2, MidpointRounding.AwayFromZero)*2,
+            MaxX = (int)Math.Ceiling(max.X),
+            MaxY = (int)Math.Ceiling(max.Y),
+            MinX = (int)Math.Floor(min.X),
+            MinY = (int)Math.Floor(min.Y),
         };
     }
 }

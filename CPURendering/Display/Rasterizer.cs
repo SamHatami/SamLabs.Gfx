@@ -30,30 +30,34 @@ public class Rasterizer
     }
 
     //https://fgiesen.wordpress.com/2013/02/10/optimizing-the-basic-rasterizer/
-    public void DrawFilledTriangle(Triangle triangle, uint color = 0xFFFFFFFF)
+    public void DrawFilledTriangle(Triangle triangle, uint color = 0xFF00FFFF)
     {
         var boundingBox = triangle.GetBoundingBox2D();
 
-        //Cant find why the ordering becomes wrong here for me. 
+        _display.DrawBoundingBox(boundingBox);
+        
+        //Cant find why the ordering becomes wrong here for me,
+        //but this rendering techinque uses CCW winding for vertex order 
         var v0 = triangle.Vertices[2].AsVector2(); 
         var v1 = triangle.Vertices[1].AsVector2();
         var v2 = triangle.Vertices[0].AsVector2();
         
         //Triangle setup
-        var a01 = (int)(v0.Y - v1.Y);
-        var a12 = (int)(v1.Y - v2.Y);
-        var a20 = (int)(v2.Y - v0.Y);
-        var b01 = (int)(v1.X - v0.X);
-        var b12 = (int)(v2.X - v1.X);
-        var b20 = (int)(v0.X - v2.X);
+        var a01 = v0.Y - v1.Y;
+        var a12 = v1.Y - v2.Y;
+        var a20 = v2.Y - v0.Y;
+        var b01 = v1.X - v0.X;
+        var b12 = v2.X - v1.X;
+        var b20 = v0.X - v2.X;
 
         //topleft bias for proper fill
-        int bias0 = IsTopLeft(v1, v2) ? 0 : -1;
-        int bias1 = IsTopLeft(v2, v0) ? 0 : -1;
-        int bias2 = IsTopLeft(v0, v1) ? 0 : -1;
+        var bias0 = IsTopLeft(v1, v2) ? 0 : -1;
+        var bias1 = IsTopLeft(v2, v0) ? 0 : -1;
+        var bias2 = IsTopLeft(v0, v1) ? 0 : -1;
         
-        //Barycentric coordinates at top left corner of bounding box, ie starting point
-        Vector2 p = new Vector2(boundingBox.MinX, boundingBox.MinY);
+        //Barycentric coordinates at top left corner of bounding box, ie starting polong
+       var p = new Vector2(boundingBox.MinX, boundingBox.MinY);
+        
         var w0_row = TMath.Orientation2D(v1, v2,p) + bias0;
         var w1_row = TMath.Orientation2D(v2, v0,p) + bias1;;
         var w2_row = TMath.Orientation2D(v0, v1,p) + bias2;
@@ -79,7 +83,6 @@ public class Rasterizer
             w0_row += b12;
             w1_row += b20;
             w2_row += b01;
-         
         }
         
     }
@@ -95,7 +98,7 @@ public class Rasterizer
         return false;
     }
 
-    public void DrawFlatShadedTriangle(Triangle triangle, uint baseColor, Vector3 lightDirection)
+    public void DrawFlatShadedTriangle(Triangle triangle, ulong baseColor, Vector3 lightDirection)
     {
     }
 

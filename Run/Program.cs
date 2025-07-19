@@ -69,7 +69,7 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     var rotationsMatrixY = Matrix4x4.CreateRotationY(cube.Rotation.Y);
     var rotationsMatrixZ = Matrix4x4.CreateRotationZ(cube.Rotation.Z);
 
-    var translations = new Vector3(0f, 0f, -10f);
+    var translations = new Vector3(-1f, 0f, -10f);
 
     var translateMatrix = Matrix4x4.CreateTranslation(translations);
 
@@ -97,7 +97,7 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
 
 
     //Render triangles
-    List<Triangle> triangles = [];
+    List<Triangle> triangles = []; //make this global for the entire "scene"
     for (var i = 0; i < cube.Faces.Length; i++)
     {
         var vertices = new Vector4[3];
@@ -115,8 +115,8 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     foreach (var t in triangles)
     {
         rasteriser.DrawFilledTriangle(t);
-        // rasteriser.DrawTriangleEdges(t);
-        // rasteriser.DrawVertices(t,0xFF0000FF);
+        //rasteriser.DrawTriangleEdges(t);
+        rasteriser.DrawVertices(t,0xFF0000FF);
     }
     
 }

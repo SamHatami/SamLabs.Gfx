@@ -166,4 +166,12 @@ public class Display
         var mbSize = kbSize / 1024.0;
         Console.WriteLine($"Frame buffer array size: {arraySize} bytes ({kbSize:F1} KB / {mbSize:F1} MB)");
     }
+
+    public void DrawBoundingBox(BoundingBox2D boundingBox, uint color = 0xFFFFFFFF)
+    {
+        DrawLine(new Vector2(boundingBox.MinX, boundingBox.MinY), new Vector2(boundingBox.MaxX, boundingBox.MinY), color);
+        DrawLine(new Vector2(boundingBox.MaxX, boundingBox.MinY), new Vector2(boundingBox.MaxX, boundingBox.MaxY), color);
+        DrawLine(new Vector2(boundingBox.MaxX, boundingBox.MaxY), new Vector2(boundingBox.MinX, boundingBox.MaxY), color);
+        DrawLine(new Vector2(boundingBox.MinX, boundingBox.MaxY), new Vector2(boundingBox.MinX, boundingBox.MinY), color);
+    }
 }
