@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SamLabs.Gfx.Viewer.Framework;
 
-public class ShaderManager
+public class ShaderManager: IDisposable
 {
     private readonly ILogger<ShaderManager> _logger;
     private Dictionary<string, int> _shadersProgram = new();
@@ -113,6 +113,14 @@ public class ShaderManager
     private void ReloadShader(string eFullPath)
     {
         
+    }
+
+    public void Dispose()
+    {
+        foreach (var shader in _shadersProgram.Values)
+        {
+            GL.DeleteProgram(shader);
+        }
     }
 }
 

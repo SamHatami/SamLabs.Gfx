@@ -96,7 +96,7 @@ public class Grid : IGrid
         if (_shaderProgram == 0) return;
 
         GL.UseProgram(_shaderProgram);
-
+        GL.BindVertexArray(_vao);
         var mvp = proj * view *
                   Matrix4.Identity; // -> model-view-projection matrix - mvp should be sent or be available
 
@@ -113,5 +113,11 @@ public class Grid : IGrid
 
     public void Draw()
     {
+    }
+    
+    public void Dispose()
+    {
+        GL.DeleteVertexArray(_vao);
+        GL.DeleteBuffer(_vbo);
     }
 }
