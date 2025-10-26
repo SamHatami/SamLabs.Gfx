@@ -1,9 +1,7 @@
 ﻿using System.Numerics;
 using CPURendering.Geometry;
-using CPURendering.View;
-using SDL3;
 
-namespace CPURendering;
+namespace CPURendering.Display;
 
 public class Rasterizer
 {

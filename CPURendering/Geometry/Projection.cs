@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using CPURendering.Display;
 
 namespace CPURendering.Geometry;
 

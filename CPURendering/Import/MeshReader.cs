@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using CPURendering.Geometry;
 
-namespace CPURendering;
+namespace CPURendering.Import;
 
 public struct MeshReader
 {
@@ -27,9 +27,9 @@ public struct MeshReader
 
     private static Mesh? ReadObj(string fullPath)
     {
-            var lines = File.ReadAllLines(fullPath);
+            var lines = File.ReadAllLines(fullPath).Where(s => !string.IsNullOrWhiteSpace(s));
             
-            if(lines.Length < 3)
+            if(lines.Count() < 3)
                 return null;
 
             var mesh = new Mesh();
@@ -40,6 +40,7 @@ public struct MeshReader
             
             foreach (var line in lines)
             {
+                
                 var lineType = line.Split(" ").First();
                 switch (lineType)
                 {
@@ -102,7 +103,7 @@ public struct MeshReader
 
     private static void ExtractTextureCoordinate(string line, List<TextureCoordinate> meshTextureCoordinates)
     {
-        var textCoord = line.Split(" ");
+        var textCoord = line.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
         var vertexTextureCoord = new TextureCoordinate(
             float.Parse(textCoord[1], CultureInfo.InvariantCulture),
             float.Parse(textCoord[2], CultureInfo.InvariantCulture) //flip ? -1
@@ -112,17 +113,24 @@ public struct MeshReader
 
     private static void ExtractVertexNormal(string line, List<Vector3> meshVertNormals)
     {
-        var vertPositionsN = line.Split(" ");
-        var vertexNormal = new Vector3(
-            float.Parse(vertPositionsN[1], CultureInfo.InvariantCulture), 
-            float.Parse(vertPositionsN[2], CultureInfo.InvariantCulture), 
-            float.Parse(vertPositionsN[3], CultureInfo.InvariantCulture));
+        var vertPositionsN = line.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+        
+        if(meshVertNormals.Count > 2080)
+            Console.WriteLine("Too many vertex normals");
+
+        var v1 = float.Parse(vertPositionsN[1], CultureInfo.InvariantCulture);
+        var v2 = float.Parse(vertPositionsN[2], CultureInfo.InvariantCulture); 
+        var v3 = float.Parse(vertPositionsN[3], CultureInfo.InvariantCulture);
+        
+        var vertexNormal = new Vector3(v1,v2,v3);
+    
         meshVertNormals.Add(vertexNormal);
     }
 
     private static void ExtractVertex(string line, List<Vector3> meshVerts)
     {
-        var vertPositions = line.Split(" ");
+        var vertPositions = line.Split(" ").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+        
         var vertex = new Vector3(
             float.Parse(vertPositions[1], CultureInfo.InvariantCulture), 
             float.Parse(vertPositions[2], CultureInfo.InvariantCulture), 

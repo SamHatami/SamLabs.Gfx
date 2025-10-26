@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Microsoft.VisualBasic;
 using SDL3;
 
-namespace CPURendering;
+namespace CPURendering.Display;
 
 public class Display
 {

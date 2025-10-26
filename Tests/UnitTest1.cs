@@ -4,6 +4,7 @@ using System.Runtime.InteropServices.Marshalling;
 using CPURendering;
 using CPURendering.Enums;
 using CPURendering.Geometry;
+using CPURendering.Import;
 
 namespace Tests;
 

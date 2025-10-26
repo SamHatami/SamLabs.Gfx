@@ -1,0 +1,117 @@
+using System.Drawing;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using SamLabs.Gfx.Core.Framework.Display;
+
+namespace SamLabs.Gfx.Viewer.Primitives;
+
+public class Grid : IGrid
+{
+    private readonly int _linesPerSide;
+    private readonly float _spacing;
+    private int _vao;
+    private int _vbo;
+
+    private int _shaderProgram;
+
+    // vertices as flat float array [x,y,z, x,y,z, ...]
+    private float[]? _vertices;
+    private int _mvpLocation;
+
+    public int Spacing { get; }
+    public int Size { get; }
+    public bool ShowAxis { get; }
+    public bool ShowGrid { get; }
+    public Color Color { get; }
+
+    public Grid(int linesPerSide = 10, float spacing = 1.0f)
+    {
+        _linesPerSide = linesPerSide;
+        _spacing = spacing;
+    }
+
+    public void ApplyShader(int shaderProgram)
+    {
+        _shaderProgram = shaderProgram;        
+    }
+    public void InitializeGL()
+    {
+        _vao = GL.GenVertexArray();
+        _vbo = GL.GenBuffer();
+        _vertices = GetVertices();
+        _mvpLocation = GL.GetUniformLocation(_shaderProgram, "uMVP");
+
+        GL.BindVertexArray(_vao);
+        Upload();
+
+        GL.EnableVertexAttribArray(0);
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false,
+            3 * sizeof(float), 0);
+
+        GL.BindVertexArray(0);
+    }
+
+    public void Upload()
+    {
+        GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsage.StaticDraw);
+    }
+
+    public float[] GetVertices()
+    {
+        if (_vertices != null) return _vertices;
+
+        var half = _linesPerSide * _spacing * 0.5f;
+        var count = (_linesPerSide + 1) * 4; // each line 2 vertices, but we count all
+        var verts = new List<float>();
+
+        for (int i = 0; i <= _linesPerSide; i++)
+        {
+            float x = (i * _spacing) - half;
+            // line parallel to Z (vary X)
+            verts.Add(x);
+            verts.Add(0);
+            verts.Add(-half);
+            verts.Add(x);
+            verts.Add(0);
+            verts.Add(half);
+
+            float z = (i * _spacing) - half;
+            // line parallel to X (vary Z)
+            verts.Add(-half);
+            verts.Add(0);
+            verts.Add(z);
+            verts.Add(half);
+            verts.Add(0);
+            verts.Add(z);
+        }
+
+        _vertices = verts.ToArray();
+        return _vertices;
+    }
+
+    public void Draw(Matrix4 view, Matrix4 proj)
+    {
+        if (_shaderProgram == 0) return;
+
+        GL.UseProgram(_shaderProgram);
+
+        var mvp = proj * view *
+                  Matrix4.Identity; // -> model-view-projection matrix - mvp should be sent or be available
+
+        // MathExtensions.Clamp<float>(ref mvp.M11, 0.0001f, float.MaxValue);
+
+        GL.UniformMatrix4f(_mvpLocation, 1, false, ref mvp);
+
+
+        GL.DrawArrays(PrimitiveType.Lines, 0, _vertices.Length / 3);
+        GL.BindVertexArray(0);
+        GL.UseProgram(0);
+    }
+
+
+    public void Draw()
+    {
+    }
+}

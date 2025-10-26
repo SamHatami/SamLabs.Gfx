@@ -5,9 +5,9 @@ namespace CPURendering.View;
 public class Camera
 {
     public Vector3 Direction { get; private set;}
-    public Vector3 Position { get; private set; }
+    public Vector3 Position { get;  }
     
-    public float Rotation { get; private set; }
+    public float Rotation { get;  }
     public Vector3 Target { get; set; }
     public Vector3 Up { get; }
     

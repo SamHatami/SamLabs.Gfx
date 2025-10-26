@@ -1,6 +1,6 @@
 ﻿using CPURendering.Geometry;
 
-namespace CPURendering;
+namespace CPURendering.Import;
 
 public interface MeshParsingStrategy
 {

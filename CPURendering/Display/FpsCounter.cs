@@ -1,7 +1,7 @@
 ﻿using SDL3;
 
 //https://github.com/edwardgushchin/SDL3-CS/blob/master/SDL3-CS.Examples/FPS%20Counter/FPSCounter.cs
-namespace CPURendering;
+namespace CPURendering.Display;
 
 public class FpsCounter
 {

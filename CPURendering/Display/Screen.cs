@@ -1,4 +1,4 @@
-﻿namespace CPURendering;
+﻿namespace CPURendering.Display;
 
 public class Screen
 {

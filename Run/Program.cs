@@ -3,14 +3,19 @@
 using System.Numerics;
 using System.Reflection;
 using CPURendering;
+using CPURendering.Display;
 using CPURendering.Enums;
 using CPURendering.Geometry;
+using CPURendering.Import;
 using CPURendering.View;
 using Run;
 using SDL3;
 
 //break this out to managers and handlers
 
+// var convexHull = new ConvexHull2D();
+//
+// convexHull.GenerateGrahamScan();
 
 
 var display = new Display();
@@ -27,20 +32,35 @@ var project = new Projection(screen, 0.1f, 100);
 float deltaTime = 0;
 var prevFrameTime = 0;
 
-Mesh cube = ImportTestCube();
+Mesh cube = ImportTeaPot();
+Mesh sphere = CreateTestSphere();
+
+Mesh CreateTestSphere()
+{
+    Vector3[] nodes = FibonacciSprial.GetNodes(50, 1);
+    
+    var mesh = new Mesh();
+    
+    mesh.Vertices = nodes;
+    
+    return mesh;
+}
 
 SDL.CaptureMouse(true);
 
 float mouseX = 0;
 float mouseY = 0;
-var transformedVertices = new Vector4[cube.Vertices.Length];
+var transformedVertices = new Vector4[sphere.Vertices.Length];
+var transformedSphereVertices = new Vector4[sphere.Vertices.Length];
 
 while (InputHandler.HandleInput()) //Check alternative way instead of a main loop, events?
 {
     camera.Target = new Vector3(0, 0, -10f);
     deltaTime = ((int)SDL.GetTicks() - prevFrameTime) / 1000.0f;
     prevFrameTime = (int)SDL.GetTicks();
-    RenderMesh(cube, [RenderMode.Triangles]);
+    //RenderMesh(cube, [RenderMode.Triangles], true);
+    //RenderMesh(cube, [RenderMode.Triangles], true);
+    RenderSphere();
     display.Render();
 }
 
@@ -53,7 +73,16 @@ Mesh ImportTestCube()
     return MeshReader.ReadFromFile(fullPath) ?? new Mesh();
 }
 
-void RenderMesh(Mesh mesh, RenderMode[] renderModes)
+Mesh ImportTeaPot()
+{
+    var exePath = Assembly.GetExecutingAssembly().Location;
+
+    var fullPath = Path.Combine(Path.GetDirectoryName(exePath) ?? string.Empty, "Geometry\\TeaPot.obj");
+
+    return MeshReader.ReadFromFile(fullPath) ?? new Mesh();
+}
+
+void RenderMesh(Mesh mesh, RenderMode[] renderModes, bool renderFaces = false)
 {
     // --- The loop below goes for each object in the scene ---
 
@@ -91,12 +120,15 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     
     //transform the face normals aswell
 
-    for (int i = 0; i < cube.Faces.Length; i++)
+    if(renderFaces)
     {
-        var faceNormal = cube.VertexNormals[cube.Faces[i].VertNormalIndices[0]];
-        var transformedFaceNormal = Vector4.Transform(faceNormal.ToVector4(), worldMatrix);
-        transformedFaceNormal = Vector4.Transform(transformedFaceNormal, viewMatrix);
-        cube.Faces[i].Normal = Vector3.Normalize(transformedFaceNormal.AsVector3());
+        for (int i = 0; i < cube.Faces.Length; i++)
+        {
+            var faceNormal = cube.VertexNormals[cube.Faces[i].VertNormalIndices[0]];
+            var transformedFaceNormal = Vector4.Transform(faceNormal.ToVector4(), worldMatrix);
+            transformedFaceNormal = Vector4.Transform(transformedFaceNormal, viewMatrix);
+            cube.Faces[i].Normal = Vector3.Normalize(transformedFaceNormal.AsVector3());
+        }
     }
     
     //all is in screenspace here now
@@ -112,8 +144,15 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
         transformedVertices[i].X = (transformedVertices[i].X * width / 2) * SSAA + (width / 2) * SSAA;
         transformedVertices[i].Y = -(transformedVertices[i].Y * height / 2) * SSAA + (height / 2) * SSAA;
     }
-    
 
+
+    for (int i = 0; i < transformedVertices.Length; i++)
+    {
+        display.DrawPoint((int)transformedVertices[i].X, (int)transformedVertices[i].Y, 4, 0xFF0000FF);
+    }
+    
+    if(!renderFaces) return;
+    
     //Render triangles
     List<Triangle> triangles = []; //make this global for the entire "scene"
     for (var i = 0; i < cube.Faces.Length; i++)
@@ -130,20 +169,79 @@ void RenderMesh(Mesh mesh, RenderMode[] renderModes)
     }
     
     triangles = rasteriser.CullBackFaces(triangles, camera.Direction);
-    
-
 
     foreach (var t in triangles)
     {
-        
         uint color = GetShade(t.FaceNormal, Vector3.Normalize(new Vector3(-1,-.5f,-1)), 0xFFFFFFFF);
-        
         rasteriser.DrawFilledTriangle(t, color);
         rasteriser.DrawTriangleEdges(t);
-        rasteriser.DrawVertices(t,0xFF0000FF);
     }
     
 }
+
+void RenderSphere(bool renderFaces = false)
+{
+    // --- The loop below goes for each object in the scene ---
+
+    sphere.Rotation = sphere.Rotation with { Y = sphere.Rotation.Y + 0.15f * deltaTime };
+    sphere.Rotation = sphere.Rotation with { X = sphere.Rotation.X + 0.15f * deltaTime };
+
+    //Gather world matrix and world transformations
+    var worldMatrix = Matrix4x4.Identity;
+
+    var scaleVector = new Vector3(10, 10, 10);
+    var scaleMatrix = Matrix4x4.CreateScale(scaleVector);
+
+    var rotationsMatrixX = Matrix4x4.CreateRotationX(sphere.Rotation.X);
+    var rotationsMatrixY = Matrix4x4.CreateRotationY(sphere.Rotation.Y);
+    var rotationsMatrixZ = Matrix4x4.CreateRotationZ(sphere.Rotation.Z);
+
+    var translations = new Vector3(-0f, 0f, -25f);
+
+    var translateMatrix = Matrix4x4.CreateTranslation(translations);
+
+    worldMatrix = Matrix4x4.Multiply(worldMatrix, scaleMatrix);
+    worldMatrix = Matrix4x4.Multiply(worldMatrix, rotationsMatrixX);
+    worldMatrix = Matrix4x4.Multiply(worldMatrix, rotationsMatrixY);
+    worldMatrix = Matrix4x4.Multiply(worldMatrix, rotationsMatrixZ);
+    worldMatrix = Matrix4x4.Multiply(worldMatrix, translateMatrix);
+
+    var viewMatrix = camera.LookAt(camera.Target);
+    //Create copy 
+
+    for (int i = 0; i < sphere.Vertices.Length; i++)
+    {
+        transformedSphereVertices[i] = Vector4.Transform(sphere.Vertices[i].ToVector4(), worldMatrix); //World Space
+        transformedSphereVertices[i] = Vector4.Transform(transformedSphereVertices[i], viewMatrix); //View Space
+    }
+    
+    //all is in screenspace here now
+
+    for (int i = 0; i < sphere.Vertices.Length; i++)
+    {
+        transformedSphereVertices[i] = Projection.Project(project.ProjectionMatrix, transformedSphereVertices[i]); //Screen Space
+        
+    }
+    
+    for (int i = 0; i < transformedSphereVertices.Length; i++)
+    {
+        transformedSphereVertices[i].X = (transformedSphereVertices[i].X * width / 2) * SSAA + (width / 2) * SSAA;
+        transformedSphereVertices[i].Y = -(transformedSphereVertices[i].Y * height / 2) * SSAA + (height / 2) * SSAA;
+    }
+
+
+    for (int i = 0; i < 3; i++)
+    {
+        display.DrawPoint((int)transformedSphereVertices[i].X, (int)transformedSphereVertices[i].Y, 4, 0xFF0000FF);
+    }
+    
+    for (int i = 0; i < transformedSphereVertices.Length-2; i++)
+    {
+        display.DrawLine(transformedSphereVertices[i].AsVector2(), transformedSphereVertices[i+2].AsVector2(),  0x0000FFFF);
+    }
+    
+}
+
 
 uint GetShade(Vector3 normal, Vector3 lightDirection, uint color)
 {
