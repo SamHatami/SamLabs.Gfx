@@ -16,134 +16,24 @@ public class SceneManager : ISceneManager, IDisposable
     private GameWindow? _window;
     private IScene? _currentScene;
 
-    public SceneManager(ILogger<SceneManager> logger, Renderer renderer)
+    public SceneManager(ILogger<SceneManager> logger, Renderer renderer, GameWindow window)
     {
         _logger = logger;
         _renderer = renderer;
+        _window = window;
     }
-
-    private GameWindow CreateWindow(IScene scene)
-    {
-        var nativeSettings = new NativeWindowSettings()
-        {
-            Size = new Vector2i(1280, 720),
-            Title = "SamLabs.Gfx.Viewer",
-            // To use a specific GL version uncomment below:
-            // API = ContextAPI.OpenGL,
-            // APIVersion = new Version(4, 5)
-        };
-
-        var window = new GameWindow(GameWindowSettings.Default, nativeSettings);
-
-        var camera = scene.Camera;
-        
-        window.Load += LoadScene;
-
-        window.Resize += e =>
-        {
-            GL.Viewport(0, 0, window.Size.X, window.Size.Y);
-            camera.AspectRatio = window.Size.X / (float)window.Size.Y;
-        };
-
-        // Simple input for orbit (left mouse) and pan (right mouse) + zoom (scroll)
-        bool isLeftDown = false;
-        bool isRightDown = false;
-        Vector2 lastPos = Vector2.Zero;
-
-        window.MouseDown += (MouseButtonEventArgs e) =>
-        {
-            if (e.Button == MouseButton.Left) isLeftDown = true;
-            if (e.Button == MouseButton.Right) isRightDown = true;
-        };
-
-        window.MouseUp += (MouseButtonEventArgs e) =>
-        {
-            if (e.Button == MouseButton.Left) isLeftDown = false;
-            if (e.Button == MouseButton.Right) isRightDown = false;
-        };
-
-        window.MouseMove += (MouseMoveEventArgs e) =>
-        {
-            var pos = e.Position;
-            if (isLeftDown)
-            {
-                var delta = pos - lastPos;
-                camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
-            }
-            else if (isRightDown)
-            {
-                var delta = pos - lastPos;
-                camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
-            }
-
-            lastPos = pos;
-        };
-
-        window.MouseWheel += (MouseWheelEventArgs e) => { camera.Zoom(e.OffsetY * 0.5f); };
-
-        //This is where the rendering happens
-        window.RenderFrame += RenderFrame;
-
-
-        return window;
-    }
-
-    private void RenderFrame(FrameEventArgs obj)
-    {
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-        //The current scene should just have a draw.
-        _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-        if (_currentScene.Grid is not null)
-            _currentScene.Grid.Draw(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-
-        foreach (var renderable in _currentScene.GetRenderables())
-        {
-            renderable.Draw();
-        }
-        _window.SwapBuffers();
-    }
-
-    private void LoadScene()
-    {
-        //If current scene is null, create default scene
-        if (_currentScene is null)
-            _currentScene = DefaultScene();
-        if (_window is null)
-            return;
-
-        _renderer.Initialize();
-        _currentScene.Grid.InitializeGL();
-        _currentScene.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
-        _currentScene.Camera.AspectRatio = _window.Size.X / (float)_window.Size.Y;
-        GL.ClearColor(0.12f, 0.12f, 0.14f, 1.0f);
-        GL.Enable(EnableCap.DepthTest);
-    }
-
-    public IScene GetCurrentScene()
-    {
-        if (_currentScene is null)
-            return DefaultScene();
-
-        return _currentScene;
-    }
-
-    private IScene DefaultScene()
-    {
-        return new Scene()
-        {
-            Camera = Camera.CreateDefault(),
-            Grid = new Grid()
-        };
-    }
-
-    public void SetCurrentScene(IScene scene)
-    {
-    }
-
+    
     public void Run(IScene scene)
     {
-        _window ??= CreateWindow(scene);
+        if (_window is null)
+        {
+            _logger.LogError("Window is not created.");
+            return;
+        }
+
+        _currentScene = scene;
+        SetupWindow();
+
         try
         {
             _window.Run();
@@ -154,10 +44,14 @@ public class SceneManager : ISceneManager, IDisposable
         }
     }
 
+    public IScene GetCurrentScene()
+    {
+        return _currentScene ??= DefaultScene();
+    }
+
     public void Dispose()
     {
-        // Check if the window was created and ensure it's closed/disposed.
-        if (_window != null && _window.Exists)
+        if (_window?.Exists == true)
         {
             _window.Close();
         }
@@ -165,9 +59,111 @@ public class SceneManager : ISceneManager, IDisposable
         _window?.Dispose();
         _window = null;
 
-        if (_renderer is IDisposable disposableRenderer)
+        (_renderer as IDisposable).Dispose();
+    }
+
+    // This creates the GL context. Which makes this the root of the windowing system.
+    // If any other GL calls are made before this, they will fail. The service provider must register this before all other
+    // services that use GL context.
+    private void SetupWindow()
+    {
+        _window!.Load += LoadScene;
+        _window.Resize += OnResize;
+        _window.RenderFrame += RenderFrame;
+        SetupMouseInput();
+    }
+    private void LoadScene()
+    {
+        _currentScene ??= DefaultScene();
+
+        if (_window is null) return;
+
+        _renderer.Initialize();
+        _currentScene.Grid.InitializeGL();
+        _currentScene.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
+        _currentScene.Camera.AspectRatio = _window.Size.X / (float)_window.Size.Y;
+
+        GL.ClearColor(0.12f, 0.12f, 0.14f, 1.0f);
+        GL.Enable(EnableCap.DepthTest);
+    }
+
+    private void OnResize(ResizeEventArgs e)
+    {
+        if (_currentScene is null) return;
+
+        GL.Viewport(0, 0, _window!.Size.X, _window.Size.Y);
+        _currentScene.Camera.AspectRatio = _window.Size.X / (float)_window.Size.Y;
+    }
+
+    private void SetupMouseInput()
+    {
+        var isLeftDown = false;
+        var isRightDown = false;
+        var lastPos = Vector2.Zero;
+
+        _window!.MouseDown += e =>
         {
-            disposableRenderer.Dispose();
+            if (e.Button == MouseButton.Left) isLeftDown = true;
+            if (e.Button == MouseButton.Right) isRightDown = true;
+        };
+
+        _window.MouseUp += e =>
+        {
+            if (e.Button == MouseButton.Left) isLeftDown = false;
+            if (e.Button == MouseButton.Right) isRightDown = false;
+        };
+
+        _window.MouseMove += e =>
+        {
+            if (_currentScene is null) return;
+
+            var pos = e.Position;
+            var delta = pos - lastPos;
+
+            if (isLeftDown)
+            {
+                _currentScene.Camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
+            }
+            else if (isRightDown)
+            {
+                _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
+            }
+
+            lastPos = pos;
+        };
+
+        _window.MouseWheel += e =>
+        {
+            if (_currentScene is null) return;
+            _currentScene.Camera.Zoom(e.OffsetY * 0.5f);
+        };
+    }
+
+
+    private void RenderFrame(FrameEventArgs obj)
+    {
+        if (_currentScene is null) return;
+
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
+
+        foreach (var renderable in _currentScene.GetRenderables())
+        {
+            renderable.Draw();
         }
+        
+        _currentScene.Grid.Draw();
+
+        _window!.SwapBuffers();
+    }
+
+    private IScene DefaultScene()
+    {
+        return new Scene
+        {
+            Camera = Camera.CreateDefault(),
+            Grid = new Grid()
+        };
     }
 }
