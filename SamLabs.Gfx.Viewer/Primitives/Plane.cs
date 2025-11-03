@@ -1,9 +1,11 @@
 ﻿using OpenTK.Mathematics;
+using SamLabs.Gfx.Core.Framework.Display;
+using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Primitives;
 
-public class Plane
+public class Plane: IRenderable
 {
     private readonly GlMesh _mesh;
     
@@ -21,40 +23,32 @@ public class Plane
         _mesh = new GlMesh(vertices, indices);
     }
     
-    private (float[] vertices, int[] indices) GeneratePlaneData(float width, float depth, int subdivisions)
+    private (Vertex[] vertices, int[] indices) GeneratePlaneData(float width, float depth, int subdivisions)
     {
         var verticesPerSide = subdivisions + 1;
         var totalVertices = verticesPerSide * verticesPerSide;
         
         // 8 floats per vertex: position(3) + normal(3) + texcoord(2)
-        var vertices = new float[totalVertices * 8];
+        var vertices = new Vertex[totalVertices * 8];
         
         var halfWidth = width * 0.5f;
         var halfDepth = depth * 0.5f;
         
-        int vertexIndex = 0;
-        for (int z = 0; z < verticesPerSide; z++)
+        var vertexIndex = 0;
+        for (var z = 0; z < verticesPerSide; z++)
         {
-            for (int x = 0; x < verticesPerSide; x++)
+            for (var x = 0; x < verticesPerSide; x++)
             {
-                float xPos = -halfWidth + (x / (float)subdivisions) * width;
-                float zPos = -halfDepth + (z / (float)subdivisions) * depth;
-                float u = x / (float)subdivisions;
-                float v = z / (float)subdivisions;
+                var xPos = -halfWidth + (x / (float)subdivisions) * width;
+                var zPos = -halfDepth + (z / (float)subdivisions) * depth;
+                var u = x / (float)subdivisions;
+                var v = z / (float)subdivisions;
                 
-                // Position
-                vertices[vertexIndex++] = xPos;
-                vertices[vertexIndex++] = 0f;
-                vertices[vertexIndex++] = zPos;
+                var vertexPosition = new Vector3(xPos, 0f, zPos);
+                var normal = Vector3.UnitY;
+                var texCoord = new Vector2(u, v);
                 
-                // Normal (pointing up)
-                vertices[vertexIndex++] = 0f;
-                vertices[vertexIndex++] = 1f;
-                vertices[vertexIndex++] = 0f;
-                
-                // TexCoord
-                vertices[vertexIndex++] = u;
-                vertices[vertexIndex++] = v;
+                vertices[vertexIndex++] = new Vertex(vertexPosition, normal, texCoord);
             }
         }
         
@@ -62,15 +56,15 @@ public class Plane
         var numQuads = subdivisions * subdivisions;
         var indices = new int[numQuads * 6];
         
-        int indexArrayIndex = 0;
-        for (int z = 0; z < subdivisions; z++)
+        var indexArrayIndex = 0;
+        for (var z = 0; z < subdivisions; z++)
         {
-            for (int x = 0; x < subdivisions; x++)
+            for (var x = 0; x < subdivisions; x++)
             {
-                int topLeft = z * verticesPerSide + x;
-                int topRight = topLeft + 1;
-                int bottomLeft = (z + 1) * verticesPerSide + x;
-                int bottomRight = bottomLeft + 1;
+                var topLeft = z * verticesPerSide + x;
+                var topRight = topLeft + 1;
+                var bottomLeft = (z + 1) * verticesPerSide + x;
+                var bottomRight = bottomLeft + 1;
                 
                 // First triangle (counter-clockwise when viewed from above)
                 indices[indexArrayIndex++] = topLeft;
@@ -91,7 +85,12 @@ public class Plane
     {
        _mesh.Draw();
     }
-    
+
+    public void Draw(Matrix4 viewMatrix, Matrix4 projectionMatrix)
+    {
+        
+    }
+
     public void Dispose()
     {
         _mesh.Dispose();

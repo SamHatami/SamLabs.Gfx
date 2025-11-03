@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Run;
+using SamLabs.Gfx.Viewer.Primitives;
 
 
 var serviceProvider = CompositionRoot.ConfigureServices();
@@ -14,6 +15,7 @@ try
 {
     var sceneManger = serviceProvider.GetService<ISceneManager>();
     var defaultScene = sceneManger.GetCurrentScene();
+    defaultScene.AddRenderable(new Plane());
     sceneManger.Run(defaultScene);
 }
 catch (Exception e)

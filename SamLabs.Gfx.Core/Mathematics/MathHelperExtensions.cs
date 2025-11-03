@@ -1,5 +1,5 @@
 ﻿
-using OpenTK.Mathematics;
+namespace SamLabs.Gfx.Core.Mathematics;
 
 public static class MathExtensions
 {
