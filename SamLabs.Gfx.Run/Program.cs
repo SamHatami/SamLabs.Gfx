@@ -16,6 +16,7 @@ try
     var sceneManger = serviceProvider.GetService<ISceneManager>();
     var defaultScene = sceneManger.GetCurrentScene();
     defaultScene.AddRenderable(new Plane());
+    defaultScene.AddRenderable(Triangle.CreateSimpleTriangle());
     sceneManger.Run(defaultScene);
 }
 catch (Exception e)

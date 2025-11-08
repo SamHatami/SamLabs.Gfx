@@ -7,7 +7,7 @@ namespace SamLabs.Gfx.Viewer.Framework;
 public class ShaderManager: IDisposable
 {
     private readonly ILogger<ShaderManager> _logger;
-    private Dictionary<string, int> _shadersProgram = new();
+    private static Dictionary<string, int> _shadersProgram = new();
     
     public ShaderManager(ILogger<ShaderManager> logger)
     {
@@ -37,7 +37,7 @@ public class ShaderManager: IDisposable
         Console.WriteLine($"Registered {vertPaths.Length} shaders");
     }
 
-    public int GetShaderProgramPosition(string name) => _shadersProgram.TryGetValue(name, out var program) ? program : -1;
+    public static int GetShaderProgram(string name) => _shadersProgram.TryGetValue(name, out var program) ? program : -1;
 
     public int GetShaderProgram(string vertPath, string fragPath)
     {

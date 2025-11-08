@@ -1,6 +1,8 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGLES2;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
+using SamLabs.Gfx.Viewer.Framework;
 using SamLabs.Gfx.Viewer.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Primitives;
@@ -8,7 +10,7 @@ namespace SamLabs.Gfx.Viewer.Primitives;
 public class Plane: IRenderable
 {
     private readonly GlMesh _mesh;
-    
+    private int _shaderProgram;
     /// <summary>
     /// Creates a plane on the XZ plane (Y=0) centered at origin
     /// </summary>
@@ -29,7 +31,7 @@ public class Plane: IRenderable
         var totalVertices = verticesPerSide * verticesPerSide;
         
         // 8 floats per vertex: position(3) + normal(3) + texcoord(2)
-        var vertices = new Vertex[totalVertices * 8];
+        var vertices = new Vertex[totalVertices];
         
         var halfWidth = width * 0.5f;
         var halfDepth = depth * 0.5f;
@@ -83,16 +85,20 @@ public class Plane: IRenderable
     
     public void Draw()
     {
+        _shaderProgram = ShaderManager.GetShaderProgram("flat");
+        GL.UseProgram(_shaderProgram);
        _mesh.Draw();
+       GL.UseProgram(0);
     }
 
     public void Draw(Matrix4 viewMatrix, Matrix4 projectionMatrix)
     {
-        
+        Draw();       
     }
 
     public void Dispose()
     {
+        GL.DeleteProgram(_shaderProgram);
         _mesh.Dispose();
     }
 }

@@ -24,7 +24,7 @@ public class Renderer: IDisposable
         _shaderManager.RegisterShaders();
     }
 
-    public int GetShaderProgram(string shaderName) => _shaderManager.GetShaderProgramPosition(shaderName);
+    public int GetShaderProgram(string shaderName) => ShaderManager.GetShaderProgram(shaderName);
 
     public void SetCamera(Matrix4 view, Matrix4 proj)
     {
