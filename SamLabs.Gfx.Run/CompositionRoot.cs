@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
@@ -40,11 +41,12 @@ public static class CompositionRoot
         {
             ClientSize = new Vector2i(1280, 720),
             Title = "SamLabs.Gfx.Viewer",
+            Flags = ContextFlags.Debug
         };
         
         
 
-        var window = new Window(GameWindowSettings.Default, nativeSettings);
+        var window = new ViewerWindow(GameWindowSettings.Default, nativeSettings);
 
         Services.AddSingleton(window);
     }

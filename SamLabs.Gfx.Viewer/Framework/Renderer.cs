@@ -18,14 +18,14 @@ public class Renderer: IDisposable
 
     public Renderer(ShaderManager shaderManager, UniformBufferManager bufferManager, ILogger<Renderer> logger)
     {
-        _shaderManager = shaderManager;
         _bufferManager = bufferManager;
+        _shaderManager = shaderManager;
         _logger = logger;
     }
     public void Initialize()
     {
-        _shaderManager.RegisterShaders();
         _bufferManager.RegisterViewProjectionBuffer();
+        _shaderManager.RegisterShaders();
 
         //bind shaders to view projection buffer
         foreach (var shader in _shaderManager.GetShaderPrograms())

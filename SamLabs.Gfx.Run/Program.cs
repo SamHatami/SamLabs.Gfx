@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Run;
 using SamLabs.Gfx.Viewer.Framework;
@@ -12,7 +13,10 @@ var logger = serviceProvider.GetService<ILogger<Program>>();
 
 try
 {
-    
+
+    var glVersion =GL.GetString(StringName.Version);
+    var glslVersion = GL.GetString(StringName.ShadingLanguageVersion);
+
     //main window
     //Create thread for rendering
     //Create background worker thread for loading assets
@@ -20,7 +24,7 @@ try
     var sceneManger = serviceProvider.GetService<ISceneManager>();
     var renderer = serviceProvider.GetService<Renderer>();
     var defaultScene = sceneManger.GetCurrentScene();
-    var window = serviceProvider.GetService<Window>();
+    var window = serviceProvider.GetService<ViewerWindow>();
     window.SetRenderer(renderer); //this is not nice
 
     window.Run(defaultScene);

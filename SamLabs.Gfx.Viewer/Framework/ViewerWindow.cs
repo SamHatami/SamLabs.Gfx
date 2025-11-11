@@ -11,15 +11,21 @@ using SamLabs.Gfx.Viewer.Framework.ImGuiBackends;
 
 namespace SamLabs.Gfx.Viewer.Framework;
 
-public class ImGuiWindow : GameWindow
+public class ViewerWindow : GameWindow
 {
     private IScene _currentScene;
     private Renderer _renderer;
     public ConcurrentQueue<Action> Actions { get; } = new();
 
-    public ImGuiWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(
+    public ViewerWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(
         gameWindowSettings, nativeWindowSettings)
     {
+
+        Resize += OnResize;
+        MouseDown += OnMouseDown;
+        MouseUp += OnMouseUp;
+        MouseMove += OnMouseMove;
+        MouseWheel += OnMouseWheel;
     }
 
     private void SetupWindow()
@@ -27,7 +33,6 @@ public class ImGuiWindow : GameWindow
         Load += LoadScene;
         Resize += OnResize;
         base.RenderFrame += RenderFrame;
-        SetupMouseInput();
     }
 
     public void SetRenderer(Renderer renderer)
@@ -58,7 +63,7 @@ public class ImGuiWindow : GameWindow
         if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
         {
             style.WindowRounding = 0.0f;
-            style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
+            style.Colors[(int)ImGuiCol.WindowBg].W = 0.0f;
         }
 
         ImguiImplOpenTk4.Init(this);
@@ -72,8 +77,8 @@ public class ImGuiWindow : GameWindow
         _currentScene.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
         _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
 
-        GL.ClearColor(0.12f, 0.12f, 0.14f, 1.0f);
-        GL.Enable(EnableCap.DepthTest);
+        //GL.ClearColor(0.12f, 0.12f, 0.14f, 1.0f);
+        //GL.Enable(EnableCap.DepthTest);
     }
 
     private void OnResize(ResizeEventArgs e)
@@ -82,48 +87,45 @@ public class ImGuiWindow : GameWindow
         GL.Viewport(0, 0, Size.X, Size.Y);
     }
 
-    private void SetupMouseInput()
+    private bool _isLeftDown;
+    private bool _isRightDown;
+    private Vector2 _lastMousePos;
+
+    protected override void OnMouseDown(MouseButtonEventArgs e)
     {
-        var isLeftDown = false;
-        var isRightDown = false;
-        var lastPos = Vector2.Zero;
+        if (e.Button == MouseButton.Left) _isLeftDown = true;
+        if (e.Button == MouseButton.Right) _isRightDown = true;
+    }
 
-        MouseDown += e =>
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        if (e.Button == MouseButton.Left) _isLeftDown = false;
+        if (e.Button == MouseButton.Right) _isRightDown = false;
+    }
+
+    protected override void OnMouseMove(MouseMoveEventArgs e)
+    {
+        if (_currentScene == null) return;
+
+        var pos = e.Position;
+        var delta = pos - _lastMousePos;
+
+        if (_isLeftDown)
         {
-            if (e.Button == MouseButton.Left) isLeftDown = true;
-            if (e.Button == MouseButton.Right) isRightDown = true;
-        };
-
-        MouseUp += e =>
+            _currentScene.Camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
+        }
+        else if (_isRightDown)
         {
-            if (e.Button == MouseButton.Left) isLeftDown = false;
-            if (e.Button == MouseButton.Right) isRightDown = false;
-        };
+            _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
+        }
 
-        MouseMove += e =>
-        {
-            if (_currentScene is null) return;
+        _lastMousePos = pos;
+    }
 
-            var pos = e.Position;
-            var delta = pos - lastPos;
-
-            if (isLeftDown)
-            {
-                _currentScene.Camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
-            }
-            else if (isRightDown)
-            {
-                _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
-            }
-
-            lastPos = pos;
-        };
-
-        MouseWheel += e =>
-        {
-            if (_currentScene is null) return;
-            _currentScene.Camera.Zoom(e.OffsetY * 0.5f);
-        };
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    {
+        if (_currentScene == null) return;
+        _currentScene.Camera.Zoom(e.OffsetY * 0.5f);
     }
 
     public void Run(IScene scene)
@@ -132,7 +134,7 @@ public class ImGuiWindow : GameWindow
         SetupWindow();
         try
         {
-            Run();
+            base.Run();
         }
         catch (Exception e)
         {
