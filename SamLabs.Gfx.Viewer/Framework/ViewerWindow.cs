@@ -7,6 +7,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SamLabs.Gfx.Core.Framework.Display;
+using SamLabs.Gfx.Core.Mathematics;
 using SamLabs.Gfx.Viewer.Framework.ImGuiBackends;
 
 namespace SamLabs.Gfx.Viewer.Framework;
@@ -16,98 +17,44 @@ public class ViewerWindow : GameWindow
     private IScene _currentScene;
     private Renderer _renderer;
     public ConcurrentQueue<Action> Actions { get; } = new();
+    private bool _isLeftDown;
+    private bool _isRightDown;
+    private Vector2 _lastMousePos;
+
 
     public ViewerWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(
         gameWindowSettings, nativeWindowSettings)
     {
 
-        Resize += OnResize;
-        MouseDown += OnMouseDown;
-        MouseUp += OnMouseUp;
-        MouseMove += OnMouseMove;
-        MouseWheel += OnMouseWheel;
     }
 
-    private void SetupWindow()
+    #region MouseEvents
+
+    private void OnMouseDownWindow(MouseButtonEventArgs e)
     {
-        Load += LoadScene;
-        Resize += OnResize;
-        base.RenderFrame += RenderFrame;
-    }
-
-    public void SetRenderer(Renderer renderer)
-    {
-        _renderer = renderer;
-    }
-
-    protected override void OnLoad()
-    {
-        base.OnLoad();
-
-        Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
-
-        GL.DebugMessageCallback(DebugProcCallback, IntPtr.Zero);
-        GL.Enable(EnableCap.DebugOutput);
-        GL.Enable(EnableCap.DebugOutputSynchronous);
-
-        ImGui.CreateContext();
-        var io = ImGui.GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
-        // io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
-        // io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-        io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
-
-        ImGui.StyleColorsDark();
-
-        var style = ImGui.GetStyle();
-        if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
-        {
-            style.WindowRounding = 0.0f;
-            style.Colors[(int)ImGuiCol.WindowBg].W = 0.0f;
-        }
-
-        ImguiImplOpenTk4.Init(this);
-        ImguiImplOpenGL3.Init();
-    }
-
-    private void LoadScene()
-    {
-        _renderer.Initialize();
-        _currentScene.Grid.InitializeGL();
-        _currentScene.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
-        _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
-
-        //GL.ClearColor(0.12f, 0.12f, 0.14f, 1.0f);
-        //GL.Enable(EnableCap.DepthTest);
-    }
-
-    private void OnResize(ResizeEventArgs e)
-    {
-        if (_currentScene is null) return;
-        GL.Viewport(0, 0, Size.X, Size.Y);
-    }
-
-    private bool _isLeftDown;
-    private bool _isRightDown;
-    private Vector2 _lastMousePos;
-
-    protected override void OnMouseDown(MouseButtonEventArgs e)
-    {
+        
+        if (ImGui.GetIO().WantCaptureMouse) return;
         if (e.Button == MouseButton.Left) _isLeftDown = true;
         if (e.Button == MouseButton.Right) _isRightDown = true;
     }
 
-    protected override void OnMouseUp(MouseButtonEventArgs e)
+    private void OnMouseUpWindow(MouseButtonEventArgs e)
     {
+        
         if (e.Button == MouseButton.Left) _isLeftDown = false;
         if (e.Button == MouseButton.Right) _isRightDown = false;
     }
 
-    protected override void OnMouseMove(MouseMoveEventArgs e)
+    private void OnMouseMoveCamera(MouseMoveEventArgs e)
     {
-        if (_currentScene == null) return;
+        if (ImGui.GetIO().WantCaptureMouse)
+        {
+            _lastMousePos = e.Position;
+            return;
+        }
 
         var pos = e.Position;
+
         var delta = pos - _lastMousePos;
 
         if (_isLeftDown)
@@ -122,16 +69,82 @@ public class ViewerWindow : GameWindow
         _lastMousePos = pos;
     }
 
-    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    private void OnMouseWheelZoom(MouseWheelEventArgs e)
     {
+        if (ImGui.GetIO().WantCaptureMouse) return;
         if (_currentScene == null) return;
         _currentScene.Camera.Zoom(e.OffsetY * 0.5f);
+    }
+
+    #endregion
+
+    private void OnResize(ResizeEventArgs e)
+    {
+        if (_currentScene is null) return;
+        GL.Viewport(0, 0, Size.X, Size.Y);
+    }
+
+    protected override void OnLoad()
+    {
+        base.OnLoad();
+
+        Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
+
+        
+        Resize += OnResize;
+        MouseDown += OnMouseDownWindow;
+        MouseUp += OnMouseUpWindow;
+        MouseMove += OnMouseMoveCamera;
+        MouseWheel += OnMouseWheelZoom;
+        
+        SetupImGui();
+        
+    }
+
+    private void SetupImGui()
+    {
+        GL.DebugMessageCallback(DebugProcCallback, IntPtr.Zero);
+        GL.Enable(EnableCap.DebugOutput);
+        GL.Enable(EnableCap.DebugOutputSynchronous);
+
+        ImGui.CreateContext();
+        var io = ImGui.GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+        io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
+        ImGui.StyleColorsDark();
+
+        ImGuiStylePtr style = ImGui.GetStyle();
+        if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
+        {
+            style.WindowRounding = 0.0f;
+            style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
+        }
+
+        ImguiImplOpenTk4.Init(this);
+        ImguiImplOpenGL3.Init();
+    }
+
+    private void LoadScene()
+    {
+        _renderer.Initialize();
+        _currentScene.Grid.InitializeGL();
+        _currentScene.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
+        _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
+    }
+
+
+    public void SetRenderer(Renderer renderer)
+    {
+        _renderer = renderer;
     }
 
     public void Run(IScene scene)
     {
         _currentScene = scene;
-        SetupWindow();
+        LoadScene();
         try
         {
             base.Run();
@@ -141,42 +154,28 @@ public class ViewerWindow : GameWindow
         }
     }
 
-
-    private void RenderFrame(FrameEventArgs obj) // shouldnt this live inside the renderer?
+    
+    protected override void OnRenderFrame(FrameEventArgs e)
     {
-        RenderImGui();
-
-        if (_currentScene is null) return;
-
-
-        _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-
-        foreach (var renderable in _currentScene.GetRenderables())
-        {
-            renderable.Draw();
-        }
-
-        _currentScene.Grid.Draw();
-
+        base.OnRenderFrame(e);
         
-        SwapBuffers();
-    }
-
-    private void RenderImGui()
-    {
+        
         ImguiImplOpenGL3.NewFrame();
         ImguiImplOpenTk4.NewFrame();
         ImGui.NewFrame();
 
-        ImGui.DockSpaceOverViewport();
+        // ImGui.DockSpaceOverViewport();
+        CameraPositionPanel();
 
-        CreatePropertiesPanel();
-        // ImGui.ShowDemoWindow();
+        ImGui.ShowDemoWindow();
 
         ImGui.Render();
         GL.Viewport(0, 0, FramebufferSize.X, FramebufferSize.Y);
-        GL.ClearColor(new Color4<Rgba>(35, 35, 35, 0));
+        GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);       
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+        
+        RenderScene();
+        
         ImguiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
 
         if (ImGui.GetIO().ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
@@ -185,31 +184,57 @@ public class ViewerWindow : GameWindow
             ImGui.RenderPlatformWindowsDefault();
             Context.MakeCurrent();
         }
+        
+        
+
+        SwapBuffers();
     }
     
-    private void CreatePropertiesPanel()
+    
+    
+    private void RenderScene()
+    {
+        if (_currentScene is null) return;
+
+        _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
+        _currentScene.Grid.Draw();
+
+        foreach (var renderable in _currentScene.GetRenderables())
+            renderable.Draw();
+    }
+    
+
+    private void CameraPositionPanel()
     {
         ImGui.Begin("Properties");
-    
+
         ImGui.Text("Camera Settings");
         ImGui.Separator();
-    
+
         if (_currentScene?.Camera != null)
         {
             var pos = _currentScene.Camera.Position;
             ImGui.Text($"Position: ({pos.X:F2}, {pos.Y:F2}, {pos.Z:F2})");
-        
+
             // Example: editable values
             float fov = 45.0f; // Get from your camera
             if (ImGui.SliderFloat("FOV", ref fov, 30.0f, 120.0f))
             {
-                // Update camera FOV
+                try
+                {
+                    _currentScene.Camera.Fov = fov.toRadians();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
         }
-    
+
         ImGui.End();
     }
-    
+
 
     public readonly static GLDebugProc DebugProcCallback = Window_DebugProc;
 

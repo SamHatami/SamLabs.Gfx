@@ -3,6 +3,8 @@ namespace SamLabs.Gfx.Core.Mathematics;
 
 public static class MathExtensions
 {
+    
+    public static float toRadians(this float degrees) => degrees * (float)Math.PI / 180f;
     public static void Clamp(ref float value, float min, float max)
     {
         if (value < min) value = min;

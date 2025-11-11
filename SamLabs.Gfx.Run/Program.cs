@@ -23,8 +23,10 @@ try
     //Create background worker thread for logic updates
     var sceneManger = serviceProvider.GetService<ISceneManager>();
     var renderer = serviceProvider.GetService<Renderer>();
+    
     var defaultScene = sceneManger.GetCurrentScene();
     var window = serviceProvider.GetService<ViewerWindow>();
+    
     window.SetRenderer(renderer); //this is not nice
 
     window.Run(defaultScene);

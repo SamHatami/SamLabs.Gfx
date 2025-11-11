@@ -36,7 +36,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_MouseButton(MouseButtonEventArgs e)
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 
                 UpdateKeyModifiers(io, Window);
 
@@ -49,7 +49,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_MouseWheel(MouseWheelEventArgs e)
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 io.AddMouseWheelEvent(e.OffsetX, e.OffsetY);
             }
 
@@ -58,7 +58,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_Key(KeyboardKeyEventArgs e, bool isPressed)
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 
                 UpdateKeyModifiers(io, Window);
 
@@ -69,13 +69,13 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_FocusedChanged(FocusedChangedEventArgs e)
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 io.AddFocusEvent(e.IsFocused);
             }
 
             public void Window_MouseMove(MouseMoveEventArgs e)
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 BackendData* bd = GetBackendData();
 
                 float x = e.X;
@@ -94,7 +94,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_MouseEnter()
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 BackendData* bd = GetBackendData();
 
                 io.AddMousePosEvent(bd->LastValidMousePos.X, bd->LastValidMousePos.Y);
@@ -102,7 +102,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_MouseLeave()
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
                 BackendData* bd = GetBackendData();
 
                 bd->LastValidMousePos = new(io.MousePos.X, io.MousePos.Y);
@@ -111,7 +111,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
             public void Window_TextInput(TextInputEventArgs e)
             {
-                var io = ImGuiNET.ImGui.GetIO();
+                var io = ImGui.GetIO();
 
                 io.AddInputCharacter((uint)e.Unicode);
             }
@@ -122,7 +122,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         private static BackendData* GetBackendData()
         {
-            return ImGuiNET.ImGui.GetCurrentContext() == 0 ? null : (BackendData*)ImGuiNET.ImGui.GetIO().BackendPlatformUserData;
+            return ImGui.GetCurrentContext() == 0 ? null : (BackendData*)ImGui.GetIO().BackendPlatformUserData;
         }
 
         public static ImGuiKey TranslateKey(Keys key)
@@ -202,7 +202,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         private static void Monitors_OnMonitorConnected(MonitorEventArgs e)
         {
-            var io = ImGuiNET.ImGui.GetIO();
+            var io = ImGui.GetIO();
             BackendData* bd = GetBackendData();
 
             bd->WantUpdateMonitors = true;
@@ -246,7 +246,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         public static bool Init(NativeWindow window)
         {
-            var io = ImGuiNET.ImGui.GetIO();
+            var io = ImGui.GetIO();
             io.BackendFlags |= ImGuiBackendFlags.HasMouseCursors;
             io.BackendFlags |= ImGuiBackendFlags.HasSetMousePos;
             io.BackendFlags |= ImGuiBackendFlags.PlatformHasViewports;
@@ -257,11 +257,11 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
             io.NativePtr->BackendPlatformName = (byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference("opentk_impl_opentk4"u8));
             WindowMap.Add((nint)window.WindowPtr, window);
 
-            bd->Context = ImGuiNET.ImGui.GetCurrentContext();
+            bd->Context = ImGui.GetCurrentContext();
             bd->WindowPtr = (nint)window.WindowPtr;
             bd->WantUpdateMonitors = true;
 
-            var platformIO = ImGuiNET.ImGui.GetPlatformIO();
+            var platformIO = ImGui.GetPlatformIO();
             platformIO.NativePtr->Platform_SetClipboardTextFn = (nint)(delegate* unmanaged[Cdecl]<nint, byte*, void>)(&Platform_SetClipboardText);
             platformIO.NativePtr->Platform_GetClipboardTextFn = (nint)(delegate* unmanaged[Cdecl]<nint, byte*>)(&Platform_GetClipboardText);
 
@@ -272,7 +272,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
             UpdateMonitors();
             Monitors.OnMonitorConnected += Monitors_OnMonitorConnected;
 
-            ImGuiViewportPtr mainViewport = ImGuiNET.ImGui.GetMainViewport();
+            ImGuiViewportPtr mainViewport = ImGui.GetMainViewport();
             mainViewport.PlatformHandle = (nint)window.WindowPtr;
 
             InitMultiViewportSupport();
@@ -283,11 +283,11 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
         public static void Shutdown()
         {
             BackendData* bd = GetBackendData();
-            var io = ImGuiNET.ImGui.GetIO();
+            var io = ImGui.GetIO();
 
             ShutdownMultiViewportSupport();
 
-            ImGuiViewportPtr mainViewport = ImGuiNET.ImGui.GetMainViewport();
+            ImGuiViewportPtr mainViewport = ImGui.GetMainViewport();
 
             io.NativePtr->BackendPlatformName = null;
             io.BackendPlatformUserData = 0;
@@ -305,8 +305,8 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         static void UpdateMouseData()
         {
-            var io = ImGuiNET.ImGui.GetIO();
-            var platformIO = ImGuiNET.ImGui.GetPlatformIO();
+            var io = ImGui.GetIO();
+            var platformIO = ImGui.GetPlatformIO();
             BackendData* bd = GetBackendData();
 
             uint mouse_viewport_id = 0;
@@ -344,14 +344,14 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         static void UpdateMouseCursor()
         {
-            var io = ImGuiNET.ImGui.GetIO();
-            var platformIO = ImGuiNET.ImGui.GetPlatformIO();
+            var io = ImGui.GetIO();
+            var platformIO = ImGui.GetPlatformIO();
             BackendData* bd = GetBackendData();
 
             if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0 || WindowMap[bd->WindowPtr].CursorState == CursorState.Grabbed)
                 return;
 
-            ImGuiMouseCursor imguiCursor = ImGuiNET.ImGui.GetMouseCursor();
+            ImGuiMouseCursor imguiCursor = ImGui.GetMouseCursor();
             for (int n = 0; n < platformIO.Viewports.Size; n++)
             {
                 if (platformIO.Viewports[n].PlatformHandle == 0)
@@ -401,8 +401,8 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         static void UpdateMonitors()
         {
-            var io = ImGuiNET.ImGui.GetIO();
-            var platformIO = ImGuiNET.ImGui.GetPlatformIO();
+            var io = ImGui.GetIO();
+            var platformIO = ImGui.GetPlatformIO();
             BackendData* bd = GetBackendData();
 
             bd->WantUpdateMonitors = false;
@@ -433,7 +433,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         public static void NewFrame()
         {
-            var io = ImGuiNET.ImGui.GetIO();
+            var io = ImGui.GetIO();
             BackendData* bd = GetBackendData();
 
             NativeWindow window = WindowMap[bd->WindowPtr];
@@ -467,14 +467,14 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
         static void Platform_SetClipboardText(nint ctx, byte* text)
         {
             BackendData* bd = GetBackendData();
-            GLFW.SetClipboardString((OpenTK.Windowing.GraphicsLibraryFramework.Window*)bd->WindowPtr, Marshal.PtrToStringUTF8((nint)text));
+            GLFW.SetClipboardString((Window*)bd->WindowPtr, Marshal.PtrToStringUTF8((nint)text));
         }
 
         [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
         static byte* Platform_GetClipboardText(nint ctx)
         {
             BackendData* bd = GetBackendData();
-            return GLFW.GetClipboardStringRaw((OpenTK.Windowing.GraphicsLibraryFramework.Window*)bd->WindowPtr);
+            return GLFW.GetClipboardStringRaw((Window*)bd->WindowPtr);
         }
 
         struct ViewportData
@@ -487,7 +487,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         static void InitMultiViewportSupport()
         {
-            var platformIO = ImGuiNET.ImGui.GetPlatformIO();
+            var platformIO = ImGui.GetPlatformIO();
             BackendData* bd = GetBackendData();
 
             platformIO.Platform_CreateWindow = (nint)(delegate* unmanaged[Cdecl]<ImGuiViewportPtr, void>)&Platform_CreateWindow;
@@ -505,7 +505,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
             platformIO.Platform_RenderWindow = (nint)(delegate* unmanaged[Cdecl]<ImGuiViewportPtr, void*, void>)&Platform_RenderWindow;
             platformIO.Platform_SwapBuffers = (nint)(delegate* unmanaged[Cdecl]<ImGuiViewportPtr, void*, void>)&Platform_SwapBuffers;
             
-            ImGuiViewportPtr mainViewport = ImGuiNET.ImGui.GetMainViewport();
+            ImGuiViewportPtr mainViewport = ImGui.GetMainViewport();
             ViewportData* vd = (ViewportData*)NativeMemory.AllocZeroed((uint)sizeof(ViewportData));
             vd->WindowPtr = bd->WindowPtr;
             vd->WindowOwned = false;
@@ -515,7 +515,7 @@ namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
 
         static void ShutdownMultiViewportSupport()
         {
-            ImGuiNET.ImGui.DestroyPlatformWindows();
+            ImGui.DestroyPlatformWindows();
         }
 
         private static void Window_Resize(ResizeEventArgs e)
