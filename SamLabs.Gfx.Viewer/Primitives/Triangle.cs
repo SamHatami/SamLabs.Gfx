@@ -13,9 +13,7 @@ public class Triangle : GlMesh, IRenderable
     public Triangle(Vertex[] vertices, int[] indices) : base(vertices, indices)
     {
         
-        
     }
-    
     public static Triangle CreateSimpleTriangle()
     {
         var vertices = new Vertex[3];
@@ -27,16 +25,12 @@ public class Triangle : GlMesh, IRenderable
         return new Triangle(vertices, new int[3] {0, 1, 2});
     }
 
-    public void Draw(Matrix4 viewMatrix, Matrix4 projectionMatrix)
-    {
-        Draw();
-    }
-    
     public void Draw()
     {
-        _shaderProgram = ShaderManager.GetShaderProgram("flat");
+        _shaderProgram = ShaderManager.GetShaderProgram("simple");
         GL.UseProgram(_shaderProgram);
         base.Draw();
+        GL.UseProgram(0);
     }
 
     public void Dispose()

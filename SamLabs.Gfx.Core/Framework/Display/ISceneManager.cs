@@ -3,5 +3,5 @@
 public interface ISceneManager
 {
     IScene GetCurrentScene();
-    void Run(IScene scene);
+    void AddRenderable(IRenderable renderable);
 }

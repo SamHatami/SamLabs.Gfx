@@ -4,9 +4,9 @@ using OpenTK.Windowing.Desktop;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer;
-using SamLabs.Gfx.Viewer.Framework;
+using SamLabs.Gfx.Wpf;
+using SamLabs.Gfx.Wpf.ViewModels;
 using Serilog;
-using Serilog.Core;
 
 namespace SamLabs.Gfx.Run;
 
@@ -15,13 +15,24 @@ public static class CompositionRoot
     private static ILogger _logger;
     private static readonly ServiceCollection Services = [];
 
-    public static IServiceProvider ConfigureServices()
+    public static IServiceProvider Configure()
     {
+
         RegisterLogger();
         RegisterServiceModules();
-        RegisterGlContextAndWindow();
-
+        RegisterViews();
+        RegisterViewModels();
         return Services.BuildServiceProvider();
+    }
+
+    private static void RegisterViewModels()
+    {
+        Services.AddSingleton<MainViewModel>();
+    }
+
+    private static void RegisterViews()
+    {
+        Services.AddTransient<MainView>();
     }
 
     private static void RegisterLogger()
@@ -32,21 +43,6 @@ public static class CompositionRoot
             .CreateLogger();
         
         Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(_logger, dispose: true));
-    }
-
-    private static void RegisterGlContextAndWindow()
-    {
-        var nativeSettings = new NativeWindowSettings()
-        {
-            ClientSize = new Vector2i(1280, 720),
-            Title = "SamLabs.Gfx.Viewer",
-        };
-        
-        
-
-        var window = new Window(GameWindowSettings.Default, nativeSettings);
-
-        Services.AddSingleton(window);
     }
 
     private static void RegisterServiceModules()

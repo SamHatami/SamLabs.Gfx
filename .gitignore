@@ -1,5 +1,100 @@
+## Visual Studio Solution .gitignore
+
+# --------------------------
+# General Build Artifacts
+# --------------------------
+**/*.obj
+**/*.exe
+**/*.dll
+**/*.pdb
+**/*.user
+**/*.bak
+**/*.suo
+**/*.ncb
+**/*.opensdf
+**/*.sdf
+**/*.vshost.exe
+**/*.vshost.exe.config
+**/*.vshost.pdb
+**/*.tdl
+**/*.cache
+**/*.aps
+**/*.log
+**/*.pidb
+
+# Exclude your specific directories and files
 bin/
 obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+
+# --------------------------
+# VS/MSBuild/NuGet files
+# --------------------------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.VC.db
+*.VC.opendb
+*.vcxproj.user
+*.rcproj.user
+*.sln.docstates
+*.vsp
+*.bsc
+*.sbr
+*.res
+*.dbmdl
+*.sln.ide*
+
+# NuGet
+/packages/
+# Exclude NuGet package cache folder in case it's in the solution root
+!/packages/build/
+# The .nuget directory
+.nuget/
+
+# Windows Store apps
+AppPackages/
+BundleArtifacts/
+
+# --------------------------
+# Test Results
+# --------------------------
+TestResults/
+*.trx
+*.etl
+
+# --------------------------
+# JetBrains Rider/ReSharper
+# --------------------------
+.idea/
+*.iws
+*.iml
+*.ipr
+riderModule.iml
+/_ReSharper.Caches/
+*.DotSettings.user
+
+# --------------------------
+# Visual Studio Code (if used)
+# --------------------------
+.vscode/
+
+# --------------------------
+# StyleCop
+# --------------------------
+StyleCop.Cache
+
+# --------------------------
+# Other
+# --------------------------
+# Local settings, temp files
+*.vspscc
+*.vssscc
+*.tmp
+*.vs/
+/.vs
+*.bin

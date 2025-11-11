@@ -17,7 +17,6 @@ public class Grid : IGrid
 
     // vertices as flat float array [x,y,z, x,y,z, ...]
     private float[]? _vertices;
-    private int _mvpLocation;
 
     public int Spacing { get; }
     public int Size { get; }
@@ -25,7 +24,7 @@ public class Grid : IGrid
     public bool ShowGrid { get; }
     public Color Color { get; }
 
-    public Grid(int linesPerSide = 10, float spacing = 1.0f)
+    public Grid(int linesPerSide = 40, float spacing = 1.0f)
     {
         _linesPerSide = linesPerSide;
         _spacing = spacing;
@@ -40,8 +39,6 @@ public class Grid : IGrid
         _vao = GL.GenVertexArray();
         _vbo = GL.GenBuffer();
         _vertices = GetVertices();
-        _mvpLocation = GL.GetUniformLocation(_shaderProgram, "uMVP");
-
         GL.BindVertexArray(_vao);
         Upload();
 
@@ -91,30 +88,26 @@ public class Grid : IGrid
         return _vertices;
     }
 
-    public void Draw(Matrix4 view, Matrix4 proj)
+    public void Draw()
     {
         if (_shaderProgram == 0) return;
 
         GL.UseProgram(_shaderProgram);
         GL.BindVertexArray(_vao);
-        var mvp = proj * view *
-                  Matrix4.Identity; // -> model-view-projection matrix - mvp should be sent or be available
+        var model = Matrix4.Identity; // -> model-view-projection matrix - mvp should be sent or be available
 
-        // MathExtensions.Clamp<float>(ref mvp.M11, 0.0001f, float.MaxValue);
 
-        GL.UniformMatrix4f(_mvpLocation, 1, false, ref mvp);
-
+        // GL.UniformMatrix4f(_mvpLocation, 1, false, ref model);
 
         GL.DrawArrays(PrimitiveType.Lines, 0, _vertices.Length / 3);
         GL.BindVertexArray(0);
         GL.UseProgram(0);
     }
-
-
-    public void Draw()
-    {
-    }
     
+    
+
+
+
     public void Dispose()
     {
         GL.DeleteVertexArray(_vao);

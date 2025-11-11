@@ -50,6 +50,8 @@ public class ShaderManager: IDisposable
         return program;
     }
     
+    public string[] GetShaderNames() => _shadersProgram.Keys.ToArray();
+    public int[] GetShaderPrograms() => _shadersProgram.Values.ToArray();
     private int CreateShaderProgram(string vertPath, string fragPath)
         {
             var vert = LoadTextResource(vertPath);
@@ -105,14 +107,14 @@ public class ShaderManager: IDisposable
     }
     
     public void WatchForChanges(string path) {
-        var watcher = new FileSystemWatcher(path, "*.glsl");
+        var watcher = new FileSystemWatcher(path, "*.vert;*.frag");
         watcher.Changed += (s, e) => ReloadShader(e.FullPath);
         watcher.EnableRaisingEvents = true;
     }
 
     private void ReloadShader(string eFullPath)
     {
-        
+
     }
 
     public void Dispose()

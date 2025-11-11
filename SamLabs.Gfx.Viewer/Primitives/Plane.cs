@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGLES2;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
@@ -83,18 +83,18 @@ public class Plane: IRenderable
         return (vertices, indices);
     }
     
+    public void ApplyShader(string shaderProgram)
+    {
+        _shaderProgram = ShaderManager.GetShaderProgram(shaderProgram);       
+    }
     public void Draw()
     {
-        _shaderProgram = ShaderManager.GetShaderProgram("flat");
         GL.UseProgram(_shaderProgram);
-       _mesh.Draw();
-       GL.UseProgram(0);
+        _mesh.Draw();
+        GL.UseProgram(0);   
     }
 
-    public void Draw(Matrix4 viewMatrix, Matrix4 projectionMatrix)
-    {
-        Draw();       
-    }
+
 
     public void Dispose()
     {

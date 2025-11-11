@@ -5,7 +5,7 @@ using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Geometry;
 
-public class GlMesh : Mesh
+public class GlMesh : Mesh, IDisposable
 {
     private readonly int _vao;
     private readonly int _vbo;

@@ -8,6 +8,10 @@ layout(std140) uniform ViewProjection
 
 out vec3 fragWorldPosition;
 
+vec3 xAxis = vec3(0.1f,0,0);
+vec3 yAxis = vec3(0,0.1f,0);
+vec3 zAxis = vec3(0,0,0.1f);
+
 void main()
 {
     vec4 worldPos = vec4(aPos, 1.0);

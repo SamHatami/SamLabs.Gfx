@@ -2,7 +2,5 @@
 out vec4 FragColor;
 void main()
 {
-    FragColor = vec4(1, 1, 1, 1.0);
-    
-    //Create the endless grid with size change on zoom in and out
+    FragColor = vec4(1f,0.1f, 0.1f, 1.0);
 }
