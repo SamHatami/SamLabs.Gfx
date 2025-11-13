@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL;
@@ -9,13 +10,14 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Core.Mathematics;
 using SamLabs.Gfx.Viewer.Framework.ImGuiBackends;
+using SamLabs.Gfx.Viewer.Framework.ImGuiBackends.ImGuiStyles;
 
 namespace SamLabs.Gfx.Viewer.Framework;
 
 public class ViewerWindow : GameWindow
 {
     private IScene _currentScene;
-    private Renderer _renderer;
+    private Renderer _renderer; //IRenderer 
     public ConcurrentQueue<Action> Actions { get; } = new();
     private bool _isLeftDown;
     private bool _isRightDown;
@@ -23,6 +25,9 @@ public class ViewerWindow : GameWindow
     private System.Numerics.Vector2 _uv0 = new(0, 1);
     private System.Numerics.Vector2 _uv1 = new(1, 0);
     private ViewPort _mainViewport;
+    private bool _isViewportHovered;
+    private bool _isViewportFocused;
+
     public ViewerWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(
         gameWindowSettings, nativeWindowSettings)
     {
@@ -32,7 +37,8 @@ public class ViewerWindow : GameWindow
 
     private void OnMouseDownWindow(MouseButtonEventArgs e)
     {
-        if (ImGui.GetIO().WantCaptureMouse) return;
+        if (!_isViewportHovered) return;
+
         if (e.Button == MouseButton.Left) _isLeftDown = true;
         if (e.Button == MouseButton.Right) _isRightDown = true;
     }
@@ -45,23 +51,19 @@ public class ViewerWindow : GameWindow
 
     private void OnMouseMoveCamera(MouseMoveEventArgs e)
     {
-        if (ImGui.GetIO().WantCaptureMouse)
-        {
-            _lastMousePos = e.Position;
-            return;
-        }
-
         var pos = e.Position;
-
         var delta = pos - _lastMousePos;
 
-        if (_isLeftDown)
+        if (_isViewportHovered && (_isLeftDown || _isRightDown))
         {
-            _currentScene.Camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
-        }
-        else if (_isRightDown)
-        {
-            _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
+            if (_isLeftDown)
+            {
+                _currentScene.Camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
+            }
+            else if (_isRightDown)
+            {
+                _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
+            }
         }
 
         _lastMousePos = pos;
@@ -69,8 +71,9 @@ public class ViewerWindow : GameWindow
 
     private void OnMouseWheelZoom(MouseWheelEventArgs e)
     {
-        if (ImGui.GetIO().WantCaptureMouse) return;
+        if (!_isViewportHovered) return;
         if (_currentScene == null) return;
+
         _currentScene.Camera.Zoom(e.OffsetY * 0.5f);
     }
 
@@ -89,8 +92,8 @@ public class ViewerWindow : GameWindow
 
         Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 
-        _mainViewport = _renderer.CreateViewport("Main",  Size.X, Size.Y); //( "Main", 0, 0, Size.X, Size.Y)
-        
+        _mainViewport = (ViewPort)_renderer.CreateViewport("Main", Size.X, Size.Y); //( "Main", 0, 0, Size.X, Size.Y)
+
 
         Resize += OnResize;
         MouseDown += OnMouseDownWindow;
@@ -116,12 +119,13 @@ public class ViewerWindow : GameWindow
 
         ImGui.StyleColorsDark();
 
-        ImGuiStylePtr style = ImGui.GetStyle();
-        if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
-        {
-            style.WindowRounding = 0.0f;
-            style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
-        }
+        var darkStyleCustom = new DarkStyle();
+        // ImGuiStylePtr style = ImGui.GetStyle();
+        // if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
+        // {
+        //     style.WindowRounding = 0.0f;
+        //     style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
+        // }
 
         ImguiImplOpenTk4.Init(this);
         ImguiImplOpenGL3.Init();
@@ -164,9 +168,9 @@ public class ViewerWindow : GameWindow
         ImguiImplOpenTk4.NewFrame();
         ImGui.NewFrame();
 
-        // ImGui.DockSpaceOverViewport();
+        ImGui.DockSpaceOverViewport();
         CameraPositionPanel();
-        // ImGui.ShowDemoWindow();
+        ImGui.ShowDemoWindow();
         MainViewPortPanel();
 
         ImGui.Render();
@@ -238,16 +242,86 @@ public class ViewerWindow : GameWindow
 
     private void MainViewPortPanel()
     {
-        ImGui.Begin("Viewport");
-
+        ImGui.Begin("Viewport", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove |
+                                ImGuiWindowFlags.NoCollapse);
         var viewportSize = ImGui.GetContentRegionAvail();
-        
-        ImGui.Image((IntPtr)_mainViewport.TextureId, new System.Numerics.Vector2(viewportSize.X, viewportSize.Y),_uv0, _uv1);
-        ImGui.End();
+        var viewportPos = ImGui.GetCursorScreenPos();
 
-        if (ImGui.IsWindowHovered())
+        if ((int)viewportSize.X != _mainViewport.Width || (int)viewportSize.Y != _mainViewport.Height)
         {
+            if (viewportSize.X > 0 && viewportSize.Y > 0)
+            {
+                _renderer.ResizeViewportBuffer(_mainViewport, (int)viewportSize.X, (int)viewportSize.Y);
+                _currentScene.Camera.AspectRatio = viewportSize.X / viewportSize.Y;
+            }
         }
+
+        ImGui.Image((IntPtr)_mainViewport.TextureId, new System.Numerics.Vector2(viewportSize.X, viewportSize.Y), _uv0,
+            _uv1);
+
+        _isViewportHovered = ImGui.IsItemHovered();
+        _isViewportFocused = ImGui.IsWindowFocused();
+
+        if (_isViewportHovered && _isViewportFocused)
+            Trace.WriteLine("Viewport Hovered and Focused");
+
+        // if (ImGui.BeginPopupContextWindow(null)) 
+        // {
+        //     // 2. Display your menu items
+        //     if (ImGui.MenuItem("Reset Panel Layout"))
+        //     {
+        //         // Add your logic here
+        //     }
+        //     if (ImGui.MenuItem("Change Theme"))
+        //     {
+        //         // Add your logic here
+        //     }
+        //     ImGui.Separator();
+        //     if (ImGui.MenuItem("Close Panel"))
+        //     {
+        //         // Handle closing the window/setting its p_open flag to false
+        //     }
+        //
+        //     // 3. Always call EndPopup()
+        //     ImGui.EndPopup();
+        // }
+
+        CreateOrientationPanel(viewportSize, viewportPos);
+
+        ImGui.End();
+    }
+
+    private void CreateOrientationPanel(System.Numerics.Vector2 parentSize,
+        System.Numerics.Vector2 basePanelPos = default)
+    {
+        var overlaySize = new System.Numerics.Vector2(500, 32); // Fixed size for the overlay
+        var offset = new System.Numerics.Vector2(0.5f * (parentSize.X - overlaySize.X), 10);
+
+        var overlayPos = basePanelPos + offset;
+
+        ImGui.SetNextWindowSize(overlaySize);
+        ImGui.SetNextWindowPos(overlayPos);
+
+        // Apply flags to make it an overlay:
+        ImGuiWindowFlags overlayFlags =
+            ImGuiWindowFlags.NoTitleBar |
+            ImGuiWindowFlags.NoResize |
+            ImGuiWindowFlags.NoMove |
+            ImGuiWindowFlags.NoCollapse |
+            ImGuiWindowFlags.NoDocking |
+            ImGuiWindowFlags.NoSavedSettings;
+
+        var alwaysOpen = true;
+        // Begin the overlay panel
+        ImGui.Begin("Overlay", ref alwaysOpen, overlayFlags);
+        {
+            ImGui.Text("Orientation ");
+            // ImGui.Text($"Parent size: {parentSize}");
+
+            // Optional: Draw a line indicating the offset origin
+            // ImGui.GetWindowDrawList().AddLine(...) 
+        }
+        ImGui.End();
     }
 
 

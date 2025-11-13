@@ -5,7 +5,7 @@ using SamLabs.Gfx.Core.Framework.Display;
 
 namespace SamLabs.Gfx.Viewer.Framework;
 
-public class Renderer: IDisposable
+public class Renderer: IDisposable, IRenderer
 {
     private ShaderManager _shaderManager;
     private readonly UniformBufferManager _uniformBufferManager;
@@ -51,12 +51,13 @@ public class Renderer: IDisposable
         _uniformBufferManager.UpdateViewProjectionBuffer(view, proj);
     }
     
-    public ViewPort CreateViewport(string name, int width, int height)
+    public IViewPort CreateViewport(string name, int width, int height)
     {
         var viewport = new ViewPort(0, 0, width, height);
             if(_frameBufferHandler.CreateViewportBuffers(viewport))
                 return viewport;
-            return null; } 
+            return null; 
+    } 
     public void SetViewPort(int width, int height, int x, int y) => GL.Viewport(x, y, width, height);
 
     public void RenderScene(IScene scene)
@@ -68,14 +69,19 @@ public class Renderer: IDisposable
     {
     }
 
-    public void BeginRenderToViewPort(ViewPort mainViewport)
+    public void BeginRenderToViewPort(IViewPort mainViewport)
     {
-        _frameBufferHandler.RenderToViewPortBuffer(mainViewport);
+        _frameBufferHandler.RenderToViewPortBuffer(mainViewport as ViewPort);
     }
 
     public void EndRenderToViewPort()
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    }
+
+    public void ResizeViewportBuffer(IViewPort mainViewport, int viewportSizeX, int viewportSizeY)
+    {
+        _frameBufferHandler.ResizeViewportBuffer(mainViewport as ViewPort, viewportSizeX, viewportSizeY);
     }
 }
 

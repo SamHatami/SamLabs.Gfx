@@ -1,6 +1,8 @@
-﻿namespace SamLabs.Gfx.Viewer.Framework;
+﻿using SamLabs.Gfx.Core.Framework.Display;
 
-public class ViewPort
+namespace SamLabs.Gfx.Viewer.Framework;
+
+public class ViewPort: IViewPort
 {
     public ViewPort(int frameBufferId, int textureColorBuffer, int width, int height)
     {
