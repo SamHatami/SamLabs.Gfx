@@ -20,19 +20,18 @@ public class ViewerWindow : GameWindow
     private bool _isLeftDown;
     private bool _isRightDown;
     private Vector2 _lastMousePos;
-
-
+    private System.Numerics.Vector2 _uv0 = new(0, 1);
+    private System.Numerics.Vector2 _uv1 = new(1, 0);
+    private ViewPort _mainViewport;
     public ViewerWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(
         gameWindowSettings, nativeWindowSettings)
     {
-
     }
 
     #region MouseEvents
 
     private void OnMouseDownWindow(MouseButtonEventArgs e)
     {
-        
         if (ImGui.GetIO().WantCaptureMouse) return;
         if (e.Button == MouseButton.Left) _isLeftDown = true;
         if (e.Button == MouseButton.Right) _isRightDown = true;
@@ -40,7 +39,6 @@ public class ViewerWindow : GameWindow
 
     private void OnMouseUpWindow(MouseButtonEventArgs e)
     {
-        
         if (e.Button == MouseButton.Left) _isLeftDown = false;
         if (e.Button == MouseButton.Right) _isRightDown = false;
     }
@@ -82,6 +80,7 @@ public class ViewerWindow : GameWindow
     {
         if (_currentScene is null) return;
         GL.Viewport(0, 0, Size.X, Size.Y);
+        _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
     }
 
     protected override void OnLoad()
@@ -90,15 +89,16 @@ public class ViewerWindow : GameWindow
 
         Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 
+        _mainViewport = _renderer.CreateViewport("Main",  Size.X, Size.Y); //( "Main", 0, 0, Size.X, Size.Y)
         
+
         Resize += OnResize;
         MouseDown += OnMouseDownWindow;
         MouseUp += OnMouseUpWindow;
         MouseMove += OnMouseMoveCamera;
         MouseWheel += OnMouseWheelZoom;
-        
+
         SetupImGui();
-        
     }
 
     private void SetupImGui()
@@ -154,28 +154,28 @@ public class ViewerWindow : GameWindow
         }
     }
 
-    
+
     protected override void OnRenderFrame(FrameEventArgs e)
     {
         base.OnRenderFrame(e);
-        
-        
+
+
         ImguiImplOpenGL3.NewFrame();
         ImguiImplOpenTk4.NewFrame();
         ImGui.NewFrame();
 
         // ImGui.DockSpaceOverViewport();
         CameraPositionPanel();
-
-        ImGui.ShowDemoWindow();
+        // ImGui.ShowDemoWindow();
+        MainViewPortPanel();
 
         ImGui.Render();
         GL.Viewport(0, 0, FramebufferSize.X, FramebufferSize.Y);
-        GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);       
+        GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
-        
+
         RenderScene();
-        
+
         ImguiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
 
         if (ImGui.GetIO().ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
@@ -184,25 +184,26 @@ public class ViewerWindow : GameWindow
             ImGui.RenderPlatformWindowsDefault();
             Context.MakeCurrent();
         }
-        
-        
+
 
         SwapBuffers();
     }
-    
-    
-    
+
+
     private void RenderScene()
     {
         if (_currentScene is null) return;
 
+
+        _renderer.BeginRenderToViewPort(_mainViewport);
         _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
         _currentScene.Grid.Draw();
 
         foreach (var renderable in _currentScene.GetRenderables())
             renderable.Draw();
+        _renderer.EndRenderToViewPort();
     }
-    
+
 
     private void CameraPositionPanel()
     {
@@ -233,6 +234,20 @@ public class ViewerWindow : GameWindow
         }
 
         ImGui.End();
+    }
+
+    private void MainViewPortPanel()
+    {
+        ImGui.Begin("Viewport");
+
+        var viewportSize = ImGui.GetContentRegionAvail();
+        
+        ImGui.Image((IntPtr)_mainViewport.TextureId, new System.Numerics.Vector2(viewportSize.X, viewportSize.Y),_uv0, _uv1);
+        ImGui.End();
+
+        if (ImGui.IsWindowHovered())
+        {
+        }
     }
 
 

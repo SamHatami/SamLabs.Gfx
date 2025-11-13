@@ -10,6 +10,7 @@ public class RenderServiceModule : IServiceModule
     {
         services.AddSingleton<ShaderManager>();
         services.AddSingleton<UniformBufferManager>();
+        services.AddSingleton<FrameBufferHandler>();
         services.AddSingleton<Renderer>();
         services.AddSingleton<ISceneManager, SceneManager>();
         

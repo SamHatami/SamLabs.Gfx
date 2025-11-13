@@ -1,13 +1,15 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Core.Framework.Display;
 
 namespace SamLabs.Gfx.Viewer.Framework;
 
 public class Renderer: IDisposable
 {
     private ShaderManager _shaderManager;
-    private readonly UniformBufferManager _bufferManager;
+    private readonly UniformBufferManager _uniformBufferManager;
+    private readonly FrameBufferHandler _frameBufferHandler;
     private readonly ILogger<Renderer> _logger;
     private int _mvpLocation = -1;
     private int _vbo = 0;
@@ -16,20 +18,21 @@ public class Renderer: IDisposable
     private Matrix4 _proj = Matrix4.Identity;
     private int _vertexCount = 0;
 
-    public Renderer(ShaderManager shaderManager, UniformBufferManager bufferManager, ILogger<Renderer> logger)
+    public Renderer(ShaderManager shaderManager, UniformBufferManager uniformBufferManager, FrameBufferHandler frameBufferHandler, ILogger<Renderer> logger)
     {
-        _bufferManager = bufferManager;
+        _uniformBufferManager = uniformBufferManager;
+        _frameBufferHandler = frameBufferHandler;
         _shaderManager = shaderManager;
         _logger = logger;
     }
     public void Initialize()
     {
-        _bufferManager.RegisterViewProjectionBuffer();
+        _uniformBufferManager.RegisterViewProjectionBuffer();
         _shaderManager.RegisterShaders();
 
         //bind shaders to view projection buffer
         foreach (var shader in _shaderManager.GetShaderPrograms())
-            _bufferManager.BindUniformToProgram(shader, UniformBufferManager.ViewProjectionName);
+            _uniformBufferManager.BindUniformToProgram(shader, UniformBufferManager.ViewProjectionName);
     }
 
     public int GetShaderProgram(string shaderName) => ShaderManager.GetShaderProgram(shaderName);
@@ -45,12 +48,34 @@ public class Renderer: IDisposable
     {
         _view = view;
         _proj = proj;
-        _bufferManager.UpdateViewProjectionBuffer(view, proj);
+        _uniformBufferManager.UpdateViewProjectionBuffer(view, proj);
     }
+    
+    public ViewPort CreateViewport(string name, int width, int height)
+    {
+        var viewport = new ViewPort(0, 0, width, height);
+            if(_frameBufferHandler.CreateViewportBuffers(viewport))
+                return viewport;
+            return null; } 
+    public void SetViewPort(int width, int height, int x, int y) => GL.Viewport(x, y, width, height);
 
+    public void RenderScene(IScene scene)
+    {
+        
+    }
 
     public void Dispose()
     {
+    }
+
+    public void BeginRenderToViewPort(ViewPort mainViewport)
+    {
+        _frameBufferHandler.RenderToViewPortBuffer(mainViewport);
+    }
+
+    public void EndRenderToViewPort()
+    {
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 }
 
