@@ -16,7 +16,7 @@ namespace SamLabs.Gfx.Viewer.Framework;
 
 public class ViewerWindow : GameWindow
 {
-    private IScene _currentScene;
+    private IScene? _currentScene;
     private Renderer _renderer; //IRenderer 
     public ConcurrentQueue<Action> Actions { get; } = new();
     private bool _isLeftDown;
@@ -134,9 +134,10 @@ public class ViewerWindow : GameWindow
     private void LoadScene()
     {
         _renderer.Initialize();
-        _currentScene.Grid.InitializeGL();
-        _currentScene.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
-        _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
+        _currentScene?.Grid.InitializeGL();
+        _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
+        if (_currentScene != null) 
+            _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
     }
 
 
@@ -147,6 +148,7 @@ public class ViewerWindow : GameWindow
 
     public void Run(IScene scene)
     {
+        
         _currentScene = scene;
         LoadScene();
         try
@@ -162,7 +164,6 @@ public class ViewerWindow : GameWindow
     protected override void OnRenderFrame(FrameEventArgs e)
     {
         base.OnRenderFrame(e);
-
 
         ImguiImplOpenGL3.NewFrame();
         ImguiImplOpenTk4.NewFrame();
@@ -189,19 +190,15 @@ public class ViewerWindow : GameWindow
             Context.MakeCurrent();
         }
 
-
         SwapBuffers();
     }
 
 
     private void RenderScene()
     {
-        if (_currentScene is null) return;
-
-
         _renderer.BeginRenderToViewPort(_mainViewport);
         _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-        _currentScene.Grid.Draw();
+        _currentScene?.Grid.Draw();
 
         foreach (var renderable in _currentScene.GetRenderables())
             renderable.Draw();
@@ -256,7 +253,7 @@ public class ViewerWindow : GameWindow
             }
         }
 
-        ImGui.Image((IntPtr)_mainViewport.TextureId, new System.Numerics.Vector2(viewportSize.X, viewportSize.Y), _uv0,
+        ImGui.Image((IntPtr)_mainViewport.FrameBufferInfo.TextureColorBufferId, new System.Numerics.Vector2(viewportSize.X, viewportSize.Y), _uv0,
             _uv1);
 
         _isViewportHovered = ImGui.IsItemHovered();
@@ -332,7 +329,7 @@ public class ViewerWindow : GameWindow
     {
         var message = Marshal.PtrToStringAnsi(messagePtr, length);
 
-        var showMessage = true;
+        bool showMessage;
 
         switch (source)
         {

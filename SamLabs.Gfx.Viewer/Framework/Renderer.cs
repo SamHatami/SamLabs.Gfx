@@ -14,8 +14,8 @@ public class Renderer: IDisposable, IRenderer
     private int _mvpLocation = -1;
     private int _vbo = 0;
     private int _vao = 0;
-    private Matrix4 _view = Matrix4.Identity;
-    private Matrix4 _proj = Matrix4.Identity;
+    private Matrix4? _view = Matrix4.Identity;
+    private Matrix4? _proj = Matrix4.Identity;
     private int _vertexCount = 0;
 
     public Renderer(ShaderManager shaderManager, UniformBufferManager uniformBufferManager, FrameBufferHandler frameBufferHandler, ILogger<Renderer> logger)
@@ -53,8 +53,8 @@ public class Renderer: IDisposable, IRenderer
     
     public IViewPort CreateViewport(string name, int width, int height)
     {
-        var viewport = new ViewPort(0, 0, width, height);
-            if(_frameBufferHandler.CreateViewportBuffers(viewport))
+        var viewport = new ViewPort( width, height);
+            if(_frameBufferHandler.CreateViewPortBuffer(viewport))
                 return viewport;
             return null; 
     } 
@@ -71,7 +71,7 @@ public class Renderer: IDisposable, IRenderer
 
     public void BeginRenderToViewPort(IViewPort mainViewport)
     {
-        _frameBufferHandler.RenderToViewPortBuffer(mainViewport as ViewPort);
+        _frameBufferHandler.RenderToFrameBuffer(mainViewport.FrameBufferInfo);
     }
 
     public void EndRenderToViewPort()
@@ -81,7 +81,7 @@ public class Renderer: IDisposable, IRenderer
 
     public void ResizeViewportBuffer(IViewPort mainViewport, int viewportSizeX, int viewportSizeY)
     {
-        _frameBufferHandler.ResizeViewportBuffer(mainViewport as ViewPort, viewportSizeX, viewportSizeY);
+        _frameBufferHandler.ResizeFrameBuffer(mainViewport.FrameBufferInfo, viewportSizeX, viewportSizeY);
     }
 }
 

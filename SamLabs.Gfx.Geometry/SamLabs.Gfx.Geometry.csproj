@@ -10,4 +10,8 @@
       <ProjectReference Include="..\SamLabs.Gfx.Core\SamLabs.Gfx.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="AssimpNetter" Version="6.0.2.1" />
+    </ItemGroup>
+
 </Project>
