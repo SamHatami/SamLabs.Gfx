@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
-using SamLabs.Gfx.Viewer.Framework;
+using SamLabs.Gfx.Viewer.Display;
 using SamLabs.Gfx.Viewer.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Primitives;

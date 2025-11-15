@@ -2,7 +2,7 @@
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Viewer.Primitives;
 
-namespace SamLabs.Gfx.Viewer.Framework;
+namespace SamLabs.Gfx.Viewer.Display;
 
 public class SceneManager : ISceneManager
 {

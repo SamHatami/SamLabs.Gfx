@@ -4,8 +4,14 @@ namespace SamLabs.Gfx.Geometry;
 
 public static class Sizes
 {
-    public static int Matrix4Size => 16*4;
-    public static int Vector3Size => 3*4;
-    public static int Vector4Size => 4*4;
+    public static int FMatrix4 => 16*4;
+    public static int FVector3 => 3*4;
+    public static int FVector4 => 4*4;
     public static int VertexSize => Marshal.SizeOf<Vertex>();
+    public static int Float => 4;
+    public static int Int => 4;
+    public static int Byte => 1;
+    public static int Short => 2;
+    public static int Bool => 1;
+    
 }

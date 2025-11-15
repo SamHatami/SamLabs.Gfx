@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
 
-namespace SamLabs.Gfx.Viewer.Framework;
+namespace SamLabs.Gfx.Viewer.Display;
 
 public class UniformBufferManager: IDisposable
 {
@@ -21,7 +21,7 @@ public class UniformBufferManager: IDisposable
 
         _viewProjectionBuffer = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffer);
-        GL.BufferData(BufferTarget.UniformBuffer, Sizes.Matrix4Size * 2, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BufferData(BufferTarget.UniformBuffer, Sizes.FMatrix4 * 2, IntPtr.Zero, BufferUsage.DynamicDraw);
         GL.BindBufferBase(BufferTarget.UniformBuffer, ViewProjectionBindingPoint, _viewProjectionBuffer);
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         
@@ -33,8 +33,8 @@ public class UniformBufferManager: IDisposable
         if (_viewProjectionBuffer == 0) RegisterViewProjectionBuffer();
 
         GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffer);
-        GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, Sizes.Matrix4Size, ref view);
-        GL.BufferSubData(BufferTarget.UniformBuffer, Sizes.Matrix4Size, Sizes.Matrix4Size, ref projection);
+        GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, Sizes.FMatrix4, ref view);
+        GL.BufferSubData(BufferTarget.UniformBuffer, Sizes.FMatrix4, Sizes.FMatrix4, ref projection);
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
     }
 
@@ -56,6 +56,13 @@ public class UniformBufferManager: IDisposable
         UniformBindingPoints.Add(uniqueName, bindingPoint);
     }
 
+    public void CreateUniform()
+    {
+        var bufferId = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.UniformBuffer, bufferId);
+        GL.BufferData(BufferTarget.UniformBuffer,Sizes.Float, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+    }
 
 
     public void BindUniformToProgram(int program, string name)

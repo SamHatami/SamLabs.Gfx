@@ -9,10 +9,10 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Core.Mathematics;
-using SamLabs.Gfx.Viewer.Framework.ImGuiBackends;
-using SamLabs.Gfx.Viewer.Framework.ImGuiBackends.ImGuiStyles;
+using SamLabs.Gfx.Viewer.Display.ImGuiBackends;
+using SamLabs.Gfx.Viewer.Display.ImGuiBackends.ImGuiStyles;
 
-namespace SamLabs.Gfx.Viewer.Framework;
+namespace SamLabs.Gfx.Viewer.Display;
 
 public class ViewerWindow : GameWindow
 {

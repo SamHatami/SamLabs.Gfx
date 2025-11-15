@@ -9,7 +9,7 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using SNVector2 = System.Numerics.Vector2;
 
-namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
+namespace SamLabs.Gfx.Viewer.Display.ImGuiBackends
 {
     public static unsafe class ImguiImplOpenTk4
     {

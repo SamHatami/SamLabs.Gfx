@@ -1,6 +1,6 @@
 ﻿using SamLabs.Gfx.Core.Framework.Display;
 
-namespace SamLabs.Gfx.Viewer.Framework;
+namespace SamLabs.Gfx.Viewer.Display;
 
 public class FrameBufferInfo:IFrameBufferInfo
 {

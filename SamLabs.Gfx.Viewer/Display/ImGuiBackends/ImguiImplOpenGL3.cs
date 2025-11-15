@@ -4,7 +4,7 @@ using ImGuiNET;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
-namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends
+namespace SamLabs.Gfx.Viewer.Display.ImGuiBackends
 {
     public unsafe static class ImguiImplOpenGL3
     {

@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Viewer.Framework;
+﻿namespace SamLabs.Gfx.Viewer.Display;
 
 public class Shader
 {

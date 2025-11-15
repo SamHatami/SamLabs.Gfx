@@ -1,10 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Graphics.Vulkan;
-using OpenTK.Platform.Native.macOS;
 using SamLabs.Gfx.Core.Framework.Display;
-using SamLabs.Gfx.Viewer.Primitives;
 
-namespace SamLabs.Gfx.Viewer.Framework;
+namespace SamLabs.Gfx.Viewer.Display;
 
 // https://learnopengl.com/Advanced-OpenGL/Framebuffers
 public class FrameBufferHandler

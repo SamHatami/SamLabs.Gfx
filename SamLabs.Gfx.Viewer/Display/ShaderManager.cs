@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 
-namespace SamLabs.Gfx.Viewer.Framework;
+namespace SamLabs.Gfx.Viewer.Display;
 
 public class ShaderManager: IDisposable
 {

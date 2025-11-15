@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SamLabs.Gfx.Core.Framework.Display;
-using SamLabs.Gfx.Viewer.Framework;
+using SamLabs.Gfx.Viewer.Display;
 
 namespace SamLabs.Gfx.Viewer;
 

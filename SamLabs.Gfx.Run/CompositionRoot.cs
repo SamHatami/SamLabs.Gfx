@@ -5,7 +5,7 @@ using OpenTK.Windowing.Desktop;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer;
-using SamLabs.Gfx.Viewer.Framework;
+using SamLabs.Gfx.Viewer.Display;
 using Serilog;
 using Serilog.Core;
 

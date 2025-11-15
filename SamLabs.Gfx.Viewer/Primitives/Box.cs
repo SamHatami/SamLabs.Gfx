@@ -2,16 +2,18 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
-using SamLabs.Gfx.Viewer.Framework;
+using SamLabs.Gfx.Viewer.Display;
 using SamLabs.Gfx.Viewer.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Primitives;
 
-public class Box : IRenderable
+public class Box : IRenderable, ISelectable
 {
     private GlMesh _mesh;
     private int _shaderProgram;
 
+    public int Id { get; }
+    public bool IsSelected { get; set; }
     public Box(int size = 1)
     {
         SetupMesh(size);
@@ -92,4 +94,6 @@ public class Box : IRenderable
         _mesh.Draw();
         GL.UseProgram(0);
     }
+
+
 }

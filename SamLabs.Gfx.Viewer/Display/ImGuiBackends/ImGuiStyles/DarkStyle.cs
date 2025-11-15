@@ -1,7 +1,9 @@
-﻿using ImGuiNET;
-using System.Numerics; // Required for ImVec4 and ImVec2 equivalents
+﻿using System.Numerics;
+using ImGuiNET;
 
-namespace SamLabs.Gfx.Viewer.Framework.ImGuiBackends.ImGuiStyles;
+// Required for ImVec4 and ImVec2 equivalents
+
+namespace SamLabs.Gfx.Viewer.Display.ImGuiBackends.ImGuiStyles;
 
 public class DarkStyle
 {

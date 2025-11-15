@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Run;
-using SamLabs.Gfx.Viewer.Framework;
+using SamLabs.Gfx.Viewer.Display;
 
 var serviceProvider = CompositionRoot.ConfigureServices();
 
