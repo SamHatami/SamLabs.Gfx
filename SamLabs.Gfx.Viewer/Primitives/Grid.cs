@@ -88,6 +88,8 @@ public class Grid : IGrid
         return _vertices;
     }
 
+    public void DrawPickingId() {}
+
     public void Draw()
     {
         if (_shaderProgram == 0) return;

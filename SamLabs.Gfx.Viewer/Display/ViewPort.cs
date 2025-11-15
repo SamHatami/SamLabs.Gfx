@@ -10,7 +10,9 @@ public class ViewPort: IViewPort
         Height = height;
     }
     
-    public IFrameBufferInfo FrameBufferInfo { get; set; }
+    public IFrameBufferInfo FullRenderView { get; set; }
+    
+    public IFrameBufferInfo? SelectionRenderView { get; set; }
 
     public string Name { get; set; }
     public int Width { get; set; }

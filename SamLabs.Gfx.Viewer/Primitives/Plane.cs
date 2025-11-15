@@ -87,6 +87,11 @@ public class Plane: IRenderable
     {
         _shaderProgram = ShaderManager.GetShaderProgram(shaderProgram);       
     }
+
+    public void DrawPickingId()
+    {
+    }
+
     public void Draw()
     {
         GL.UseProgram(_shaderProgram);

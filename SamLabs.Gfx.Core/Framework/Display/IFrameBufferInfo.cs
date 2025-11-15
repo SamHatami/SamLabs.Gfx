@@ -8,4 +8,5 @@ public interface IFrameBufferInfo
     public int RenderBufferId { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
+    int[] PixelBuffers { get; set; }
 }

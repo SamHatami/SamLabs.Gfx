@@ -25,6 +25,10 @@ public class Triangle : GlMesh, IRenderable
         return new Triangle(vertices, new int[3] {0, 1, 2});
     }
 
+    public void DrawPickingId()
+    {
+    }
+
     public void Draw()
     {
         _shaderProgram = ShaderManager.GetShaderProgram("simple");

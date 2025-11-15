@@ -11,6 +11,7 @@ using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Core.Mathematics;
 using SamLabs.Gfx.Viewer.Display.ImGuiBackends;
 using SamLabs.Gfx.Viewer.Display.ImGuiBackends.ImGuiStyles;
+using SamLabs.Gfx.Viewer.Primitives;
 
 namespace SamLabs.Gfx.Viewer.Display;
 
@@ -27,7 +28,11 @@ public class ViewerWindow : GameWindow
     private ViewPort _mainViewport;
     private bool _isViewportHovered;
     private bool _isViewportFocused;
+    private int _objectHoveringId;
+    private bool _pickingPass;
+    private System.Numerics.Vector2 _localMousePos;
 
+    private int _readPickingIndex = 0;
     public ViewerWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(
         gameWindowSettings, nativeWindowSettings)
     {
@@ -64,10 +69,24 @@ public class ViewerWindow : GameWindow
             {
                 _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
             }
+            
+        }
+
+        if (_isViewportHovered)
+            ReadPickingId();
+            
+        try
+        {
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("No object under cursor");
         }
 
         _lastMousePos = pos;
     }
+
+
 
     private void OnMouseWheelZoom(MouseWheelEventArgs e)
     {
@@ -92,7 +111,8 @@ public class ViewerWindow : GameWindow
 
         Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 
-        _mainViewport = (ViewPort)_renderer.CreateViewport("Main", Size.X, Size.Y); //( "Main", 0, 0, Size.X, Size.Y)
+        _mainViewport =
+            (ViewPort)_renderer.CreateViewportBuffers("Main", Size.X, Size.Y); //( "Main", 0, 0, Size.X, Size.Y)
 
 
         Resize += OnResize;
@@ -136,7 +156,7 @@ public class ViewerWindow : GameWindow
         _renderer.Initialize();
         _currentScene?.Grid.InitializeGL();
         _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
-        if (_currentScene != null) 
+        if (_currentScene != null)
             _currentScene.Camera.AspectRatio = Size.X / (float)Size.Y;
     }
 
@@ -148,7 +168,6 @@ public class ViewerWindow : GameWindow
 
     public void Run(IScene scene)
     {
-        
         _currentScene = scene;
         LoadScene();
         try
@@ -170,14 +189,18 @@ public class ViewerWindow : GameWindow
         ImGui.NewFrame();
 
         ImGui.DockSpaceOverViewport();
-        CameraPositionPanel();
-        ImGui.ShowDemoWindow();
+        CommandPanel();
+        // ImGui.ShowDemoWindow();
         MainViewPortPanel();
 
         ImGui.Render();
         GL.Viewport(0, 0, FramebufferSize.X, FramebufferSize.Y);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+
+        Actions.TryDequeue(out var action);
+
+        action?.Invoke();
 
         RenderScene();
 
@@ -196,19 +219,65 @@ public class ViewerWindow : GameWindow
 
     private void RenderScene()
     {
-        _renderer.BeginRenderToViewPort(_mainViewport);
         _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-        _currentScene?.Grid.Draw();
+        //First render pass to picking buffer
+        _renderer.ClearPickingBuffer(_mainViewport);
+        _renderer.RenderToPickingBuffer(_mainViewport);
+        GL.Disable(EnableCap.Blend);
+        foreach (var renderable in _currentScene.GetRenderables())
+            renderable.DrawPickingId();
+        GL.Enable(EnableCap.Blend);
 
+        if (_isViewportHovered) 
+            StorePickingId(_localMousePos);
+        
+        _renderer.StopRenderToBuffer();
+
+
+        //Second render pass to viewport buffer
+        _renderer.ClearViewportBuffer(_mainViewport);
+        _renderer.RenderToViewportBuffer(_mainViewport);
+        _currentScene?.Grid.Draw();
         foreach (var renderable in _currentScene.GetRenderables())
             renderable.Draw();
-        _renderer.EndRenderToViewPort();
+
+        _renderer.StopRenderToBuffer();
+    }
+
+    private void StorePickingId(System.Numerics.Vector2 localMousePos)
+    {
+        int localX = (int)_localMousePos.X;
+        int localY = (int)_localMousePos.Y;
+        
+        localX = Math.Max(0, Math.Min(localX, _mainViewport.FullRenderView.Width - 1));
+        localY = Math.Max(0, Math.Min(localY, _mainViewport.FullRenderView.Height - 1));
+        
+        _readPickingIndex ^= 1; 
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
+        GL.ReadPixels((int)localX, (int)localY, 1, 1, PixelFormat.RedInteger,PixelType.UnsignedInt,IntPtr.Zero);
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+    }
+    
+    private void ReadPickingId()
+    {
+        
+        unsafe
+        {
+            //Swap PixelbufferIndex
+            _readPickingIndex ^= 1; 
+            GL.BindBuffer(BufferTarget.PixelPackBuffer, _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
+            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+            if(pboPtr != (void*)IntPtr.Zero)
+                _objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));
+            GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
+            GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+        }
     }
 
 
-    private void CameraPositionPanel()
+    private void CommandPanel()
     {
-        ImGui.Begin("Properties");
+        ImGui.Begin("Chaos Engine");
 
         ImGui.Text("Camera Settings");
         ImGui.Separator();
@@ -219,12 +288,12 @@ public class ViewerWindow : GameWindow
             ImGui.Text($"Position: ({pos.X:F2}, {pos.Y:F2}, {pos.Z:F2})");
 
             // Example: editable values
-            float fov = 45.0f; // Get from your camera
+            float fov = _currentScene.Camera.Fov.ToDegrees(); // Get from your camera
             if (ImGui.SliderFloat("FOV", ref fov, 30.0f, 120.0f))
             {
                 try
                 {
-                    _currentScene.Camera.Fov = fov.toRadians();
+                    _currentScene.Camera.Fov = fov.ToRadians();
                 }
                 catch (Exception e)
                 {
@@ -234,34 +303,54 @@ public class ViewerWindow : GameWindow
             }
         }
 
+        ImGui.Separator();
+
+        if (ImGui.Button("Create box"))
+            Actions.Enqueue(() =>
+            {
+                var box = new Box();
+                box.ApplyShader("flat");
+                _currentScene?.AddRenderable(box);
+            });
+
+        var mousePos = ImGui.GetCursorScreenPos();
+        ImGui.Text("Object Hovering: " + _objectHoveringId);
+        ImGui.Text("Mouse Position X: " + _localMousePos.X.ToString("F2") +  " Y: " + _localMousePos.Y.ToString("F2"));;
         ImGui.End();
     }
 
     private void MainViewPortPanel()
     {
-        ImGui.Begin("Viewport", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove |
-                                ImGuiWindowFlags.NoCollapse);
+        var style = ImGui.GetStyle();
+        var originalpadding = style.WindowPadding;
+        style.WindowPadding = new System.Numerics.Vector2(0, 0); 
+        
+        ImGui.Begin("Viewport", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize);
         var viewportSize = ImGui.GetContentRegionAvail();
         var viewportPos = ImGui.GetCursorScreenPos();
+ 
 
         if ((int)viewportSize.X != _mainViewport.Width || (int)viewportSize.Y != _mainViewport.Height)
         {
             if (viewportSize.X > 0 && viewportSize.Y > 0)
             {
-                _renderer.ResizeViewportBuffer(_mainViewport, (int)viewportSize.X, (int)viewportSize.Y);
+                _renderer.ResizeViewportBuffers(_mainViewport, (int)viewportSize.X, (int)viewportSize.Y);
                 _currentScene.Camera.AspectRatio = viewportSize.X / viewportSize.Y;
             }
         }
 
-        ImGui.Image((IntPtr)_mainViewport.FrameBufferInfo.TextureColorBufferId, new System.Numerics.Vector2(viewportSize.X, viewportSize.Y), _uv0,
+        ImGui.Image(_mainViewport.FullRenderView.TextureColorBufferId,
+            new System.Numerics.Vector2(viewportSize.X, viewportSize.Y), _uv0,
             _uv1);
 
         _isViewportHovered = ImGui.IsItemHovered();
         _isViewportFocused = ImGui.IsWindowFocused();
 
-        if (_isViewportHovered && _isViewportFocused)
-            Trace.WriteLine("Viewport Hovered and Focused");
-
+        if (_isViewportHovered)
+        {
+            _localMousePos.X = ImGui.GetMousePos().X - ImGui.GetCursorScreenPos().X;
+            _localMousePos.Y = ImGui.GetCursorScreenPos().Y - ImGui.GetMousePos().Y;
+        }        
         // if (ImGui.BeginPopupContextWindow(null)) 
         // {
         //     // 2. Display your menu items
@@ -286,6 +375,7 @@ public class ViewerWindow : GameWindow
         CreateOrientationPanel(viewportSize, viewportPos);
 
         ImGui.End();
+        style.WindowPadding = originalpadding;
     }
 
     private void CreateOrientationPanel(System.Numerics.Vector2 parentSize,

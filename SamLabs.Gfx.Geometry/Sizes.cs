@@ -14,4 +14,6 @@ public static class Sizes
     public static int Short => 2;
     public static int Bool => 1;
     
+    public static int Pixel => 4;
+    
 }

@@ -5,7 +5,7 @@ using SamLabs.Gfx.Core.Framework.Display;
 
 namespace SamLabs.Gfx.Viewer.Display;
 
-public class Renderer: IDisposable, IRenderer
+public class Renderer : IDisposable, IRenderer
 {
     private ShaderManager _shaderManager;
     private readonly UniformBufferManager _uniformBufferManager;
@@ -18,16 +18,20 @@ public class Renderer: IDisposable, IRenderer
     private Matrix4? _proj = Matrix4.Identity;
     private int _vertexCount = 0;
 
-    public Renderer(ShaderManager shaderManager, UniformBufferManager uniformBufferManager, FrameBufferHandler frameBufferHandler, ILogger<Renderer> logger)
+    public IRenderPass[] RenderPasses; //Sorted renderpasses 
+    public Renderer(ShaderManager shaderManager, UniformBufferManager uniformBufferManager,
+        FrameBufferHandler frameBufferHandler, ILogger<Renderer> logger)
     {
         _uniformBufferManager = uniformBufferManager;
         _frameBufferHandler = frameBufferHandler;
         _shaderManager = shaderManager;
         _logger = logger;
     }
+
     public void Initialize()
     {
         _uniformBufferManager.RegisterViewProjectionBuffer();
+        _uniformBufferManager.CreateSingleIntUniform("objectId");
         _shaderManager.RegisterShaders();
 
         //bind shaders to view projection buffer
@@ -39,50 +43,73 @@ public class Renderer: IDisposable, IRenderer
 
     public void SetWireframes(bool wireframe)
     {
-        if(wireframe)
+        if (wireframe)
             GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
         else
             GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
     }
+
     public void SetCamera(Matrix4 view, Matrix4 proj)
     {
         _view = view;
         _proj = proj;
         _uniformBufferManager.UpdateViewProjectionBuffer(view, proj);
     }
-    
-    public IViewPort CreateViewport(string name, int width, int height)
+
+    public IViewPort CreateViewportBuffers(string name, int width, int height)
     {
-        var viewport = new ViewPort( width, height);
-            if(_frameBufferHandler.CreateViewPortBuffer(viewport))
-                return viewport;
-            return null; 
-    } 
+        var fullRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height);
+        var pickingRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height, true);
+
+        var viewport = new ViewPort(width, height)
+        {
+            Name = name,
+            FullRenderView = fullRenderViewInfo,
+            SelectionRenderView = pickingRenderViewInfo
+        };
+        return viewport;
+    }
+
     public void SetViewPort(int width, int height, int x, int y) => GL.Viewport(x, y, width, height);
 
     public void RenderScene(IScene scene)
     {
-        
     }
 
     public void Dispose()
     {
     }
 
-    public void BeginRenderToViewPort(IViewPort mainViewport)
+    public void ClearPickingBuffer(IViewPort mainViewport)
     {
-        _frameBufferHandler.RenderToFrameBuffer(mainViewport.FrameBufferInfo);
+        _frameBufferHandler.ClearPickingBuffer(mainViewport.SelectionRenderView);
     }
 
-    public void EndRenderToViewPort()
+    public void ClearViewportBuffer(IViewPort mainViewport)
+    {
+        _frameBufferHandler.ClearViewportBuffer(mainViewport.FullRenderView);
+    }
+
+    public void RenderToPickingBuffer(IViewPort mainViewport)
+    {
+        _frameBufferHandler.ClearViewportBuffer(mainViewport.SelectionRenderView);
+        _frameBufferHandler.RenderToFrameBuffer(mainViewport.SelectionRenderView);
+    }
+
+    public void RenderToViewportBuffer(IViewPort mainViewport)
+    {
+        _frameBufferHandler.ClearViewportBuffer(mainViewport.FullRenderView);
+        _frameBufferHandler.RenderToFrameBuffer(mainViewport.FullRenderView);
+    }
+
+    public void StopRenderToBuffer()
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
-    public void ResizeViewportBuffer(IViewPort mainViewport, int viewportSizeX, int viewportSizeY)
+    public void ResizeViewportBuffers(IViewPort mainViewport, int viewportSizeX, int viewportSizeY)
     {
-        _frameBufferHandler.ResizeFrameBuffer(mainViewport.FrameBufferInfo, viewportSizeX, viewportSizeY);
+        _frameBufferHandler.ResizeFrameBuffer(mainViewport.FullRenderView, viewportSizeX, viewportSizeY);
+        _frameBufferHandler.ResizeFrameBuffer(mainViewport.SelectionRenderView, viewportSizeX, viewportSizeY, true);
     }
 }
-
-

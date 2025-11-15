@@ -8,6 +8,7 @@ public class UniformBufferManager: IDisposable
 {
     private static int _viewProjectionBuffer;
     private const int ViewProjectionBindingPoint = 0;
+    private const int ObjectIdBindingPoint = 1;
     public const string ViewProjectionName = "ViewProjection";
     private readonly Dictionary<string, uint> UniformBindingPoints = new();
 
@@ -56,12 +57,16 @@ public class UniformBufferManager: IDisposable
         UniformBindingPoints.Add(uniqueName, bindingPoint);
     }
 
-    public void CreateUniform()
+    public void CreateSingleIntUniform(string name)
     {
         var bufferId = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.UniformBuffer, bufferId);
-        GL.BufferData(BufferTarget.UniformBuffer,Sizes.Float, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BufferData(BufferTarget.UniformBuffer,Sizes.Int, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BindBufferBase(BufferTarget.UniformBuffer, ObjectIdBindingPoint, _viewProjectionBuffer);
+
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+        
+        UniformBindingPoints.Add(name, ObjectIdBindingPoint);
     }
 
 

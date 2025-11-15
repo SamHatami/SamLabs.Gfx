@@ -1,7 +1,7 @@
 #version 330 core
-out int FragColor;
+out uint FragColor;
 
-uniform int objectId;
+uniform uint objectId;
 
 void main()
 {

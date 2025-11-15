@@ -69,7 +69,7 @@ public class Camera : ICamera
 
     public static ICamera CreateDefault()
     {
-        return new Camera(new Vector3(0, 0, 5), new Vector3(0, 0, 0), Vector3.UnitY);
+        return new Camera(new Vector3(5, 5, 5), new Vector3(0, 0, 0), Vector3.UnitY);
     }
 
     // Private helper method to calculate new Position based on Target and spherical coordinates

@@ -7,11 +7,12 @@ public interface IRenderer
     public void Initialize();
     public int GetShaderProgram(string shaderName);
     public void SetCamera(Matrix4 view, Matrix4 proj);
-    public IViewPort CreateViewport(string name, int width, int height);
-    
-    public void BeginRenderToViewPort(IViewPort viewport);
-    public void EndRenderToViewPort();
+    public IViewPort CreateViewportBuffers(string name, int width, int height);
 
-    public void ResizeViewportBuffer(IViewPort mainViewport, int viewportSizeX, int viewportSizeY);
+    public void RenderToPickingBuffer(IViewPort mainViewport);
+    public void RenderToViewportBuffer(IViewPort viewport);
+    public void StopRenderToBuffer();
+
+    public void ResizeViewportBuffers(IViewPort mainViewport, int viewportSizeX, int viewportSizeY);
 
 }

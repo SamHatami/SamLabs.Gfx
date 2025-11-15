@@ -11,12 +11,15 @@ public class Box : IRenderable, ISelectable
 {
     private GlMesh _mesh;
     private int _shaderProgram;
+    private int _baseShaderProgram;
 
-    public int Id { get; }
+    public int Id { get; } 
     public bool IsSelected { get; set; }
     public Box(int size = 1)
     {
         SetupMesh(size);
+        _baseShaderProgram = ShaderManager.GetShaderProgram("base");
+        Id = 2;
     }
 
     private void SetupMesh(int size)
@@ -85,11 +88,24 @@ public class Box : IRenderable, ISelectable
         _shaderProgram = ShaderManager.GetShaderProgram(shaderProgram);       
     }
 
+    public void DrawPickingId()
+    {
+        if(_baseShaderProgram == 0)
+            _baseShaderProgram = ShaderManager.GetShaderProgram("base");
+        
+        GL.UseProgram(_baseShaderProgram);
+        
+        int uniformLoc = GL.GetUniformLocation(_baseShaderProgram, "objectId");
+        GL.Uniform1ui(uniformLoc, (uint)Id);
+        _mesh.Draw();
+        GL.UseProgram(0);
+    }
+
     public void Draw()
     {
         if(_shaderProgram == 0)
             return;
-        
+
         GL.UseProgram(_shaderProgram);
         _mesh.Draw();
         GL.UseProgram(0);

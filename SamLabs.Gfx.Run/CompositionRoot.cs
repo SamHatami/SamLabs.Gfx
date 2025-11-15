@@ -41,7 +41,8 @@ public static class CompositionRoot
         {
             ClientSize = new Vector2i(1280, 720),
             Title = "SamLabs.Gfx.Viewer",
-            Flags = ContextFlags.Debug
+            Flags = ContextFlags.Debug,
+            APIVersion =  new Version(4, 6),
         };
         
         
