@@ -325,7 +325,7 @@ public class ViewerWindow : GameWindow
         var originalpadding = style.WindowPadding;
         style.WindowPadding = new System.Numerics.Vector2(0, 0); 
         
-        ImGui.Begin("Viewport", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize);
+        ImGui.Begin("Viewport", ImGuiWindowFlags.NoTitleBar );
         var viewportSize = ImGui.GetContentRegionAvail();
         var viewportPos = ImGui.GetCursorScreenPos();
  
