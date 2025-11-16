@@ -18,7 +18,7 @@ namespace SamLabs.Gfx.Viewer.Display;
 public class ViewerWindow : GameWindow
 {
     private IScene? _currentScene;
-    private Renderer _renderer; //IRenderer 
+    private IRenderer _renderer; //IRenderer 
     public ConcurrentQueue<Action> Actions { get; } = new();
     private bool _isLeftDown;
     private bool _isRightDown;
@@ -161,7 +161,7 @@ public class ViewerWindow : GameWindow
     }
 
 
-    public void SetRenderer(Renderer renderer)
+    public void SetRenderer(IRenderer renderer)
     {
         _renderer = renderer;
     }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using Avalonia;
+using Avalonia.OpenGL;
 
 namespace SamLabs.Gfx.StandAlone;
 
@@ -21,7 +23,9 @@ internal sealed class Program
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            .With(new Win32PlatformOptions { RenderingMode = (Collection<Win32RenderingMode>)[Win32RenderingMode.Wgl] }) //This line is the important one.
             .LogToTrace()
             .WithDeveloperTools();
+
     }
 }

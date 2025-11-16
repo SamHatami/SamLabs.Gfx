@@ -18,7 +18,14 @@
 
     <Grid>
         <!--ADD command panel or something here-->
-        <models:ViewportRenderingControl SceneManager="{Binding SceneManager}" Renderer="{Binding Renderer}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="1.5*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Panel Grid.Column="0" >
+            <Button Content="Hej"/>
+        </Panel>
+        <models:ViewportRenderingControl Grid.Column="1" SceneManager="{Binding SceneManager}" Renderer="{Binding Renderer}"/>
     </Grid>
 
 </Window>

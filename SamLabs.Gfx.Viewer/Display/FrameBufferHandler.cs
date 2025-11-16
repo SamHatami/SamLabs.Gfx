@@ -185,6 +185,13 @@ public class FrameBufferHandler
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
+    public void ClearRenderBuffer(int renderBufferId)
+    {
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderBufferId);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+    }
+
     public void ClearViewportBuffer(IFrameBufferInfo mainViewportFullRenderView)
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainViewportFullRenderView.FrameBufferId);

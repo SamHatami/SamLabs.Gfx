@@ -21,7 +21,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     /// OpenTkRender is called once a frame to draw to the control.
     /// You can do anything you want here, but make sure you undo any configuration changes after, or you may get weirdness with other controls.
     /// </summary>
-    protected virtual void OpenTkRender()
+    protected virtual void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
         //Main rendering logic goes here
     }
@@ -39,7 +39,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         //Tell our subclass to render
         if (Bounds.Width != 0 && Bounds.Height != 0)
         {
-            OpenTkRender();
+            OpenTkRender(fb, size.Width, size.Height);
         }
 
         //Schedule next UI update with avalonia
@@ -65,9 +65,6 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     /// At this point, the GL bindings are initialized and you can invoke GL functions.
     /// You could use this function to load and compile shaders, load textures, allocate buffers, etc.
     /// </summary>
-    protected virtual void OpenTkInit()
-    {
-    }
 
     protected override void OnOpenGlInit(GlInterface gl)
     {

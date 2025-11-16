@@ -22,7 +22,7 @@ try
     //Create background worker thread for loading assets
     //Create background worker thread for logic updates
     var sceneManger = serviceProvider.GetService<ISceneManager>();
-    var renderer = serviceProvider.GetService<Renderer>();
+    var renderer = serviceProvider.GetService<IRenderer>();
     
     var defaultScene = sceneManger.GetCurrentScene();
     var window = serviceProvider.GetService<ViewerWindow>();

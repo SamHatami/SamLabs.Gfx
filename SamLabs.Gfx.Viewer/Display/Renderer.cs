@@ -92,8 +92,16 @@ public class Renderer : IDisposable, IRenderer
 
     public void RenderToPickingBuffer(IViewPort mainViewport)
     {
-        _frameBufferHandler.ClearViewportBuffer(mainViewport.SelectionRenderView);
-        _frameBufferHandler.RenderToFrameBuffer(mainViewport.SelectionRenderView);
+        if (mainViewport == null)
+        {
+            _frameBufferHandler.ClearRenderBuffer(0);
+            
+        }
+        else
+        {
+            _frameBufferHandler.ClearViewportBuffer(mainViewport.SelectionRenderView); //Kept for ImGui...
+            _frameBufferHandler.RenderToFrameBuffer(mainViewport.SelectionRenderView);
+        }
     }
 
     public void RenderToViewportBuffer(IViewPort mainViewport)
