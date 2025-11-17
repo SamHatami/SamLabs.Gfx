@@ -117,7 +117,7 @@ public class Renderer : IDisposable, IRenderer
 
     public void ResizeViewportBuffers(IViewPort mainViewport, int viewportSizeX, int viewportSizeY)
     {
-        _frameBufferHandler.ResizeFrameBuffer(mainViewport.FullRenderView, viewportSizeX, viewportSizeY);
+        // _frameBufferHandler.ResizeFrameBuffer(mainViewport.FullRenderView, viewportSizeX, viewportSizeY);
         _frameBufferHandler.ResizeFrameBuffer(mainViewport.SelectionRenderView, viewportSizeX, viewportSizeY, true);
     }
 }

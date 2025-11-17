@@ -55,6 +55,7 @@ public class ViewportRenderingControl : OpenTkControlBase
     private double _mouseMoveDeltaY;
     private bool _isViewportHovered;
     private Point _currentMousePosition;
+    private bool _resizeRequested;
 
     public ConcurrentQueue<Action> Actions { get; } = new();
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
@@ -68,8 +69,14 @@ public class ViewportRenderingControl : OpenTkControlBase
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
-        _currentScene.Camera.AspectRatio = (float)width / (float)height;
 
+        if (_resizeRequested)
+        {
+            _currentScene.Camera.AspectRatio = (float)width / (float)height;
+            _renderer.ResizeViewportBuffers(_mainViewport, width, height);
+            _resizeRequested = false;
+        }
+        
         _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
 
         //Dequeue actions --> probably move this to somewhere else
@@ -96,6 +103,8 @@ public class ViewportRenderingControl : OpenTkControlBase
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainScreenFrameBuffer);
         GL.Enable(EnableCap.DepthTest);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        GL.Viewport(0, 0, width,height);
+
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         ProcessMouseEvents();
@@ -188,13 +197,9 @@ public class ViewportRenderingControl : OpenTkControlBase
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
     {
-        _currentScene.Camera.AspectRatio = (float)e.NewSize.Width / (float)e.NewSize.Height;
-        _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-
-        GL.Viewport(0, 0, (int)e.NewSize.Width, (int)e.NewSize.Height);
-
+        _resizeRequested = true;
+        
         // RequestNextFrameRendering();
-        // _renderer.ResizeViewportBuffers(_mainViewport, (int)e.NewSize.Width, (int)e.NewSize.Height);
     }
 
     private void StorePickingId(Point localMousePos)
