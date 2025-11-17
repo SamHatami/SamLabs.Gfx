@@ -58,13 +58,13 @@ public class Renderer : IDisposable, IRenderer
 
     public IViewPort CreateViewportBuffers(string name, int width, int height)
     {
-        var fullRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height);
+        // var fullRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height);
         var pickingRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height, true);
 
         var viewport = new ViewPort(width, height)
         {
             Name = name,
-            FullRenderView = fullRenderViewInfo,
+            FullRenderView = new FrameBufferInfo(1, 1, 1, width, height),
             SelectionRenderView = pickingRenderViewInfo
         };
         return viewport;

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Concurrent;
+using System.Drawing;
 using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Viewer.Primitives;
 
@@ -12,6 +13,8 @@ public class Scene : IScene
     public ICamera Camera { get; internal set; }
 
     public List<IRenderable> GetRenderables() => _renderables;
+    
+    public ConcurrentQueue<Action> Actions { get; set; } = new();
 
     public void AddRenderable(IRenderable renderable) => _renderables.Add(renderable);
 

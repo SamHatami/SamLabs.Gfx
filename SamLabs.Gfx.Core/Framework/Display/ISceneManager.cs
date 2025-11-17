@@ -1,4 +1,6 @@
-﻿namespace SamLabs.Gfx.Core.Framework.Display;
+﻿using System.Collections.Concurrent;
+
+namespace SamLabs.Gfx.Core.Framework.Display;
 
 public interface ISceneManager
 {
