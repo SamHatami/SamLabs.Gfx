@@ -3,28 +3,20 @@
   "WorkspaceRootPath": "C:\\Workspace\\SamLabs.Gfx\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\views\\mainview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\views\\mainview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{03B936CF-FD38-472B-8077-65A445C29C6B}|SamLabs.Gfx.StandAlone\\SamLabs.Gfx.StandAlone.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.standalone\\views\\mainwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{03B936CF-FD38-472B-8077-65A445C29C6B}|SamLabs.Gfx.StandAlone\\SamLabs.Gfx.StandAlone.csproj|solutionrelative:samlabs.gfx.standalone\\views\\mainwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\Views\\MainView.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\obj\\Debug\\net8.0-windows\\App.g.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\obj\\Debug\\net8.0-windows\\App.g.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\views\\mainview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\views\\mainview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\compositionroot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\compositionroot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\fc327bc2f115523ac0e70c5aae55d256ba30e43868043c4a51fa935fe595b137\\GLWpfControlRenderer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -33,28 +25,40 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\6b2dfb9d5e4949b718ee78fa9415cabf37518e9447a2764ba224d240518b710f\\ResourcePart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\viewmodels\\viewmodelbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\viewmodels\\viewmodelbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{C33BB9F6-229E-489C-AD3B-F89903516235}|SamLabs.Gfx.Run\\SamLabs.Gfx.Run.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.run\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C33BB9F6-229E-489C-AD3B-F89903516235}|SamLabs.Gfx.Run\\SamLabs.Gfx.Run.csproj|solutionrelative:samlabs.gfx.run\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.wpf\\samlabs.gfx.wpf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{E328C594-51B5-49B1-B4F0-C4183514BDD2}|SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj|solutionrelative:samlabs.gfx.wpf\\samlabs.gfx.wpf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{9CB5E959-B978-4330-8BBF-D6108C991189}|SamLabs.Gfx.Viewer\\SamLabs.Gfx.Viewer.csproj|c:\\workspace\\samlabs.gfx\\samlabs.gfx.viewer\\framework\\imguiwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9CB5E959-B978-4330-8BBF-D6108C991189}|SamLabs.Gfx.Viewer\\SamLabs.Gfx.Viewer.csproj|solutionrelative:samlabs.gfx.viewer\\framework\\imguiwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B0B8A8F1-BD12-4A13-AAE4-B4AA99EE227C}|Run\\Run.csproj|c:\\workspace\\samlabs.gfx\\run\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B0B8A8F1-BD12-4A13-AAE4-B4AA99EE227C}|Run\\Run.csproj|solutionrelative:run\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\App.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\App.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\ViewModels\\ViewModelBase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\ViewModels\\ViewModelBase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\ViewModels\\MainViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\ViewModels\\MainViewModel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\SamLabs.Gfx.Wpf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\CompositionRoot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\CompositionRoot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\App.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Wpf\\App.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Viewer\\Framework\\ImGuiWindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SamLabs.Gfx.Viewer\\Framework\\ImGuiWindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -64,11 +68,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 7,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\Run\\Program.cs",
               "RelativeDocumentMoniker": "Run\\Program.cs",
@@ -81,8 +85,25 @@
               "EditorCaption": ""
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "MainWindow.axaml",
+              "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.StandAlone\\Views\\MainWindow.axaml",
+              "RelativeDocumentMoniker": "SamLabs.Gfx.StandAlone\\Views\\MainWindow.axaml",
+              "ToolTip": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.StandAlone\\Views\\MainWindow.axaml*",
+              "RelativeToolTip": "SamLabs.Gfx.StandAlone\\Views\\MainWindow.axaml*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-17T15:20:38.278Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "App.g.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\obj\\Debug\\net8.0-windows\\App.g.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\obj\\Debug\\net8.0-windows\\App.g.cs",
@@ -95,7 +116,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "App.xaml",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\App.xaml",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\App.xaml",
@@ -107,13 +128,12 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 5,
               "Title": "ResourcePart.cs",
               "DocumentMoniker": "C:\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\6b2dfb9d5e4949b718ee78fa9415cabf37518e9447a2764ba224d240518b710f\\ResourcePart.cs",
               "RelativeDocumentMoniker": "..\\..\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\6b2dfb9d5e4949b718ee78fa9415cabf37518e9447a2764ba224d240518b710f\\ResourcePart.cs",
               "ToolTip": "C:\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\6b2dfb9d5e4949b718ee78fa9415cabf37518e9447a2764ba224d240518b710f\\ResourcePart.cs [Read Only]",
               "RelativeToolTip": "..\\..\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\6b2dfb9d5e4949b718ee78fa9415cabf37518e9447a2764ba224d240518b710f\\ResourcePart.cs [Read Only]",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAtwCcAAAAEAAAAAQAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-11T07:21:27.283Z",
               "EditorCaption": " [Read Only]"
@@ -133,7 +153,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "MainViewModel.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\ViewModels\\MainViewModel.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\ViewModels\\MainViewModel.cs",
@@ -159,7 +179,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 12,
               "Title": "CompositionRoot.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\CompositionRoot.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\CompositionRoot.cs",
@@ -172,7 +192,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 13,
               "Title": "App.xaml.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\App.xaml.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\App.xaml.cs",
@@ -185,7 +205,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 6,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Run\\Program.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Run\\Program.cs",
@@ -198,51 +218,48 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "ImGuiWindow.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Viewer\\Framework\\ImGuiWindow.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Viewer\\Framework\\ImGuiWindow.cs",
               "ToolTip": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Viewer\\Framework\\ImGuiWindow.cs",
               "RelativeToolTip": "SamLabs.Gfx.Viewer\\Framework\\ImGuiWindow.cs",
-              "ViewState": "AgIAAG8AAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-10T18:47:32.747Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-10T18:47:32.747Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 4,
               "Title": "GLWpfControlRenderer.cs",
               "DocumentMoniker": "C:\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\fc327bc2f115523ac0e70c5aae55d256ba30e43868043c4a51fa935fe595b137\\GLWpfControlRenderer.cs",
               "RelativeDocumentMoniker": "..\\..\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\fc327bc2f115523ac0e70c5aae55d256ba30e43868043c4a51fa935fe595b137\\GLWpfControlRenderer.cs",
               "ToolTip": "C:\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\fc327bc2f115523ac0e70c5aae55d256ba30e43868043c4a51fa935fe595b137\\GLWpfControlRenderer.cs",
               "RelativeToolTip": "..\\..\\Users\\mhata\\AppData\\Local\\Temp\\.vsdbgsrc\\fc327bc2f115523ac0e70c5aae55d256ba30e43868043c4a51fa935fe595b137\\GLWpfControlRenderer.cs",
-              "ViewState": "AgIAAFgAAAAAAAAAAAAtwHgAAAADAAAAAQAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-10T18:46:26.163Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-10T18:46:26.163Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "MainView.xaml",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\Views\\MainView.xaml",
               "ToolTip": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml",
               "RelativeToolTip": "SamLabs.Gfx.Wpf\\Views\\MainView.xaml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-11-10T18:41:52.683Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "MainView.xaml.cs",
               "DocumentMoniker": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs",
               "RelativeDocumentMoniker": "SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs",
-              "ToolTip": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs*",
-              "RelativeToolTip": "SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs*",
-              "ViewState": "AgIAAEcAAAAAAAAAAAAYwHgAAAArAAAAAAAAAA==",
+              "ToolTip": "C:\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs",
+              "RelativeToolTip": "SamLabs.Gfx.Wpf\\Views\\MainView.xaml.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAQwDYAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-10T18:35:39.239Z",
               "EditorCaption": ""

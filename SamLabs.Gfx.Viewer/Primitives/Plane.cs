@@ -1,14 +1,16 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.Display;
 using SamLabs.Gfx.Viewer.Geometry;
+using SamLabs.Gfx.Viewer.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.Primitives;
 
 public class Plane: IRenderable
 {
+    public int Id { get; }
+    
     private readonly GlMesh _mesh;
     private int _shaderProgram;
     /// <summary>
@@ -87,6 +89,7 @@ public class Plane: IRenderable
     {
         _shaderProgram = ShaderManager.GetShaderProgram(shaderProgram);       
     }
+
 
     public void DrawPickingId()
     {

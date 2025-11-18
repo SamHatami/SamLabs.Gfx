@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace SamLabs.Gfx.Core.Framework.Display;
+namespace SamLabs.Gfx.Viewer.Interfaces;
 
 public interface IGrid : IRenderable
 {

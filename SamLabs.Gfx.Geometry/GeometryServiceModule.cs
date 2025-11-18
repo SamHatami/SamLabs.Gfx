@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SamLabs.Gfx.Core.Framework.Display;
+using SamLabs.Gfx.Core.Framework;
 
 namespace SamLabs.Gfx.Geometry;
 

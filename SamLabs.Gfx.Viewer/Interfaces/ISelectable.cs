@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Core.Framework.Display;
+﻿namespace SamLabs.Gfx.Viewer.Interfaces;
 
 public interface ISelectable
 {

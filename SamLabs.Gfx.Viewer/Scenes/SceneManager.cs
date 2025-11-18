@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using SamLabs.Gfx.Core.Framework.Display;
-using SamLabs.Gfx.Viewer.Primitives;
+using SamLabs.Gfx.Viewer.Interfaces;
 
-namespace SamLabs.Gfx.Viewer.Display;
+namespace SamLabs.Gfx.Viewer.Scenes;
 
 public class SceneManager : ISceneManager
 {
     private readonly ILogger<SceneManager> _logger;
-    private IScene? _currentScene;
+    private Scene? _currentScene;
 
     public SceneManager(ILogger<SceneManager> logger)
     {
@@ -15,9 +14,9 @@ public class SceneManager : ISceneManager
     }
 
 
-    public IScene GetCurrentScene()
+    public Scene GetCurrentScene()
     {
-        return _currentScene ??= DefaultScene();
+        return _currentScene;
     }
 
     public void AddRenderable(IRenderable renderable)
@@ -26,13 +25,12 @@ public class SceneManager : ISceneManager
     }
 
 
-    private IScene DefaultScene()
+    private Scene DefaultScene(IGrid grid)
     {
         return new Scene
         {
             Camera = Camera.CreateDefault(),
-            Grid = new Grid(),
+            Grid = grid
         };
     }
 }
-

@@ -1,8 +1,8 @@
-﻿using SamLabs.Gfx.Core.Framework.Display;
+﻿using SamLabs.Gfx.Viewer.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.Display;
 
-public class FrameBufferInfo:IFrameBufferInfo
+public class FrameBufferInfo : IFrameBufferInfo
 {
     public int FrameBufferId { get; }
     public int TextureColorBufferId { get; set; }
@@ -20,6 +20,4 @@ public class FrameBufferInfo:IFrameBufferInfo
         Width = width;
         Height = height;
     }
-
-
 }

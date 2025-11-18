@@ -6,19 +6,19 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.OpenGL;
 using Avalonia.Threading;
-using Avalonia.VisualTree;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.StandAlone.Models.OpenTk;
 using SamLabs.Gfx.StandAlone.ViewModels;
+using SamLabs.Gfx.Viewer.Interfaces;
+using SamLabs.Gfx.Viewer.Scenes;
 
 namespace SamLabs.Gfx.StandAlone.Models;
 
-public class ViewportRenderingControl : OpenTkControlBase
+public class EditorControl : OpenTkControlBase
 {
-    public static readonly DirectProperty<ViewportRenderingControl, ISceneManager> SceneManagerProperty =
-        AvaloniaProperty.RegisterDirect<ViewportRenderingControl, ISceneManager>(
+    public static readonly DirectProperty<EditorControl, ISceneManager> SceneManagerProperty =
+        AvaloniaProperty.RegisterDirect<EditorControl, ISceneManager>(
             nameof(SceneManager),
             o => o.SceneManager,
             (o, v) => o.SceneManager = v);
@@ -31,8 +31,8 @@ public class ViewportRenderingControl : OpenTkControlBase
         set => SetAndRaise(SceneManagerProperty, ref _sceneManager, value);
     }
 
-    public static readonly DirectProperty<ViewportRenderingControl, IRenderer> RendererProperty =
-        AvaloniaProperty.RegisterDirect<ViewportRenderingControl, IRenderer>(nameof(Renderer), o => o.Renderer,
+    public static readonly DirectProperty<EditorControl, IRenderer> RendererProperty =
+        AvaloniaProperty.RegisterDirect<EditorControl, IRenderer>(nameof(Renderer), o => o.Renderer,
             (o, v) => o.Renderer = v);
 
     private IRenderer _renderer;
@@ -43,7 +43,7 @@ public class ViewportRenderingControl : OpenTkControlBase
         set => SetAndRaise(RendererProperty, ref _renderer, value);
     }
 
-    private IScene _currentScene;
+    private Scene _currentScene;
     private IViewPort _mainViewport;
     private int _readPickingIndex;
     private int _objectHoveringId;
@@ -77,13 +77,19 @@ public class ViewportRenderingControl : OpenTkControlBase
             _resizeRequested = false;
         }
         
-        _renderer.SetCamera(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
+        
+        _renderer.SendViewProjectionToBuffer(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
 
         //Dequeue actions --> probably move this to somewhere else
 
         _currentScene.Actions.TryDequeue(out var sceneAction);
         sceneAction?.Invoke();
 
+
+        foreach (var renderPass in _renderer.RenderPasses)
+        {
+            renderPass.Render();
+        }
         // //First render pass to picking buffer
         _renderer.ClearPickingBuffer(_mainViewport);
         _renderer.RenderToPickingBuffer(_mainViewport);
@@ -96,6 +102,7 @@ public class ViewportRenderingControl : OpenTkControlBase
 
         _renderer.StopRenderToBuffer();
 
+        //render data passes 
 
         //Second render pass to viewport buffer -> Avalonia already has a framebuffer bound for this, which is fb
         // _renderer.ClearViewportBuffer(_mainViewport);
@@ -128,10 +135,10 @@ public class ViewportRenderingControl : OpenTkControlBase
         }
 
         if (_leftMouseButtonPressed)
-            _currentScene.Camera.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
+            _currentScene.CameraController.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
         //Draw orbiting sphere
         else if (_rightMouseButtonPressed)
-            _currentScene.Camera.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
+            _currentScene.CameraController.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
 
 
         ReadPickingId();
@@ -139,6 +146,10 @@ public class ViewportRenderingControl : OpenTkControlBase
 
     protected override void InitializeOpenTk()
     {
+        
+        //Get all systems and services from DI
+        
+        
         if (Renderer == null)
             return;
 
@@ -207,13 +218,17 @@ public class ViewportRenderingControl : OpenTkControlBase
         int localX = (int)localMousePos.X;
         int localY = (int)localMousePos.Y;
 
-        localX = Math.Max(0, Math.Min(localX, _mainViewport.FullRenderView.Width - 1));
-        localY = Math.Max(0, Math.Min(localY, _mainViewport.FullRenderView.Height - 1));
+        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+        int x = (int)(localMousePos.X * scaling);
+        int y = (int)(localMousePos.Y * scaling);
+        y = _mainViewport.SelectionRenderView.Height - y; // Flip Y
 
-        Console.WriteLine(localX + " " + localY);
+        x = Math.Clamp(x, 0, _mainViewport.SelectionRenderView.Width - 1);
+        y = Math.Clamp(y, 0, _mainViewport.SelectionRenderView.Height - 1);
+
         _readPickingIndex ^= 1;
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
-        GL.ReadPixels(localX, localY, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
+        GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
     }
 
@@ -222,7 +237,6 @@ public class ViewportRenderingControl : OpenTkControlBase
         unsafe
         {
             //Swap PixelbufferIndex
-            _readPickingIndex ^= 1;
             GL.BindBuffer(BufferTarget.PixelPackBuffer,
                 _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
             var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);

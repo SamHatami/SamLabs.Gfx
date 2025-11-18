@@ -1,6 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using SamLabs.Gfx.Core.Framework.Display;
 using SamLabs.Gfx.Geometry;
+using SamLabs.Gfx.Viewer.Interfaces;
 using Buffer = OpenTK.Graphics.OpenGL.Buffer;
 
 namespace SamLabs.Gfx.Viewer.Display;
@@ -35,7 +35,9 @@ public class FrameBufferHandler
             pbo1 = CreatePixelBufferObject();
         }
         else
+        {
             textureId = CreateTextureBuffer(width, height);
+        }
 
         var renderBufferId = CreateRenderBuffer(width, height);
 

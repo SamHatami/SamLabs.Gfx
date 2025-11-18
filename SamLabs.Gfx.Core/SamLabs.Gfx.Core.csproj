@@ -8,11 +8,12 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0-rc.2.25502.107" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-rc.2.25502.107" />
       <PackageReference Include="OpenTK.Mathematics" Version="5.0.0-pre.15" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Framework\Geometry\" />
+      <ProjectReference Include="..\CPURendering\CPURendering.csproj" />
     </ItemGroup>
 
 </Project>

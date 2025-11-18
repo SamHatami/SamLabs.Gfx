@@ -4,40 +4,44 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SamLabs.Gfx.Viewer.Display;
 
-public class ShaderManager: IDisposable
+public class ShaderManager : IDisposable
 {
     private readonly ILogger<ShaderManager> _logger;
     private static Dictionary<string, int> _shadersProgram = new();
-    
+
     public ShaderManager(ILogger<ShaderManager> logger)
     {
         _logger = logger;
     }
-    
+
     public void RegisterShaders()
     {
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var shaderFolder = Path.Combine(assemblyPath, "Shaders");
         var vertPaths = Directory.GetFiles(shaderFolder, "*.vert", SearchOption.AllDirectories);
-        
+
         foreach (var vertPath in vertPaths)
         {
             var fragPath = vertPath.Replace(".vert", ".frag");
-            
-            if(!File.Exists(fragPath))
+
+            if (!File.Exists(fragPath))
                 continue;
 
             var vertShader = Path.GetFileNameWithoutExtension(vertPath);
             var program = GetShaderProgram(vertPath, fragPath);
-            _shadersProgram[vertShader] = program; 
-            
+            _shadersProgram[vertShader] = program;
+
             //Maybe expand into its own shader record later on
         }
-        
+
+
         Console.WriteLine($"Registered {vertPaths.Length} shaders");
     }
 
-    public static int GetShaderProgram(string name) => _shadersProgram.TryGetValue(name, out var program) ? program : -1;
+    public static int GetShaderProgram(string name)
+    {
+        return _shadersProgram.TryGetValue(name, out var program) ? program : -1;
+    }
 
     public int GetShaderProgram(string vertPath, string fragPath)
     {
@@ -47,66 +51,73 @@ public class ShaderManager: IDisposable
             program = CreateShaderProgram(vertPath, fragPath);
             _shadersProgram.Add(vertShader, program);
         }
+
         return program;
     }
-    
-    public string[] GetShaderNames() => _shadersProgram.Keys.ToArray();
-    public int[] GetShaderPrograms() => _shadersProgram.Values.ToArray();
+
+    public string[] GetShaderNames()
+    {
+        return _shadersProgram.Keys.ToArray();
+    }
+
+    public int[] GetShaderPrograms()
+    {
+        return _shadersProgram.Values.ToArray();
+    }
+
     private int CreateShaderProgram(string vertPath, string fragPath)
+    {
+        var vert = LoadTextResource(vertPath);
+        var frag = LoadTextResource(fragPath);
+
+        var v = GL.CreateShader(ShaderType.VertexShader);
+        GL.ShaderSource(v, vert);
+        GL.CompileShader(v);
+
+        GL.GetShaderi(v, ShaderParameterName.CompileStatus, out var ok);
+        if (ok == 0)
         {
-            var vert = LoadTextResource(vertPath);
-            var frag = LoadTextResource(fragPath);
-    
-            var v = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(v, vert);
-            GL.CompileShader(v);
-            
-            GL.GetShaderi(v, ShaderParameterName.CompileStatus, out int ok);
-            if (ok == 0)
-            {
-                GL.GetShaderInfoLog(v, out var info);
-                throw new Exception($"Vertex shader compile error: {info}");
-            }
-    
-            int f = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(f, frag);
-            GL.CompileShader(f);
-            GL.GetShaderi(f, ShaderParameterName.CompileStatus, out ok);
-            if (ok == 0)
-            {
-                GL.GetShaderInfoLog(f, out var info);
-                throw new Exception($"Fragment shader compile error: {info}");
-            }
-    
-            int program = GL.CreateProgram();
-            GL.AttachShader(program, v);
-            GL.AttachShader(program, f);
-            GL.LinkProgram(program);
-    
-            GL.GetProgrami(program, ProgramProperty.LinkStatus , out ok);
-            if (ok == 0)
-            {
-                GL.GetProgramInfoLog(program, out var info);
-                throw new Exception($"Program link error: {info}");
-            }
-    
-            GL.DeleteShader(v);
-            GL.DeleteShader(f);
-            return program;
+            GL.GetShaderInfoLog(v, out var info);
+            throw new Exception($"Vertex shader compile error: {info}");
         }
-    
+
+        var f = GL.CreateShader(ShaderType.FragmentShader);
+        GL.ShaderSource(f, frag);
+        GL.CompileShader(f);
+        GL.GetShaderi(f, ShaderParameterName.CompileStatus, out ok);
+        if (ok == 0)
+        {
+            GL.GetShaderInfoLog(f, out var info);
+            throw new Exception($"Fragment shader compile error: {info}");
+        }
+
+        var program = GL.CreateProgram();
+        GL.AttachShader(program, v);
+        GL.AttachShader(program, f);
+        GL.LinkProgram(program);
+
+        GL.GetProgrami(program, ProgramProperty.LinkStatus, out ok);
+        if (ok == 0)
+        {
+            GL.GetProgramInfoLog(program, out var info);
+            throw new Exception($"Program link error: {info}");
+        }
+
+        GL.DeleteShader(v);
+        GL.DeleteShader(f);
+        return program;
+    }
+
     private string LoadTextResource(string path)
     {
         var baseDir = AppContext.BaseDirectory;
         var full = Path.Combine(baseDir, path.Replace('/', Path.DirectorySeparatorChar));
-        if (!File.Exists(full))
-        {
-            full = Path.Combine(Environment.CurrentDirectory, path);
-        }
+        if (!File.Exists(full)) full = Path.Combine(Environment.CurrentDirectory, path);
         return File.ReadAllText(full);
     }
-    
-    public void WatchForChanges(string path) {
+
+    public void WatchForChanges(string path)
+    {
         var watcher = new FileSystemWatcher(path, "*.vert;*.frag");
         watcher.Changed += (s, e) => ReloadShader(e.FullPath);
         watcher.EnableRaisingEvents = true;
@@ -114,15 +125,10 @@ public class ShaderManager: IDisposable
 
     private void ReloadShader(string eFullPath)
     {
-
     }
 
     public void Dispose()
     {
-        foreach (var shader in _shadersProgram.Values)
-        {
-            GL.DeleteProgram(shader);
-        }
+        foreach (var shader in _shadersProgram.Values) GL.DeleteProgram(shader);
     }
 }
-

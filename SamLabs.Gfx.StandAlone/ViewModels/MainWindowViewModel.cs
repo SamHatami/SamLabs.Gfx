@@ -1,14 +1,14 @@
-﻿using Avalonia.OpenGL;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SamLabs.Gfx.Core.Framework.Display;
+using SamLabs.Gfx.Viewer.Interfaces;
 using SamLabs.Gfx.Viewer.Primitives;
+using SamLabs.Gfx.Viewer.Scenes;
 
 namespace SamLabs.Gfx.StandAlone.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private IScene _scene;
+    private Scene _scene;
     private Grid _grid;
     public IRenderer Renderer { get; }
     public ISceneManager SceneManager { get; }
@@ -23,7 +23,6 @@ public partial class MainWindowViewModel : ViewModelBase
 
         InitializeMainScene();
     }
-
     private void InitializeMainScene()
     {
         _scene = SceneManager.GetCurrentScene();

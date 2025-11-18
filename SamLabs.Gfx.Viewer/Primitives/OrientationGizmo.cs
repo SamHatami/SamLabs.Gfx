@@ -1,8 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
-using SamLabs.Gfx.Core.Framework.Display;
-using SamLabs.Gfx.Viewer.Geometry;
-
-namespace SamLabs.Gfx.Viewer.Primitives;
+﻿namespace SamLabs.Gfx.Viewer.Primitives;
 
 public class OrientationGizmo 
 {

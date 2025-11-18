@@ -9,7 +9,7 @@ public class DarkStyle
 {
     public DarkStyle()
     {
-        ImGuiStylePtr style = ImGui.GetStyle();
+        var style = ImGui.GetStyle();
 
         // --- 📐 Style Variables (Rounding, Spacing, Padding) ---
         style.WindowPadding = new Vector2(8, 8);
@@ -19,7 +19,7 @@ public class DarkStyle
         style.IndentSpacing = 20.0f;
         style.ScrollbarSize = 10.0f;
         style.GrabMinSize = 8.0f;
-        
+
         // Rounding
         style.WindowRounding = 4.0f;
         style.ChildRounding = 4.0f;
@@ -38,19 +38,20 @@ public class DarkStyle
 
         // --- 🎨 Colors ---
         // Define base colors (R, G, B, A in 0.0-1.0 range)
-        Vector4 darkGray = new Vector4(0.13f, 0.13f, 0.13f, 1.00f);
-        Vector4 mediumGray = new Vector4(0.20f, 0.20f, 0.20f, 1.00f);
-        Vector4 lightGray = new Vector4(0.28f, 0.28f, 0.28f, 1.00f);
-        Vector4 accentColor = new Vector4(0.0f, 0.44f, 0.88f, 1.00f); // A vibrant blue
-        Vector4 accentHover = new Vector4(0.0f, 0.55f, 1.0f, 1.00f);
-        Vector4 accentActive = new Vector4(0.0f, 0.33f, 0.77f, 1.00f);
+        var darkGray = new Vector4(0.13f, 0.13f, 0.13f, 1.00f);
+        var mediumGray = new Vector4(0.20f, 0.20f, 0.20f, 1.00f);
+        var lightGray = new Vector4(0.28f, 0.28f, 0.28f, 1.00f);
+        var accentColor = new Vector4(0.0f, 0.44f, 0.88f, 1.00f); // A vibrant blue
+        var accentHover = new Vector4(0.0f, 0.55f, 1.0f, 1.00f);
+        var accentActive = new Vector4(0.0f, 0.33f, 0.77f, 1.00f);
 
         // Apply colors to the style array
         style.Colors[(int)ImGuiCol.Text] = new Vector4(0.90f, 0.90f, 0.90f, 1.00f);
         style.Colors[(int)ImGuiCol.TextDisabled] = new Vector4(0.50f, 0.50f, 0.50f, 1.00f);
         style.Colors[(int)ImGuiCol.WindowBg] = darkGray;
         style.Colors[(int)ImGuiCol.ChildBg] = darkGray;
-        style.Colors[(int)ImGuiCol.PopupBg] = new Vector4(0.10f, 0.10f, 0.10f, 0.94f); // Slightly darker, semi-transparent
+        style.Colors[(int)ImGuiCol.PopupBg] =
+            new Vector4(0.10f, 0.10f, 0.10f, 0.94f); // Slightly darker, semi-transparent
         style.Colors[(int)ImGuiCol.Border] = new Vector4(0.40f, 0.40f, 0.40f, 0.40f);
         style.Colors[(int)ImGuiCol.BorderShadow] = new Vector4(0.00f, 0.00f, 0.00f, 0.00f);
 
@@ -113,7 +114,7 @@ public class DarkStyle
         // Text Selection and Drag/Drop
         style.Colors[(int)ImGuiCol.TextSelectedBg] = accentHover * new Vector4(1.0f, 1.0f, 1.0f, 0.4f);
         style.Colors[(int)ImGuiCol.DragDropTarget] = new Vector4(1.00f, 1.00f, 0.00f, 0.90f);
-        
+
         // Navigation and Modal
         style.Colors[(int)ImGuiCol.NavWindowingHighlight] = new Vector4(1.00f, 1.00f, 1.00f, 0.70f);
         style.Colors[(int)ImGuiCol.NavWindowingDimBg] = new Vector4(0.80f, 0.80f, 0.80f, 0.20f);

@@ -17,7 +17,6 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     private GlInterface? _gl;
     public AvaloniaKeyboardState KeyboardState = new();
     private AvaloniaTkContext? _avaloniaTkContext;
-
     /// <summary>
     /// OpenTkRender is called once a frame to draw to the control.
     /// You can do anything you want here, but make sure you undo any configuration changes after, or you may get weirdness with other controls.

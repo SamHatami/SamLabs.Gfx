@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace CPURendering.Geometry;
 

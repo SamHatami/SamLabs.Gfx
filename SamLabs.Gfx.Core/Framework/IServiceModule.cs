@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace SamLabs.Gfx.Core.Framework.Display;
+namespace SamLabs.Gfx.Core.Framework;
 
 public interface IServiceModule
 {

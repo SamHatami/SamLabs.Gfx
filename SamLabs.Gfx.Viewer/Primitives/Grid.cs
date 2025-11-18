@@ -1,8 +1,7 @@
 using System.Drawing;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Core.Framework.Display;
+using SamLabs.Gfx.Viewer.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.Primitives;
 
@@ -12,6 +11,7 @@ public class Grid : IGrid
     private readonly float _spacing;
     private int _vao;
     private int _vbo;
+    public int Id { get; }
 
     private int _shaderProgram;
 

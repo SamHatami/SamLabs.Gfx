@@ -1,16 +1,18 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Core.Framework.Display;
+using SamLabs.Gfx.Viewer.Display.Render.Renderpasses;
+using SamLabs.Gfx.Viewer.Interfaces;
+using SamLabs.Gfx.Viewer.Systems.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.Display;
 
-public class Renderer : IDisposable, IRenderer
+public class RenderSystem : IDisposable, IRenderer, IRenderSystem
 {
     private ShaderManager _shaderManager;
     private readonly UniformBufferManager _uniformBufferManager;
     private readonly FrameBufferHandler _frameBufferHandler;
-    private readonly ILogger<Renderer> _logger;
+    private readonly ILogger<RenderSystem> _logger;
     private int _mvpLocation = -1;
     private int _vbo = 0;
     private int _vao = 0;
@@ -18,14 +20,25 @@ public class Renderer : IDisposable, IRenderer
     private Matrix4? _proj = Matrix4.Identity;
     private int _vertexCount = 0;
 
-    public IRenderPass[] RenderPasses; //Sorted renderpasses 
-    public Renderer(ShaderManager shaderManager, UniformBufferManager uniformBufferManager,
-        FrameBufferHandler frameBufferHandler, ILogger<Renderer> logger)
+    private List<IRenderPass> _renderPasses = []; //Sorted renderpasses 
+
+    public RenderSystem(ShaderManager shaderManager, UniformBufferManager uniformBufferManager,
+        FrameBufferHandler frameBufferHandler, ILogger<RenderSystem> logger)
     {
         _uniformBufferManager = uniformBufferManager;
         _frameBufferHandler = frameBufferHandler;
         _shaderManager = shaderManager;
         _logger = logger;
+    }
+    
+    public void Update(in RenderContext renderContext)
+    {
+        _uniformBufferManager.UpdateViewProjectionBuffer(renderContext.ViewMatrix, renderContext.ProjectionMatrix);
+        
+        foreach (var renderPass in _renderPasses)
+        {
+            renderPass.Render();
+        }
     }
 
     public void Initialize()
@@ -34,12 +47,27 @@ public class Renderer : IDisposable, IRenderer
         _uniformBufferManager.CreateSingleIntUniform("objectId");
         _shaderManager.RegisterShaders();
 
-        //bind shaders to view projection buffer
+        //bind View-Projection uniform to all the shader programs
         foreach (var shader in _shaderManager.GetShaderPrograms())
             _uniformBufferManager.BindUniformToProgram(shader, UniformBufferManager.ViewProjectionName);
+
+        RegisterRenderPasses();
     }
 
-    public int GetShaderProgram(string shaderName) => ShaderManager.GetShaderProgram(shaderName);
+    private void RegisterRenderPasses()
+    {
+        var selectionRenderPass = new SelectionRenderPass();
+        _renderPasses.Add(selectionRenderPass);
+        var viewportRenderPass = new ViewportRenderPass();
+        _renderPasses.Add(viewportRenderPass);
+        var highlightRenderPass = new HighlightRenderPass();
+        _renderPasses.Add(highlightRenderPass);
+    }
+
+    public int GetShaderProgram(string shaderName)
+    {
+        return ShaderManager.GetShaderProgram(shaderName);
+    }
 
     public void SetWireframes(bool wireframe)
     {
@@ -49,7 +77,7 @@ public class Renderer : IDisposable, IRenderer
             GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
     }
 
-    public void SetCamera(Matrix4 view, Matrix4 proj)
+    public void SendViewProjectionToBuffer(Matrix4 view, Matrix4 proj)
     {
         _view = view;
         _proj = proj;
@@ -68,12 +96,6 @@ public class Renderer : IDisposable, IRenderer
             SelectionRenderView = pickingRenderViewInfo
         };
         return viewport;
-    }
-
-    public void SetViewPort(int width, int height, int x, int y) => GL.Viewport(x, y, width, height);
-
-    public void RenderScene(IScene scene)
-    {
     }
 
     public void Dispose()
@@ -95,7 +117,6 @@ public class Renderer : IDisposable, IRenderer
         if (mainViewport == null)
         {
             _frameBufferHandler.ClearRenderBuffer(0);
-            
         }
         else
         {
@@ -120,4 +141,7 @@ public class Renderer : IDisposable, IRenderer
         // _frameBufferHandler.ResizeFrameBuffer(mainViewport.FullRenderView, viewportSizeX, viewportSizeY);
         _frameBufferHandler.ResizeFrameBuffer(mainViewport.SelectionRenderView, viewportSizeX, viewportSizeY, true);
     }
+
+    public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
+
 }

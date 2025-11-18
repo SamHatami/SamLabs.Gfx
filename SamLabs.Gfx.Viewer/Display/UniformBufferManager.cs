@@ -4,7 +4,7 @@ using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Display;
 
-public class UniformBufferManager: IDisposable
+public class UniformBufferManager : IDisposable
 {
     private static int _viewProjectionBuffer;
     private const int ViewProjectionBindingPoint = 0;
@@ -12,9 +12,11 @@ public class UniformBufferManager: IDisposable
     public const string ViewProjectionName = "ViewProjection";
     private readonly Dictionary<string, uint> UniformBindingPoints = new();
 
-    public uint GetUniformBindingPoint(string name) =>
-        UniformBindingPoints.TryGetValue(name, out var bindingPoint) ? bindingPoint : 0;
-    
+    public uint GetUniformBindingPoint(string name)
+    {
+        return UniformBindingPoints.TryGetValue(name, out var bindingPoint) ? bindingPoint : 0;
+    }
+
 
     public void RegisterViewProjectionBuffer()
     {
@@ -25,7 +27,7 @@ public class UniformBufferManager: IDisposable
         GL.BufferData(BufferTarget.UniformBuffer, Sizes.FMatrix4 * 2, IntPtr.Zero, BufferUsage.DynamicDraw);
         GL.BindBufferBase(BufferTarget.UniformBuffer, ViewProjectionBindingPoint, _viewProjectionBuffer);
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-        
+
         UniformBindingPoints.Add(ViewProjectionName, ViewProjectionBindingPoint);
     }
 
@@ -43,17 +45,17 @@ public class UniformBufferManager: IDisposable
     {
         if (UniformBindingPoints.ContainsKey(uniqueName))
             return; // Already registered
-    
+
         var buffer = GL.GenBuffer();
-        var bindingPoint = UniformBindingPoints.Count > 0 
-            ? UniformBindingPoints.Values.Max() + 1 
+        var bindingPoint = UniformBindingPoints.Count > 0
+            ? UniformBindingPoints.Values.Max() + 1
             : 1; // Start at 1 since ViewProjection uses 0
-    
+
         GL.BindBuffer(BufferTarget.UniformBuffer, buffer);
         GL.BufferData(BufferTarget.UniformBuffer, sizeInBytes, IntPtr.Zero, BufferUsage.DynamicDraw);
         GL.BindBufferBase(BufferTarget.UniformBuffer, bindingPoint, buffer);
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-    
+
         UniformBindingPoints.Add(uniqueName, bindingPoint);
     }
 
@@ -61,20 +63,20 @@ public class UniformBufferManager: IDisposable
     {
         var bufferId = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.UniformBuffer, bufferId);
-        GL.BufferData(BufferTarget.UniformBuffer,Sizes.Int, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BufferData(BufferTarget.UniformBuffer, Sizes.Int, IntPtr.Zero, BufferUsage.DynamicDraw);
         GL.BindBufferBase(BufferTarget.UniformBuffer, ObjectIdBindingPoint, _viewProjectionBuffer);
 
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-        
+
         UniformBindingPoints.Add(name, ObjectIdBindingPoint);
     }
 
 
     public void BindUniformToProgram(int program, string name)
     {
-        if (!UniformBindingPoints.TryGetValue(name, out uint bindingPoint))
+        if (!UniformBindingPoints.TryGetValue(name, out var bindingPoint))
             return;
-        
+
         var blockIndex = GL.GetUniformBlockIndex(program, name);
         GL.UniformBlockBinding(program, blockIndex, bindingPoint);
     }

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using SDL3;
+﻿using SDL3;
 
 namespace Run;
 

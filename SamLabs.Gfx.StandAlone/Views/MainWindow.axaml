@@ -19,16 +19,16 @@
     <Grid>
         <!--ADD command panel or something here-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" MinWidth="250"/>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Panel Grid.Column="0">
+        <Panel Grid.Column="0" Margin="5">
             <Button Content="Add Box" Command="{Binding AddBox}" />
             <TextBlock Text="{Binding ObjectId}"></TextBlock>
         </Panel>
 
 
-        <models:ViewportRenderingControl Grid.Column="1" SceneManager="{Binding SceneManager}"
+        <models:EditorControl Grid.Column="1" SceneManager="{Binding SceneManager}"
                                          Renderer="{Binding Renderer}" />
 
         <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->

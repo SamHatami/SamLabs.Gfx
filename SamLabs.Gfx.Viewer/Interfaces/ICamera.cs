@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SamLabs.Gfx.Core.Framework.Display;
+namespace SamLabs.Gfx.Viewer.Interfaces;
 
 public interface ICamera
 {
@@ -16,12 +16,6 @@ public interface ICamera
     public Matrix4 ViewMatrix => Matrix4.LookAt(Position, Target, Up);
     
     public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(Fov, AspectRatio, Near, Far);
-
-    public void Orbit(float yawDeltaDegrees, float pitchDeltaDegrees);
-
-    public void Pan(Vector3 delta);
-
-    public void Zoom(float delta);
 
     public static abstract ICamera CreateDefault();
 

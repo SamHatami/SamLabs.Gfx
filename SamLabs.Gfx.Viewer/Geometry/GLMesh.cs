@@ -1,6 +1,4 @@
-﻿
-using System.Runtime.InteropServices;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Geometry;

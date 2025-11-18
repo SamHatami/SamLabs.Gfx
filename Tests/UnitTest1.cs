@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using System.Reflection;
-using System.Runtime.InteropServices.Marshalling;
-using CPURendering;
+﻿using System.Reflection;
 using CPURendering.Enums;
 using CPURendering.Geometry;
 using CPURendering.Import;
