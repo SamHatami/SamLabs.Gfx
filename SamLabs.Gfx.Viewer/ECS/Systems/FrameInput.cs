@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Avalonia.Input;
 
-namespace SamLabs.Gfx.Viewer.Systems;
+namespace SamLabs.Gfx.Viewer.ECS.Systems;
 
 public ref struct FrameInput
 {

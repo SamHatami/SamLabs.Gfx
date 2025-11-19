@@ -1,6 +1,6 @@
-﻿using SamLabs.Gfx.Viewer.Systems.Interfaces;
+﻿using SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
 
-namespace SamLabs.Gfx.Viewer.Systems;
+namespace SamLabs.Gfx.Viewer.ECS.Systems;
 
 public class CommandSystem: IUpdateSystem
 {

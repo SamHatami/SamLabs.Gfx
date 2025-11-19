@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SamLabs.Gfx.Viewer.Systems.Interfaces;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
 
 public ref struct RenderContext
 {

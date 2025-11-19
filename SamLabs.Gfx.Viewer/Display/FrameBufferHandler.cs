@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.Interfaces;
+using SamLabs.Gfx.Viewer.Utility;
 using Buffer = OpenTK.Graphics.OpenGL.Buffer;
 
 namespace SamLabs.Gfx.Viewer.Display;

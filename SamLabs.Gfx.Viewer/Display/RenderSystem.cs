@@ -2,8 +2,8 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Display.Render.Renderpasses;
+using SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
 using SamLabs.Gfx.Viewer.Interfaces;
-using SamLabs.Gfx.Viewer.Systems.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.Display;
 

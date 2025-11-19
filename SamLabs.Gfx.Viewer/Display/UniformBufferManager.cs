@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
+using SamLabs.Gfx.Viewer.Utility;
 
 namespace SamLabs.Gfx.Viewer.Display;
 

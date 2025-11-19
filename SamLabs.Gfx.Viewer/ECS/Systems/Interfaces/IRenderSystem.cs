@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Viewer.Systems.Interfaces;
+﻿namespace SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
 
 public interface IRenderSystem
 {

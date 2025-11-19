@@ -52,4 +52,8 @@
     <ProjectReference Include="..\SamLabs.Gfx.Core\SamLabs.Gfx.Core.csproj" />
     <ProjectReference Include="..\SamLabs.Gfx.Geometry\SamLabs.Gfx.Geometry.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ECS\Factory\" />
+  </ItemGroup>
 </Project>

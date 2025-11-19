@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using SamLabs.Gfx.Geometry;
 
-namespace SamLabs.Gfx.Geometry;
+namespace SamLabs.Gfx.Viewer.Utility;
 
 public static class Sizes
 {

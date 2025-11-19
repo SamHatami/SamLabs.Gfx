@@ -1,0 +1,14 @@
+﻿using SamLabs.Gfx.Viewer.ECS.Interfaces;
+
+namespace SamLabs.Gfx.Viewer.ECS.Components;
+
+/// <summary>
+/// Contains OpenGL data for a mesh
+/// </summary>
+public struct MeshGlDataComponent : IDataComponent
+{
+    public int Vao;
+    public int Vbo;
+    public int Ebo;
+    public int VertexCount;
+}
