@@ -1,26 +1,11 @@
-﻿using OpenTK.Mathematics;
+﻿using SamLabs.Gfx.Viewer.ECS.Managers;
 
-namespace SamLabs.Gfx.Geometry;
+namespace SamLabs.Gfx.Viewer.Core.Utility;
 
-public static class GeometryExtensions
-{
-    public static float[] ToFloatArray(this Vector3[] vector)
-    {
-        var array = new float[vector.Length * 3];
-        for (var i = 0; i < vector.Length; i++)
-        {
-            array[i * 3] = vector[i].X;
-            array[i * 3 + 1] = vector[i].Y;
-            array[i * 3 + 2] = vector[i].Z;
-        }
-
-        return array;
-    }
-}
 
 public static class VertexExtensions
 {
-    public static float[] ExtractPositionArray(this Vertex[] vertices)
+    public static float[] ExtractPositionArray(this VertexComponent[] vertices)
     {
         var array = new float[vertices.Length * 3];
 
@@ -33,8 +18,8 @@ public static class VertexExtensions
 
         return array;
     }
-    
-    public static float[] ExtractFullVertexArray(this Vertex[] vertices)
+
+    public static float[] ExtractFullVertexArray(this VertexComponent[] vertices)
     {
         var array = new float[vertices.Length * 8];
 
@@ -50,7 +35,7 @@ public static class VertexExtensions
             array[i * 8 + 7] = vertices[i].TextureCoordinate.Y;
 
         }
-        
+
         return array;
     }
 }

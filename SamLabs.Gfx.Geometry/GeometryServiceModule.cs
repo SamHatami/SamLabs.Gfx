@@ -8,7 +8,7 @@ public class GeometryServiceModule : IServiceModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
      
-
+        //TBD future Geometry Kernel things
         
         return services;
     }

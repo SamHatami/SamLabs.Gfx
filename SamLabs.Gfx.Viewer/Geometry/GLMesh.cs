@@ -1,10 +1,12 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using Assimp;
+using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Geometry;
 
 
 //Will become obsolete when its moved to a component
+[Obsolete]
 public class GlMesh : Mesh, IDisposable
 {
     private readonly int _vao;
@@ -66,11 +68,11 @@ public class GlMesh : Mesh, IDisposable
     
         if (Indices != null && Indices.Length > 0)
         {
-            GL.DrawElements(PrimitiveType.Triangles, _vertexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(OpenTK.Graphics.OpenGL.PrimitiveType.Triangles, _vertexCount, DrawElementsType.UnsignedInt, 0);
         }
         else
         {
-            GL.DrawArrays(PrimitiveType.Triangles, 0, _vertexCount);
+            GL.DrawArrays(OpenTK.Graphics.OpenGL.PrimitiveType.Triangles, 0, _vertexCount);
         }
     
         GL.BindVertexArray(0);
