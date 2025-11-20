@@ -5,7 +5,6 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
 public struct VertexComponent:IDataComponent
 {
-    public static readonly int SizeOf = Marshal.SizeOf<Gfx.Geometry.Vertex>();
     public Vector3 Position { get; }
     public Vector3 Normal { get; }
     public Vector2 TextureCoordinate { get; }

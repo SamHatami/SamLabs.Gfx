@@ -1,3 +1,3 @@
 ﻿### Service Modules
 
-Used for composition root to build up the application.
+Used in composition root to build up the application.

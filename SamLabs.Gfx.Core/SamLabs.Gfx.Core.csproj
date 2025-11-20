@@ -12,8 +12,4 @@
       <PackageReference Include="OpenTK.Mathematics" Version="5.0.0-pre.15" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\CPURendering\CPURendering.csproj" />
-    </ItemGroup>
-
 </Project>

@@ -27,9 +27,14 @@ public class CubeBlueprint: EntityBlueprint
             Rotation = Quaternion.Identity,
             WorldMatrix = Matrix4.Identity
         };
-        
-        
 
+        var meshData = new MeshDataComponent();
+
+        var meshGLData = new MeshGlDataComponent();
+        
+        
+        _componentManager.SetComponentToEntity<MeshGlDataComponent>(meshGLData, entity.Id);
+        _componentManager.SetComponentToEntity<MeshDataComponent>(meshData, entity.Id);
         _componentManager.SetComponentToEntity<TransformComponent>(transformComponent, entity.Id);
     }
 
