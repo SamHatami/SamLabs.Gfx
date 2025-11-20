@@ -1,8 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 using SamLabs.Gfx.Viewer.Interfaces;
-using SamLabs.Gfx.Viewer.Primitives;
-using SamLabs.Gfx.Viewer.Scenes;
+using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.StandAlone.ViewModels;
 

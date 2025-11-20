@@ -4,8 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Run;
-using SamLabs.Gfx.Viewer.Display;
 using SamLabs.Gfx.Viewer.Interfaces;
+using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.SceneGraph;
 
 var serviceProvider = CompositionRoot.ConfigureServices();
 

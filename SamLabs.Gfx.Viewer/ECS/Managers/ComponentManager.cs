@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Interfaces;
 
@@ -36,7 +37,6 @@ public class ComponentManager
     
     public void RemoveComponentFromEntity<T>(int entityId) => ComponentMaps[GetId<T>()].RemoveUsage(entityId);
 
-    
     public void RemoveEntity(int entityId)
     {
         foreach (var componentMap in ComponentMaps) componentMap.RemoveUsage(entityId);

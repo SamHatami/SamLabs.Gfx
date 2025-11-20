@@ -6,7 +6,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Entities;
 public class EntityFactory
 {
     private readonly EntityManager _entityManager;
-    private readonly Dictionary<string, EntityBlueprint> _entityBlueprints = new();
+    private readonly Dictionary<string, EntityBlueprint> _blueprintRegistry = new();
 
     public EntityFactory(EntityManager entityManager)
     {
@@ -15,12 +15,12 @@ public class EntityFactory
 
     public void RegisterBlueprint(EntityBlueprint blueprint)
     {
-        _entityBlueprints[blueprint.Name] = blueprint;
+        _blueprintRegistry[blueprint.Name] = blueprint;
     }
 
     public Entity? Create(string name)
     {
-        if (!_entityBlueprints.TryGetValue(name, out var blueprint))
+        if (!_blueprintRegistry.TryGetValue(name, out var blueprint))
             return null;
         
         var entity = _entityManager.CreateEntity();

@@ -1,5 +1,6 @@
 ﻿using SamLabs.Gfx.Viewer.Interfaces;
-using SamLabs.Gfx.Viewer.Scenes;
+using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 

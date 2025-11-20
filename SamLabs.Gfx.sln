@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Render", "Render\Render.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Viewer", "SamLabs.Gfx.Viewer\SamLabs.Gfx.Viewer.csproj", "{9CB5E959-B978-4330-8BBF-D6108C991189}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Run", "SamLabs.Gfx.Run\SamLabs.Gfx.Run.csproj", "{C33BB9F6-229E-489C-AD3B-F89903516235}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Geometry", "SamLabs.Gfx.Geometry\SamLabs.Gfx.Geometry.csproj", "{66D3E24D-054B-4F06-B9EC-1457DC9CD3A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Core", "SamLabs.Gfx.Core\SamLabs.Gfx.Core.csproj", "{0B60F439-16C1-4292-B2DD-82D7FE4C9A26}"
@@ -44,10 +42,6 @@ Global
 		{9CB5E959-B978-4330-8BBF-D6108C991189}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CB5E959-B978-4330-8BBF-D6108C991189}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CB5E959-B978-4330-8BBF-D6108C991189}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C33BB9F6-229E-489C-AD3B-F89903516235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C33BB9F6-229E-489C-AD3B-F89903516235}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C33BB9F6-229E-489C-AD3B-F89903516235}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C33BB9F6-229E-489C-AD3B-F89903516235}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66D3E24D-054B-4F06-B9EC-1457DC9CD3A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66D3E24D-054B-4F06-B9EC-1457DC9CD3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66D3E24D-054B-4F06-B9EC-1457DC9CD3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU

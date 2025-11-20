@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Interfaces;
+using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 /// <summary>
@@ -6,7 +7,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Components;
 /// </summary>
 public struct MeshDataComponent: IDataComponent
 {
-    public Vertex[] Vertices { get; set; }
+    public VertexComponent[] Vertices { get; set; }
     public int[] Indices { get; set; }
     public string Name { get; set; }
     //materialId

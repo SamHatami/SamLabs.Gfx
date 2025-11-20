@@ -1,5 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.Primitives;
-using SamLabs.Gfx.Viewer.Scenes;
+﻿using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
+using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 

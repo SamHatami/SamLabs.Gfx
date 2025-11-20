@@ -1,3 +1,5 @@
+using SamLabs.Gfx.Viewer.Core;
+
 namespace SamLabs.Gfx.Viewer.ECS.Core;
 
 public struct ComponentMap

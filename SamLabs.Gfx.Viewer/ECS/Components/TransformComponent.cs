@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Interfaces;
+using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 

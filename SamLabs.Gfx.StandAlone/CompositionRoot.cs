@@ -4,6 +4,8 @@ using SamLabs.Gfx.Core.Framework;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.StandAlone.ViewModels;
 using SamLabs.Gfx.Viewer;
+using SamLabs.Gfx.Viewer.Core;
+using SamLabs.Gfx.Viewer.Core.ServiceModules;
 using Serilog;
 namespace SamLabs.Gfx.StandAlone;
 
