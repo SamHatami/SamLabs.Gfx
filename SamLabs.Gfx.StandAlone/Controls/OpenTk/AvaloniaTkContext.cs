@@ -4,7 +4,7 @@ using OpenTK;
 
 //Source: https://github.com/DigitalBox98/Avalonia-OpenTK-Sample/tree/main
 //https://opentk.net/api/OpenTK.IBindingsContext.html
-namespace SamLabs.Gfx.StandAlone.Models.OpenTk;
+namespace SamLabs.Gfx.StandAlone.Controls.OpenTk;
 
 /// <summary>
 /// Wrapper to expose GetProcAddress from Avalonia in a manner that OpenTK can consume. 

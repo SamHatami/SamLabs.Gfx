@@ -1,5 +1,4 @@
-﻿using SamLabs.Gfx.Viewer.Interfaces;
-using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+﻿using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 
 //might become obsolete
 

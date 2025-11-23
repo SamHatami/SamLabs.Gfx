@@ -1,5 +1,4 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
-using SamLabs.Gfx.Viewer.SceneGraph;
+﻿using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
@@ -16,10 +15,12 @@ public class AddBoxCommand: Command
     
     public override void Execute()
     {
-        var box = new Box();
-        box.ApplyShader("flat");
-        _scene.AddRenderable(box);
-        _boxId = box.Id;
+        //Call the entitycreator
+        
+        // var box = new Box();
+        // box.ApplyShader("flat");
+        // _scene.AddRenderable(box);
+        // _boxId = box.Id;
     }
 
     public override void Undo() => _commandManager.EnqueueCommand(new RemoveRenderableCommand(_scene,_boxId));

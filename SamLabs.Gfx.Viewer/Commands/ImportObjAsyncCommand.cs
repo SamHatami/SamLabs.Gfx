@@ -1,5 +1,4 @@
-﻿using SamLabs.Gfx.Viewer.Geometry;
-using SamLabs.Gfx.Viewer.IO;
+﻿using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;

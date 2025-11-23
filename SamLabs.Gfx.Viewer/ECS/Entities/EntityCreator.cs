@@ -3,12 +3,12 @@ using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities;
 
-public class EntityFactory
+public class EntityCreator
 {
     private readonly EntityManager _entityManager;
     private readonly Dictionary<string, EntityBlueprint> _blueprintRegistry = new();
 
-    public EntityFactory(EntityManager entityManager)
+    public EntityCreator(EntityManager entityManager)
     {
         _entityManager = entityManager;
     }

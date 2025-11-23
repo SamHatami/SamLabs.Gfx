@@ -10,7 +10,7 @@ using Avalonia.Threading;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace SamLabs.Gfx.StandAlone.Models.OpenTk;
+namespace SamLabs.Gfx.StandAlone.Controls.OpenTk;
 
 public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
 {

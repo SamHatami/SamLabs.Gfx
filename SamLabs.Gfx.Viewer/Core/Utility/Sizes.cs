@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.Core.Utility;

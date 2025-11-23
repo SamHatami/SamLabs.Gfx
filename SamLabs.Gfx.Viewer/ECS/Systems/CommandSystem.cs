@@ -1,12 +1,15 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
-using SamLabs.Gfx.Viewer.IO;
+﻿using SamLabs.Gfx.Viewer.ECS.Managers;
+using SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems;
 
-public class CommandSystem: IUpdateSystem
+public class CommandSystem: UpdateSystem
 {
-    public void Update(in FrameInput frameInput)
+    public CommandSystem(ComponentManager componentManager) : base(componentManager)
     {
-        //
+    }
+
+    public override void Update()
+    {
     }
 }

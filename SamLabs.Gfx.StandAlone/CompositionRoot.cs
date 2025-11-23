@@ -3,8 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SamLabs.Gfx.Core.Framework;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.StandAlone.ViewModels;
-using SamLabs.Gfx.Viewer;
-using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.Core.ServiceModules;
 using Serilog;
 namespace SamLabs.Gfx.StandAlone;
@@ -43,7 +41,8 @@ public class CompositionRoot
         var modules = new IServiceModule[]
         {
             new RenderServiceModule(),
-            new GeometryServiceModule()
+            new GeometryServiceModule(),
+            new EntityComponentSystemModule()
         };
 
         foreach (var serviceModule in modules)

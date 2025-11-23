@@ -8,40 +8,57 @@ using Avalonia.OpenGL;
 using Avalonia.Threading;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.StandAlone.Models.OpenTk;
+using SamLabs.Gfx.StandAlone.Controls.OpenTk;
 using SamLabs.Gfx.StandAlone.ViewModels;
-using SamLabs.Gfx.Viewer.Interfaces;
+using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.Core;
+using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
-namespace SamLabs.Gfx.StandAlone.Models;
+namespace SamLabs.Gfx.StandAlone.Controls;
 
+/// <summary>
+/// The main Avalonia control that renders the scene. This control can't be injected into the DI container,
+/// instead properties are passed via Avalonias DirectProperties, from the main view model.
+/// This control is the main hub for the ECS and rendering system and all rendering calls most originate from the OpenTKRender method.
+/// The render context and frame input are updated inside this class.
+/// </summary>
 public class EditorControl : OpenTkControlBase
 {
+    
+    public static readonly DirectProperty<EditorControl, EcsRoot> EcsRootProperty =
+        AvaloniaProperty.RegisterDirect<EditorControl, EcsRoot>(
+            nameof(EcsRoot),
+            o => o.EcsRoot,
+            (o, v) => o.EcsRoot = v);
+
+    public EcsRoot EcsRoot
+    {
+        get;
+        set => SetAndRaise(EcsRootProperty, ref field, value);
+    }
+    
     public static readonly DirectProperty<EditorControl, ISceneManager> SceneManagerProperty =
         AvaloniaProperty.RegisterDirect<EditorControl, ISceneManager>(
             nameof(SceneManager),
             o => o.SceneManager,
             (o, v) => o.SceneManager = v);
 
-    private ISceneManager _sceneManager;
-
     public ISceneManager SceneManager
     {
-        get => _sceneManager;
-        set => SetAndRaise(SceneManagerProperty, ref _sceneManager, value);
+        get;
+        set => SetAndRaise(SceneManagerProperty, ref field, value);
     }
 
     public static readonly DirectProperty<EditorControl, IRenderer> RendererProperty =
         AvaloniaProperty.RegisterDirect<EditorControl, IRenderer>(nameof(Renderer), o => o.Renderer,
             (o, v) => o.Renderer = v);
 
-    private IRenderer _renderer;
-
     public IRenderer Renderer
     {
-        get => _renderer;
-        set => SetAndRaise(RendererProperty, ref _renderer, value);
+        get => Renderer;
+        set => SetAndRaise(RendererProperty, ref field, value);
     }
 
     private Scene _currentScene;
@@ -57,8 +74,11 @@ public class EditorControl : OpenTkControlBase
     private bool _isViewportHovered;
     private Point _currentMousePosition;
     private bool _resizeRequested;
+    private EntityManager _EntityManager;
+    private ComponentManager _ComponentManager;
+    private ISceneManager _SceneManager;
 
-    public ConcurrentQueue<Action> Actions { get; } = new();
+    public ConcurrentQueue<Command> Actions { get; } = new();
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
@@ -74,12 +94,12 @@ public class EditorControl : OpenTkControlBase
         if (_resizeRequested)
         {
             _currentScene.Camera.AspectRatio = (float)width / (float)height;
-            _renderer.ResizeViewportBuffers(_mainViewport, width, height);
+            Renderer.ResizeViewportBuffers(_mainViewport, width, height);
             _resizeRequested = false;
         }
         
         
-        _renderer.SendViewProjectionToBuffer(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
+        Renderer.SendViewProjectionToBuffer(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
 
         //Dequeue actions --> probably move this to somewhere else
 
@@ -87,13 +107,13 @@ public class EditorControl : OpenTkControlBase
         sceneAction?.Invoke();
 
 
-        foreach (var renderPass in _renderer.RenderPasses)
+        foreach (var renderPass in Renderer.RenderPasses)
         {
             renderPass.Render();
         }
         // //First render pass to picking buffer
-        _renderer.ClearPickingBuffer(_mainViewport);
-        _renderer.RenderToPickingBuffer(_mainViewport);
+        Renderer.ClearPickingBuffer(_mainViewport);
+        Renderer.RenderToPickingBuffer(_mainViewport);
         GL.Disable(EnableCap.Blend);
         foreach (var renderable in _currentScene.GetRenderables())
             renderable.DrawPickingId();
@@ -101,7 +121,7 @@ public class EditorControl : OpenTkControlBase
 
         StorePickingId(_currentMousePosition);
 
-        _renderer.StopRenderToBuffer();
+        Renderer.StopRenderToBuffer();
 
         //render data passes 
 
@@ -149,6 +169,9 @@ public class EditorControl : OpenTkControlBase
     {
         
         //Get all systems and services from DI
+        _EntityManager = EcsRoot.EntityManager;
+        _ComponentManager = EcsRoot.ComponentManager;
+        _SceneManager = SceneManager;
         
         
         if (Renderer == null)
@@ -162,7 +185,7 @@ public class EditorControl : OpenTkControlBase
         _mainViewport = Renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         _currentScene = SceneManager.GetCurrentScene();
         _currentScene?.Grid.InitializeGL();
-        _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
+        _currentScene?.Grid.ApplyShader(Renderer.GetShaderProgram("grid"));
         _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
 
         SizeChanged += OnSizeChanged;

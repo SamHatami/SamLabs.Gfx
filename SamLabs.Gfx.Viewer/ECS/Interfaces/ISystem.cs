@@ -2,5 +2,6 @@
 
 public interface ISystem
 {
-    void Update(int timeStep);
+    void Update();
+    
 }

@@ -6,4 +6,6 @@ public interface ISceneManager
 {
     Scene GetCurrentScene();
     void AddRenderable(IRenderable renderable);
+
+    void CreateDefaultScene();
 }

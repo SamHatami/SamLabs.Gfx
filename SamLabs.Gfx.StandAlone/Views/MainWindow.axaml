@@ -3,7 +3,7 @@
         xmlns:vm="using:SamLabs.Gfx.StandAlone.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:SamLabs.Gfx.StandAlone.Models"
+        xmlns:controls="clr-namespace:SamLabs.Gfx.StandAlone.Controls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SamLabs.Gfx.StandAlone.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -28,8 +28,11 @@
         </Panel>
 
 
-        <models:EditorControl Grid.Column="1" SceneManager="{Binding SceneManager}"
-                                         Renderer="{Binding Renderer}" />
+        <controls:EditorControl 
+            Grid.Column="1" 
+            SceneManager="{Binding SceneManager}"
+            Renderer="{Binding Renderer}" 
+            EcsRoot="{Binding EcsRoot}"/>
 
         <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->
         <!--     <StackPanel Orientation="Horizontal"> -->

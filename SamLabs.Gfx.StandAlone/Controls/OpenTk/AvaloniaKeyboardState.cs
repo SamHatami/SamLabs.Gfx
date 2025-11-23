@@ -4,7 +4,7 @@ using Avalonia.Input;
 //Source: https://github.com/DigitalBox98/Avalonia-OpenTK-Sample/tree/main
 //NOTE to self: Not sure if this is needed, as long as I can route the keyboard events.
 //OpenTK doesn't need to directly handle, i will probably have a layer that deals with that and pass on the commands 
-namespace SamLabs.Gfx.StandAlone.Models.OpenTk;
+namespace SamLabs.Gfx.StandAlone.Controls.OpenTk;
 
 public class AvaloniaKeyboardState
 {

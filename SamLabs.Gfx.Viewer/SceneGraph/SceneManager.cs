@@ -25,12 +25,13 @@ public class SceneManager : ISceneManager
     }
 
 
-    private Scene DefaultScene(IGrid grid)
+    public void CreateDefaultScene()
     {
-        return new Scene
+        var defScne =new Scene
         {
             Camera = Camera.CreateDefault(),
-            Grid = grid
         };
+        
+        _currentScene = defScne;
     }
 }

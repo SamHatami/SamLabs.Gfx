@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 

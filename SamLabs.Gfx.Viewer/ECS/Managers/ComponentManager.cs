@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Core;
-using SamLabs.Gfx.Viewer.ECS.Interfaces;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
@@ -10,11 +9,11 @@ public class ComponentManager
     private readonly ComponentMap[] ComponentMaps = new ComponentMap[GlobalSettings.MaxComponents]; //for quick tracking which entities have which components
     private readonly Dictionary<Type,int> ComponentIdsCache = new(GlobalSettings.MaxComponents);
     private readonly Dictionary<int, IDataComponent[]> EntityComponents = new (GlobalSettings.MaxComponents);
-    ComponentManager()
+    public ComponentManager()
     {
         Span<Type> componentTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t =>
-                t is { IsValueType: true, IsEnum: false, Namespace: "Simulation.Core.Components" }).ToArray();
+                t is { IsValueType: true, IsEnum: false, Namespace: EcsStrings.ComponentsFolder}).ToArray();
         
 
 

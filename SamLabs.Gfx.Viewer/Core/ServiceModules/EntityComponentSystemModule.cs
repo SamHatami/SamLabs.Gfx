@@ -10,13 +10,19 @@ public class EntityComponentSystemModule:IServiceModule
 {
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
+        //ECS entry point
+        services.AddSingleton<EcsRoot>();
+        
         //Main managers
         
         services.AddSingleton<EntityManager>();
-        services.AddSingleton<SceneManager>();
+        services.AddSingleton<SystemManager>();
         services.AddSingleton<ComponentManager>();
+      
+        //Creators
+        services.AddSingleton<EntityCreator>();
         
-        services.AddSingleton<EntityFactory>();
+        
         
         return services;
     }

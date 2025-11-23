@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
-using SamLabs.Gfx.Viewer.Interfaces;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
@@ -12,23 +12,26 @@ public partial class MainWindowViewModel : ViewModelBase
     private Scene _scene;
     private Grid _grid;
     public IRenderer Renderer { get; }
+    public EcsRoot EcsRoot { get; }
     public ISceneManager SceneManager { get; }
+    
     public string Greeting { get; } = "Welcome to Avalonia!";
 
     [ObservableProperty] private int _objectId;
 
-    public MainWindowViewModel(ISceneManager sceneManager, IRenderer renderer)
+    public MainWindowViewModel(ISceneManager sceneManager, IRenderer renderer, EcsRoot ecsRoot)
     {
         Renderer = renderer;
+        EcsRoot = ecsRoot;
         SceneManager = sceneManager;
 
         InitializeMainScene();
     }
     private void InitializeMainScene()
     {
-        _scene = SceneManager.GetCurrentScene();
+        SceneManager.CreateDefaultScene();
         _grid = new Grid();
-        _scene.AddRenderable(_grid);
+        SceneManager.AddRenderable(_grid);
     }
 
     public void SetObjectId(int id) => ObjectId = id;
@@ -38,9 +41,9 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         _scene.Actions.Enqueue(() =>
             {
-                var box = new Box();
-                box.ApplyShader("flat");
-                _scene.AddRenderable(box);
+                // var box = new Box();
+                // box.ApplyShader("flat");
+                // _scene.AddRenderable(box);
             }
         );
     }
