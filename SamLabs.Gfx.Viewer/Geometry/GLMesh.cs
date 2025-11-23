@@ -1,6 +1,5 @@
 ﻿using Assimp;
 using OpenTK.Graphics.OpenGL;
-using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Viewer.Geometry;
 
