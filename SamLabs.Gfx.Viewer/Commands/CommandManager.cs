@@ -10,7 +10,14 @@ public class CommandManager
 
     public void EnqueueCommand(ICommand command) => _commands.Enqueue(command);
 
-    public void ProcessCommands()
+    public void ProcessAllCommands()
+    {
+        ExecuteCommands();
+        UndoLastCommand();
+        RedoRecentCommand();
+    }
+    
+    public void ExecuteCommands()
     {
         while (_commands.TryDequeue(out var command))
         {

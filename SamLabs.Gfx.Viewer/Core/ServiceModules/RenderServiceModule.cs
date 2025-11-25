@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SamLabs.Gfx.Core.Framework;
-using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 using SamLabs.Gfx.Viewer.SceneGraph;

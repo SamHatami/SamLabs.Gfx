@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
 using SamLabs.Gfx.Viewer.Core;
-using SamLabs.Gfx.Viewer.ECS.Components.Flags;
-using SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
+using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
+using SamLabs.Gfx.Viewer.IO;
+using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.Rendering.Passes;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
@@ -19,9 +21,67 @@ public class SystemManager
         RegisterSystems();
     }
 
+    public void InitializeRenderSystems(IRenderer renderer)
+    {
+        foreach (var renderSystem in _renderSystems) renderSystem.Initialize(renderer);
+    }
+
     private void RegisterSystems()
     {
-        //this was cool doing it with reflection, but why not just hard code it? 
+        RegisterGPUSystems();
+        RegisterUpdateSystems();
+        RegisterRenderSystems();
+    }
+
+    private void RegisterRenderSystems()
+    {
+        var renderSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
+            where t.IsClass
+                  && t.Namespace == EcsStrings.SystemsFolder
+                  && typeof(RenderSystem).IsAssignableFrom(t)
+                  && !t.IsAbstract && !t.IsInterface
+            select t;
+
+        for (var i = 0; i < renderSystems.Count(); i++)
+        {
+            try
+            {
+                _renderSystems[i] =
+                    (RenderSystem)Activator.CreateInstance(renderSystems.ElementAt(i), _componentManager);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Could not add system {renderSystems.ElementAt(i).Name} to systemregistry");
+            }
+        }
+    }
+
+    private void RegisterUpdateSystems()
+    {
+        var updateSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
+            where t.IsClass
+                  && t.Namespace == EcsStrings.SystemsFolder
+                  && typeof(UpdateSystem).IsAssignableFrom(t)
+                  && !t.IsAbstract && !t.IsInterface
+            select t;
+
+
+        for (var i = 0; i < updateSystems.Count(); i++)
+        {
+            try
+            {
+                _updateSystems[i] =
+                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), _componentManager);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Could not add system {updateSystems.ElementAt(i).Name} to systemregistry");
+            }
+        }
+    }
+
+    private void RegisterGPUSystems()
+    {
         var gpuResourceSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
             where t.IsClass
                   && t.Namespace == EcsStrings.SystemsFolder
@@ -35,8 +95,8 @@ public class SystemManager
         {
             try
             {
-                _gpuResourceSystems[i] = (GPUResourceSystem)Activator.CreateInstance(gpuResourceSystems.ElementAt(i), _componentManager);
-                //expand to severanl system registries
+                _gpuResourceSystems[i] =
+                    (GPUResourceSystem)Activator.CreateInstance(gpuResourceSystems.ElementAt(i), _componentManager);
             }
             catch (Exception e)
             {
@@ -45,28 +105,21 @@ public class SystemManager
         }
     }
 
-    public void Update()
+    public void Update(FrameInput frameInput)
     {
-        //Check all update specific changed flags and update accordingly
+        //Check if global no update flag is set (?)
 
-        if (!_componentManager.GetEntityIdsFor<MeshDataChangedComponent>().IsEmpty)
-        {
-            foreach (var updateSystem in _updateSystems)
-                updateSystem.Update();
-            
-        }
+        foreach (var updateSystem in _updateSystems)
+            updateSystem.Update(frameInput);
+    }
+
+    public void Render(RenderContext renderContext)
+    {
         
-        if (!_componentManager.GetEntityIdsFor<MeshGlDataChangedComponent>().IsEmpty)
-        {
-            foreach (var resourceSystem in _gpuResourceSystems)
-                resourceSystem.Update();
-            
-        }
+        foreach (var gpuResourceSystem in _gpuResourceSystems) gpuResourceSystem.Update();
+        
+        foreach (var renderSystem in _renderSystems) renderSystem.Update(renderContext);
         
         
-        foreach (var renderSystem in _renderSystems)
-            renderSystem.Update();
-        
-        //Clear all update flags
     }
 }

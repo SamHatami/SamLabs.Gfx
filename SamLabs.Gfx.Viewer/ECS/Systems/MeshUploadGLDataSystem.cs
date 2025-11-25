@@ -1,6 +1,6 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
-using SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
+using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems;
 

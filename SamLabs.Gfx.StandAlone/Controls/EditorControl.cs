@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.OpenGL;
 using Avalonia.Threading;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -13,7 +12,9 @@ using SamLabs.Gfx.StandAlone.ViewModels;
 using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
+using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.Rendering.Passes;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.StandAlone.Controls;
@@ -26,6 +27,18 @@ namespace SamLabs.Gfx.StandAlone.Controls;
 /// </summary>
 public class EditorControl : OpenTkControlBase
 {
+    
+    public static readonly DirectProperty<EditorControl, CommandManager> CommandManagerProperty =
+        AvaloniaProperty.RegisterDirect<EditorControl, CommandManager>(
+            nameof(CommandManager),
+            o => o.CommandManager,
+            (o, v) => o.CommandManager = v);
+
+    public CommandManager CommandManager
+    {
+        get;
+        set => SetAndRaise(CommandManagerProperty, ref field, value);
+    }
     
     public static readonly DirectProperty<EditorControl, EcsRoot> EcsRootProperty =
         AvaloniaProperty.RegisterDirect<EditorControl, EcsRoot>(
@@ -61,56 +74,61 @@ public class EditorControl : OpenTkControlBase
         set => SetAndRaise(RendererProperty, ref field, value);
     }
 
+    
+    private SystemManager _systemManager;
+    
+    
     private Scene _currentScene;
     private IViewPort _mainViewport;
     private int _readPickingIndex;
     private int _objectHoveringId;
-    private Point _lastMousePosition;
-    private bool _leftMouseButtonPressed;
-    private bool _rightMouseButtonPressed;
-    private Vector2 _mouseMoveDelta;
-    private double _mouseMoveDeltaX;
-    private double _mouseMoveDeltaY;
+
     private bool _isViewportHovered;
     private Point _currentMousePosition;
     private bool _resizeRequested;
-    private EntityManager _EntityManager;
-    private ComponentManager _ComponentManager;
-    private ISceneManager _SceneManager;
+    
+    
+    //Frame input properties
+    private Point _lastMousePosition;
+    private bool _leftMouseButtonPressed;
+    private bool _rightMouseButtonPressed;
+    private bool _middleMouseButtonPressed;
+    private Vector2 _mouseMoveDelta;
+    private double _mouseMoveDeltaX;
+    private double _mouseMoveDeltaY;
+    private double _mouseWheelDelta;
+    private Key _keyDown;
+    private Key _keyUp;
+    
+    //Render Context properties
+    private int _height;
+    private int _width;
+
 
     public ConcurrentQueue<Command> Actions { get; } = new();
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
-    protected override void OnOpenGlRender(GlInterface gl, int fb)
-    {
-        //Count fps
-
-        base.OnOpenGlRender(gl, fb);
-    }
-
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        //Process commands
+        _width = width;
+        _height = height;
+        
+        var frameInput = CaptureFrameInput();
+        _systemManager.Update(frameInput);
 
         if (_resizeRequested)
         {
-            _currentScene.Camera.AspectRatio = (float)width / (float)height;
             Renderer.ResizeViewportBuffers(_mainViewport, width, height);
             _resizeRequested = false;
         }
         
+        Renderer.SetViewProjection(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
+
+        var renderContext = CaptureRenderContext();
+        _systemManager.Render(renderContext);
         
-        Renderer.SendViewProjectionToBuffer(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
-
-        //Dequeue actions --> probably move this to somewhere else
-
-        _currentScene.Actions.TryDequeue(out var sceneAction);
-        sceneAction?.Invoke();
-
-
-        foreach (var renderPass in Renderer.RenderPasses)
-        {
-            renderPass.Render();
-        }
+        
         // //First render pass to picking buffer
         Renderer.ClearPickingBuffer(_mainViewport);
         Renderer.RenderToPickingBuffer(_mainViewport);
@@ -122,12 +140,8 @@ public class EditorControl : OpenTkControlBase
         StorePickingId(_currentMousePosition);
 
         Renderer.StopRenderToBuffer();
-
-        //render data passes 
-
-        //Second render pass to viewport buffer -> Avalonia already has a framebuffer bound for this, which is fb
-        // _renderer.ClearViewportBuffer(_mainViewport);
-
+        
+        //Main render pass
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainScreenFrameBuffer);
         GL.Enable(EnableCap.DepthTest);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -140,8 +154,45 @@ public class EditorControl : OpenTkControlBase
         _currentScene?.Grid.Draw();
         foreach (var renderable in _currentScene.GetRenderables())
             renderable.Draw();
+        
         GL.Disable(EnableCap.DepthTest);
+        
+        CommandManager.ProcessAllCommands();
+        
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
+    }
+
+    private RenderContext CaptureRenderContext()
+    {
+        return new RenderContext()
+        {
+            ObjectHoverId = _objectHoveringId,
+            ViewHeight = _height,
+            ViewWidth = _width
+        };
+    }
+
+    private FrameInput CaptureFrameInput()
+    {
+        var frameInput = new FrameInput()
+        {
+            IsMouseLeftButtonDown = _leftMouseButtonPressed,
+            IsMouseRightButtonDown = _rightMouseButtonPressed,
+            IsMouseMiddleButtonDown = _middleMouseButtonPressed,
+            MousePosition = _currentMousePosition,
+            KeyDown = _keyDown, 
+            KeyUp = _keyUp,
+            DeltaMouseMove = new Vector2((float)_mouseMoveDeltaX, (float)_mouseMoveDeltaY),
+            MouseWheelDelta = (float)_mouseWheelDelta
+        };
+        return frameInput;
+        
+        ClearInputData();
+    }
+
+    private void ClearInputData()
+    {
+        
     }
 
     private void ProcessMouseEvents()
@@ -155,40 +206,44 @@ public class EditorControl : OpenTkControlBase
             _mouseMoveDelta = Vector2.Zero;
         }
 
-        if (_leftMouseButtonPressed)
-            _currentScene.CameraController.Orbit(delta.X * 0.2f, delta.Y * 0.2f);
-        //Draw orbiting sphere
-        else if (_rightMouseButtonPressed)
-            _currentScene.CameraController.Pan(new Vector3(-delta.X * 0.01f, delta.Y * 0.01f, 0));
-
-
         ReadPickingId();
     }
 
     protected override void InitializeOpenTk()
     {
+        _systemManager = EcsRoot.SystemManager;
         
         //Get all systems and services from DI
-        _EntityManager = EcsRoot.EntityManager;
-        _ComponentManager = EcsRoot.ComponentManager;
-        _SceneManager = SceneManager;
-        
-        
         if (Renderer == null)
             return;
-
-        //TODO: THis is still needed, just not for the main rendering pass
-        // _mainViewport =
-        //     (ViewPort)_renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height); 
-
+        
         Renderer.Initialize();
+        _systemManager.InitializeRenderSystems(Renderer);
         _mainViewport = Renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         _currentScene = SceneManager.GetCurrentScene();
         _currentScene?.Grid.InitializeGL();
         _currentScene?.Grid.ApplyShader(Renderer.GetShaderProgram("grid"));
         _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
-
+    
         SizeChanged += OnSizeChanged;
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        _keyDown = e.Key;
+        base.OnKeyDown(e);
+    }
+
+    protected override void OnKeyUp(KeyEventArgs e)
+    {
+        _keyUp = e.Key;
+        base.OnKeyUp(e);
+    }
+
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    {
+        _mouseWheelDelta = e.Delta.Y;
+        base.OnPointerWheelChanged(e);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -213,29 +268,14 @@ public class EditorControl : OpenTkControlBase
 
         _leftMouseButtonPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
         _rightMouseButtonPressed = e.GetCurrentPoint(this).Properties.IsRightButtonPressed;
+        _middleMouseButtonPressed = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
 
         _lastMousePosition = _currentMousePosition;
         
         base.OnPointerMoved(e);
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-    }
-
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
-        base.OnPointerReleased(e);
-    }
-
-
-    private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
-    {
-        _resizeRequested = true;
-        
-        // RequestNextFrameRendering();
-    }
+    private void OnSizeChanged(object? sender, SizeChangedEventArgs e) => _resizeRequested = true;
 
     private void StorePickingId(Point localMousePos)
     {

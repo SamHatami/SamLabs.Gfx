@@ -14,7 +14,6 @@ public class Camera : ICamera
     public float DistanceToTarget;
     public float Yaw { get; set; } = 0;
     public float Pitch { get; set; } = 0;
-    
     public Matrix4 ViewMatrix => Matrix4.LookAt(Position, Target, Up);
     public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(Fov, AspectRatio, Near, Far);
 

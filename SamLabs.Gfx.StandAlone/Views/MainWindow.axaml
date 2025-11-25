@@ -32,7 +32,8 @@
             Grid.Column="1" 
             SceneManager="{Binding SceneManager}"
             Renderer="{Binding Renderer}" 
-            EcsRoot="{Binding EcsRoot}"/>
+            EcsRoot="{Binding EcsRoot}"
+            CommandManager="{Binding CommandManager}"/>
 
         <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->
         <!--     <StackPanel Orientation="Horizontal"> -->

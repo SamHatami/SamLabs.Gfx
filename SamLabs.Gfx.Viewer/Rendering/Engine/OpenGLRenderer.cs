@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Passes;
 using SamLabs.Gfx.Viewer.SceneGraph;
@@ -30,16 +31,6 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _shaderService = shaderService;
         _logger = logger;
     }
-    
-    public void Update(in RenderContext renderContext)
-    {
-        _uniformBufferService.UpdateViewProjectionBuffer(renderContext.ViewMatrix, renderContext.ProjectionMatrix);
-        
-        foreach (var renderPass in _renderPasses)
-        {
-            renderPass.Render();
-        }
-    }
 
     public void Initialize()
     {
@@ -51,23 +42,9 @@ public class OpenGLRenderer : IDisposable, IRenderer
         foreach (var shader in _shaderService.GetShaderPrograms())
             _uniformBufferService.BindUniformToProgram(shader, UniformBufferService.ViewProjectionName);
 
-        RegisterRenderPasses();
     }
 
-    private void RegisterRenderPasses()
-    {
-        var selectionRenderPass = new SelectionRenderPass();
-        _renderPasses.Add(selectionRenderPass);
-        var viewportRenderPass = new ViewportRenderPass();
-        _renderPasses.Add(viewportRenderPass);
-        var highlightRenderPass = new HighlightRenderPass();
-        _renderPasses.Add(highlightRenderPass);
-    }
-
-    public int GetShaderProgram(string shaderName)
-    {
-        return ShaderService.GetShaderProgram(shaderName);
-    }
+    public int GetShaderProgram(string shaderName) => ShaderService.GetShaderProgram(shaderName);
 
     public void SetWireframes(bool wireframe)
     {
@@ -77,7 +54,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
             GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
     }
 
-    public void SendViewProjectionToBuffer(Matrix4 view, Matrix4 proj)
+    public void SetViewProjection(Matrix4 view, Matrix4 proj)
     {
         _view = view;
         _proj = proj;

@@ -2,7 +2,6 @@
 using SamLabs.Gfx.Core.Framework;
 using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
-using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Core.ServiceModules;
 

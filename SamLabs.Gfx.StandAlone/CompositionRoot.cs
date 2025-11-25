@@ -42,7 +42,8 @@ public class CompositionRoot
         {
             new RenderServiceModule(),
             new GeometryServiceModule(),
-            new EntityComponentSystemModule()
+            new EntityComponentSystemModule(),
+            new CommandsModule()
         };
 
         foreach (var serviceModule in modules)

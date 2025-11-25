@@ -1,7 +1,7 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Interfaces;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Interfaces;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class GPUResourceSystem : ISystem
 {

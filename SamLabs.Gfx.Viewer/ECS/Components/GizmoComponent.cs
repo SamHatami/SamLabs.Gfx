@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Viewer.ECS.Components.Flags;
+﻿namespace SamLabs.Gfx.Viewer.ECS.Components;
 
 public struct GizmoComponent
 {

@@ -1,6 +1,10 @@
-﻿namespace SamLabs.Gfx.Viewer.ECS.Components;
+﻿using SamLabs.Gfx.Viewer.ECS.Managers;
 
-public class CameraComponent
+namespace SamLabs.Gfx.Viewer.ECS.Components;
+
+public struct CameraComponent:IDataComponent
 {
+    //This entity is an Camera.
+    //It also needs CameraDataComponent.
     
 }

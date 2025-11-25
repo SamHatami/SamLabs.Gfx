@@ -119,7 +119,7 @@ public class ShaderService : IDisposable
     public void WatchForChanges(string path)
     {
         var watcher = new FileSystemWatcher(path, "*.vert;*.frag");
-        watcher.Changed += (s, e) => ReloadShader(e.FullPath);
+        watcher.Changed += (s, e) => ReloadShader(e.FullPath); //the renderer should know about this
         watcher.EnableRaisingEvents = true;
     }
 

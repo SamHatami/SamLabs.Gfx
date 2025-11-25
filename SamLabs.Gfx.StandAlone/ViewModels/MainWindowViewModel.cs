@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
@@ -13,16 +14,18 @@ public partial class MainWindowViewModel : ViewModelBase
     private Grid _grid;
     public IRenderer Renderer { get; }
     public EcsRoot EcsRoot { get; }
+    public CommandManager CommandManager { get; }
     public ISceneManager SceneManager { get; }
     
     public string Greeting { get; } = "Welcome to Avalonia!";
 
     [ObservableProperty] private int _objectId;
 
-    public MainWindowViewModel(ISceneManager sceneManager, IRenderer renderer, EcsRoot ecsRoot)
+    public MainWindowViewModel(ISceneManager sceneManager, IRenderer renderer, EcsRoot ecsRoot, CommandManager commandManager)
     {
         Renderer = renderer;
         EcsRoot = ecsRoot;
+        CommandManager = commandManager;
         SceneManager = sceneManager;
 
         InitializeMainScene();
