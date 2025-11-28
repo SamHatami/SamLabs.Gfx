@@ -17,15 +17,18 @@ public class ViewProjectionSystem : RenderSystem
     public override void Update(RenderContext renderContext)
     {
         var cameraEntity = _componentManager.GetEntityIdsFor<CameraComponent>();
-        var cameraData =
-            _componentManager.TryGetComponentForEntity<CameraDataComponent>(cameraEntity[0]) is CameraDataComponent
-                cameraDataComponent
-                ? cameraDataComponent
-                : default;
+        if (cameraEntity.Length == 0) return;
+        
+        var cameraTransform = _componentManager.GetComponent<TransformComponent>(cameraEntity[0]);
+        var cameraData = _componentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
         
         if(renderContext.ResizeRequested)
            Renderer.ResizeViewportBuffers(renderContext.ViewPort,renderContext.ViewWidth, renderContext.ViewHeight);
         
         Renderer.SetViewProjection(cameraData.ViewMatrix, cameraData.ProjectionMatrix);
+        
+        
+    public Matrix4 ViewMatrix => Matrix4.LookAt(Position, Target, Up);
+    public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(Fov, AspectRatio, Near, Far);
     }
 }
