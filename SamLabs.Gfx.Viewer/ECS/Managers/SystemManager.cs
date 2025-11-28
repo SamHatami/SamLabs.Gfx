@@ -3,14 +3,14 @@ using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
-using SamLabs.Gfx.Viewer.Rendering.Passes;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
 public class SystemManager
 {
     private readonly ComponentManager _componentManager;
-    private GPUResourceSystem[] _gpuResourceSystems = new GPUResourceSystem[GlobalSettings.MaxSystems];
+    private PreRenderSystem[] _gpuResourceSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
     private UpdateSystem[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
     private RenderSystem[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
     private int _systemsCount;
@@ -85,7 +85,7 @@ public class SystemManager
         var gpuResourceSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
             where t.IsClass
                   && t.Namespace == EcsStrings.SystemsFolder
-                  && typeof(GPUResourceSystem).IsAssignableFrom(t)
+                  && typeof(PreRenderSystem).IsAssignableFrom(t)
                   && !t.IsAbstract && !t.IsInterface
             select t;
 
@@ -96,7 +96,7 @@ public class SystemManager
             try
             {
                 _gpuResourceSystems[i] =
-                    (GPUResourceSystem)Activator.CreateInstance(gpuResourceSystems.ElementAt(i), _componentManager);
+                    (PreRenderSystem)Activator.CreateInstance(gpuResourceSystems.ElementAt(i), _componentManager);
             }
             catch (Exception e)
             {

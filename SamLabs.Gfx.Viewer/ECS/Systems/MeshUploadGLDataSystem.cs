@@ -4,7 +4,7 @@ using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems;
 
-public class MeshUploadGlDataSystem: GPUResourceSystem
+public class MeshUploadGlDataSystem: PreRenderSystem
 {
     private readonly ComponentManager _componentManager;
 

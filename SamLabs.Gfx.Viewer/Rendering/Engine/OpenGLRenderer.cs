@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
-using SamLabs.Gfx.Viewer.Rendering.Passes;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine;

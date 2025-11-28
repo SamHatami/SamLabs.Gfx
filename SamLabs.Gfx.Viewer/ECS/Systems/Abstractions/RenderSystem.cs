@@ -1,21 +1,21 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
-using SamLabs.Gfx.Viewer.Rendering.Passes;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class RenderSystem
 {
-    protected readonly ComponentManager _componentManager;
-    protected IRenderer _renderer;
+    protected readonly ComponentManager ComponentManager;
+    protected IRenderer Renderer;
 
-    public RenderSystem(ComponentManager componentManager)
+    protected RenderSystem(ComponentManager componentManager)
     {
-        _componentManager = componentManager;
+        ComponentManager = componentManager;
     }
     public void Initialize(IRenderer renderer)
     {
-        _renderer = renderer;
+        Renderer = renderer;
     }
     
     public abstract void Update(RenderContext renderContext);

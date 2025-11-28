@@ -14,7 +14,7 @@ using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
-using SamLabs.Gfx.Viewer.Rendering.Passes;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.StandAlone.Controls;
@@ -117,13 +117,8 @@ public class EditorControl : OpenTkControlBase
         var frameInput = CaptureFrameInput();
         _systemManager.Update(frameInput);
 
-        if (_resizeRequested)
-        {
-            Renderer.ResizeViewportBuffers(_mainViewport, width, height);
-            _resizeRequested = false;
-        }
         
-        Renderer.SetViewProjection(_currentScene.Camera.ViewMatrix, _currentScene.Camera.ProjectionMatrix);
+
 
         var renderContext = CaptureRenderContext();
         _systemManager.Render(renderContext);
@@ -168,7 +163,9 @@ public class EditorControl : OpenTkControlBase
         {
             ObjectHoverId = _objectHoveringId,
             ViewHeight = _height,
-            ViewWidth = _width
+            ViewWidth = _width,
+            ResizeRequested = _resizeRequested,
+            ViewPort = _mainViewport
         };
     }
 

@@ -1,9 +1,10 @@
-﻿using OpenTK.Mathematics;
+﻿using SamLabs.Gfx.Viewer.SceneGraph;
 
-namespace SamLabs.Gfx.Viewer.Rendering.Passes;
+namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 
 public ref struct RenderContext
 {
+    public IViewPort ViewPort { get; set; }
     public bool ResizeRequested { get; set; }
     public int ObjectHoverId { get; set; }
     public int[] SelectedObjectIds { get; set; }
