@@ -208,7 +208,7 @@ public class FrameBufferService
         GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);
         GL.BufferData(
             BufferTarget.PixelPackBuffer,
-            Sizes.Pixel,
+            SizeOf.Pixel,
             IntPtr.Zero, BufferUsage.StreamRead
         );
 

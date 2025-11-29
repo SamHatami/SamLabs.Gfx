@@ -5,7 +5,7 @@ namespace SamLabs.Gfx.Viewer.Core.Utility;
 
 public static class VertexExtensions
 {
-    public static float[] ExtractPositionArray(this VertexComponent[] vertices)
+    public static float[] ExtractPositionArray(this Vertex[] vertices)
     {
         var array = new float[vertices.Length * 3];
 
@@ -19,7 +19,7 @@ public static class VertexExtensions
         return array;
     }
 
-    public static float[] ExtractFullVertexArray(this VertexComponent[] vertices)
+    public static float[] ExtractFullVertexArray(this Vertex[] vertices)
     {
         var array = new float[vertices.Length * 8];
 

@@ -1,5 +1,4 @@
-﻿
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -8,7 +7,7 @@ using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities;
 
-public class CubeBlueprint: EntityBlueprint
+public class CubeBlueprint : EntityBlueprint
 {
     private readonly ComponentManager _componentManager;
 
@@ -18,25 +17,23 @@ public class CubeBlueprint: EntityBlueprint
     }
 
     public override string Name { get; } = EntityNames.Cube;
+
     public override void Build(Entity entity)
     {
         var transformComponent = new TransformComponent
         {
             Position = new Vector3(0, 0, 0),
             Scale = new Vector3(1, 1, 1),
-            Rotation = Quaternion.Identity,
+            Rotation = new Vector3(0, 0, 0), //This should be quaternion instead.
             WorldMatrix = Matrix4.Identity
         };
 
         var meshData = new MeshDataComponent();
 
-        var meshGLData = new MeshGlDataComponent();
-        
-        
-        _componentManager.SetComponentToEntity<MeshGlDataComponent>(meshGLData, entity.Id);
-        _componentManager.SetComponentToEntity<MeshDataComponent>(meshData, entity.Id);
-        _componentManager.SetComponentToEntity<TransformComponent>(transformComponent, entity.Id);
+        var glMeshData = new GlMeshDataComponent();
+
+        _componentManager.SetComponentToEntity(glMeshData, entity.Id);
+        _componentManager.SetComponentToEntity(meshData, entity.Id);
+        _componentManager.SetComponentToEntity(transformComponent, entity.Id);
     }
-
-
 }

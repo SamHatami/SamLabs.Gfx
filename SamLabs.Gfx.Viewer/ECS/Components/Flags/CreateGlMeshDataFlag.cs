@@ -2,4 +2,7 @@
 
 namespace SamLabs.Gfx.Viewer.ECS.Components.Flags;
 
-public struct MeshGlDataChangedComponent : IDataComponent;
+public struct CreateGlMeshDataFlag : IDataComponent
+{
+    
+}

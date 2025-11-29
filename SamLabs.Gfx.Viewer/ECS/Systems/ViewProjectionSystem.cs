@@ -1,4 +1,6 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Components;
+﻿using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.Core.Utility;
+using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
@@ -16,19 +18,37 @@ public class ViewProjectionSystem : RenderSystem
 
     public override void Update(RenderContext renderContext)
     {
+        if(!renderContext.CameraMoved && !renderContext.ResizeRequested) return;
         var cameraEntity = _componentManager.GetEntityIdsFor<CameraComponent>();
         if (cameraEntity.Length == 0) return;
-        
+
         var cameraTransform = _componentManager.GetComponent<TransformComponent>(cameraEntity[0]);
         var cameraData = _componentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
+
+        if (renderContext.ResizeRequested)
+            Renderer.ResizeViewportBuffers(renderContext.ViewPort, renderContext.ViewWidth, renderContext.ViewHeight);
+
+        var viewMatrix = ViewMatrix(cameraData, cameraTransform);
+        var projectionMatrix = Matrix4.Identity;
+        switch (cameraData.ProjectionType)
+        {
+            case EnumTypes.ProjectionType.Orthographic:
+                projectionMatrix = OrthographicProjectionMatrix(cameraData, renderContext);
+                break;
+            case EnumTypes.ProjectionType.Perspective:
+                projectionMatrix = PerspectiveProjectionMatrix(cameraData);
+                break;
+        }
         
-        if(renderContext.ResizeRequested)
-           Renderer.ResizeViewportBuffers(renderContext.ViewPort,renderContext.ViewWidth, renderContext.ViewHeight);
-        
-        Renderer.SetViewProjection(cameraData.ViewMatrix, cameraData.ProjectionMatrix);
-        
-        
-    public Matrix4 ViewMatrix => Matrix4.LookAt(Position, Target, Up);
-    public Matrix4 ProjectionMatrix => Matrix4.CreatePerspectiveFieldOfView(Fov, AspectRatio, Near, Far);
+        Renderer.SetViewProjection(viewMatrix, projectionMatrix);
     }
+
+    private Matrix4 ViewMatrix(CameraDataComponent camera, TransformComponent cameraTransform) =>
+        Matrix4.LookAt(cameraTransform.Position, camera.Target, camera.Up);
+
+    private Matrix4 PerspectiveProjectionMatrix(CameraDataComponent camera) =>
+        Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
+    
+    private Matrix4 OrthographicProjectionMatrix(CameraDataComponent camera, RenderContext renderContext) =>
+    Matrix4.CreateOrthographic(renderContext.ViewWidth, renderContext.ViewHeight, camera.Near, camera.Far);
 }

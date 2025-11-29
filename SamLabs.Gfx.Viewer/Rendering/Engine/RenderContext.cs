@@ -6,6 +6,7 @@ public ref struct RenderContext
 {
     public IViewPort ViewPort { get; set; }
     public bool ResizeRequested { get; set; }
+    public bool CameraMoved { get; set; }
     public int ObjectHoverId { get; set; }
     public int[] SelectedObjectIds { get; set; }
     public int ViewWidth { get; set; }

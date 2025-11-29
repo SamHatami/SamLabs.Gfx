@@ -24,7 +24,7 @@ public class UniformBufferService : IDisposable
 
         _viewProjectionBuffer = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffer);
-        GL.BufferData(BufferTarget.UniformBuffer, Sizes.FMatrix4 * 2, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BufferData(BufferTarget.UniformBuffer, SizeOf.FMatrix4 * 2, IntPtr.Zero, BufferUsage.DynamicDraw);
         GL.BindBufferBase(BufferTarget.UniformBuffer, ViewProjectionBindingPoint, _viewProjectionBuffer);
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 
@@ -36,8 +36,8 @@ public class UniformBufferService : IDisposable
         if (_viewProjectionBuffer == 0) RegisterViewProjectionBuffer();
 
         GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffer);
-        GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, Sizes.FMatrix4, ref view);
-        GL.BufferSubData(BufferTarget.UniformBuffer, Sizes.FMatrix4, Sizes.FMatrix4, ref projection);
+        GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, SizeOf.FMatrix4, ref view);
+        GL.BufferSubData(BufferTarget.UniformBuffer, SizeOf.FMatrix4, SizeOf.FMatrix4, ref projection);
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
     }
 
@@ -63,7 +63,7 @@ public class UniformBufferService : IDisposable
     {
         var bufferId = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.UniformBuffer, bufferId);
-        GL.BufferData(BufferTarget.UniformBuffer, Sizes.Int, IntPtr.Zero, BufferUsage.DynamicDraw);
+        GL.BufferData(BufferTarget.UniformBuffer, SizeOf.Int, IntPtr.Zero, BufferUsage.DynamicDraw);
         GL.BindBufferBase(BufferTarget.UniformBuffer, ObjectIdBindingPoint, _viewProjectionBuffer);
 
         GL.BindBuffer(BufferTarget.UniformBuffer, 0);
