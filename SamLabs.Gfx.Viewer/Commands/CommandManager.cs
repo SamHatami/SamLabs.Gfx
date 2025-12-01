@@ -40,6 +40,10 @@ public class CommandManager
     {
         while (_commands.TryDequeue(out var command)) command.Redo();
     }
+
+    public void EnqueueCommand()
+    {
+    }
 }
 
 public interface ICommand

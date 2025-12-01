@@ -30,12 +30,7 @@ public class GLInitializeMeshDataSystem : PreRenderSystem
             
             _componentManager.RemoveComponentFromEntity<CreateGlMeshDataFlag>(glMeshDataEntities[i]);
         }
-
-
-        //TBD Implement GL upload, same as in base mesh class
     }
-
-    //System to create GL mesh data
 
     //TBD transient mesh data for dynamic draw (?)
     private void CreateGlMeshData(ref GlMeshDataComponent glMeshData, ref MeshDataComponent meshData)
@@ -49,8 +44,12 @@ public class GLInitializeMeshDataSystem : PreRenderSystem
             BufferUsage.StaticDraw);
 
         SetupVertexAttributes();
-        IndexVertices(ref glMeshData, ref meshData);
-
+        
+        if( meshData.Indices.Length > 0)
+            IndexVertices(ref glMeshData, ref meshData);
+        else
+            glMeshData.Ebo = 0;
+        
         GL.BindVertexArray(0);
     }
 

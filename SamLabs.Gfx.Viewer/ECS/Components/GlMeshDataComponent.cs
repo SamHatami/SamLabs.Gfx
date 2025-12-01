@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Managers;
+﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 
@@ -11,4 +12,10 @@ public struct GlMeshDataComponent : IDataComponent
     public int Vbo;
     public int Ebo;
     public int VertexCount;
+    public PrimitiveType PrimitiveType;
+
+    public GlMeshDataComponent(int vertexCount)
+    {
+        VertexCount = vertexCount;
+    }
 }

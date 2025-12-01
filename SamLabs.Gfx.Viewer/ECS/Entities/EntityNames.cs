@@ -10,4 +10,5 @@ public static class EntityNames
     public const string Quad = "Quad";
 
     public static string MainCamera = "MainCamera";
+    public static string MainGrid = "MainGrid";
 }

@@ -35,6 +35,7 @@ public class EcsRoot
     {
         EntityCreator.RegisterBlueprint(new MainCameraBlueprint(ComponentManager));
         EntityCreator.RegisterBlueprint(new CubeBlueprint(ComponentManager, _shaderService));
+        EntityCreator.RegisterBlueprint(new MainGridBlueprint(ComponentManager, _shaderService));
     }
 }
 

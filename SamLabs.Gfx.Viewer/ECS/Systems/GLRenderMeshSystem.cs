@@ -33,18 +33,16 @@ public class GLRenderMeshSystem : RenderSystem
         GL.BindVertexArray(mesh.Vao);
         // GL.UniformMatrix4f(_mvpLocation, 1, false, ref model);
 
-        if (mesh.VertexCount != 0)
+        if (mesh.Ebo > 0)
         {
-            GL.DrawElements(OpenTK.Graphics.OpenGL.PrimitiveType.Triangles, mesh.VertexCount,
-                DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(mesh.PrimitiveType, mesh.VertexCount, DrawElementsType.UnsignedInt, 0);
         }
         else
         {
-            GL.DrawArrays(OpenTK.Graphics.OpenGL.PrimitiveType.Triangles, 0, mesh.VertexCount);
+            GL.DrawArrays(mesh.PrimitiveType, 0, mesh.VertexCount);
         }
 
         GL.BindVertexArray(0);
         GL.UseProgram(0);
-        GL.BindVertexArray(mesh.Vao);
     }
 }

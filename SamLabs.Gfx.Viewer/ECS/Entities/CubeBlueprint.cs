@@ -1,4 +1,6 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Core;
@@ -34,10 +36,14 @@ public class CubeBlueprint : EntityBlueprint
 
         var meshData = GenerateMeshData();
 
-        var glMeshData = new GlMeshDataComponent();
+        var glMeshData = new GlMeshDataComponent()
+        {
+            PrimitiveType = PrimitiveType.Triangles,
+            VertexCount = meshData.Vertices.Length
+        };
 
         var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("simple") ?? new GLShader("Empty",0);
+        material.Shader = _shaderService.GetShader("flat") ?? new GLShader("Empty",0);
             
         _componentManager.SetComponentToEntity(glMeshData, entity.Id);
         _componentManager.SetComponentToEntity(meshData, entity.Id);

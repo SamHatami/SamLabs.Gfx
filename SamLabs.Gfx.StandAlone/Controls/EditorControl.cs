@@ -169,7 +169,7 @@ public class EditorControl : OpenTkControlBase
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         _currentScene = SceneManager.GetCurrentScene();
         
-        
+        CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager,EcsRoot.EntityCreator));
         // _currentScene?.Grid.InitializeGL();
         // _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
         // _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
