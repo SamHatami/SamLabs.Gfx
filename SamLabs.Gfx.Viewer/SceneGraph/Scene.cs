@@ -10,8 +10,6 @@ public class Scene
     public ICamera Camera { get; internal set; }
 
     public List<IRenderable> GetRenderables() => _renderables;
-    public ConcurrentQueue<Action> Actions { get; set; } = new();
-    public CameraController CameraController { get; set; }
 
     public void AddRenderable(IRenderable renderable) => _renderables.Add(renderable);
 

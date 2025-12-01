@@ -42,9 +42,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
             _uniformBufferService.BindUniformToProgram(shader, UniformBufferService.ViewProjectionName);
 
     }
-
-    public int GetShaderProgram(string shaderName) => ShaderService.GetShaderProgram(shaderName);
-
+    
     public void SetWireframes(bool wireframe)
     {
         if (wireframe)

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.Rendering.Shaders;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 
@@ -38,12 +39,17 @@ public class ShaderService : IDisposable
         Console.WriteLine($"Registered {vertPaths.Length} shaders");
     }
 
-    public static int GetShaderProgram(string name)
+    public GLShader? GetShader(string name)
     {
-        return _shadersProgram.TryGetValue(name, out var program) ? program : -1;
+        var shader = _shadersProgram.GetValueOrDefault(name, -1);
+        
+        if(shader == -1)
+            return null;
+        
+        return new GLShader(name, shader);
     }
 
-    public int GetShaderProgram(string vertPath, string fragPath)
+    private int GetShaderProgram(string vertPath, string fragPath)
     {
         var vertShader = Path.GetFileNameWithoutExtension(vertPath);
         if (!_shadersProgram.TryGetValue(vertShader, out var program))

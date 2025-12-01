@@ -107,32 +107,16 @@ public class EditorControl : OpenTkControlBase
         var frameInput = CaptureFrameInput();
         _systemManager.Update(frameInput);
         
-
-        var renderContext = CaptureRenderContext();
-        _systemManager.Render(renderContext);
-        
-        
-        // //First render pass to picking buffer
-        _renderer.ClearPickingBuffer(_mainViewport);
-        _renderer.RenderToPickingBuffer(_mainViewport);
-        GL.Disable(EnableCap.Blend);
-        foreach (var renderable in _currentScene.GetRenderables())
-            renderable.DrawPickingId();
-        GL.Enable(EnableCap.Blend);
-
-        StorePickingId(_currentMousePosition);
-
-        _renderer.StopRenderToBuffer();
         
         //Main render pass
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainScreenFrameBuffer);
         GL.Enable(EnableCap.DepthTest);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Viewport(0, 0, width,height);
-
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-        ProcessMouseEvents();
+        
+        var renderContext = CaptureRenderContext();
+        _systemManager.Render(renderContext);
 
         GL.Disable(EnableCap.DepthTest);
         
@@ -145,7 +129,6 @@ public class EditorControl : OpenTkControlBase
     {
         return new RenderContext()
         {
-            ObjectHoverId = _objectHoveringId,
             ViewHeight = _height,
             ViewWidth = _width,
             ResizeRequested = _resizeRequested,
@@ -176,20 +159,6 @@ public class EditorControl : OpenTkControlBase
         
     }
 
-    private void ProcessMouseEvents()
-    {
-        //Add early returns with minor float comparisons
-
-        Vector2 delta;
-        lock (this)
-        {
-            delta = _mouseMoveDelta;
-            _mouseMoveDelta = Vector2.Zero;
-        }
-
-        ReadPickingId();
-    }
-
     protected override void InitializeOpenTk()
     {
         _systemManager = EcsRoot.SystemManager;
@@ -199,6 +168,8 @@ public class EditorControl : OpenTkControlBase
         _systemManager.InitializeRenderSystems(_renderer);
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         _currentScene = SceneManager.GetCurrentScene();
+        
+        
         // _currentScene?.Grid.InitializeGL();
         // _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
         // _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
@@ -255,39 +226,4 @@ public class EditorControl : OpenTkControlBase
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e) => _resizeRequested = true;
 
-    private void StorePickingId(Point localMousePos)
-    {
-        int localX = (int)localMousePos.X;
-        int localY = (int)localMousePos.Y;
-
-        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
-        int x = (int)(localMousePos.X * scaling);
-        int y = (int)(localMousePos.Y * scaling);
-        y = _mainViewport.SelectionRenderView.Height - y; // Flip Y
-
-        x = Math.Clamp(x, 0, _mainViewport.SelectionRenderView.Width - 1);
-        y = Math.Clamp(y, 0, _mainViewport.SelectionRenderView.Height - 1);
-
-        _readPickingIndex ^= 1; //alternates between picking buffers
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
-        GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
-    }
-
-    private void ReadPickingId()
-    {
-        unsafe
-        {
-            //Swap PixelbufferIndex
-            GL.BindBuffer(BufferTarget.PixelPackBuffer,
-                _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
-            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
-            if (pboPtr != (void*)IntPtr.Zero)
-                _objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));
-            GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
-            GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
-
-            Dispatcher.UIThread.Post(() => ViewModel.SetObjectId(_objectHoveringId), DispatcherPriority.Normal);
-        }
-    }
 }

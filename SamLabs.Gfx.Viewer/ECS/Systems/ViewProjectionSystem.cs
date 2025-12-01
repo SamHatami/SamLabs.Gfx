@@ -41,6 +41,9 @@ public class ViewProjectionSystem : RenderSystem
         }
         
         Renderer.SetViewProjection(viewMatrix, projectionMatrix);
+        
+        renderContext.CameraMoved = false;
+        renderContext.ResizeRequested = false;
     }
 
     private Matrix4 ViewMatrix(CameraDataComponent camera, TransformComponent cameraTransform) =>

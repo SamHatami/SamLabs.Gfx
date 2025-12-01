@@ -96,9 +96,6 @@ public class Grid : IGrid
 
         GL.UseProgram(_shaderProgram);
         GL.BindVertexArray(_vao);
-        var model = Matrix4.Identity; // -> model-view-projection matrix - mvp should be sent or be available
-
-
         // GL.UniformMatrix4f(_mvpLocation, 1, false, ref model);
 
         GL.DrawArrays(PrimitiveType.Lines, 0, _vertices.Length / 3);

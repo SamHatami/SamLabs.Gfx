@@ -1,0 +1,9 @@
+﻿using SamLabs.Gfx.Viewer.ECS.Managers;
+using SamLabs.Gfx.Viewer.Rendering.Shaders;
+
+namespace SamLabs.Gfx.Viewer.ECS.Components;
+
+public struct MaterialComponent:IDataComponent
+{
+    public GLShader Shader { get; set; }
+}

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;

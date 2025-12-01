@@ -40,7 +40,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SceneManager.AddRenderable(_grid);
         
         var camera = _entityCreator.Create(EntityNames.MainCamera); //make into generic method?
-        
+
     }
 
     public void SetObjectId(int id) => ObjectId = id;
@@ -48,12 +48,6 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public void AddBox()
     {
-        _scene.Actions.Enqueue(() =>
-            {
-                // var box = new Box();
-                // box.ApplyShader("flat");
-                // _scene.AddRenderable(box);
-            }
-        );
+        CommandManager.EnqueueCommand(new AddBoxCommand(CommandManager,SceneManager.GetCurrentScene(),_entityCreator));
     }
 }

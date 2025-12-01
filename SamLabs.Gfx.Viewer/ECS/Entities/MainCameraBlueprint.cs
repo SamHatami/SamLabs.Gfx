@@ -23,7 +23,7 @@ public class MainCameraBlueprint : EntityBlueprint
     {
         var transformComponent = new TransformComponent
         {
-            Position = new Vector3(0, 0, 0),
+            Position = new Vector3(0, 5, 5),
             Scale = new Vector3(1, 1, 1),
             Rotation = new Vector3(0, 0, 0), //This should be quaternion instead.
             WorldMatrix = Matrix4.Identity
@@ -34,6 +34,7 @@ public class MainCameraBlueprint : EntityBlueprint
         {
             cameraData.ProjectionType = EnumTypes.ProjectionType.Perspective;
             cameraData.Fov = MathHelper.DegreesToRadians(60);
+            cameraData.Target = new Vector3(0, 0, 0);
         }
 
 
