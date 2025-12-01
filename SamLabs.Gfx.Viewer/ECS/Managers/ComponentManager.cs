@@ -8,7 +8,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 public class ComponentManager
 {
     private readonly ComponentMap[] _componentMaps = new ComponentMap[GlobalSettings.MaxComponents]; //for quick tracking which entities have which components
-    private readonly Dictionary<Type,int> _componentIdsCache = new(GlobalSettings.MaxComponents);
+    private static readonly Dictionary<Type,int> ComponentTypeRegistry = new(GlobalSettings.MaxComponents); //only used for building up the ComponentTypeCache
     private readonly IComponentStorage[] _componentStorages = new IComponentStorage[GlobalSettings.MaxComponents];
     public class ComponentMap<T> where T : IDataComponent
     {
@@ -28,7 +28,7 @@ public class ComponentManager
             {
                 if (!typeof(IDataComponent).IsAssignableFrom(componentType)) continue;
                 _componentMaps[i] = new ComponentMap(componentType);
-                _componentIdsCache[componentType] = i;
+                ComponentTypeRegistry[componentType] = i;
                 _componentStorages[i] = (IComponentStorage) Activator.CreateInstance(typeof(ComponentStorage<>).MakeGenericType(componentType))!;
                 i++;
             }
@@ -38,7 +38,10 @@ public class ComponentManager
             }
     }
     
-    public void RemoveComponentFromEntity<T>(int entityId) => _componentMaps[GetId<T>()].RemoveUsage(entityId);
+    public void RemoveComponentFromEntity<T>(int entityId) where T : IDataComponent
+    {
+         _componentMaps[GetId<T>()].RemoveUsage(entityId);
+    }
 
     public void RemoveEntity(int entityId)
     {
@@ -60,10 +63,22 @@ public class ComponentManager
         return ref storage.Get(entityId);
     }
     
-    public int GetId<T>() => _componentIdsCache.GetValueOrDefault(typeof(T), -1);
-    public ReadOnlySpan<int> GetEntityIdsFor<T>()
+    public int GetId<T>() where T : IDataComponent
+    {
+        return ComponentTypeCache<T>.Id;
+    }
+    public ReadOnlySpan<int> GetEntityIdsFor<T>() where T : IDataComponent
     {
         return GetId<T>() == -1 ? ReadOnlySpan<int>.Empty : _componentMaps[GetId<T>()].GetUsageIds();
     }
-    
+
+    private static class ComponentTypeCache<T> where T : IDataComponent
+    {
+        public static int Id = -1;
+
+        static ComponentTypeCache()
+        {
+            Id = ComponentTypeRegistry.GetValueOrDefault(typeof(T), -1);
+        }
+    }
 }

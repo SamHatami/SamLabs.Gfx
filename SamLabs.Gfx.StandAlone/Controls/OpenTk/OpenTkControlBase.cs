@@ -29,7 +29,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
         _gl = gl;
-        KeyboardState.OnFrame();
+        // KeyboardState.OnFrame();
 
         var size = GetPlatformSpecificBounds();
 
@@ -43,13 +43,15 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         }
 
         //Schedule next UI update with avalonia
-        Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Render);
+        Dispatcher.UIThread.Post(_nextFrameAction, DispatcherPriority.MaxValue);
     }
     
     
     private static readonly bool OnLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     private double? _renderScaling = null;
+    private Action _nextFrameAction;
+
     private double RenderScaling => (_renderScaling ??= TopLevel.GetTopLevel(this)?.RenderScaling)
                                     ?? throw new PlatformNotSupportedException("Could not obtain TopLevel");
     private (int width, int height) GetPlatformSpecificBounds()
@@ -83,7 +85,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     {
         _avaloniaTkContext = new AvaloniaTkContext(gl);
         GLLoader.LoadBindings(_avaloniaTkContext);
-
+        _nextFrameAction = RequestNextFrameRendering;
         InitializeOpenTk();
     }
 

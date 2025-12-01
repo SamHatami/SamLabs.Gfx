@@ -28,7 +28,7 @@ public class MainGridBlueprint : EntityBlueprint
     public override void Build(Entity entity)
     {
         var spacing = 1.0f;
-        var linesPerSide = 40;
+        var linesPerSide = 20;
         
         var vertices = GetVertices(linesPerSide, spacing);
         var gridData = new GridComponent(linesPerSide, spacing);

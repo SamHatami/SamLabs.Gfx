@@ -37,8 +37,4 @@
     <ItemGroup>
       <ProjectReference Include="..\SamLabs.Gfx.Viewer\SamLabs.Gfx.Viewer.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\" />
-    </ItemGroup>
 </Project>

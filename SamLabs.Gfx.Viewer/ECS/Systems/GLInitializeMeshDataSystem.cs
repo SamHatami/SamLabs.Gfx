@@ -57,7 +57,7 @@ public class GLInitializeMeshDataSystem : PreRenderSystem
     {
         glMeshData.Ebo = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, glMeshData.Ebo);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, glMeshData.VertexCount * sizeof(uint),
+        GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.Indices.Length * sizeof(uint),
             meshData.Indices, BufferUsage.StaticDraw);
     }
 

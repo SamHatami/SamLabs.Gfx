@@ -32,9 +32,9 @@ public class GLRenderMeshSystem : RenderSystem
         var shaderProgram = materialComponent.Shader.ProgramId;
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
-        int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
-        var modelMatrix = Matrix4.Identity;
-        GL.UniformMatrix4f(modelLocation, 1, false, ref modelMatrix);
+        // int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
+        // var modelMatrix = Matrix4.Identity;
+        // GL.UniformMatrix4f(modelLocation, 1, false, ref modelMatrix);
 
         if (mesh.Ebo > 0)
         {

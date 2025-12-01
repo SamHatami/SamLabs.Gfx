@@ -94,12 +94,13 @@ public class EditorControl : OpenTkControlBase
     private int _height;
     private int _width;
 
-
     public ConcurrentQueue<Command> Actions { get; } = new();
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        CommandManager.ProcessAllCommands();
+        
         //Process commands
         _width = width;
         _height = height;
@@ -107,10 +108,13 @@ public class EditorControl : OpenTkControlBase
         var frameInput = CaptureFrameInput();
         _systemManager.Update(frameInput);
         
-        
         //Main render pass
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainScreenFrameBuffer);
         GL.Enable(EnableCap.DepthTest);
+        // GL.Enable(EnableCap.Blend);
+        // GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        // GL.Enable(EnableCap.LineSmooth);
+        // GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Viewport(0, 0, width,height);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -120,7 +124,6 @@ public class EditorControl : OpenTkControlBase
 
         GL.Disable(EnableCap.DepthTest);
         
-        CommandManager.ProcessAllCommands();
         ClearInputData();
         
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
@@ -148,7 +151,8 @@ public class EditorControl : OpenTkControlBase
             KeyDown = _keyDown, 
             KeyUp = _keyUp,
             DeltaMouseMove = new Vector2(_mouseMoveDelta.X, _mouseMoveDelta.Y),
-            MouseWheelDelta = (float)_mouseWheelDelta
+            MouseWheelDelta = (float)_mouseWheelDelta,
+            ViewportSize = new Vector2((float)Bounds.Width, (float)Bounds.Height)
         };
         
         
@@ -196,6 +200,16 @@ public class EditorControl : OpenTkControlBase
     {
         _mouseWheelDelta = e.Delta.Y;
         base.OnPointerWheelChanged(e);
+    }
+    
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        if (!e.Handled)
+        {
+            e.Pointer.Capture(this); // Lock the mouse to this control
+            _lastMousePosition = e.GetPosition(this); // Reset "Last" so we don't get a huge jump
+        }
     }
     
     protected override void OnPointerReleased(PointerReleasedEventArgs e)

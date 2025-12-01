@@ -29,24 +29,29 @@ public class CameraControlSystem : UpdateSystem
                 Orbit(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
 
             else if (frameInput.IsMouseMiddleButtonDown)
-                Pan(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
+                Pan(frameInput, ref cameraData, ref cameraTransform);
 
             else if (frameInput.MouseWheelDelta != 0.0f)
                 Zoom(frameInput.MouseWheelDelta, ref cameraData, ref cameraTransform);
         }
     }
 
-    private void Pan(Vector2 delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
+    private void Pan(FrameInput frameInput, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
     {
-        // if(Math.Abs(delta.X - 0.001f) < MathExtensions.Tolerance && Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance) 
-        //     return;
+        var delta = frameInput.DeltaMouseMove;
+        if(Math.Abs(delta.X - 0.001f) < MathExtensions.Tolerance && Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance) 
+            return;
+        var viewportSize = frameInput.ViewportSize;
+        float worldHeight = 2.0f * cameraData.DistanceToTarget * MathF.Tan(cameraData.Fov / 2.0f);
+
+        float pixelsToWorldScale = worldHeight / viewportSize.Y;
+        
+        cameraData.DistanceToTarget = Vector3.Distance(cameraData.Target, cameraTransform.Position);
         var forward = cameraData.Target - cameraTransform.Position;
         var right = Vector3.Normalize(Vector3.Cross(forward, cameraData.Up));
         var up = cameraData.Up;
-
-        float speed = 0.01f * cameraData.DistanceToTarget; 
-
-        var offset = (right * -delta.X * speed) + (up * delta.Y * speed);
+        
+        var offset = (right * -delta.X * pixelsToWorldScale) + (up * delta.Y * pixelsToWorldScale);
         
         cameraData.Target += offset;
         cameraTransform.Position += offset;

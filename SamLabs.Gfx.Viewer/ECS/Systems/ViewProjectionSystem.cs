@@ -26,8 +26,10 @@ public class ViewProjectionSystem : RenderSystem
         var cameraData = _componentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
 
         if (renderContext.ResizeRequested)
+        {
             Renderer.ResizeViewportBuffers(renderContext.ViewPort, renderContext.ViewWidth, renderContext.ViewHeight);
-
+            cameraData.AspectRatio = renderContext.ViewWidth / (float)renderContext.ViewHeight;
+        }
         var viewMatrix = ViewMatrix(cameraData, cameraTransform);
         var projectionMatrix = Matrix4.Identity;
         switch (cameraData.ProjectionType)

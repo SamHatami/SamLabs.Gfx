@@ -15,6 +15,7 @@ public ref struct FrameInput
     public bool IsMouseMiddleButtonDown { get; set; }
     public bool IsMouseCaptured { get; private set; }
     public float MouseWheelDelta { get; set; }
+    public Vector2 ViewportSize { get; set; }
 
     public void CaptureMouse() => IsMouseCaptured = true;
     public void ReleaseMouse() => IsMouseCaptured = false;
