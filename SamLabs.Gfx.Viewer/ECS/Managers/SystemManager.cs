@@ -10,9 +10,10 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 public class SystemManager
 {
     private readonly ComponentManager _componentManager;
-    private PreRenderSystem[] _gpuResourceSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
-    private UpdateSystem[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
-    private RenderSystem[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
+    private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
+    private UpdateSystem?[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
+    private RenderSystem?[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
+    private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[GlobalSettings.MaxSystems];
     private int _systemsCount;
 
     public SystemManager(ComponentManager componentManager)
@@ -23,14 +24,44 @@ public class SystemManager
 
     public void InitializeRenderSystems(IRenderer renderer)
     {
-        foreach (var renderSystem in _renderSystems) renderSystem.Initialize(renderer);
+        foreach (var renderSystem in _renderSystems)
+        {
+            if (renderSystem == null) continue;
+            renderSystem.Initialize(renderer);
+        }
     }
 
     private void RegisterSystems()
     {
-        RegisterGPUSystems();
+        RegisterPreRenderSystems();
         RegisterUpdateSystems();
         RegisterRenderSystems();
+        RegisterPostRenderSystems();
+    }
+
+    private void RegisterPostRenderSystems()
+    {
+        var postRenderSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
+            where t.IsClass
+                  && t.Namespace == EcsStrings.SystemsFolder
+                  && typeof(PostRenderSystem).IsAssignableFrom(t)
+                  && !t.IsAbstract && !t.IsInterface
+            select t;
+
+        _systemsCount = postRenderSystems.Count();
+
+        for (var i = 0; i < _systemsCount; i++)
+        {
+            try
+            {
+                _postRenderSystems[i] =
+                    (PostRenderSystem)Activator.CreateInstance(postRenderSystems.ElementAt(i), _componentManager);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Could not add system {postRenderSystems.ElementAt(i).Name} to systemregistry");
+            }
+        }
     }
 
     private void RegisterRenderSystems()
@@ -80,27 +111,27 @@ public class SystemManager
         }
     }
 
-    private void RegisterGPUSystems()
+    private void RegisterPreRenderSystems()
     {
-        var gpuResourceSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
+        var preRenderSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
             where t.IsClass
                   && t.Namespace == EcsStrings.SystemsFolder
                   && typeof(PreRenderSystem).IsAssignableFrom(t)
                   && !t.IsAbstract && !t.IsInterface
             select t;
 
-        _systemsCount = gpuResourceSystems.Count();
+        _systemsCount = preRenderSystems.Count();
 
         for (var i = 0; i < _systemsCount; i++)
         {
             try
             {
-                _gpuResourceSystems[i] =
-                    (PreRenderSystem)Activator.CreateInstance(gpuResourceSystems.ElementAt(i), _componentManager);
+                _preRenderSystems[i] =
+                    (PreRenderSystem)Activator.CreateInstance(preRenderSystems.ElementAt(i), _componentManager);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Could not add system {gpuResourceSystems.ElementAt(i).Name} to systemregistry");
+                Console.WriteLine($"Could not add system {preRenderSystems.ElementAt(i).Name} to systemregistry");
             }
         }
     }
@@ -110,16 +141,20 @@ public class SystemManager
         //Check if global no update flag is set (?)
 
         foreach (var updateSystem in _updateSystems)
-            updateSystem.Update(frameInput);
+            updateSystem?.Update(frameInput);
     }
 
     public void Render(RenderContext renderContext)
     {
         
-        foreach (var gpuResourceSystem in _gpuResourceSystems) gpuResourceSystem.Update();
+        foreach (var preRenderSystem in _preRenderSystems)
+            preRenderSystem?.Update();
         
-        foreach (var renderSystem in _renderSystems) renderSystem.Update(renderContext);
+        foreach (var renderSystem in _renderSystems)
+            renderSystem?.Update(renderContext);
         
+        foreach (var postRenderSystem in _postRenderSystems)
+            postRenderSystem?.Update();
         
     }
 }

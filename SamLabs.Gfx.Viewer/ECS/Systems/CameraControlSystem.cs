@@ -16,7 +16,7 @@ public class CameraControlSystem : UpdateSystem
     {
         var cameraEntities = _componentManager.GetEntityIdsFor<CameraComponent>();
 
-        if (cameraEntities.Length == 0) return;
+        if (cameraEntities.IsEmpty) return;
 
         for (var i = 0; i < cameraEntities.Length; i++)
         {

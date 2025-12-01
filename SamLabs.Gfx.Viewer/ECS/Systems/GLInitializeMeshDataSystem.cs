@@ -7,11 +7,11 @@ using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems;
 
-public class InitializeMeshGLDataSystem : PreRenderSystem
+public class GLInitializeMeshDataSystem : PreRenderSystem
 {
     private readonly ComponentManager _componentManager;
 
-    public InitializeMeshGLDataSystem(ComponentManager componentManager) : base(componentManager)
+    public GLInitializeMeshDataSystem(ComponentManager componentManager) : base(componentManager)
     {
         _componentManager = componentManager;
     }
@@ -19,7 +19,7 @@ public class InitializeMeshGLDataSystem : PreRenderSystem
     public override void Update()
     {
         var glMeshDataEntities = _componentManager.GetEntityIdsFor<CreateGlMeshDataFlag>();
-        if (glMeshDataEntities.Length == 0) return;
+        if (glMeshDataEntities.IsEmpty) return;
 
         for (var i = 0; i < glMeshDataEntities.Length; i++)
         {

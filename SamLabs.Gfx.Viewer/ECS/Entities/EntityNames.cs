@@ -8,5 +8,6 @@ public static class EntityNames
     public const string Plane = "Plane";
     public const string Triangle = "Triangle";
     public const string Quad = "Quad";
-    
+
+    public static string MainCamera = "MainCamera";
 }

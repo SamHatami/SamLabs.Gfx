@@ -64,17 +64,7 @@ public class EditorControl : OpenTkControlBase
         set => SetAndRaise(SceneManagerProperty, ref field, value);
     }
 
-    public static readonly DirectProperty<EditorControl, IRenderer> RendererProperty =
-        AvaloniaProperty.RegisterDirect<EditorControl, IRenderer>(nameof(Renderer), o => o.Renderer,
-            (o, v) => o.Renderer = v);
-
-    public IRenderer Renderer
-    {
-        get => Renderer;
-        set => SetAndRaise(RendererProperty, ref field, value);
-    }
-
-    
+    private IRenderer _renderer;
     private SystemManager _systemManager;
     
     
@@ -116,17 +106,15 @@ public class EditorControl : OpenTkControlBase
         
         var frameInput = CaptureFrameInput();
         _systemManager.Update(frameInput);
-
         
-
 
         var renderContext = CaptureRenderContext();
         _systemManager.Render(renderContext);
         
         
         // //First render pass to picking buffer
-        Renderer.ClearPickingBuffer(_mainViewport);
-        Renderer.RenderToPickingBuffer(_mainViewport);
+        _renderer.ClearPickingBuffer(_mainViewport);
+        _renderer.RenderToPickingBuffer(_mainViewport);
         GL.Disable(EnableCap.Blend);
         foreach (var renderable in _currentScene.GetRenderables())
             renderable.DrawPickingId();
@@ -134,7 +122,7 @@ public class EditorControl : OpenTkControlBase
 
         StorePickingId(_currentMousePosition);
 
-        Renderer.StopRenderToBuffer();
+        _renderer.StopRenderToBuffer();
         
         //Main render pass
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainScreenFrameBuffer);
@@ -146,10 +134,6 @@ public class EditorControl : OpenTkControlBase
 
         ProcessMouseEvents();
 
-        _currentScene?.Grid.Draw();
-        foreach (var renderable in _currentScene.GetRenderables())
-            renderable.Draw();
-        
         GL.Disable(EnableCap.DepthTest);
         
         CommandManager.ProcessAllCommands();
@@ -209,18 +193,15 @@ public class EditorControl : OpenTkControlBase
     protected override void InitializeOpenTk()
     {
         _systemManager = EcsRoot.SystemManager;
+        _renderer = EcsRoot.Renderer;
         
-        //Get all systems and services from DI
-        if (Renderer == null)
-            return;
-        
-        Renderer.Initialize();
-        _systemManager.InitializeRenderSystems(Renderer);
-        _mainViewport = Renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
+        _renderer.Initialize();
+        _systemManager.InitializeRenderSystems(_renderer);
+        _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         _currentScene = SceneManager.GetCurrentScene();
-        _currentScene?.Grid.InitializeGL();
-        _currentScene?.Grid.ApplyShader(Renderer.GetShaderProgram("grid"));
-        _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
+        // _currentScene?.Grid.InitializeGL();
+        // _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
+        // _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
     
         SizeChanged += OnSizeChanged;
     }
@@ -287,7 +268,7 @@ public class EditorControl : OpenTkControlBase
         x = Math.Clamp(x, 0, _mainViewport.SelectionRenderView.Width - 1);
         y = Math.Clamp(y, 0, _mainViewport.SelectionRenderView.Height - 1);
 
-        _readPickingIndex ^= 1;
+        _readPickingIndex ^= 1; //alternates between picking buffers
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
         GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);

@@ -31,7 +31,6 @@
         <controls:EditorControl 
             Grid.Column="1" 
             SceneManager="{Binding SceneManager}"
-            Renderer="{Binding Renderer}" 
             EcsRoot="{Binding EcsRoot}"
             CommandManager="{Binding CommandManager}"/>
 

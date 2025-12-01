@@ -1,5 +1,6 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
+using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.Core;
 
@@ -13,12 +14,23 @@ public class EcsRoot
     public ComponentManager ComponentManager { get; }
     public EntityManager EntityManager { get; }
     public EntityCreator EntityCreator { get; }
+    public IRenderer Renderer { get; }
 
-    public EcsRoot(SystemManager systemManager, ComponentManager componentManager, EntityManager entityManager, EntityCreator entityCreator)
+    public EcsRoot(SystemManager systemManager, ComponentManager componentManager, EntityManager entityManager, EntityCreator entityCreator, IRenderer renderer)
     {
+        Renderer = renderer;
         SystemManager = systemManager;
         ComponentManager = componentManager;
         EntityManager = entityManager;
         EntityCreator = entityCreator;
+        
+        InitializeCreators();
+        
+    }
+
+    private void InitializeCreators()
+    {
+        EntityCreator.RegisterBlueprint(new MainCameraBlueprint(ComponentManager));
     }
 }
+

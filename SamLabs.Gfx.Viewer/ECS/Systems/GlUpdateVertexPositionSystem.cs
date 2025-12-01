@@ -7,7 +7,7 @@ using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems;
 
-public class GlUpdateVertexPositionSystem:PreRenderSystem
+public class GlUpdateVertexPositionSystem: PreRenderSystem
 {
     public GlUpdateVertexPositionSystem(ComponentManager componentManager) : base(componentManager)
     {
@@ -16,7 +16,7 @@ public class GlUpdateVertexPositionSystem:PreRenderSystem
     public override void Update()
     {
         var entityIds = ComponentManager.GetEntityIdsFor<GlMeshDataChangedComponent>();
-        if (entityIds.Length == 0) return;
+        if (entityIds.IsEmpty) return;
         
         foreach (var entityId in entityIds)
         {

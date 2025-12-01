@@ -2,7 +2,7 @@ using SamLabs.Gfx.Viewer.Core;
 
 namespace SamLabs.Gfx.Viewer.ECS.Core;
 
-public struct ComponentMap
+public class ComponentMap
 {
     public Type ComponentType { get;}
     private int[] _entityIds = new int[GlobalSettings.MaxEntities];

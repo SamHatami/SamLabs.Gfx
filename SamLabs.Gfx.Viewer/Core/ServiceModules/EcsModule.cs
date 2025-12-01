@@ -5,7 +5,7 @@ using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.Core.ServiceModules;
 
-public class EntityComponentSystemModule:IServiceModule
+public class EcsModule:IServiceModule
 {
     public IServiceCollection RegisterServices(IServiceCollection services)
     {

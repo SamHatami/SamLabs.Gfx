@@ -7,6 +7,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 public abstract class PreRenderSystem : ISystem
 {
     protected readonly ComponentManager ComponentManager;
+    private IRenderer _renderer;
 
     protected PreRenderSystem(ComponentManager componentManager)
     {
@@ -15,7 +16,8 @@ public abstract class PreRenderSystem : ISystem
 
     public void Initialize(IRenderer renderer)
     {
-    } // No initialization required (yet)
+        _renderer = renderer;
+    } 
 
     public abstract void Update();
 }
