@@ -121,6 +121,7 @@ public class EditorControl : OpenTkControlBase
         GL.Disable(EnableCap.DepthTest);
         
         CommandManager.ProcessAllCommands();
+        ClearInputData();
         
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
     }
@@ -146,17 +147,22 @@ public class EditorControl : OpenTkControlBase
             MousePosition = _currentMousePosition,
             KeyDown = _keyDown, 
             KeyUp = _keyUp,
-            DeltaMouseMove = new Vector2((float)_mouseMoveDeltaX, (float)_mouseMoveDeltaY),
+            DeltaMouseMove = new Vector2(_mouseMoveDelta.X, _mouseMoveDelta.Y),
             MouseWheelDelta = (float)_mouseWheelDelta
         };
+        
+        
         return frameInput;
         
-        ClearInputData();
     }
 
     private void ClearInputData()
     {
-        
+        lock (this)
+        {
+            _mouseMoveDelta = Vector2.Zero;
+        }
+        _mouseWheelDelta = 0;
     }
 
     protected override void InitializeOpenTk()
@@ -170,10 +176,7 @@ public class EditorControl : OpenTkControlBase
         _currentScene = SceneManager.GetCurrentScene();
         
         CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager,EcsRoot.EntityCreator));
-        // _currentScene?.Grid.InitializeGL();
-        // _currentScene?.Grid.ApplyShader(_renderer.GetShaderProgram("grid"));
-        // _currentScene.Camera.AspectRatio = (float)Bounds.Width / (float)Bounds.Height;
-    
+        
         SizeChanged += OnSizeChanged;
     }
 
@@ -194,18 +197,24 @@ public class EditorControl : OpenTkControlBase
         _mouseWheelDelta = e.Delta.Y;
         base.OnPointerWheelChanged(e);
     }
+    
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        e.Pointer.Capture(null); // Release the mouse
+    }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         _currentMousePosition = e.GetPosition(this);
 
-        if (!Equals(e.Pointer.Captured, this))
-        {
-            _lastMousePosition = _currentMousePosition;
-            _mouseMoveDelta = Vector2.Zero;
-            _isViewportHovered = false;
-            return;
-        }
+        // if (!Equals(e.Pointer.Captured, this))
+        // {
+        //     _lastMousePosition = _currentMousePosition;
+        //     _mouseMoveDelta = Vector2.Zero;
+        //     _isViewportHovered = false;
+        //     return;
+        // }
 
         var dX = (float)(_currentMousePosition.X - _lastMousePosition.X);
         var dY = (float)(_currentMousePosition.Y - _lastMousePosition.Y);
@@ -215,9 +224,11 @@ public class EditorControl : OpenTkControlBase
             _mouseMoveDelta += new Vector2(dX, dY);
         }
 
-        _leftMouseButtonPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
-        _rightMouseButtonPressed = e.GetCurrentPoint(this).Properties.IsRightButtonPressed;
-        _middleMouseButtonPressed = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
+        var props = e.GetCurrentPoint(this).Properties;
+        _leftMouseButtonPressed = props.IsLeftButtonPressed;
+        _rightMouseButtonPressed = props.IsRightButtonPressed;
+        _middleMouseButtonPressed = props.IsMiddleButtonPressed;
+        _isViewportHovered = true;
 
         _lastMousePosition = _currentMousePosition;
         

@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -23,10 +24,11 @@ public class CameraControlSystem : UpdateSystem
             ref var cameraData = ref _componentManager.GetComponent<CameraDataComponent>(cameraEntities[i]);
             ref var cameraTransform = ref _componentManager.GetComponent<TransformComponent>(cameraEntities[i]);
 
+
             if (frameInput.IsMouseLeftButtonDown)
                 Orbit(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
 
-            else if (frameInput.IsMouseRightButtonDown)
+            else if (frameInput.IsMouseMiddleButtonDown)
                 Pan(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
 
             else if (frameInput.MouseWheelDelta != 0.0f)
@@ -36,27 +38,32 @@ public class CameraControlSystem : UpdateSystem
 
     private void Pan(Vector2 delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
     {
-        var right = Vector3.Normalize(Vector3.Cross(cameraData.Target - cameraTransform.Position, cameraData.Up));
+        // if(Math.Abs(delta.X - 0.001f) < MathExtensions.Tolerance && Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance) 
+        //     return;
+        var forward = cameraData.Target - cameraTransform.Position;
+        var right = Vector3.Normalize(Vector3.Cross(forward, cameraData.Up));
         var up = cameraData.Up;
-        var moveScale = 0.01f;
-        cameraData.Target += right * delta.X * moveScale + up * delta.Y * moveScale;
-        cameraTransform.Position += right * delta.X * moveScale + up * delta.Y * moveScale;
+
+        float speed = 0.01f * cameraData.DistanceToTarget; 
+
+        var offset = (right * -delta.X * speed) + (up * delta.Y * speed);
+        
+        cameraData.Target += offset;
+        cameraTransform.Position += offset;
     }
 
     private void Orbit(Vector2 delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
     {
-        var yawDeltaDegrees = delta.X * 0.2f;
-        var pitchDeltaDegrees = delta.Y * 0.2f;
+        var yawDeltaDegrees = delta.X * 0.15f;
+        var pitchDeltaDegrees = delta.Y * 0.15f;
 
-        cameraData.Pitch += pitchDeltaDegrees;
-        var rotation = cameraTransform.Rotation;
-        rotation.Y += MathHelper.DegreesToRadians(yawDeltaDegrees);
-        rotation.X += MathHelper.DegreesToRadians(pitchDeltaDegrees);
-        // Clamp pitch to prevent gimbal lock (looking straight up or down)
-        rotation.X = MathHelper.ClampRadians(rotation.X);
-        cameraTransform.Rotation = rotation;
+        cameraData.Yaw += MathHelper.DegreesToRadians(yawDeltaDegrees);
+        cameraData.Pitch += MathHelper.DegreesToRadians(pitchDeltaDegrees);
+        cameraData.Pitch = Math.Clamp(cameraData.Pitch, -MathHelper.PiOver2, MathHelper.PiOver2);
 
         UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
+
+        cameraTransform.Rotation = new Vector3(cameraData.Pitch, cameraData.Yaw, 0);
     }
 
     private void Zoom(float delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
@@ -67,12 +74,16 @@ public class CameraControlSystem : UpdateSystem
 
     private void UpdatePositionFromSpherical(ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
     {
-        var x = cameraData.DistanceToTarget * MathF.Cos(cameraTransform.Rotation.X) *
-                MathF.Sin(cameraTransform.Rotation.Y);
-        var y = cameraData.DistanceToTarget * MathF.Sin(cameraTransform.Rotation.X);
-        var z = cameraData.DistanceToTarget * MathF.Cos(cameraTransform.Rotation.X) *
-                MathF.Cos(cameraTransform.Rotation.Y);
+        var heightDistance = cameraData.DistanceToTarget * MathF.Cos(cameraData.Pitch);
+        var x = heightDistance * MathF.Sin(cameraData.Yaw);
+        var y = cameraData.DistanceToTarget * MathF.Sin(cameraData.Pitch);
+        var z = heightDistance * MathF.Cos(cameraData.Yaw);
 
         cameraTransform.Position = cameraData.Target + new Vector3(x, y, z);
     }
+    
+
+
+    
+    
 }

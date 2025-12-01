@@ -23,7 +23,7 @@ public class MainCameraBlueprint : EntityBlueprint
     {
         var transformComponent = new TransformComponent
         {
-            Position = new Vector3(0, 5, 5),
+            Position = new Vector3(5, 5, 5),
             Scale = new Vector3(1, 1, 1),
             Rotation = new Vector3(0, 0, 0), //This should be quaternion instead.
             WorldMatrix = Matrix4.Identity
@@ -35,11 +35,22 @@ public class MainCameraBlueprint : EntityBlueprint
             cameraData.ProjectionType = EnumTypes.ProjectionType.Perspective;
             cameraData.Fov = MathHelper.DegreesToRadians(60);
             cameraData.Target = new Vector3(0, 0, 0);
+            cameraData.DistanceToTarget = Vector3.Distance(transformComponent.Position, cameraData.Target);
         }
-
+        float yaw, pitch; 
+        CalculateYawPitchFromLookAt(transformComponent.Position, cameraData.Target, out yaw, out pitch);
+        cameraData.Yaw = yaw;
+        cameraData.Pitch = pitch;
 
         _componentManager.SetComponentToEntity(transformComponent, entity.Id);
         _componentManager.SetComponentToEntity(cameraComponent, entity.Id);
         _componentManager.SetComponentToEntity(cameraData, entity.Id);
+    }
+    
+    public static void CalculateYawPitchFromLookAt(Vector3 position, Vector3 target, out float yaw, out float pitch)
+    {
+        var direction = (position - target).Normalized();
+        pitch = MathF.Asin(Math.Clamp(direction.Y, -1.0f, 1.0f));
+        yaw = MathF.Atan2(direction.X, direction.Z);
     }
 }

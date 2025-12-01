@@ -3,7 +3,7 @@ namespace SamLabs.Gfx.Viewer.Core.Utility;
 
 public static class MathExtensions
 {
-    
+    public static float Tolerance { get; set; } = 1e-5f;
     public static float ToRadians(this float degrees) => degrees * (float)Math.PI / 180f;
     
     public static float ToDegrees(this float radians) => radians * 180 / (float)Math.PI;
