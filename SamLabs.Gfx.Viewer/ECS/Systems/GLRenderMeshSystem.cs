@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -31,7 +32,9 @@ public class GLRenderMeshSystem : RenderSystem
         var shaderProgram = materialComponent.Shader.ProgramId;
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
-        // GL.UniformMatrix4f(_mvpLocation, 1, false, ref model);
+        int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
+        var modelMatrix = Matrix4.Identity;
+        GL.UniformMatrix4f(modelLocation, 1, false, ref modelMatrix);
 
         if (mesh.Ebo > 0)
         {

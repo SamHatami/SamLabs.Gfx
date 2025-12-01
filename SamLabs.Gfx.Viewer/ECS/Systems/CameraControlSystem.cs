@@ -48,6 +48,7 @@ public class CameraControlSystem : UpdateSystem
         var yawDeltaDegrees = delta.X * 0.2f;
         var pitchDeltaDegrees = delta.Y * 0.2f;
 
+        cameraData.Pitch += pitchDeltaDegrees;
         var rotation = cameraTransform.Rotation;
         rotation.Y += MathHelper.DegreesToRadians(yawDeltaDegrees);
         rotation.X += MathHelper.DegreesToRadians(pitchDeltaDegrees);

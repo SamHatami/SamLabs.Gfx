@@ -18,7 +18,7 @@ public class ViewProjectionSystem : RenderSystem
 
     public override void Update(RenderContext renderContext)
     {
-        if(!renderContext.CameraMoved && !renderContext.ResizeRequested) return;
+        // if(!renderContext.CameraMoved && !renderContext.ResizeRequested) return;
         var cameraEntity = _componentManager.GetEntityIdsFor<CameraComponent>();
         if (cameraEntity.Length == 0) return;
 

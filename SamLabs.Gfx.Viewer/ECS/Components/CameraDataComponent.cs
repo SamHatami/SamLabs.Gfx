@@ -14,6 +14,9 @@ public struct CameraDataComponent : IDataComponent
     public float Near { get; set; } = 0.1f;
     public float Far { get; set; } = 10000f;
     public float DistanceToTarget;
+    
+    public float Pitch { get; set; } = 0;
+    public float Yaw { get; set; } = 0;
 
     public CameraDataComponent()
     {
