@@ -24,7 +24,6 @@
         </Grid.ColumnDefinitions>
         <Panel Grid.Column="0" Margin="5">
             <Button Content="Add Box" Command="{Binding AddBox}" />
-            <TextBlock Text="{Binding ObjectId}"></TextBlock>
         </Panel>
 
 
@@ -33,6 +32,8 @@
             SceneManager="{Binding SceneManager}"
             EcsRoot="{Binding EcsRoot}"
             CommandManager="{Binding CommandManager}"/>
+            <TextBlock Grid.Column="1"  Text="{Binding CurrentFpsString}"></TextBlock>
+        
 
         <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->
         <!--     <StackPanel Orientation="Horizontal"> -->

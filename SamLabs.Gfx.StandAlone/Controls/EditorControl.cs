@@ -84,8 +84,7 @@ public class EditorControl : OpenTkControlBase
     private bool _rightMouseButtonPressed;
     private bool _middleMouseButtonPressed;
     private Vector2 _mouseMoveDelta;
-    private double _mouseMoveDeltaX;
-    private double _mouseMoveDeltaY;
+
     private double _mouseWheelDelta;
     private Key _keyDown;
     private Key _keyUp;
@@ -97,30 +96,53 @@ public class EditorControl : OpenTkControlBase
     public ConcurrentQueue<Command> Actions { get; } = new();
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
+    
+    private DateTime _lastUpdateTime = DateTime.Now;
+    private int _frameCount = 0;
+    private double _currentFps = 0.0; // The calculated FPS value
+    private Vector2 _smoothedDelta;
+    private const double FpsUpdateIntervalSeconds = 1.0; // Update FPS every second
+    
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        _frameCount++;
+        DateTime currentTime = DateTime.Now;
+        TimeSpan elapsedTime = currentTime - _lastUpdateTime;
+        // Check if the update interval has passed
+        if (elapsedTime.TotalSeconds >= FpsUpdateIntervalSeconds)
+        {
+            // Calculate the FPS: frames / elapsed time in seconds
+            _currentFps = _frameCount / elapsedTime.TotalSeconds;
+        
+            // OPTIONAL: Print the FPS to the console
+            System.Diagnostics.Debug.WriteLine($"FPS: {_currentFps:F2}");
+        
+            // Reset the counter and timer for the next interval
+            _frameCount = 0;
+            _lastUpdateTime = currentTime;
+            ViewModel.UpdateFps( _currentFps);
+        }
+        
         CommandManager.ProcessAllCommands();
         
         //Process commands
         _width = width;
         _height = height;
         
-        var frameInput = CaptureFrameInput();
-        _systemManager.Update(frameInput);
+        _systemManager.Update(CaptureFrameInput());
         
         //Main render pass
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainScreenFrameBuffer);
         GL.Enable(EnableCap.DepthTest);
-        // GL.Enable(EnableCap.Blend);
-        // GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        // GL.Enable(EnableCap.LineSmooth);
-        // GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.Enable(EnableCap.LineSmooth);
+        GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Viewport(0, 0, width,height);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
-        var renderContext = CaptureRenderContext();
-        _systemManager.Render(renderContext);
+        _systemManager.Render(CaptureRenderContext());
 
         GL.Disable(EnableCap.DepthTest);
         
@@ -142,6 +164,12 @@ public class EditorControl : OpenTkControlBase
 
     private FrameInput CaptureFrameInput()
     {
+        
+        var dX = (float)(_currentMousePosition.X - _lastMousePosition.X);
+        var dY = (float)(_currentMousePosition.Y - _lastMousePosition.Y);
+
+        _lastMousePosition = _currentMousePosition;
+        
         var frameInput = new FrameInput()
         {
             IsMouseLeftButtonDown = _leftMouseButtonPressed,
@@ -150,7 +178,7 @@ public class EditorControl : OpenTkControlBase
             MousePosition = _currentMousePosition,
             KeyDown = _keyDown, 
             KeyUp = _keyUp,
-            DeltaMouseMove = new Vector2(_mouseMoveDelta.X, _mouseMoveDelta.Y),
+            DeltaMouseMove = new Vector2(dX, dY),
             MouseWheelDelta = (float)_mouseWheelDelta,
             ViewportSize = new Vector2((float)Bounds.Width, (float)Bounds.Height)
         };
@@ -162,10 +190,6 @@ public class EditorControl : OpenTkControlBase
 
     private void ClearInputData()
     {
-        lock (this)
-        {
-            _mouseMoveDelta = Vector2.Zero;
-        }
         _mouseWheelDelta = 0;
     }
 
@@ -208,7 +232,7 @@ public class EditorControl : OpenTkControlBase
         if (!e.Handled)
         {
             e.Pointer.Capture(this); // Lock the mouse to this control
-            _lastMousePosition = e.GetPosition(this); // Reset "Last" so we don't get a huge jump
+            _currentMousePosition = e.GetPosition(this); // Reset "Last" so we don't get a huge jump
         }
     }
     
@@ -221,30 +245,11 @@ public class EditorControl : OpenTkControlBase
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         _currentMousePosition = e.GetPosition(this);
-
-        // if (!Equals(e.Pointer.Captured, this))
-        // {
-        //     _lastMousePosition = _currentMousePosition;
-        //     _mouseMoveDelta = Vector2.Zero;
-        //     _isViewportHovered = false;
-        //     return;
-        // }
-
-        var dX = (float)(_currentMousePosition.X - _lastMousePosition.X);
-        var dY = (float)(_currentMousePosition.Y - _lastMousePosition.Y);
-
-        lock (this)
-        {
-            _mouseMoveDelta += new Vector2(dX, dY);
-        }
-
         var props = e.GetCurrentPoint(this).Properties;
         _leftMouseButtonPressed = props.IsLeftButtonPressed;
         _rightMouseButtonPressed = props.IsRightButtonPressed;
         _middleMouseButtonPressed = props.IsMiddleButtonPressed;
         _isViewportHovered = true;
-
-        _lastMousePosition = _currentMousePosition;
         
         base.OnPointerMoved(e);
     }

@@ -24,6 +24,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private int _objectId;
     private readonly EntityCreator _entityCreator;
 
+    [ObservableProperty] private string _currentFpsString;
+    
     public MainWindowViewModel(ISceneManager sceneManager, EcsRoot ecsRoot, CommandManager commandManager)
     {
         EcsRoot = ecsRoot;
@@ -49,5 +51,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public void AddBox()
     {
         CommandManager.EnqueueCommand(new AddBoxCommand(CommandManager,SceneManager.GetCurrentScene(),_entityCreator));
+    }
+    
+    public void UpdateFps(double fpsValue)
+    {
+        CurrentFpsString = $"FPS: {fpsValue:F2}";
     }
 }
