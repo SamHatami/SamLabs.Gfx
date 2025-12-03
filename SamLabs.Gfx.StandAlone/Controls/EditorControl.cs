@@ -66,9 +66,8 @@ public class EditorControl : OpenTkControlBase
 
     private IRenderer _renderer;
     private SystemManager _systemManager;
-    
-    
-    private Scene _currentScene;
+
+
     private IViewPort _mainViewport;
     private int _readPickingIndex;
     private int _objectHoveringId;
@@ -83,8 +82,8 @@ public class EditorControl : OpenTkControlBase
     private bool _leftMouseButtonPressed;
     private bool _rightMouseButtonPressed;
     private bool _middleMouseButtonPressed;
-    private Vector2 _mouseMoveDelta;
-
+    private ConcurrentQueue<Vector2> _pointerDeltas = new ConcurrentQueue<Vector2>();
+    
     private double _mouseWheelDelta;
     private Key _keyDown;
     private Key _keyUp;
@@ -93,14 +92,16 @@ public class EditorControl : OpenTkControlBase
     private int _height;
     private int _width;
 
-    public ConcurrentQueue<Command> Actions { get; } = new();
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
     
     private DateTime _lastUpdateTime = DateTime.Now;
     private int _frameCount = 0;
     private double _currentFps = 0.0; // The calculated FPS value
-    private Vector2 _smoothedDelta;
+    private int _callCount;
+    private DateTime _lastCheckedTime;
+    private TimeSpan _checkInterval;
+    private DateTime _lastProcessTime;
     private const double FpsUpdateIntervalSeconds = 1.0; // Update FPS every second
     
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
@@ -164,11 +165,14 @@ public class EditorControl : OpenTkControlBase
 
     private FrameInput CaptureFrameInput()
     {
-        
-        var dX = (float)(_currentMousePosition.X - _lastMousePosition.X);
-        var dY = (float)(_currentMousePosition.Y - _lastMousePosition.Y);
-
-        _lastMousePosition = _currentMousePosition;
+        Vector2 totalDelta = Vector2.Zero; // Initialize with OpenTK's zero vector
+    
+        // Dequeue and accumulate ALL events that happened since the last frame (LOCK-FREE READ/RESET)
+        // TryDequeue returns false when the queue is empty, effectively resetting the input.
+        while (_pointerDeltas.TryDequeue(out var delta))
+        {
+            totalDelta += delta;
+        }
         
         var frameInput = new FrameInput()
         {
@@ -178,7 +182,7 @@ public class EditorControl : OpenTkControlBase
             MousePosition = _currentMousePosition,
             KeyDown = _keyDown, 
             KeyUp = _keyUp,
-            DeltaMouseMove = new Vector2(dX, dY),
+            DeltaMouseMove = totalDelta,
             MouseWheelDelta = (float)_mouseWheelDelta,
             ViewportSize = new Vector2((float)Bounds.Width, (float)Bounds.Height)
         };
@@ -191,6 +195,9 @@ public class EditorControl : OpenTkControlBase
     private void ClearInputData()
     {
         _mouseWheelDelta = 0;
+        _keyDown = Key.None; 
+        _keyUp = Key.None;
+        
     }
 
     protected override void InitializeOpenTk()
@@ -201,7 +208,7 @@ public class EditorControl : OpenTkControlBase
         _renderer.Initialize();
         _systemManager.InitializeRenderSystems(_renderer);
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
-        _currentScene = SceneManager.GetCurrentScene();
+        SceneManager.GetCurrentScene();
         
         CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager,EcsRoot.EntityCreator));
         
@@ -229,11 +236,11 @@ public class EditorControl : OpenTkControlBase
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (!e.Handled)
-        {
-            e.Pointer.Capture(this); // Lock the mouse to this control
-            _currentMousePosition = e.GetPosition(this); // Reset "Last" so we don't get a huge jump
-        }
+        // if (!e.Handled)
+        // {
+        //     e.Pointer.Capture(this); // Lock the mouse to this control
+        //     _currentMousePosition = e.GetPosition(this); // Reset "Last" so we don't get a huge jump
+        // }
     }
     
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -244,13 +251,22 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        _currentMousePosition = e.GetPosition(this);
+        
         var props = e.GetCurrentPoint(this).Properties;
         _leftMouseButtonPressed = props.IsLeftButtonPressed;
         _rightMouseButtonPressed = props.IsRightButtonPressed;
         _middleMouseButtonPressed = props.IsMiddleButtonPressed;
         _isViewportHovered = true;
         
+        _currentMousePosition = e.GetPosition(this);
+        var eventDelta = _currentMousePosition - _lastMousePosition;
+        if (eventDelta.X != 0.0 || eventDelta.Y != 0.0)
+        {
+            _pointerDeltas.Enqueue(new Vector2((float)eventDelta.X, (float)eventDelta.Y));
+        }
+            
+        
+        _lastMousePosition = _currentMousePosition;
         base.OnPointerMoved(e);
     }
 
