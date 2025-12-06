@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -10,7 +11,7 @@ using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-public class GLRenderPickingBufferSystem : PostRenderSystem
+public class GLRenderPickingBufferSystem : PreRenderSystem
 {
     private int _readPickingIndex;
     private IViewPort _viewport;
@@ -19,15 +20,39 @@ public class GLRenderPickingBufferSystem : PostRenderSystem
     {
     }
 
-    //Render positions flag attribute of some sort
-    public override void Update(FrameInput frameInput, RenderContext renderContext)
+    public override void Update(RenderContext renderContext)
     {
         _viewport = renderContext.ViewPort;
         
         StorePickingId(frameInput.MousePosition);
         ReadPickingId();
+        
+        
+        var meshEntities = _componentManager.GetEntityIdsFor<GlMeshDataComponent>();
+        if (meshEntities.Length == 0) return;
+
+        foreach (var meshEntity in meshEntities)
+        {
+            var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
+            var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
+            RenderMesh(mesh, materials);
+        }
     }
     
+    
+    
+    public void DrawPickingId()
+    {
+        if(_baseShaderProgram == 0)
+            _baseShaderProgram = ShaderService.GetShaderProgram("base");
+        
+        GL.UseProgram(_baseShaderProgram);
+        
+        int uniformLoc = GL.GetUniformLocation(_baseShaderProgram, "objectId");
+        GL.Uniform1ui(uniformLoc, (uint)Id);
+        _mesh.Draw();
+        GL.UseProgram(0);
+    }
     
     private void StorePickingId(Point localMousePos)
     {
@@ -66,4 +91,6 @@ public class GLRenderPickingBufferSystem : PostRenderSystem
         
         return objectHoveringId;
     }
+
+
 }

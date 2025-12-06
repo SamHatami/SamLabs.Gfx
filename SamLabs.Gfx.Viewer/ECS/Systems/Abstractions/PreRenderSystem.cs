@@ -1,6 +1,7 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Interfaces;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
@@ -19,5 +20,5 @@ public abstract class PreRenderSystem : ISystem
         _renderer = renderer;
     } 
 
-    public abstract void Update();
+    public abstract void Update(RenderContext renderContext);
 }
