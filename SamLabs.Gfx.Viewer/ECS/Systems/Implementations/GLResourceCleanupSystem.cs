@@ -4,7 +4,7 @@ using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 
 public class GLResourceCleanupSystem: PostRenderSystem

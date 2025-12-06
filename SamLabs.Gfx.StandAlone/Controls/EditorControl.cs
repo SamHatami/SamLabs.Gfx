@@ -167,8 +167,6 @@ public class EditorControl : OpenTkControlBase
     {
         Vector2 totalDelta = Vector2.Zero; // Initialize with OpenTK's zero vector
     
-        // Dequeue and accumulate ALL events that happened since the last frame (LOCK-FREE READ/RESET)
-        // TryDequeue returns false when the queue is empty, effectively resetting the input.
         while (_pointerDeltas.TryDequeue(out var delta))
         {
             totalDelta += delta;
@@ -271,5 +269,40 @@ public class EditorControl : OpenTkControlBase
     }
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e) => _resizeRequested = true;
+    
+    private void StorePickingId(Point localMousePos)
+    {
+        int localX = (int)localMousePos.X;
+        int localY = (int)localMousePos.Y;
+
+        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0;
+        int x = (int)(localMousePos.X * scaling);
+        int y = (int)(localMousePos.Y * scaling);
+        y = _mainViewport.SelectionRenderView.Height - y; // Flip Y
+
+        x = Math.Clamp(x, 0, _mainViewport.SelectionRenderView.Width - 1);
+        y = Math.Clamp(y, 0, _mainViewport.SelectionRenderView.Height - 1);
+
+        _readPickingIndex ^= 1; //alternates between picking buffers
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
+        GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+    }
+
+    private void ReadPickingId()
+    {
+        unsafe
+        {
+            //Swap PixelbufferIndex
+            GL.BindBuffer(BufferTarget.PixelPackBuffer,
+                _mainViewport.SelectionRenderView.PixelBuffers[_readPickingIndex]);
+            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+            if (pboPtr != (void*)IntPtr.Zero)
+                _objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));
+            GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
+            GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+
+            Dispatcher.UIThread.Post(() => ViewModel.SetObjectId(_objectHoveringId), DispatcherPriority.Normal);
+        }
 
 }

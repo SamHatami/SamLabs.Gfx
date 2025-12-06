@@ -1,11 +1,10 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class GLRenderMeshSystem : RenderSystem
 {

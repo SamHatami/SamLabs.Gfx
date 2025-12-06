@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Entities;
+using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
@@ -36,6 +37,7 @@ public class EcsRoot
         EntityCreator.RegisterBlueprint(new MainCameraBlueprint(ComponentManager));
         EntityCreator.RegisterBlueprint(new CubeBlueprint(ComponentManager, _shaderService));
         EntityCreator.RegisterBlueprint(new MainGridBlueprint(ComponentManager, _shaderService));
+        EntityCreator.RegisterBlueprint(new TransformGizmoBlueprint(ComponentManager, _shaderService, EntityManager));
     }
 }
 

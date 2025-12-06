@@ -9,4 +9,6 @@ public struct TransformComponent:IDataComponent
     public Vector3 Scale { get; set; }
     public Vector3 Rotation { get; set; }
     public Matrix4 WorldMatrix { get; set; }
+    
+    public int ParentId { get; set; }
 }

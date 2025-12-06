@@ -2,7 +2,7 @@
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class MaterialSystem:UpdateSystem
 {

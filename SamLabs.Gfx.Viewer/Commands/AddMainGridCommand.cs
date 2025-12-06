@@ -6,7 +6,7 @@ using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
-public class AddMainGridCommand: Command
+public class AddMainGridCommand: Command //InternalCommand or HiddenCommand?
 {
     private readonly CommandManager _commandManager;
     private readonly EntityCreator _entityCreator;
