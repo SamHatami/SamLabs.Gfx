@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Avalonia;
+using Avalonia.OpenGL;
 
 namespace SamLabs.Gfx.StandAlone;
 
@@ -25,6 +26,10 @@ internal sealed class Program
             .With(new Win32PlatformOptions
             {
                 RenderingMode = (Collection<Win32RenderingMode>)[Win32RenderingMode.Wgl],
+                WglProfiles = new[] 
+                { 
+                    new GlVersion(GlProfileType.OpenGL, 4, 6)  // Or whatever version you need
+                }
                 
             }) //This line is the important one.
             .LogToTrace()

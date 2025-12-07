@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
@@ -97,10 +98,19 @@ public class EditorControl : OpenTkControlBase
     private DateTime _lastCheckedTime;
     private TimeSpan _checkInterval;
     private DateTime _lastProcessTime;
+    private Stopwatch _frameTimer = new();
+    private double _lastFrameTime;
     private const double FpsUpdateIntervalSeconds = 1.0; // Update FPS every second
+    
+    private bool _renderRequested = false;
+    private DateTime _lastRenderTime = DateTime.Now;
+    private const double MinFrameTimeMs = 16.666667; // ~60 FPS
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        _renderRequested = false;
+        _lastRenderTime = DateTime.Now;
+        
         _frameCount++;
         DateTime currentTime = DateTime.Now;
         TimeSpan elapsedTime = currentTime - _lastUpdateTime;
@@ -119,6 +129,7 @@ public class EditorControl : OpenTkControlBase
             ViewModel.UpdateFps(_currentFps);
         }
 
+        _frameTimer.Restart();
         CommandManager.ProcessAllCommands();
 
         //Process commands
@@ -126,15 +137,27 @@ public class EditorControl : OpenTkControlBase
         _height = height;
 
         var frameInput = CaptureFrameInput();
+        var t1 = _frameTimer.Elapsed.TotalMilliseconds;
+    
         _systemManager.Update(frameInput);
-
-        //Render passess
-
+        var t2 = _frameTimer.Elapsed.TotalMilliseconds;
+    
         _systemManager.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
-
-
+        var t3 = _frameTimer.Elapsed.TotalMilliseconds;
+    
         ClearInputData();
+    
+        var totalTime = _frameTimer.Elapsed.TotalMilliseconds;
+        var timeSinceLastFrame = totalTime - _lastFrameTime;
+    
+        // Log when frame time varies significantly
+        if (timeSinceLastFrame > 18.0) 
+        {
+            Debug.WriteLine($"Dropped Frame! Took {timeSinceLastFrame:F2}ms");
+        }
 
+        _lastFrameTime = totalTime;
+        ClearInputData();
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
     }
 
@@ -172,13 +195,13 @@ public class EditorControl : OpenTkControlBase
             MouseWheelDelta = (float)_mouseWheelDelta,
             ViewportSize = new Vector2((float)Bounds.Width, (float)Bounds.Height)
         };
-
-
+        
         return frameInput;
     }
 
     private void ClearInputData()
     {
+        _resizeRequested = false;
         _mouseWheelDelta = 0;
         _keyDown = Key.None;
         _keyUp = Key.None;
@@ -190,12 +213,14 @@ public class EditorControl : OpenTkControlBase
         _renderer = EcsRoot.Renderer;
 
         _renderer.Initialize();
+        
+
         _systemManager.InitializeRenderSystems(_renderer);
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         SceneManager.GetCurrentScene();
 
         CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EcsRoot.EntityCreator));
-
+        CommandManager.EnqueueCommand(new AddTranslateGizmosCommand(CommandManager, EcsRoot.EntityCreator));
         SizeChanged += OnSizeChanged;
     }
 
@@ -235,11 +260,6 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        var props = e.GetCurrentPoint(this).Properties;
-        _leftMouseButtonPressed = props.IsLeftButtonPressed;
-        _rightMouseButtonPressed = props.IsRightButtonPressed;
-        _middleMouseButtonPressed = props.IsMiddleButtonPressed;
-        _isViewportHovered = true;
 
         _currentMousePosition = e.GetPosition(this);
         var eventDelta = _currentMousePosition - _lastMousePosition;
@@ -247,9 +267,24 @@ public class EditorControl : OpenTkControlBase
         {
             _pointerDeltas.Enqueue(new Vector2((float)eventDelta.X, (float)eventDelta.Y));
         }
-
-
+        
+        var props = e.GetCurrentPoint(this).Properties;
+        _leftMouseButtonPressed = props.IsLeftButtonPressed;
+        _rightMouseButtonPressed = props.IsRightButtonPressed;
+        _middleMouseButtonPressed = props.IsMiddleButtonPressed;
+        _isViewportHovered = true;
+        
         _lastMousePosition = _currentMousePosition;
+        
+        // var now = DateTime.Now;
+        // var elapsed = (now - _lastRenderTime).TotalMilliseconds;
+        //
+        // if (elapsed >= MinFrameTimeMs && !_renderRequested)
+        // {
+        //     _renderRequested = true;
+        //     RequestNextFrameRendering();
+        // }
+        
         base.OnPointerMoved(e);
     }
 

@@ -18,14 +18,13 @@ public class MainCameraBlueprint : EntityBlueprint
 
     public override string Name { get; } = EntityNames.MainCamera;
 
-    public override void Build(Entity entity)
+    public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
         var transformComponent = new TransformComponent
         {
             Position = new Vector3(5, 5, 5),
             Scale = new Vector3(1, 1, 1),
-            Rotation = new Vector3(0, 0, 0), //This should be quaternion instead.
-            WorldMatrix = Matrix4.Identity
+            Rotation = new Quaternion(0, 0, 0), //This should be quaternion instead.
         };
 
         var cameraComponent = new CameraComponent();

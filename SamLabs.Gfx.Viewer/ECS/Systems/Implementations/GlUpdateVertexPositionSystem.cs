@@ -21,7 +21,7 @@ public class GlUpdateVertexPositionSystem: RenderSystem
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        var entityIds = ComponentManager.GetEntityIdsFor<GlMeshDataChangedComponent>();
+        var entityIds = ComponentManager.GetEntityIdsForComponentType<GlMeshDataChangedComponent>();
         if (entityIds.IsEmpty) return;
         
         foreach (var entityId in entityIds)

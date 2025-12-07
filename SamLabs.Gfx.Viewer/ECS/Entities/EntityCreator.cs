@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Core;
+﻿using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities;
@@ -18,13 +19,24 @@ public class EntityCreator
         _blueprintRegistry[blueprint.Name] = blueprint;
     }
 
-    public Entity? Create(string name)
+    public Entity? CreateFromBlueprint(string name)
     {
         if (!_blueprintRegistry.TryGetValue(name, out var blueprint))
             return null;
         
         var entity = _entityManager.CreateEntity();
         blueprint.Build(entity);
+        
+        return entity;
+    }
+    
+    public Entity? CreateFromImport(string name, MeshDataComponent meshData)
+    {
+        if (!_blueprintRegistry.TryGetValue(name, out var blueprint))
+            return null;
+        
+        var entity = _entityManager.CreateEntity();
+        blueprint.Build(entity, meshData);
         
         return entity;
     }

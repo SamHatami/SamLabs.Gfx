@@ -4,10 +4,12 @@ public class GLShader
 {
     public string ShaderName;
     public int ProgramId;
+    public int MatrixModelUniformLocation;
 
-    public GLShader(string shaderName, int programId)
+    public GLShader(string shaderName, int programId, int matrixModelUniformLocation)
     {
         ShaderName = shaderName;
         ProgramId = programId;
+        MatrixModelUniformLocation = matrixModelUniformLocation;
     }
 }

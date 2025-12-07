@@ -23,8 +23,8 @@ public class ViewProjectionSystem : RenderSystem
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        // if(!renderContext.CameraMoved && !renderContext.ResizeRequested) return;
-        var cameraEntity = _componentManager.GetEntityIdsFor<CameraComponent>();
+        
+        var cameraEntity = _componentManager.GetEntityIdsForComponentType<CameraComponent>();
         if (cameraEntity.Length == 0) return;
 
         var cameraTransform = _componentManager.GetComponent<TransformComponent>(cameraEntity[0]);

@@ -15,7 +15,7 @@ public class CameraControlSystem : UpdateSystem
 
     public override void Update(FrameInput frameInput)
     {
-        var cameraEntities = _componentManager.GetEntityIdsFor<CameraComponent>();
+        var cameraEntities = _componentManager.GetEntityIdsForComponentType<CameraComponent>();
 
         if (cameraEntities.IsEmpty) return;
 
@@ -68,7 +68,7 @@ public class CameraControlSystem : UpdateSystem
 
         UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
 
-        cameraTransform.Rotation = new Vector3(cameraData.Pitch, cameraData.Yaw, 0);
+        cameraTransform.Rotation = new Quaternion(cameraData.Pitch, cameraData.Yaw, 0);
     }
 
     private void Zoom(float delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)

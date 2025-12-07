@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -19,29 +20,29 @@ public class GLRenderMeshSystem : RenderSystem
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
         //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
-        var meshEntities = ComponentManager.GetEntityIdsFor<GlMeshDataComponent>();
+        var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
 
         foreach (var meshEntity in meshEntities)
         {
+            var transform = ComponentManager.GetComponent<TransformComponent>(meshEntity);
+            var modelMatrix = transform.WorldMatrix;
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
             var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
-            RenderMesh(mesh, materials);
+            RenderMesh(mesh, materials, modelMatrix.Invoke());
         }
     }
 
-    private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent)
+    private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, Matrix4 modelMatrix = default)
     {
         var shaderProgram = materialComponent.Shader.ProgramId;
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
-        // int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
-        // var modelMatrix = Matrix4.Identity;
-        // GL.UniformMatrix4f(modelLocation, 1, false, ref modelMatrix);
+        GL.UniformMatrix4f(materialComponent.Shader.MatrixModelUniformLocation, 1, false, ref modelMatrix);
 
         if (mesh.Ebo > 0)
         {
-            GL.DrawElements(mesh.PrimitiveType, mesh.VertexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         }
         else
         {

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Shaders;
 using SamLabs.Gfx.Viewer.SceneGraph;
@@ -39,7 +40,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
 
         //bind View-Projection uniform to all the shader programs
         foreach (var shader in _shaderService.GetShaderPrograms())
-            _uniformBufferService.BindUniformToProgram(shader, UniformBufferService.ViewProjectionName);
+            _uniformBufferService.BindUniformToProgram(shader.ProgramId, UniformBufferService.ViewProjectionName);
 
     }
 
@@ -118,6 +119,13 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _frameBufferService.ResizeFrameBuffer(mainViewport.SelectionRenderView, viewportSizeX, viewportSizeY, true);
     }
 
+    public static void DrawMesh(GlMeshDataComponent mesh)
+    {
+        GL.BindVertexArray(mesh.Vao);
+        GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+        GL.BindVertexArray(0);
+    }
+    
     public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
 
 }

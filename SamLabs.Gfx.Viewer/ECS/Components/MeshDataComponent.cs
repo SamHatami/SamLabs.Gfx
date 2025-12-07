@@ -10,4 +10,5 @@ public struct MeshDataComponent: IDataComponent
     public int[] Indices { get; set; }
     public string Name { get; set; }
     //materialId
+    
 }

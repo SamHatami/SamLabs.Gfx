@@ -12,10 +12,12 @@ public struct GlMeshDataComponent : IDataComponent
     public int Vbo;
     public int Ebo;
     public int VertexCount;
+    public int IndexCount { get; set; }
     public PrimitiveType PrimitiveType;
 
     public GlMeshDataComponent(int vertexCount)
     {
         VertexCount = vertexCount;
     }
+
 }

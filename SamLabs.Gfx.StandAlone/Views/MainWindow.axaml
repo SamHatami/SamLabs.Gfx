@@ -22,10 +22,11 @@
             <ColumnDefinition Width="Auto" MinWidth="250"/>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Panel Grid.Column="0" Margin="5">
+        <StackPanel Grid.Column="0" Margin="5" Orientation="Vertical">
             <Button Content="Add Box" Command="{Binding AddBox}" />
-        </Panel>
-
+            <Button Content="Import" Command="{Binding AddImportedFile}" />
+            <Button Content="Translate" Command="{Binding ToggleTranslateGizmos}" />
+        </StackPanel>
 
         <controls:EditorControl 
             Grid.Column="1" 

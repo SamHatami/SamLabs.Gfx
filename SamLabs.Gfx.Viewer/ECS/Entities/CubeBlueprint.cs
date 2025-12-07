@@ -23,27 +23,29 @@ public class CubeBlueprint : EntityBlueprint
 
     public override string Name { get; } = EntityNames.Cube;
 
-    public override void Build(Entity entity)
+    public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
         var transformComponent = new TransformComponent
         {
             Position = new Vector3(0, 0, 0),
             Scale = new Vector3(1, 1, 1),
-            Rotation = new Vector3(0, 0, 0), //This should be quaternion instead.
-            WorldMatrix = Matrix4.Identity
+            Rotation = new Quaternion(0, 0, 0), //This should be quaternion instead.
         };
 
-        var meshData = GenerateMeshData();
+        
+        meshData = GenerateMeshData();
 
         var glMeshData = new GlMeshDataComponent()
         {
             PrimitiveType = PrimitiveType.Triangles,
-            VertexCount = meshData.Vertices.Length
+            VertexCount = meshData.Vertices.Length,
+            IndexCount = meshData.Indices.Length 
+            
         };
 
         var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("flat") ?? new GLShader("Empty",0);
-        material.PickingShader = _shaderService.GetShader("picking") ?? new GLShader("Empty",0);
+        material.Shader = _shaderService.GetShader("flat") ?? new GLShader("Empty",0,0);
+        material.PickingShader = _shaderService.GetShader("picking") ?? new GLShader("Empty",0,0);
             
         _componentManager.SetComponentToEntity(glMeshData, entity.Id);
         _componentManager.SetComponentToEntity(meshData, entity.Id);

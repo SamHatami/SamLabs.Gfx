@@ -17,7 +17,6 @@ public class GLGizmoRenderPassStartSystem: RenderSystem
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-        
         Renderer.ClearPickingBuffer(renderContext.ViewPort);
         Renderer.RenderToPickingBuffer(renderContext.ViewPort);
     }

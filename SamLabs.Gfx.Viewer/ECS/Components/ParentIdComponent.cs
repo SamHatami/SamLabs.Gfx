@@ -2,7 +2,7 @@
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 
-public struct ParentIdComponent : IDataComponent
+public readonly struct ParentIdComponent(int parentId) : IDataComponent
 {
-    public int ParentId { get; set; }
+    public int ParentId { get;} = parentId;
 }

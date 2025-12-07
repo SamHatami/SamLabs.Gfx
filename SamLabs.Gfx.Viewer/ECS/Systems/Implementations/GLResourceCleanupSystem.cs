@@ -21,7 +21,7 @@ public class GLResourceCleanupSystem: RenderSystem
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        var entityIds = ComponentManager.GetEntityIdsFor<GlMeshRemoved>();
+        var entityIds = ComponentManager.GetEntityIdsForComponentType<GlMeshRemoved>();
         if (entityIds.Length == 0) return;
         
         

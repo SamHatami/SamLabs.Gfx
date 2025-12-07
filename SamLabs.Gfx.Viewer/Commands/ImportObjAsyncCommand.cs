@@ -1,39 +1,49 @@
-﻿using SamLabs.Gfx.Viewer.IO;
+﻿using OpenTK.Graphics.Vulkan.VulkanVideoCodecH264stdEncode;
+using SamLabs.Gfx.Viewer.Core.Utility;
+using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Entities;
+using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
 public class ImportObjAsyncCommand : Command
 {
+    private readonly string _path;
     private readonly CommandManager _commandManager;
-    private readonly string _filePath;
     private readonly Scene _scene;
-    private readonly ObjectImporter _importer;
+    private readonly EntityCreator _entityCreator;
     private int _importedId;
 
-    public ImportObjAsyncCommand(CommandManager commandManager,string filePath, Scene scene, ObjectImporter importer)
+    public ImportObjAsyncCommand(string path ,CommandManager commandManager, Scene scene, EntityCreator entityCreator)
     {
+        _path = path;
         _commandManager = commandManager;
-        _filePath = filePath;
+
         _scene = scene;
-        _importer = importer;
+        _entityCreator = entityCreator;
     }
 
 
     public override void Execute()
     {
+        var importedMesh = new MeshDataComponent();
         Task.Run(async () =>
         {
             try
             {
-                var imported = await _importer.Import(@"");
-                _commandManager.EnqueueCommand(new AddImportedFileCommand(_scene, imported));
-                _importedId = imported.Id;
+                importedMesh = await ModelLoader.LoadObj(_path);
+                
+                var newModelEntity = _entityCreator.CreateFromImport(EntityNames.Imported, importedMesh);
+                if (newModelEntity.HasValue)
+                    _importedId = newModelEntity.Value.Id;
             }
             catch (Exception e)
             {
             }
         });
+        
+
         
     }
 

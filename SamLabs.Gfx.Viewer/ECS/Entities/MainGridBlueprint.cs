@@ -23,14 +23,14 @@ public class MainGridBlueprint : EntityBlueprint
 
     public override string Name { get; } = EntityNames.MainGrid;
 
-    public override void Build(Entity entity)
+    public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
         var spacing = 1.0f;
         var linesPerSide = 20;
         
         var vertices = GetVertices(linesPerSide, spacing);
         var gridData = new GridComponent(linesPerSide, spacing);
-        var meshData = new MeshDataComponent()
+        meshData = new MeshDataComponent()
         {
             Indices = Array.Empty<int>(),
             Vertices = vertices,
@@ -38,7 +38,7 @@ public class MainGridBlueprint : EntityBlueprint
         };
         
         var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("grid") ?? new GLShader("Empty",0);
+        material.Shader = _shaderService.GetShader("grid");
         
         var glMeshData = new GlMeshDataComponent()
         {

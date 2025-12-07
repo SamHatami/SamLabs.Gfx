@@ -36,11 +36,11 @@ public class GLRenderPickingBufferSystem : RenderSystem
         
         //Get the entity that holds the pickingdatacomponent
 
-        var pickingEntity = ComponentManager.GetEntityIdsFor<PickingDataComponent>();
+        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>();
         if (pickingEntity.Length == 0) return;
         var pickingDataComponent = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity[0]);
         
-        var meshEntities = ComponentManager.GetEntityIdsFor<GlMeshDataComponent>();
+        var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
         _pickingShader = Renderer.GetShader("objectId");
         foreach (var meshEntity in meshEntities)

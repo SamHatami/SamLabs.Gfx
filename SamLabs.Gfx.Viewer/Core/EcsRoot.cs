@@ -35,9 +35,11 @@ public class EcsRoot
     private void InitializeCreators()
     {
         EntityCreator.RegisterBlueprint(new MainCameraBlueprint(ComponentManager));
+        EntityCreator.RegisterBlueprint(new TransformGizmoBlueprint(ComponentManager,_shaderService, EntityManager));
         EntityCreator.RegisterBlueprint(new CubeBlueprint(ComponentManager, _shaderService));
         EntityCreator.RegisterBlueprint(new MainGridBlueprint(ComponentManager, _shaderService));
         EntityCreator.RegisterBlueprint(new TransformGizmoBlueprint(ComponentManager, _shaderService, EntityManager));
+        EntityCreator.RegisterBlueprint(new ImportedBlueprint(ComponentManager,_shaderService));
     }
 }
 

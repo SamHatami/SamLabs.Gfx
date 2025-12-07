@@ -18,7 +18,7 @@ public class AddBoxCommand: Command
     
     public override void Execute()
     {
-        var boxEntity = _entityCreator.Create(EntityNames.Cube);
+        var boxEntity = _entityCreator.CreateFromBlueprint(EntityNames.Cube);
         if (boxEntity.HasValue)
             _boxId = boxEntity.Value.Id;
     }

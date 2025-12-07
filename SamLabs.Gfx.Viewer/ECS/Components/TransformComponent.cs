@@ -7,8 +7,12 @@ public struct TransformComponent:IDataComponent
 {
     public Vector3 Position { get; set; }
     public Vector3 Scale { get; set; }
-    public Vector3 Rotation { get; set; }
-    public Matrix4 WorldMatrix { get; set; }
+    public Quaternion Rotation { get; set; }
+    public Matrix4 WorldMatrix() 
+    {
+     
+        return Matrix4.Identity * Matrix4.CreateFromQuaternion(Rotation) * Matrix4.CreateScale(Scale) * Matrix4.CreateTranslation(Position);
+    }
     
     public int ParentId { get; set; }
 }

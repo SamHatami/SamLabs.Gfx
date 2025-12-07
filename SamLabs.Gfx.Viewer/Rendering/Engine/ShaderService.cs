@@ -8,7 +8,7 @@ namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 public class ShaderService : IDisposable
 {
     private readonly ILogger<ShaderService> _logger;
-    private static Dictionary<string, int> _shadersProgram = new();
+    private static Dictionary<string, GLShader> _shadersProgram = new();
 
     public ShaderService(ILogger<ShaderService> logger)
     {
@@ -29,8 +29,8 @@ public class ShaderService : IDisposable
                 continue;
 
             var vertShader = Path.GetFileNameWithoutExtension(vertPath);
-            var program = GetShaderProgram(vertPath, fragPath);
-            _shadersProgram[vertShader] = program;
+            var program = CreateAndRegisterShader(vertPath, fragPath);
+   
 
             //Maybe expand into its own shader record later on
         }
@@ -41,24 +41,23 @@ public class ShaderService : IDisposable
 
     public GLShader? GetShader(string name)
     {
-        var shader = _shadersProgram.GetValueOrDefault(name, -1);
-        
-        if(shader == -1)
-            return null;
-        
-        return new GLShader(name, shader);
+        var shader = _shadersProgram?.GetValueOrDefault(name, null);
+        return shader ?? null;
     }
 
-    private int GetShaderProgram(string vertPath, string fragPath)
+    private int CreateAndRegisterShader(string vertPath, string fragPath)
     {
         var vertShader = Path.GetFileNameWithoutExtension(vertPath);
-        if (!_shadersProgram.TryGetValue(vertShader, out var program))
+        int programLocation = 0;
+        if (!_shadersProgram.TryGetValue(vertShader, out var shader))
         {
-            program = CreateShaderProgram(vertPath, fragPath);
-            _shadersProgram.Add(vertShader, program);
+            programLocation = CreateShaderProgram(vertPath, fragPath);
+            var modelmatrixLocation = GL.GetUniformLocation(programLocation, "uModel");
+            shader = new GLShader(vertShader, programLocation, modelmatrixLocation);
+            _shadersProgram.Add(vertShader, shader);
         }
 
-        return program;
+        return programLocation;
     }
 
     public string[] GetShaderNames()
@@ -66,7 +65,7 @@ public class ShaderService : IDisposable
         return _shadersProgram.Keys.ToArray();
     }
 
-    public int[] GetShaderPrograms()
+    public GLShader[] GetShaderPrograms()
     {
         return _shadersProgram.Values.ToArray();
     }
@@ -135,6 +134,6 @@ public class ShaderService : IDisposable
 
     public void Dispose()
     {
-        foreach (var shader in _shadersProgram.Values) GL.DeleteProgram(shader);
+        foreach (var shader in _shadersProgram.Values) GL.DeleteProgram(shader.ProgramId);
     }
 }

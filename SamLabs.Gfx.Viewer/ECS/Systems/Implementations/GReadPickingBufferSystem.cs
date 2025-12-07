@@ -28,21 +28,19 @@ public class GLReadPickingBufferSystem : RenderSystem
 
         //Get the entity that holds the pickingdatacomponent
 
-        var pickingEntity = ComponentManager.GetEntityIdsFor<PickingDataComponent>();
+        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>();
         if (pickingEntity.IsEmpty) return;
         var pickingDataComponent = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity[0]);
 
-        var gizmoEntities = ComponentManager.GetEntityIdsFor<GlMeshDataComponent>();
+        var gizmoEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (gizmoEntities.IsEmpty) return;
 
-        var objectId = ReadPickingId(pickingDataComponent);
-        if (objectId == 0)
-        {
-            //Clear any gizmo that is selected or hovered
-        }
+        
+
 
         if (frameInput.IsMouseLeftButtonDown)
         {
+         var objectId = ReadPickingId(pickingDataComponent);
         }
         //set the selected entity as the hovered entity
     }

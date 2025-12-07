@@ -24,7 +24,7 @@ public class GLInitializeMeshDataSystem : RenderSystem
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        var glMeshDataEntities = _componentManager.GetEntityIdsFor<CreateGlMeshDataFlag>();
+        var glMeshDataEntities = _componentManager.GetEntityIdsForComponentType<CreateGlMeshDataFlag>();
         if (glMeshDataEntities.IsEmpty) return;
 
         for (var i = 0; i < glMeshDataEntities.Length; i++)

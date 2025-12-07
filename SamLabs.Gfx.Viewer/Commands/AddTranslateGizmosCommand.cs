@@ -2,12 +2,12 @@
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
-public class AddMainGridCommand: Command //InternalCommand or HiddenCommand?
+public class AddTranslateGizmosCommand: Command //InternalCommand or HiddenCommand?
 {
     private readonly CommandManager _commandManager;
     private readonly EntityCreator _entityCreator;
     private int _gridId;
-    public AddMainGridCommand(CommandManager commandManager, EntityCreator entityCreator)
+    public AddTranslateGizmosCommand(CommandManager commandManager, EntityCreator entityCreator)
     {
         _commandManager = commandManager;
         _entityCreator = entityCreator;
@@ -15,7 +15,8 @@ public class AddMainGridCommand: Command //InternalCommand or HiddenCommand?
     
     public override void Execute()
     {
-        var boxEntity = _entityCreator.CreateFromBlueprint(EntityNames.MainGrid);
+        //These are actual internal commands, some of them can be invoked before gl context is created, This is not one of them
+        var boxEntity = _entityCreator.CreateFromBlueprint(EntityNames.TransformGizmo);
         if (boxEntity.HasValue)
             _gridId = boxEntity.Value.Id;
     }
