@@ -1,14 +1,20 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
+using SamLabs.Gfx.Viewer.IO;
+using SamLabs.Gfx.Viewer.Rendering;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-public class GLInitializeMeshDataSystem : PreRenderSystem
+[RenderPassAttributes.RenderOrder(RenderOrders.Init)]
+public class GLInitializeMeshDataSystem : RenderSystem
 {
+    public override int RenderPosition => RenderOrders.Init;
     private readonly ComponentManager _componentManager;
 
     public GLInitializeMeshDataSystem(ComponentManager componentManager) : base(componentManager)
@@ -16,7 +22,7 @@ public class GLInitializeMeshDataSystem : PreRenderSystem
         _componentManager = componentManager;
     }
 
-    public override void Update()
+    public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
         var glMeshDataEntities = _componentManager.GetEntityIdsFor<CreateGlMeshDataFlag>();
         if (glMeshDataEntities.IsEmpty) return;

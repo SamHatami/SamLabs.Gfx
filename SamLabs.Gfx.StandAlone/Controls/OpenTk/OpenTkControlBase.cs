@@ -30,7 +30,6 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     {
         _gl = gl;
         // KeyboardState.OnFrame();
-
         var size = GetPlatformSpecificBounds();
 
         //Set up the aspect ratio so shapes aren't stretched.
@@ -43,9 +42,8 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         }
 
         //Schedule next UI update with avalonia
-        Dispatcher.UIThread.Post(_nextFrameAction, DispatcherPriority.Render);
+        Dispatcher.UIThread.Post(_nextFrameAction, DispatcherPriority.MaxValue);
         
-        GL.Finish();
     }
     
     

@@ -1,14 +1,19 @@
 ﻿using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
+using SamLabs.Gfx.Viewer.IO;
+using SamLabs.Gfx.Viewer.Rendering;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
+[RenderPassAttributes.RenderOrder(RenderOrders.PreRenderUpdate)]
 public class ViewProjectionSystem : RenderSystem
 {
+    public override int RenderPosition => RenderOrders.PreRenderUpdate;
     private readonly ComponentManager _componentManager;
 
     public ViewProjectionSystem(ComponentManager componentManager) : base(componentManager)
@@ -16,7 +21,7 @@ public class ViewProjectionSystem : RenderSystem
         _componentManager = componentManager;
     }
 
-    public override void Update(RenderContext renderContext)
+    public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
         // if(!renderContext.CameraMoved && !renderContext.ResizeRequested) return;
         var cameraEntity = _componentManager.GetEntityIdsFor<CameraComponent>();

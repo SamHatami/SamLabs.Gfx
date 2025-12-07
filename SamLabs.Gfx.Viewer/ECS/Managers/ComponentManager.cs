@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using SamLabs.Gfx.Viewer.Core;
-using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;

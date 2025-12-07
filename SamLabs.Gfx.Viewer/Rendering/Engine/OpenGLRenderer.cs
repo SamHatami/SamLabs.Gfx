@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+using SamLabs.Gfx.Viewer.Rendering.Shaders;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine;
@@ -42,7 +42,9 @@ public class OpenGLRenderer : IDisposable, IRenderer
             _uniformBufferService.BindUniformToProgram(shader, UniformBufferService.ViewProjectionName);
 
     }
-    
+
+    public GLShader? GetShader(string shaderName) => _shaderService.GetShader(shaderName);
+
     public void SetWireframes(bool wireframe)
     {
         if (wireframe)

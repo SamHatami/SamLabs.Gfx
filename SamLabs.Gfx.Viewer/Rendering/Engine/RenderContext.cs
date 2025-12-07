@@ -10,4 +10,6 @@ public ref struct RenderContext
     public int[] SelectedObjectIds { get; set; }
     public int ViewWidth { get; set; }
     public int ViewHeight { get; set; }
+    public int MainViewFrameBuffer { get; set; }
+    public float RenderScaling { get; set; } //platform thing
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using SamLabs.Gfx.Viewer.Rendering.Abstractions;
+﻿using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.SceneGraph;
 

@@ -1,6 +1,5 @@
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;

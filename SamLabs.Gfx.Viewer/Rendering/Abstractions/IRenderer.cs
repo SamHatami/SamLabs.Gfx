@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.Rendering.Shaders;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Abstractions;
@@ -14,6 +15,8 @@ public interface IRenderer
     public void ResizeViewportBuffers(IViewPort mainViewport, int viewportSizeX, int viewportSizeY);
     
     public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
-    
-    
+
+
+    public void ClearPickingBuffer(IViewPort viewport);
+    GLShader? GetShader(string shaderName);
 }

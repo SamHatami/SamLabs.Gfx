@@ -1,8 +1,4 @@
-﻿using SamLabs.Gfx.Viewer.Core;
-using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Core;
-using SamLabs.Gfx.Viewer.ECS.Entities;
-using SamLabs.Gfx.Viewer.SceneGraph;
+﻿using SamLabs.Gfx.Viewer.ECS.Entities;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -34,10 +33,8 @@ public class SystemManager
 
     private void RegisterSystems()
     {
-        RegisterPreRenderSystems();
         RegisterUpdateSystems();
         RegisterRenderSystems();
-        RegisterPostRenderSystems();
     }
 
     private void RegisterPostRenderSystems()
@@ -86,6 +83,19 @@ public class SystemManager
                 Console.WriteLine($"Could not add system {renderSystems.ElementAt(i).Name} to systemregistry");
             }
         }
+        
+        //sort by priority
+        
+        Array.Sort(_renderSystems, (x, y) =>
+        {
+            if (x == null && y == null) return 0;
+    
+            if (x == null) return 1;
+    
+            if (y == null) return -1;
+
+            return x.RenderPosition.CompareTo(y.RenderPosition);
+        });
     }
 
     private void RegisterUpdateSystems()
@@ -135,6 +145,8 @@ public class SystemManager
                 Console.WriteLine($"Could not add system {preRenderSystems.ElementAt(i).Name} to systemregistry");
             }
         }
+        
+        
     }
 
     public void Update(FrameInput frameInput)
@@ -145,17 +157,10 @@ public class SystemManager
             updateSystem?.Update(frameInput);
     }
 
-    public void Render(RenderContext renderContext)
+    public void Render(FrameInput frameInput,RenderContext renderContext)
     {
-        
-        foreach (var preRenderSystem in _preRenderSystems)
-            preRenderSystem?.Update();
-        
         foreach (var renderSystem in _renderSystems)
-            renderSystem?.Update(renderContext);
-        
-        foreach (var postRenderSystem in _postRenderSystems)
-            postRenderSystem?.Update();
+            renderSystem?.Update(frameInput, renderContext);
         
     }
 }

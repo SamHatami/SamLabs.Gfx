@@ -1,0 +1,66 @@
+﻿using System.Runtime.InteropServices;
+using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.Core;
+using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Managers;
+using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
+using SamLabs.Gfx.Viewer.IO;
+using SamLabs.Gfx.Viewer.Rendering;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
+using SamLabs.Gfx.Viewer.SceneGraph;
+
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
+
+[RenderPassAttributes.RenderOrder(RenderOrders.GizmoPickingRead)]
+public class GLReadPickingBufferSystem : RenderSystem
+{
+    public override int RenderPosition => RenderOrders.GizmoPickingRead;
+    private int _readPickingIndex;
+    private IViewPort _viewport;
+
+    
+    public GLReadPickingBufferSystem(ComponentManager componentManager) : base(componentManager)
+    {
+    }
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
+    {
+        _viewport = renderContext.ViewPort;
+
+        //Get the entity that holds the pickingdatacomponent
+
+        var pickingEntity = ComponentManager.GetEntityIdsFor<PickingDataComponent>();
+        if (pickingEntity.IsEmpty) return;
+        var pickingDataComponent = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity[0]);
+
+        var gizmoEntities = ComponentManager.GetEntityIdsFor<GlMeshDataComponent>();
+        if (gizmoEntities.IsEmpty) return;
+
+        var objectId = ReadPickingId(pickingDataComponent);
+        if (objectId == 0)
+        {
+            //Clear any gizmo that is selected or hovered
+        }
+
+        if (frameInput.IsMouseLeftButtonDown)
+        {
+        }
+        //set the selected entity as the hovered entity
+    }
+
+    private int ReadPickingId(PickingDataComponent pickingDataComponent)
+    {
+        int objectHoveringId = 0;
+        unsafe
+        {
+            GL.BindBuffer(BufferTarget.PixelPackBuffer,
+                _viewport.SelectionRenderView.PixelBuffers[pickingDataComponent.BufferPickingIndex]);
+            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+            if (pboPtr != (void*)IntPtr.Zero)
+                objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));
+            GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
+            GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+        }
+
+        return objectHoveringId;
+    }
+}

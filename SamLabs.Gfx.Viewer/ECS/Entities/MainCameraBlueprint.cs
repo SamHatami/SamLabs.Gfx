@@ -3,7 +3,6 @@ using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
-using Quaternion = OpenTK.Mathematics.Quaternion;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities;

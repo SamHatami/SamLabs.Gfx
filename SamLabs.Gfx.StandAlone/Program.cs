@@ -22,7 +22,11 @@ internal sealed class Program
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .With(new Win32PlatformOptions { RenderingMode = (Collection<Win32RenderingMode>)[Win32RenderingMode.Wgl] }) //This line is the important one.
+            .With(new Win32PlatformOptions
+            {
+                RenderingMode = (Collection<Win32RenderingMode>)[Win32RenderingMode.Wgl],
+                
+            }) //This line is the important one.
             .LogToTrace()
             .WithDeveloperTools();
 

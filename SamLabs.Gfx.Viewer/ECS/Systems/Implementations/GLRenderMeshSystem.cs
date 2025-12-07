@@ -1,18 +1,22 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
+using SamLabs.Gfx.Viewer.IO;
+using SamLabs.Gfx.Viewer.Rendering;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class GLRenderMeshSystem : RenderSystem
 {
+    public override int RenderPosition => RenderOrders.MainRender;
     public GLRenderMeshSystem(ComponentManager componentManager) : base(componentManager)
     {
     }
 
-    public override void Update(RenderContext renderContext)
+    public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
         //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
         var meshEntities = ComponentManager.GetEntityIdsFor<GlMeshDataComponent>();
