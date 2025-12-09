@@ -28,8 +28,15 @@ public class ShaderService : IDisposable
             if (!File.Exists(fragPath))
                 continue;
 
-            var vertShader = Path.GetFileNameWithoutExtension(vertPath);
-            var program = CreateAndRegisterShader(vertPath, fragPath);
+            try
+            {
+                var vertShader = Path.GetFileNameWithoutExtension(vertPath);
+                var program = CreateAndRegisterShader(vertPath, fragPath);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
    
 
             //Maybe expand into its own shader record later on

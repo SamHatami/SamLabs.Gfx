@@ -41,6 +41,7 @@ public class GLRenderGizmoSystem : RenderSystem
 #endif
             var subEntities = ComponentManager.GetChildEntitiesForParent(gizmoEntity, childBuffer);
             DrawGizmo(subEntities);
+            
         }
     }
 
@@ -55,7 +56,7 @@ public class GLRenderGizmoSystem : RenderSystem
             var selected = ComponentManager.GetComponent<SelectedComponent>(gizmoSubEntity);
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(gizmoSubEntity);
             var material = ComponentManager.GetComponent<MaterialComponent>(gizmoSubEntity);
-            RenderGizmoSubMesh(mesh, material, false);
+            RenderGizmoSubMesh(mesh, material, true);
         }
         
         //same as meshrendering system ish
@@ -69,9 +70,9 @@ public class GLRenderGizmoSystem : RenderSystem
     private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected ,Matrix4 modelMatrix = default)
     {
         var shaderProgram = materialComponent.Shader.ProgramId;
-        var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
+        // var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
         
-        if(isSelected)
+        if(isSelected){}
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
         GL.UniformMatrix4f(materialComponent.Shader.MatrixModelUniformLocation, 1, false, ref modelMatrix);

@@ -13,7 +13,6 @@ using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-[RenderPassAttributes.RenderOrder(RenderOrders.GizmoPickingRender)]
 public class GLRenderPickingBufferSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoPickingRender;
@@ -42,7 +41,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
         
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
-        _pickingShader = Renderer.GetShader("objectId");
+        _pickingShader = Renderer.GetShader("picking");
         foreach (var meshEntity in meshEntities)
         {
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
