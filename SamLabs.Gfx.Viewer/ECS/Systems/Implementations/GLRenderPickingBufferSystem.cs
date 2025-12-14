@@ -25,19 +25,13 @@ public class GLRenderPickingBufferSystem : RenderSystem
         
         // int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
     }
-
-    //mode: Read or Write
-    //During write 
-    //During read we only read the picking index from a single living PickingEntity
+    
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
         _viewport = renderContext.ViewPort;
-        
-        //Get the entity that holds the pickingdatacomponent
-
-        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>();
+        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
         if (pickingEntity.Length == 0) return;
-        var pickingDataComponent = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity[0]);
+        var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(pickingEntity[0]);
         
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
@@ -74,7 +68,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
         GL.UseProgram(0);
     }
     
-    private void StorePickingId(Point localMousePos, PickingDataComponent pickingDataComponent, RenderContext renderContext)
+    private void StorePickingId(Point localMousePos, SelectableDataComponent selectableDataComponent, RenderContext renderContext)
     {
         var x = (int)(localMousePos.X * renderContext.RenderScaling);
         var y = (int)(localMousePos.Y * renderContext.RenderScaling);
@@ -83,9 +77,9 @@ public class GLRenderPickingBufferSystem : RenderSystem
         x = Math.Clamp(x, 0, _viewport.SelectionRenderView.Width - 1);
         y = Math.Clamp(y, 0, _viewport.SelectionRenderView.Height - 1);
 
-        pickingDataComponent.BufferPickingIndex = _readPickingIndex ^= 1;
+        selectableDataComponent.BufferPickingIndex = _readPickingIndex ^= 1;
         
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[pickingDataComponent.BufferPickingIndex]);
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[selectableDataComponent.BufferPickingIndex]);
         GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
     }

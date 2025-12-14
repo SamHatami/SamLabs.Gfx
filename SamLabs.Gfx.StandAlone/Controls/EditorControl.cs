@@ -136,6 +136,7 @@ public class EditorControl : OpenTkControlBase
         _width = width;
         _height = height;
 
+        Console.WriteLine(_keyDown);
         var frameInput = CaptureFrameInput();
         var t1 = _frameTimer.Elapsed.TotalMilliseconds;
     
@@ -203,8 +204,6 @@ public class EditorControl : OpenTkControlBase
     {
         _resizeRequested = false;
         _mouseWheelDelta = 0;
-        _keyDown = Key.None;
-        _keyUp = Key.None;
     }
 
     protected override void InitializeOpenTk()
@@ -232,7 +231,8 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OnKeyUp(KeyEventArgs e)
     {
-        _keyUp = e.Key;
+        if(_keyDown == e.Key)
+            _keyDown = Key.None;
         base.OnKeyUp(e);
     }
 

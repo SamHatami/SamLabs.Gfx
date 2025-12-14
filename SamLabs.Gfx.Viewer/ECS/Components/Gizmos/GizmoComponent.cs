@@ -6,5 +6,4 @@ namespace SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 public struct GizmoComponent:IDataComponent
 {
     public GizmoType Type { get; set; }
-    public bool IsActive { get; set; }
 }

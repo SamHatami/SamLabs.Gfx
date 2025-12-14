@@ -47,7 +47,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        var importedArrowMesh = await ModelLoader.LoadObj(modelPath); 
        
        var parentIdComponent = new ParentIdComponent(entity.Id);
-       var gizmoShader = _shaderService.GetShader("simple");
+       var gizmoShader = _shaderService.GetShader("gizmo");
        // var highlightShader = _shaderService.GetShader("Highlight");
        
        var xAxisEntity = _entityManager.CreateEntity();
@@ -55,12 +55,13 @@ public class TransformGizmoBlueprint:EntityBlueprint
        {
            Scale = scale,
            ParentId = entity.Id,
-           Position = new Vector3(1f,0,0),
+           Position = new Vector3(10,0,0),
            Rotation = Quaternion.Identity 
        };
        var materialX = new MaterialComponent { Shader = gizmoShader };
        var glArrowMesh = new GlMeshDataComponent()
        {
+           IsGizmo = true,
            IndexCount = importedArrowMesh.Indices.Length,
            VertexCount = importedArrowMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
@@ -71,7 +72,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        _componentManager.SetComponentToEntity(materialX, xAxisEntity.Id);
        _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xAxisEntity.Id);
        _componentManager.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new PickingDataComponent(), xAxisEntity.Id);
+       _componentManager.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
 
 
        var yAxisEntity = _entityManager.CreateEntity();
@@ -79,7 +80,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        {
            Scale = scale,
            ParentId = entity.Id,
-           Position = new Vector3(0,1f,0),
+           Position = new Vector3(10,0,0),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(90f)) 
        };
        var materialY = new MaterialComponent { Shader = gizmoShader };
@@ -90,7 +91,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        _componentManager.SetComponentToEntity(materialY, yAxisEntity.Id);
        _componentManager.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
        _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new PickingDataComponent(), yAxisEntity.Id);
+       _componentManager.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
        
        
        var zAxisEntity = _entityManager.CreateEntity();
@@ -98,7 +99,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        {
            Scale = scale,
            ParentId = entity.Id,
-           Position = new Vector3(0,0,1f),
+           Position = new Vector3(10,0,0),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f))
        };
        var materialZ = new MaterialComponent { Shader = gizmoShader};
@@ -109,7 +110,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        _componentManager.SetComponentToEntity(materialZ, zAxisEntity.Id);
        _componentManager.SetComponentToEntity(glArrowMesh, zAxisEntity.Id);
        _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new PickingDataComponent(), zAxisEntity.Id);
+       _componentManager.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
 
         
        // --- 6. Plane Entities (Optional but recommended for Translate Gizmo) ---

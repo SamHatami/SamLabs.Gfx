@@ -2,7 +2,7 @@
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 
-public struct PickingDataComponent:IDataComponent
+public struct SelectableDataComponent:IDataComponent
 {
     public int BufferPickingIndex { get; set; }
 }

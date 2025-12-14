@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Avalonia.Input;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -15,21 +16,24 @@ public class CameraControlSystem : UpdateSystem
 
     public override void Update(FrameInput frameInput)
     {
+        //if something is highlighted or selected, we can't control the camera only with mouse, we need keyboard too
         var cameraEntities = _componentManager.GetEntityIdsForComponentType<CameraComponent>();
 
         if (cameraEntities.IsEmpty) return;
 
-        for (var i = 0; i < cameraEntities.Length; i++)
+        foreach (var camera in cameraEntities)
         {
-            ref var cameraData = ref _componentManager.GetComponent<CameraDataComponent>(cameraEntities[i]);
-            ref var cameraTransform = ref _componentManager.GetComponent<TransformComponent>(cameraEntities[i]);
+            ref var cameraData = ref _componentManager.GetComponent<CameraDataComponent>(camera);
+            if(!cameraData.IsActive)
+                return;
+            
+            ref var cameraTransform = ref _componentManager.GetComponent<TransformComponent>(camera);
 
-
-            if (frameInput.IsMouseLeftButtonDown)
-                Orbit(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
+            if (frameInput.IsMouseMiddleButtonDown && frameInput.KeyDown == Key.LeftShift) //Key settings in config
+                Pan(frameInput, ref cameraData, ref cameraTransform);
 
             else if (frameInput.IsMouseMiddleButtonDown)
-                Pan(frameInput, ref cameraData, ref cameraTransform);
+                Orbit(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
 
             else if (frameInput.MouseWheelDelta != 0.0f)
                 Zoom(frameInput.MouseWheelDelta, ref cameraData, ref cameraTransform);
@@ -39,20 +43,21 @@ public class CameraControlSystem : UpdateSystem
     private void Pan(FrameInput frameInput, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
     {
         var delta = frameInput.DeltaMouseMove;
-        if(Math.Abs(delta.X - 0.001f) < MathExtensions.Tolerance && Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance) 
+        if (Math.Abs(delta.X - 0.001f) < MathExtensions.Tolerance &&
+            Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance)
             return;
         var viewportSize = frameInput.ViewportSize;
         float worldHeight = 2.0f * cameraData.DistanceToTarget * MathF.Tan(cameraData.Fov / 2.0f);
 
         float pixelsToWorldScale = worldHeight / viewportSize.Y;
-        
+
         cameraData.DistanceToTarget = Vector3.Distance(cameraData.Target, cameraTransform.Position);
         var forward = cameraData.Target - cameraTransform.Position;
         var right = Vector3.Normalize(Vector3.Cross(forward, cameraData.Up));
         var up = cameraData.Up;
-        
+
         var offset = (right * -delta.X * pixelsToWorldScale) + (up * delta.Y * pixelsToWorldScale);
-        
+
         cameraData.Target += offset;
         cameraTransform.Position += offset;
     }
@@ -86,9 +91,4 @@ public class CameraControlSystem : UpdateSystem
 
         cameraTransform.Position = cameraData.Target + new Vector3(x, y, z);
     }
-    
-
-
-    
-    
 }

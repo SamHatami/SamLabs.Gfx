@@ -13,6 +13,7 @@ public static class RenderOrders
     public const int MainStart = 100;
     public const int MainRender = 101;
 
+    public const int GizmoTransform = 101;
     public const int GizmoRender = 102;
     public const int HighlightSelectionRender = 103;
     public const int MainEnd = 199;

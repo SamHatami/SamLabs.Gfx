@@ -10,11 +10,11 @@ using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-public class GLRenderGizmoSystem : RenderSystem
+public class GLGizmoRenderSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoRender;
 
-    public GLRenderGizmoSystem(ComponentManager componentManager) : base(componentManager)
+    public GLGizmoRenderSystem(ComponentManager componentManager) : base(componentManager)
     {
     }
 
@@ -29,7 +29,7 @@ public class GLRenderGizmoSystem : RenderSystem
         int gizmoActiveCount = 0;
         foreach (var gizmoEntity in gizmoEntities)
         {
-            var gizmoComponent = ComponentManager.HasComponent<VisibilityComponent>(gizmoEntity);
+            var gizmoComponent = ComponentManager.HasComponent<ActiveGizmoComponent>(gizmoEntity);
             if (!gizmoComponent) continue;
 
 #if DEBUG
@@ -56,7 +56,8 @@ public class GLRenderGizmoSystem : RenderSystem
             var selected = ComponentManager.GetComponent<SelectedComponent>(gizmoSubEntity);
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(gizmoSubEntity);
             var material = ComponentManager.GetComponent<MaterialComponent>(gizmoSubEntity);
-            RenderGizmoSubMesh(mesh, material, true);
+            var modelMatrix = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity).WorldMatrix;
+            RenderGizmoSubMesh(mesh, material, true, modelMatrix.Invoke());
         }
         
         //same as meshrendering system ish

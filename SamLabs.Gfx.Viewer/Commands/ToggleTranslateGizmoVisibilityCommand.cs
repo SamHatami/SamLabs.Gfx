@@ -16,7 +16,6 @@ public class ToggleTranslateGizmoVisibilityCommand : Command
     private int _translateGizmoId = -1;
     private int _rotateGizmoId = -1;
     private int _scaleGizmoId = -1;
-
     public ToggleTranslateGizmoVisibilityCommand(CommandManager commandManager, ComponentManager componentManager)
     {
         _commandManager = commandManager;
@@ -31,10 +30,10 @@ public class ToggleTranslateGizmoVisibilityCommand : Command
         //should probably save all the gizmo entities and just toggle visibility of them
         GetGizmoIds();
         
-        if (_componentManager.HasComponent<VisibilityComponent>(_translateGizmoId))
-            _componentManager.RemoveComponentFromEntity<VisibilityComponent>(_translateGizmoId);
+        if (_componentManager.HasComponent<ActiveGizmoComponent>(_translateGizmoId))
+            _componentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_translateGizmoId);
         else
-            _componentManager.SetComponentToEntity(new VisibilityComponent(), _translateGizmoId);
+            _componentManager.SetComponentToEntity(new ActiveGizmoComponent(), _translateGizmoId);
     }
 
     private void GetGizmoIds()
@@ -44,7 +43,7 @@ public class ToggleTranslateGizmoVisibilityCommand : Command
         
         foreach (var gizmoEntity in gizmos)
         {
-            var gizmo = _componentManager.GetComponent<GizmoComponent>(gizmoEntity);
+            ref var gizmo = ref _componentManager.GetComponent<GizmoComponent>(gizmoEntity);
             switch (gizmo.Type)
             {
                 case GizmoType.Translate:

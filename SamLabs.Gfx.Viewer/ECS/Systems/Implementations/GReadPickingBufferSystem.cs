@@ -28,9 +28,9 @@ public class GLReadPickingBufferSystem : RenderSystem
 
         //Get the entity that holds the pickingdatacomponent
 
-        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>();
+        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
         if (pickingEntity.IsEmpty) return;
-        var pickingDataComponent = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity[0]);
+        var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(pickingEntity[0]);
 
         var gizmoEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (gizmoEntities.IsEmpty) return;
@@ -45,13 +45,13 @@ public class GLReadPickingBufferSystem : RenderSystem
         //set the selected entity as the hovered entity
     }
 
-    private int ReadPickingId(PickingDataComponent pickingDataComponent)
+    private int ReadPickingId(SelectableDataComponent selectableDataComponent)
     {
         int objectHoveringId = 0;
         unsafe
         {
             GL.BindBuffer(BufferTarget.PixelPackBuffer,
-                _viewport.SelectionRenderView.PixelBuffers[pickingDataComponent.BufferPickingIndex]);
+                _viewport.SelectionRenderView.PixelBuffers[selectableDataComponent.BufferPickingIndex]);
             var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
             if (pboPtr != (void*)IntPtr.Zero)
                 objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));

@@ -29,6 +29,7 @@
         </StackPanel>
 
         <controls:EditorControl 
+            Focusable="True"
             Grid.Column="1" 
             SceneManager="{Binding SceneManager}"
             EcsRoot="{Binding EcsRoot}"

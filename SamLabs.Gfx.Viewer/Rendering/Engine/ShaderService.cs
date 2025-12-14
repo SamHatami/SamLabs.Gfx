@@ -9,6 +9,7 @@ public class ShaderService : IDisposable
 {
     private readonly ILogger<ShaderService> _logger;
     private static Dictionary<string, GLShader> _shadersProgram = new();
+    private static Dictionary<string, int> _uniformLocations = new();
 
     public ShaderService(ILogger<ShaderService> logger)
     {

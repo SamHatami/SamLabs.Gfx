@@ -2,7 +2,7 @@
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 
-public struct VisibilityComponent:IDataComponent
+public struct ActiveGizmoComponent:IDataComponent
 {
     
 }

@@ -26,8 +26,9 @@ public class GLRenderMeshSystem : RenderSystem
         foreach (var meshEntity in meshEntities)
         {
             var transform = ComponentManager.GetComponent<TransformComponent>(meshEntity);
-            var modelMatrix = transform.WorldMatrix;
+            var modelMatrix = transform.WorldMatrix; //Todo this should be updated every frame when the model is moving
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
+            if(mesh.IsGizmo) continue;
             var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
             RenderMesh(mesh, materials, modelMatrix.Invoke());
         }
