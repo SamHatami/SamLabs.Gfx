@@ -55,6 +55,11 @@ public class GLRenderPickingBufferSystem : RenderSystem
         
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
+        
+        (int x, int y) = GetPixelPosition(frameInput.MousePosition, renderContext);
+        GL.Enable(EnableCap.ScissorTest);
+        GL.Scissor(x, y, 16, 16);
+        
         foreach (var selectableEntity in selectableEntities)
         {
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
@@ -62,7 +67,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
             RenderToPickingTexture(mesh, selectableEntity,modelMatrix.Invoke());
         }
         
-        StorePickingId(frameInput.MousePosition, pickingDataComponent, renderContext, ref pickingData);
+        StorePickingId(x,y, pickingDataComponent, renderContext, ref pickingData);
     }
     
     private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId,
@@ -70,7 +75,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
     {
         GL.UseProgram(_pickingShader.ProgramId);
         GL.BindVertexArray(mesh.Vao);
-        GL.Uniform1ui(_pickingShader.ProgramId, (uint)entityId);
+        GL.Uniform1ui(_pickingShader.UniformLocations[UniformNames.uPickingId].Location, (uint)entityId);
         GL.UniformMatrix4f(_pickingShader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
 
         if (mesh.Ebo > 0)
@@ -85,8 +90,8 @@ public class GLRenderPickingBufferSystem : RenderSystem
         GL.BindVertexArray(0);
         GL.UseProgram(0);
     }
-    
-    private void StorePickingId(Point localMousePos, SelectableDataComponent selectableDataComponent, RenderContext renderContext, ref PickingDataComponent pickingData)
+
+    private (int x, int y) GetPixelPosition(Point localMousePos, RenderContext renderContext)
     {
         var x = (int)(localMousePos.X * renderContext.RenderScaling);
         var y = (int)(localMousePos.Y * renderContext.RenderScaling);
@@ -94,6 +99,13 @@ public class GLRenderPickingBufferSystem : RenderSystem
 
         x = Math.Clamp(x, 0, _viewport.SelectionRenderView.Width - 1);
         y = Math.Clamp(y, 0, _viewport.SelectionRenderView.Height - 1);
+        
+        return (x, y);
+    }
+    
+    private void StorePickingId(int x, int y, SelectableDataComponent selectableDataComponent, RenderContext renderContext, ref PickingDataComponent pickingData)
+    {
+
 
         pickingData.BufferPickingIndex = _readPickingIndex ^= 1;
         

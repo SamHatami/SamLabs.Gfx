@@ -64,7 +64,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
 
     public IViewPort CreateViewportBuffers(string name, int width, int height)
     {
-        // var fullRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height);
+        // var fullRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height); //handeled by Avalonia
         var pickingRenderViewInfo = _frameBufferService.CreateFrameBuffer(width, height, true);
 
         var viewport = new ViewPort(width, height)

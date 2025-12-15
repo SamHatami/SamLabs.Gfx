@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.Core;
+﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -19,6 +20,7 @@ public class GLGizmoRenderPassStartSystem: RenderSystem
     {
         Renderer.ClearPickingBuffer(renderContext.ViewPort);
         Renderer.RenderToPickingBuffer(renderContext.ViewPort);
+
     }
 
 

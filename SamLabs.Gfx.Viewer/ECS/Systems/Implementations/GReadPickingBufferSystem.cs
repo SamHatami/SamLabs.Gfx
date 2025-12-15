@@ -39,31 +39,26 @@ public class GLReadPickingBufferSystem : RenderSystem
         
         var objectId = ReadPickingId(pickingDataComponent);
         pickingDataComponent.HoveredEntityId = objectId;
-        if (frameInput.IsMouseLeftButtonDown)
-        {
-            pickingDataComponent.HoveredEntityId = -1;
-            pickingDataComponent.SelectedEntityIds = [objectId];
-        }
+        Console.WriteLine(objectId);
+        // if (frameInput.IsMouseLeftButtonDown)
+        // {
+        //     pickingDataComponent.HoveredEntityId = -1;
+        //     pickingDataComponent.SelectedEntityIds = [objectId];
+        // }
 
         //Clear the hovered entity
     }
 
-    private int ReadPickingId(PickingDataComponent pickingData)
+    private int ReadPickingId(PickingDataComponent pickingDataComponent)
     {
         int objectHoveringId = 0;
-        int pboId = _viewport.SelectionRenderView.PixelBuffers[pickingData.BufferPickingIndex^1];
         unsafe
         {
-            GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);
-            void* rawPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
-        
-            if (rawPtr != (void*)0)
-            {
-                objectHoveringId = *(int*)rawPtr;
-            
-                // Note: If you ever return a null/0 ID, this is where you'd catch it.
-            }
-
+            GL.BindBuffer(BufferTarget.PixelPackBuffer,
+                _viewport.SelectionRenderView.PixelBuffers[pickingDataComponent.BufferPickingIndex^1]);
+            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+            if (pboPtr != (void*)IntPtr.Zero)
+                objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));
             GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
             GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
         }

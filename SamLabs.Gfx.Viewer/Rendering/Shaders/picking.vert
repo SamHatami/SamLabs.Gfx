@@ -15,5 +15,5 @@ void main()
 {
     gl_Position = projection *view * uModel * vec4(aPos, 1.0);
     
-    uint vertexPickingId = (objectId << 20) | uint(gl_VertexID); 
+    vertexPickingId = (objectId << 20) | uint(gl_VertexID); 
 }

@@ -18,6 +18,7 @@ public class GLGizmoRenderPassEndSystem: RenderSystem
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
+        GL.Disable(EnableCap.ScissorTest);
         GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
     }
 
