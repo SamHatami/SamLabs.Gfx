@@ -136,7 +136,6 @@ public class EditorControl : OpenTkControlBase
         _width = width;
         _height = height;
 
-        Console.WriteLine(_keyDown);
         var frameInput = CaptureFrameInput();
         var t1 = _frameTimer.Elapsed.TotalMilliseconds;
     
@@ -212,8 +211,6 @@ public class EditorControl : OpenTkControlBase
         _renderer = EcsRoot.Renderer;
 
         _renderer.Initialize();
-        
-
         _systemManager.InitializeRenderSystems(_renderer);
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         SceneManager.GetCurrentScene();

@@ -17,7 +17,7 @@ public class GLInitializeMeshDataSystem : RenderSystem
     public override int RenderPosition => RenderOrders.Init;
     private readonly ComponentManager _componentManager;
 
-    public GLInitializeMeshDataSystem(ComponentManager componentManager) : base(componentManager)
+    public GLInitializeMeshDataSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
         _componentManager = componentManager;
     }

@@ -9,11 +9,13 @@ public abstract class RenderSystem
 {
     public virtual int RenderPosition { get; }
     protected readonly ComponentManager ComponentManager;
+    protected readonly EntityManager EntityManager;
     protected IRenderer Renderer;
 
-    protected RenderSystem(ComponentManager componentManager)
+    protected RenderSystem(ComponentManager componentManager, EntityManager entityManager)
     {
         ComponentManager = componentManager;
+        EntityManager = entityManager;
     }
     public void Initialize(IRenderer renderer)
     {

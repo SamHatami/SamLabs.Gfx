@@ -23,8 +23,8 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Margin="5" Orientation="Vertical">
-            <Button Content="Add Box" Command="{Binding AddBox}" />
-            <Button Content="Import" Command="{Binding AddImportedFile}" />
+            <Button Content="Add sBox" Command="{Binding AddBox}" />
+            <Button Content="Impasdasdasdort" Command="{Binding AddImportedFile}" />
             <Button Content="Translate" Command="{Binding ToggleTranslateGizmos}" />
         </StackPanel>
 

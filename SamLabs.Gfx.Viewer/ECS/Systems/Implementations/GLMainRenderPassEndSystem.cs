@@ -12,7 +12,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLMainRenderPassEndSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.MainEnd;
-    public GLMainRenderPassEndSystem(ComponentManager componentManager) : base(componentManager)
+    public GLMainRenderPassEndSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 

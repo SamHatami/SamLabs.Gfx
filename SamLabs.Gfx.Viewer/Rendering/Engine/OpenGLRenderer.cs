@@ -38,6 +38,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _uniformBufferService.CreateSingleIntUniform("objectId");
         _shaderService.RegisterShaders();
 
+
         //bind View-Projection uniform to all the shader programs
         foreach (var shader in _shaderService.GetShaderPrograms())
             _uniformBufferService.BindUniformToProgram(shader.ProgramId, UniformBufferService.ViewProjectionName);

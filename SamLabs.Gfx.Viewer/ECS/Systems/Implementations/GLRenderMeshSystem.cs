@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -13,11 +14,12 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLRenderMeshSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.MainRender;
-    public GLRenderMeshSystem(ComponentManager componentManager) : base(componentManager)
+
+    public GLRenderMeshSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
         //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
@@ -28,18 +30,20 @@ public class GLRenderMeshSystem : RenderSystem
             var transform = ComponentManager.GetComponent<TransformComponent>(meshEntity);
             var modelMatrix = transform.WorldMatrix; //Todo this should be updated every frame when the model is moving
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
-            if(mesh.IsGizmo) continue;
+            if (mesh.IsGizmo) continue;
             var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
             RenderMesh(mesh, materials, modelMatrix.Invoke());
         }
     }
 
-    private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, Matrix4 modelMatrix = default)
+    private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
+        Matrix4 modelMatrix = default)
     {
         var shaderProgram = materialComponent.Shader.ProgramId;
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
-        GL.UniformMatrix4f(materialComponent.Shader.MatrixModelUniformLocation, 1, false, ref modelMatrix);
+        GL.UniformMatrix4f(materialComponent.Shader.UniformLocations[UniformNames.uModel].Location, 1, false,
+            ref modelMatrix);
 
         if (mesh.Ebo > 0)
         {

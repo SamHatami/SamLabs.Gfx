@@ -1,6 +1,10 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using System.Numerics;
+using Assimp;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
+using Vector3 = OpenTK.Mathematics.Vector3;
+using Vector4 = OpenTK.Mathematics.Vector4;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 
@@ -14,6 +18,7 @@ public class UniformBufferService : IDisposable
     private const int ObjectIdBindingPoint = 1;
     public const string ViewProjectionName = "ViewProjection";
     private readonly Dictionary<string, uint> UniformBindingPoints = new();
+    private readonly Dictionary<string, int> _uniformLocations = new();
 
     public uint GetUniformBindingPoint(string name)
     {
@@ -74,7 +79,7 @@ public class UniformBufferService : IDisposable
 
         UniformBindingPoints.Add(uniqueName, bindingPoint);
     }
-
+    
     public void CreateSingleIntUniform(string name)
     {
         var bufferId = GL.GenBuffer();
@@ -107,4 +112,43 @@ public class UniformBufferService : IDisposable
             }
         }
     }
+    
+    
+}
+
+public static class UniformNameTypeDictionary
+{
+    public static Dictionary<string, Type> UniformInfo = new();
+
+    static UniformNameTypeDictionary()
+    {
+
+        UniformInfo.Add(UniformNames.uModel, typeof(Matrix4));
+        UniformInfo.Add(UniformNames.uView, typeof(Matrix4));
+        UniformInfo.Add(UniformNames.uProj, typeof(Matrix4));
+        UniformInfo.Add(UniformNames.uColor, typeof(Vector4));
+        UniformInfo.Add(UniformNames.uPickingColor, typeof(Vector4));
+        UniformInfo.Add(UniformNames.uPickingId, typeof(int));
+        UniformInfo.Add(UniformNames.uTime, typeof(float));
+        UniformInfo.Add(UniformNames.uCameraPos, typeof(Vector3));
+        UniformInfo.Add(UniformNames.uLightPos, typeof(Vector3));
+        UniformInfo.Add(UniformNames.uLightColor, typeof(Vector3));
+        UniformInfo.Add(UniformNames.uIsHovered, typeof(bool));
+        
+    }
+}
+
+public static class UniformNames
+{
+    public const string uModel = "uModel";
+    public const string uView = "uView";
+    public const string uProj = "uProj";
+    public const string uColor = "uColor";
+    public const string uPickingColor = "uPickingColor";
+    public const string uPickingId = "uPickingId";
+    public const string uTime = "uTime";
+    public const string uCameraPos = "uCameraPos";
+    public const string uLightPos = "uLightPos";
+    public const string uLightColor = "uLightColor";
+    public const string uIsHovered = "uIsHovered";
 }

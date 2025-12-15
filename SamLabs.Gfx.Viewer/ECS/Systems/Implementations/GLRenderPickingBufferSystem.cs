@@ -1,8 +1,11 @@
 ﻿using Avalonia;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Core;
+using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -15,45 +18,60 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class GLRenderPickingBufferSystem : RenderSystem
 {
+    private readonly EntityManager _entityManager;
     public override int RenderPosition => RenderOrders.GizmoPickingRender;
     private int _readPickingIndex;
     private IViewPort _viewport;
-    private GLShader? _pickingShader;
+    private GLShader? _pickingShader = null;
+    private int _pickingEntity = -1;
 
-    public GLRenderPickingBufferSystem(ComponentManager componentManager) : base(componentManager)
+    public GLRenderPickingBufferSystem(ComponentManager componentManager, EntityManager entityManager ) : base(componentManager, entityManager)
     {
-        
+        _entityManager = entityManager;
+
         // int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
+        //one single pickingentity for the entire scene
+        //it should hold the current _readPickingIndex, and in the future maybe a tripple buffering system
+        //this system creates the pickingentity if it doesn't exist yet and holds a direct refeence to it'
     }
     
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
+
+        if(_pickingEntity == -1)
+        {
+            _pickingEntity = _entityManager.CreateEntity().Id;
+            ComponentManager.SetComponentToEntity(new PickingDataComponent(), _pickingEntity);
+        }
+        
+        ref var pickingData = ref ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
+        
+        _pickingShader ??= Renderer.GetShader("picking");
         _viewport = renderContext.ViewPort;
-        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
-        if (pickingEntity.Length == 0) return;
-        var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(pickingEntity[0]);
+        
+        var selectableEntities = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
+        if (selectableEntities.Length == 0) return;
+        var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(selectableEntities[0]);
         
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
-        _pickingShader = Renderer.GetShader("picking");
-        foreach (var meshEntity in meshEntities)
+        foreach (var selectableEntity in selectableEntities)
         {
-            var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
-            var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
-            RenderToPickingTexture(mesh, meshEntity);
+            var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
+            var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
+            RenderToPickingTexture(mesh, selectableEntity,modelMatrix.Invoke());
         }
         
-        StorePickingId(frameInput.MousePosition, pickingDataComponent, renderContext);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        StorePickingId(frameInput.MousePosition, pickingDataComponent, renderContext, ref pickingData);
     }
     
-    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId)
+    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId,
+        Matrix4 modelMatrix)
     {
         GL.UseProgram(_pickingShader.ProgramId);
         GL.BindVertexArray(mesh.Vao);
         GL.Uniform1ui(_pickingShader.ProgramId, (uint)entityId);
-        // var modelMatrix = Matrix4.Identity;
-        // GL.UniformMatrix4f(modelLocation, 1, false, ref modelMatrix);
+        GL.UniformMatrix4f(_pickingShader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
 
         if (mesh.Ebo > 0)
         {
@@ -68,7 +86,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
         GL.UseProgram(0);
     }
     
-    private void StorePickingId(Point localMousePos, SelectableDataComponent selectableDataComponent, RenderContext renderContext)
+    private void StorePickingId(Point localMousePos, SelectableDataComponent selectableDataComponent, RenderContext renderContext, ref PickingDataComponent pickingData)
     {
         var x = (int)(localMousePos.X * renderContext.RenderScaling);
         var y = (int)(localMousePos.Y * renderContext.RenderScaling);
@@ -77,9 +95,9 @@ public class GLRenderPickingBufferSystem : RenderSystem
         x = Math.Clamp(x, 0, _viewport.SelectionRenderView.Width - 1);
         y = Math.Clamp(y, 0, _viewport.SelectionRenderView.Height - 1);
 
-        selectableDataComponent.BufferPickingIndex = _readPickingIndex ^= 1;
+        pickingData.BufferPickingIndex = _readPickingIndex ^= 1;
         
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[selectableDataComponent.BufferPickingIndex]);
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[pickingData.BufferPickingIndex]);
         GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
     }

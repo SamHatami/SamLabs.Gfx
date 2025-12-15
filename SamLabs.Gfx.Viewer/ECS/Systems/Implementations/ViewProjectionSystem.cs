@@ -16,7 +16,7 @@ public class ViewProjectionSystem : RenderSystem
     public override int RenderPosition => RenderOrders.PreRenderUpdate;
     private readonly ComponentManager _componentManager;
 
-    public ViewProjectionSystem(ComponentManager componentManager) : base(componentManager)
+    public ViewProjectionSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
         _componentManager = componentManager;
     }
@@ -28,7 +28,7 @@ public class ViewProjectionSystem : RenderSystem
         if (cameraEntity.Length == 0) return;
 
         var cameraTransform = _componentManager.GetComponent<TransformComponent>(cameraEntity[0]);
-        var cameraData = _componentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
+        ref var cameraData = ref _componentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
 
         if (renderContext.ResizeRequested)
         {

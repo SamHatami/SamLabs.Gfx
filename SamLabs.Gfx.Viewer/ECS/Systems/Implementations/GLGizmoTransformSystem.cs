@@ -17,7 +17,7 @@ public class GLGizmoTransformSystem : RenderSystem
     public override int RenderPosition => RenderOrders.GizmoTransform;
     public const float GizmoBaseSize = 0.015f;
 
-    public GLGizmoTransformSystem(ComponentManager componentManager) : base(componentManager)
+    public GLGizmoTransformSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 

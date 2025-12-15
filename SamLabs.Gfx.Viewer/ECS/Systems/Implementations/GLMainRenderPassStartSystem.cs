@@ -12,7 +12,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLMainRenderPassStartSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.MainStart;
-    public GLMainRenderPassStartSystem(ComponentManager componentManager) : base(componentManager)
+    public GLMainRenderPassStartSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 

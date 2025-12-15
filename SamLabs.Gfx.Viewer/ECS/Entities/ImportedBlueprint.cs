@@ -40,8 +40,8 @@ public class ImportedBlueprint : EntityBlueprint
         };
 
         var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("flat") ?? new GLShader("Empty",0,0);
-        material.PickingShader = _shaderService.GetShader("picking") ?? new GLShader("Empty",0,0);
+        material.Shader = _shaderService.GetShader("flat");
+        material.PickingShader = _shaderService.GetShader("picking");
             
         _componentManager.SetComponentToEntity(glMeshData, entity.Id);
         _componentManager.SetComponentToEntity(meshData, entity.Id);

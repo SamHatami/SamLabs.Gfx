@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -17,9 +18,10 @@ public class GLReadPickingBufferSystem : RenderSystem
     public override int RenderPosition => RenderOrders.GizmoPickingRead;
     private int _readPickingIndex;
     private IViewPort _viewport;
+    private int _pickingEntity;
 
-    
-    public GLReadPickingBufferSystem(ComponentManager componentManager) : base(componentManager)
+
+    public GLReadPickingBufferSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
     public override void Update(FrameInput frameInput, RenderContext renderContext)
@@ -28,33 +30,40 @@ public class GLReadPickingBufferSystem : RenderSystem
 
         //Get the entity that holds the pickingdatacomponent
 
-        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
-        if (pickingEntity.IsEmpty) return;
-        var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(pickingEntity[0]);
-
+        if(_pickingEntity == -1)
+            _pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>()[0];
+        ref var pickingDataComponent = ref ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
         var gizmoEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (gizmoEntities.IsEmpty) return;
 
         
-
-
+        var objectId = ReadPickingId(pickingDataComponent);
+        pickingDataComponent.HoveredEntityId = objectId;
         if (frameInput.IsMouseLeftButtonDown)
         {
-         var objectId = ReadPickingId(pickingDataComponent);
+            pickingDataComponent.HoveredEntityId = -1;
+            pickingDataComponent.SelectedEntityIds = [objectId];
         }
-        //set the selected entity as the hovered entity
+
+        //Clear the hovered entity
     }
 
-    private int ReadPickingId(SelectableDataComponent selectableDataComponent)
+    private int ReadPickingId(PickingDataComponent pickingData)
     {
         int objectHoveringId = 0;
+        int pboId = _viewport.SelectionRenderView.PixelBuffers[pickingData.BufferPickingIndex^1];
         unsafe
         {
-            GL.BindBuffer(BufferTarget.PixelPackBuffer,
-                _viewport.SelectionRenderView.PixelBuffers[selectableDataComponent.BufferPickingIndex]);
-            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
-            if (pboPtr != (void*)IntPtr.Zero)
-                objectHoveringId = (int)Marshal.PtrToStructure((IntPtr)pboPtr, typeof(int));
+            GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);
+            void* rawPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+        
+            if (rawPtr != (void*)0)
+            {
+                objectHoveringId = *(int*)rawPtr;
+            
+                // Note: If you ever return a null/0 ID, this is where you'd catch it.
+            }
+
             GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
             GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
         }

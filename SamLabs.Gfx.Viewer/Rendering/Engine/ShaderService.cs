@@ -9,7 +9,6 @@ public class ShaderService : IDisposable
 {
     private readonly ILogger<ShaderService> _logger;
     private static Dictionary<string, GLShader> _shadersProgram = new();
-    private static Dictionary<string, int> _uniformLocations = new();
 
     public ShaderService(ILogger<ShaderService> logger)
     {
@@ -46,7 +45,7 @@ public class ShaderService : IDisposable
 
         Console.WriteLine($"Registered {vertPaths.Length} shaders");
     }
-
+    
     public GLShader? GetShader(string name)
     {
         var shader = _shadersProgram?.GetValueOrDefault(name, null);
@@ -60,8 +59,16 @@ public class ShaderService : IDisposable
         if (!_shadersProgram.TryGetValue(vertShader, out var shader))
         {
             programLocation = CreateShaderProgram(vertPath, fragPath);
-            var modelmatrixLocation = GL.GetUniformLocation(programLocation, "uModel");
-            shader = new GLShader(vertShader, programLocation, modelmatrixLocation);
+            
+            Dictionary<string, Uniform> uniformLocations = new();
+            foreach (var uniformName in UniformNameTypeDictionary.UniformInfo.Keys)
+            {
+                var shaderLocation = GL.GetUniformLocation(programLocation, uniformName);
+                var uniformType = UniformNameTypeDictionary.UniformInfo[uniformName];
+                uniformLocations.Add(uniformName, new Uniform(shaderLocation, uniformName, uniformType));
+            }
+        
+            shader = new GLShader(vertShader, programLocation, uniformLocations);
             _shadersProgram.Add(vertShader, shader);
         }
 
@@ -144,4 +151,6 @@ public class ShaderService : IDisposable
     {
         foreach (var shader in _shadersProgram.Values) GL.DeleteProgram(shader.ProgramId);
     }
+    
+
 }

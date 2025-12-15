@@ -12,7 +12,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLGizmoRenderPassEndSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoPickingEnd;
-    public GLGizmoRenderPassEndSystem(ComponentManager componentManager) : base(componentManager)
+    public GLGizmoRenderPassEndSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 

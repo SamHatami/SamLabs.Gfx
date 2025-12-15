@@ -14,7 +14,7 @@ public class GLGizmoRenderSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoRender;
 
-    public GLGizmoRenderSystem(ComponentManager componentManager) : base(componentManager)
+    public GLGizmoRenderSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 
@@ -24,6 +24,8 @@ public class GLGizmoRenderSystem : RenderSystem
         Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
 
         var gizmoEntities = ComponentManager.GetEntityIdsForComponentType<GizmoComponent>();
+        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>()[0];
+        var pickingData = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity);
         if (gizmoEntities.IsEmpty) return;
 
         int gizmoActiveCount = 0;
@@ -40,12 +42,12 @@ public class GLGizmoRenderSystem : RenderSystem
             }
 #endif
             var subEntities = ComponentManager.GetChildEntitiesForParent(gizmoEntity, childBuffer);
-            DrawGizmo(subEntities);
+            DrawGizmo(subEntities, pickingData);
             
         }
     }
 
-    private void DrawGizmo(ReadOnlySpan<int> gizmoSubEntities)
+    private void DrawGizmo(ReadOnlySpan<int> gizmoSubEntities, PickingDataComponent pickingData)
     {
         //get the meshes
         //get shader program
@@ -57,7 +59,7 @@ public class GLGizmoRenderSystem : RenderSystem
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(gizmoSubEntity);
             var material = ComponentManager.GetComponent<MaterialComponent>(gizmoSubEntity);
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity).WorldMatrix;
-            RenderGizmoSubMesh(mesh, material, true, modelMatrix.Invoke());
+            RenderGizmoSubMesh(mesh, material, true, modelMatrix.Invoke(), pickingData, gizmoSubEntity);
         }
         
         //same as meshrendering system ish
@@ -68,18 +70,24 @@ public class GLGizmoRenderSystem : RenderSystem
         //draw
     }
     
-    private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected ,Matrix4 modelMatrix = default)
+    private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected,
+        Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId = -1)
     {
         var shaderProgram = materialComponent.Shader.ProgramId;
         // var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
-        
+        var pickingDataHoveredEntityId = pickingData.HoveredEntityId;
+        if(pickingDataHoveredEntityId == entityId)
+            Console.WriteLine("hovered");
         if(isSelected){}
+        GL.Disable(EnableCap.DepthTest);
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
-        GL.UniformMatrix4f(materialComponent.Shader.MatrixModelUniformLocation, 1, false, ref modelMatrix);
+        GL.UniformMatrix4f(materialComponent.Shader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
+        GL.Uniform1i(materialComponent.Shader.UniformLocations[UniformNames.uIsHovered].Location, 1,ref pickingDataHoveredEntityId);
         GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         GL.BindVertexArray(0);
         GL.UseProgram(0);
+        GL.Enable(EnableCap.DepthTest);
     }
     
     

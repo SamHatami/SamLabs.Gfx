@@ -10,15 +10,17 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 public class SystemManager
 {
     private readonly ComponentManager _componentManager;
+    private readonly EntityManager _entityManager;
     private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
     private UpdateSystem?[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
     private RenderSystem?[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
     private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[GlobalSettings.MaxSystems];
     private int _systemsCount;
 
-    public SystemManager(ComponentManager componentManager)
+    public SystemManager(ComponentManager componentManager, EntityManager entityManager)
     {
         _componentManager = componentManager;
+        _entityManager = entityManager;
         RegisterSystems();
     }
 
@@ -76,7 +78,7 @@ public class SystemManager
             try
             {
                 _renderSystems[i] =
-                    (RenderSystem)Activator.CreateInstance(renderSystems.ElementAt(i), _componentManager);
+                    (RenderSystem)Activator.CreateInstance(renderSystems.ElementAt(i), _componentManager, _entityManager);
             }
             catch (Exception e)
             {

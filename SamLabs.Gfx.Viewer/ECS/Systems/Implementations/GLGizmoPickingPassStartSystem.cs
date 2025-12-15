@@ -11,7 +11,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLGizmoRenderPassStartSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoPickingStart;
-    public GLGizmoRenderPassStartSystem(ComponentManager componentManager) : base(componentManager)
+    public GLGizmoRenderPassStartSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {
     }
 

@@ -4,5 +4,4 @@ namespace SamLabs.Gfx.Viewer.ECS.Components;
 
 public struct SelectableDataComponent:IDataComponent
 {
-    public int BufferPickingIndex { get; set; }
 }
