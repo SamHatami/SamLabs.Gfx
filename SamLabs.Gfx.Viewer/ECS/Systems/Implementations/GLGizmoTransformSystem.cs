@@ -15,7 +15,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLGizmoTransformSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoTransform;
-    public const float GizmoBaseSize = 0.015f;
+    public const float GizmoBaseSize = 0.02f;
 
     public GLGizmoTransformSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
     {

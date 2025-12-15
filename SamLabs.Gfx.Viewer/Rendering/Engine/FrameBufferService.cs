@@ -28,19 +28,23 @@ public class FrameBufferService
         int textureId;
         var pbo0 = 0;
         var pbo1 = 0;
+        int renderBufferId = 0;
         if (isPickingBuffer)
         {
             textureId = CreatePickingTextureBuffer(width,
                 height); //TODO: TextureBufferStrategy for different texture types
             pbo0 = CreatePixelBufferObject();
             pbo1 = CreatePixelBufferObject();
+            renderBufferId = CreateRenderBufferExtraDepth(width, height);
+            Console.WriteLine($"[DEBUG] Creating PICKING FBO: Using R32UI Texture ID {textureId}");
         }
         else
         {
             textureId = CreateTextureBuffer(width, height);
+            renderBufferId = CreateRenderBuffer(width, height);
         }
 
-        var renderBufferId = CreateRenderBuffer(width, height);
+        
 
         GL.FramebufferTexture2D(
             FramebufferTarget.Framebuffer,
@@ -57,6 +61,8 @@ public class FrameBufferService
             renderBufferId
         );
 
+        GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+        
         if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
             return null;
 
@@ -121,13 +127,21 @@ public class FrameBufferService
         GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
         return renderBufferId;
     }
+    
+    private int CreateRenderBufferExtraDepth(int width, int height)
+    {
+        var renderBufferId = GL.GenRenderbuffer();
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderBufferId);
+        GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, InternalFormat.Depth32fStencil8, width, height);
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+        return renderBufferId;
+    }
 
 
     public void RenderToFrameBuffer(IFrameBufferInfo info)
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, info.FrameBufferId);
         GL.Viewport(0, 0, info.Width, info.Height);
-        GL.Enable(EnableCap.DepthTest);
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
     }
@@ -184,7 +198,7 @@ public class FrameBufferService
 
         GL.ClearBufferui(Buffer.Color, 0, clearId);
         GL.Clear(ClearBufferMask.DepthBufferBit);
-
+        
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
@@ -202,7 +216,7 @@ public class FrameBufferService
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
-    public int CreatePixelBufferObject(int sizeOfPixel = 4)
+    public int CreatePixelBufferObject()
     {
         var pboId = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);

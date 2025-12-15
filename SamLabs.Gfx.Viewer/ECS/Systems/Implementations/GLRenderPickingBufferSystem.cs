@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Runtime.InteropServices;
+using Avalonia;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core;
@@ -24,95 +25,120 @@ public class GLRenderPickingBufferSystem : RenderSystem
     private IViewPort _viewport;
     private GLShader? _pickingShader = null;
     private int _pickingEntity = -1;
+    private const float GizmoPaddingScale = 1.02f;
 
-    public GLRenderPickingBufferSystem(ComponentManager componentManager, EntityManager entityManager ) : base(componentManager, entityManager)
+    public GLRenderPickingBufferSystem(ComponentManager componentManager, EntityManager entityManager) : base(
+        componentManager, entityManager)
     {
         _entityManager = entityManager;
-
-        // int modelLocation = GL.GetUniformLocation(shaderProgram, "model");
-        //one single pickingentity for the entire scene
-        //it should hold the current _readPickingIndex, and in the future maybe a tripple buffering system
-        //this system creates the pickingentity if it doesn't exist yet and holds a direct refeence to it'
     }
-    
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
-    {
 
-        if(_pickingEntity == -1)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
+    {
+        if (_pickingEntity == -1)
         {
             _pickingEntity = _entityManager.CreateEntity().Id;
             ComponentManager.SetComponentToEntity(new PickingDataComponent(), _pickingEntity);
         }
-        
+
         ref var pickingData = ref ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
-        
+
         _pickingShader ??= Renderer.GetShader("picking");
         _viewport = renderContext.ViewPort;
-        
+
         var selectableEntities = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
         if (selectableEntities.Length == 0) return;
         var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(selectableEntities[0]);
-        
+
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
+
+        (var x, var y) = GetPixelPosition(frameInput.MousePosition, renderContext);
+        GL.Scissor(x, y, 2, 2);
+
+        foreach (var selectableEntity in selectableEntities)
+        {
+            var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
+            if(mesh.IsGizmo)
+                continue;
+            var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
+            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke());
+        }
         
-        (int x, int y) = GetPixelPosition(frameInput.MousePosition, renderContext);
-        GL.Enable(EnableCap.ScissorTest);
-        GL.Scissor(x, y, 16, 16);
+        GL.Clear(ClearBufferMask.DepthBufferBit);
         
         foreach (var selectableEntity in selectableEntities)
         {
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
+            if(!mesh.IsGizmo)
+                continue;
+            Matrix4 paddingMatrix = Matrix4.CreateScale(GizmoPaddingScale);
+
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
-            RenderToPickingTexture(mesh, selectableEntity,modelMatrix.Invoke());
+            Matrix4 finalPickingMatrix = modelMatrix.Invoke() * paddingMatrix;
+            RenderToPickingTexture(mesh, selectableEntity, finalPickingMatrix);
         }
+
         
-        StorePickingId(x,y, pickingDataComponent, renderContext, ref pickingData);
+        HandlePickingIdReadBack(x, y, ref pickingData);
     }
-    
-    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId,
-        Matrix4 modelMatrix)
+
+
+    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix)
     {
+        //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
         GL.UseProgram(_pickingShader.ProgramId);
         GL.BindVertexArray(mesh.Vao);
-        GL.Uniform1ui(_pickingShader.UniformLocations[UniformNames.uPickingId].Location, (uint)entityId);
         GL.UniformMatrix4f(_pickingShader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
-
+        GL.Uniform1ui(_pickingShader.UniformLocations[UniformNames.uPickingId].Location, (uint)entityId);
+       
         if (mesh.Ebo > 0)
         {
-            GL.DrawElements(mesh.PrimitiveType, mesh.VertexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         }
         else
         {
-            GL.DrawArrays(mesh.PrimitiveType, 0, mesh.VertexCount);
+            GL.DrawArrays(mesh.PrimitiveType, 0, mesh.IndexCount);
         }
 
         GL.BindVertexArray(0);
         GL.UseProgram(0);
     }
 
+
     private (int x, int y) GetPixelPosition(Point localMousePos, RenderContext renderContext)
     {
         var x = (int)(localMousePos.X * renderContext.RenderScaling);
         var y = (int)(localMousePos.Y * renderContext.RenderScaling);
-        y = _viewport.SelectionRenderView.Height - y; // Flip Y
+        y = renderContext.ViewHeight - y; // Flip Y
 
-        x = Math.Clamp(x, 0, _viewport.SelectionRenderView.Width - 1);
-        y = Math.Clamp(y, 0, _viewport.SelectionRenderView.Height - 1);
-        
+        x = Math.Clamp(x, 0, renderContext.ViewWidth - 1);
+        y = Math.Clamp(y, 0, renderContext.ViewHeight - 1);
         return (x, y);
     }
-    
-    private void StorePickingId(int x, int y, SelectableDataComponent selectableDataComponent, RenderContext renderContext, ref PickingDataComponent pickingData)
+
+    private void HandlePickingIdReadBack(int x, int y, ref PickingDataComponent pickingData)
     {
+        var writeIndex = pickingData.BufferPickingIndex;
+        var readIndex = pickingData.BufferPickingIndex ^ 1;
 
-
-        pickingData.BufferPickingIndex = _readPickingIndex ^= 1;
-        
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[pickingData.BufferPickingIndex]);
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[writeIndex]);
         GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[readIndex]);
+        pickingData.BufferPickingIndex = readIndex; 
+        unsafe
+        {
+            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+            if (pboPtr != (void*)IntPtr.Zero)
+            {
+                var pickedId = *(uint*)pboPtr;
+                
+                pickingData.HoveredEntityId = (int)pickedId;
+                GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
+            }
+        }
+
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+
     }
 }
-
-

@@ -112,7 +112,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         KeyboardState.SetKey(e.Key, false);
     }
 
-    public bool HitTest(Point point) => Bounds.Contains(point);
+    public bool HitTest(Point point) => new Rect(Bounds.Size).Contains(point);
 
 
     public GlInterface? GetGlInterface()

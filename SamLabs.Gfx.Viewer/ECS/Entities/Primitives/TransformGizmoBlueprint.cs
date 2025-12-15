@@ -27,7 +27,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
     public override async void Build(Entity entity, MeshDataComponent meshData = default)
     {
         
-        var scale = new Vector3(0.1f, 0.1f, 0.1f);
+        var scale = new Vector3(1f, 1f, 1f);
         
        // --- 1. Setup Parent Gizmo Entity ---
        var transformComponent = new TransformComponent

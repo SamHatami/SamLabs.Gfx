@@ -19,7 +19,7 @@
     <Grid>
         <!--ADD command panel or something here-->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MinWidth="250"/>
+            <ColumnDefinition Width="250" />
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Margin="5" Orientation="Vertical">
@@ -34,7 +34,7 @@
             SceneManager="{Binding SceneManager}"
             EcsRoot="{Binding EcsRoot}"
             CommandManager="{Binding CommandManager}"/>
-            <TextBlock Grid.Column="1"  Text="{Binding CurrentFpsString}"></TextBlock>
+            <TextBlock Grid.Column="1"  Text="{Binding CurrentFpsString}" IsHitTestVisible="False"></TextBlock>
         
 
         <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->

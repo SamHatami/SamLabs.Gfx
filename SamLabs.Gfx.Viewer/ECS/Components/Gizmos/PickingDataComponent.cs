@@ -7,7 +7,7 @@ public struct PickingDataComponent :IDataComponent
     public int BufferPickingIndex { get; set; }
     
     public int HoveredEntityId { get; set; }
-    
+    public int HoveredVertexId { get; set; }
     public int[] SelectedEntityIds { get; set; }
     
 }

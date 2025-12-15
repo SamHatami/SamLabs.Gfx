@@ -134,6 +134,7 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uLightPos, typeof(Vector3));
         UniformInfo.Add(UniformNames.uLightColor, typeof(Vector3));
         UniformInfo.Add(UniformNames.uIsHovered, typeof(bool));
+        UniformInfo.Add(UniformNames.uObjectId, typeof(uint));
         
     }
 }
@@ -146,6 +147,7 @@ public static class UniformNames
     public const string uColor = "uColor";
     public const string uPickingColor = "uPickingColor";
     public const string uPickingId = "uPickingId";
+    public const string uObjectId = "uObjectId";
     public const string uTime = "uTime";
     public const string uCameraPos = "uCameraPos";
     public const string uLightPos = "uLightPos";

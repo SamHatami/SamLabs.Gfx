@@ -98,7 +98,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
         }
         else
         {
-            _frameBufferService.ClearViewportBuffer(mainViewport.SelectionRenderView); //Kept for ImGui...
+            _frameBufferService.ClearPickingBuffer(mainViewport.SelectionRenderView); //Kept for ImGui...
             _frameBufferService.RenderToFrameBuffer(mainViewport.SelectionRenderView);
         }
     }

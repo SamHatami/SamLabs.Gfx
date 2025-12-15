@@ -76,18 +76,19 @@ public class GLGizmoRenderSystem : RenderSystem
         var shaderProgram = materialComponent.Shader.ProgramId;
         // var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
         var pickingDataHoveredEntityId = pickingData.HoveredEntityId;
-        if(pickingDataHoveredEntityId == entityId)
-            Console.WriteLine("hovered");
+        int hovered = (pickingDataHoveredEntityId == entityId) ? 1 : 0;
         if(isSelected){}
+        
         GL.Disable(EnableCap.DepthTest);
         GL.UseProgram(shaderProgram);
         GL.BindVertexArray(mesh.Vao);
         GL.UniformMatrix4f(materialComponent.Shader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
-        GL.Uniform1i(materialComponent.Shader.UniformLocations[UniformNames.uIsHovered].Location, 1,ref pickingDataHoveredEntityId);
+        GL.Uniform1i(materialComponent.Shader.UniformLocations[UniformNames.uIsHovered].Location, 1, ref hovered);
         GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         GL.BindVertexArray(0);
         GL.UseProgram(0);
         GL.Enable(EnableCap.DepthTest);
+
     }
     
     

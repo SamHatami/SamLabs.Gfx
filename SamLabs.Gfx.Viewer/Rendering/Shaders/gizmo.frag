@@ -1,10 +1,10 @@
 #version 330 core
 
 out vec4 FragColor;
-uniform bool uIsHovered;
+uniform int uIsHovered;
 void main()
 {
-    if(uIsHovered)
+    if(uIsHovered == 1)
     { FragColor = vec4(0.5f, 0.9f, 0.5f, 1.0); }
     else
     { FragColor = vec4(0.9f, 0.9f, 0.9f, 1.0); }

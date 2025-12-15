@@ -9,9 +9,10 @@ public static class ModelLoader
     public static async Task<MeshDataComponent> LoadObj(string filePath)
     {
         var importer = new AssimpContext();
-        var steps = PostProcessSteps.Triangulate |           // Ensure all faces are triangles
+        var steps = PostProcessSteps.Triangulate |    
+                    // Ensure all faces are triangles
                     PostProcessSteps.FlipUVs |               // Align texture V-axis with OpenGL
-                    PostProcessSteps.GenerateNormals |       // Create normals if missing
+                       // Create normals if missing
                     PostProcessSteps.JoinIdenticalVertices;  // Optimization: Remove duplicate verts
 
         Scene scene;
