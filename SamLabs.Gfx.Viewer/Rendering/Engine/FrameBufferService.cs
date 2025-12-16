@@ -9,7 +9,6 @@ namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 // https://learnopengl.com/Advanced-OpenGL/Framebuffers
 public class FrameBufferService
 {
-    private const int PickingBufferSize = 16;
     public bool CreateViewPortBuffer(ViewPort viewport)
     {
         var info = CreateFrameBuffer(viewport.Width, viewport.Height);
@@ -32,7 +31,8 @@ public class FrameBufferService
         int renderBufferId = 0;
         if (isPickingBuffer)
         {
-            textureId = CreatePickingTextureBuffer(); //TODO: TextureBufferStrategy for different texture types
+            textureId = CreatePickingTextureBuffer(width,
+                height); //TODO: TextureBufferStrategy for different texture types
             pbo0 = CreatePixelBufferObject();
             pbo1 = CreatePixelBufferObject();
             renderBufferId = CreateRenderBufferExtraDepth(width, height);
@@ -93,7 +93,7 @@ public class FrameBufferService
         return textureColorBuffer;
     }
 
-    private int CreatePickingTextureBuffer()
+    private int CreatePickingTextureBuffer(int width, int height)
     {
         var textureColorBuffer = GL.GenTexture();
         GL.BindTexture(TextureTarget.Texture2d, textureColorBuffer);
@@ -101,8 +101,8 @@ public class FrameBufferService
             TextureTarget.Texture2d,
             0,
             InternalFormat.R32ui,
-            PickingBufferSize,
-            PickingBufferSize,
+            width,
+            height,
             0,
             PixelFormat.RedInteger,
             PixelType.UnsignedInt,
@@ -164,7 +164,7 @@ public class FrameBufferService
 
         int textureId;
         if (isPickingBuffer)
-            textureId = CreatePickingTextureBuffer();
+            textureId = CreatePickingTextureBuffer(newWidth, newHeight);
         else
             textureId = CreateTextureBuffer(newWidth, newHeight);
 

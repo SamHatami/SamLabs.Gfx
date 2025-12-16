@@ -1,10 +1,7 @@
-<<<<<<< Updated upstream
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
-=======
-﻿using OpenTK.Graphics.OpenGL;
->>>>>>> Stashed changes
+using OpenTK.Graphics.OpenGL;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine
 {
