@@ -54,6 +54,8 @@ public class ComponentManager
     public void RemoveEntity(int entityId)
     {
         foreach (var componentMap in _componentMaps) componentMap.RemoveUsage(entityId);
+
+        foreach (var storage in _componentStorages) storage?.Clear(entityId);
     }
 
     public void SetComponentToEntity<T>(T component, int entityId) where T : IDataComponent

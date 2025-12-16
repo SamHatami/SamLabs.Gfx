@@ -96,5 +96,6 @@ StyleCop.Cache
 *.vssscc
 *.tmp
 *.vs/
-/.vs
+/.vs/
 *.bin
+/.vs

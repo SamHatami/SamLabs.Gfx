@@ -29,7 +29,7 @@ public class CommandManager
 
     public void UndoLastCommand()
     {
-        while (_commands.TryDequeue(out var command))
+        while (_undoCommands.TryDequeue(out var command))
         {
             command.Undo();
             _redoCommands.Enqueue(command);

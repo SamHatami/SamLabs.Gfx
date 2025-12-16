@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.Vulkan.VulkanVideoCodecH264stdEncode;
-using SamLabs.Gfx.Viewer.Core.Utility;
+﻿using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.IO;

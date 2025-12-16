@@ -126,19 +126,28 @@ public class GLRenderPickingBufferSystem : RenderSystem
         GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[readIndex]);
         pickingData.BufferPickingIndex = readIndex; 
+
+        pickingData.BufferPickingIndex = ReadPickedIdFromPbo();
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+
+    }
+
+    private int ReadPickedIdFromPbo()
+    {
+        Span<uint> pixelData = stackalloc uint[1];
         unsafe
         {
             var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
-            if (pboPtr != (void*)IntPtr.Zero)
+            if (pboPtr == IntPtr.Zero)
+                return -1;
+
+            fixed (uint* destPtr = pixelData)
             {
-                var pickedId = *(uint*)pboPtr;
-                
-                pickingData.HoveredEntityId = (int)pickedId;
-                GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
+                Buffer.MemoryCopy((void*)pboPtr, destPtr, sizeof(uint), sizeof(uint));
             }
+
+            GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
         }
-
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
-
+        return (int)pixelData[0];
     }
 }
