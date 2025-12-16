@@ -14,7 +14,8 @@ public class GLGizmoRenderSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoRender;
 
-    public GLGizmoRenderSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GLGizmoRenderSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager,
+        entityManager)
     {
     }
 
@@ -38,12 +39,12 @@ public class GLGizmoRenderSystem : RenderSystem
             gizmoActiveCount++;
             if (gizmoActiveCount > 1)
             {
-                throw new InvalidOperationException("Only one gizmo can be active at a time. You're doing samthing wrong SAM.");
+                throw new InvalidOperationException(
+                    "Only one gizmo can be active at a time. You're doing samthing wrong SAM.");
             }
 #endif
             var subEntities = ComponentManager.GetChildEntitiesForParent(gizmoEntity, childBuffer);
             DrawGizmo(subEntities, pickingData);
-            
         }
     }
 
@@ -61,15 +62,15 @@ public class GLGizmoRenderSystem : RenderSystem
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity).WorldMatrix;
             RenderGizmoSubMesh(mesh, material, true, modelMatrix.Invoke(), pickingData, gizmoSubEntity);
         }
-        
+
         //same as meshrendering system ish
-        
+
         //highlight if something is selected?
         //get highlightshader
         //use it
         //draw
     }
-    
+
     private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected,
         Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId = -1)
     {
@@ -77,19 +78,13 @@ public class GLGizmoRenderSystem : RenderSystem
         // var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
         var pickingDataHoveredEntityId = pickingData.HoveredEntityId;
         int hovered = (pickingDataHoveredEntityId == entityId) ? 1 : 0;
-        if(isSelected){}
-        
-        GL.Disable(EnableCap.DepthTest);
-        GL.UseProgram(shaderProgram);
-        GL.BindVertexArray(mesh.Vao);
-        GL.UniformMatrix4f(materialComponent.Shader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
-        GL.Uniform1i(materialComponent.Shader.UniformLocations[UniformNames.uIsHovered].Location, 1, ref hovered);
-        GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-        GL.BindVertexArray(0);
-        GL.UseProgram(0);
-        GL.Enable(EnableCap.DepthTest);
 
+        GL.Disable(EnableCap.DepthTest);
+        using var shader = new ShaderProgram(materialComponent.Shader).Use();
+        shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
+            .SetInt(UniformNames.uIsHovered, ref hovered);
+        MeshRenderer.Draw(mesh);
+
+        GL.Enable(EnableCap.DepthTest);
     }
-    
-    
 }

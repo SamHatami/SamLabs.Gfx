@@ -37,22 +37,8 @@ public class GLRenderMeshSystem : RenderSystem
     private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
         Matrix4 modelMatrix = default)
     {
-        var shaderProgram = materialComponent.Shader.ProgramId;
-        GL.UseProgram(shaderProgram);
-        GL.BindVertexArray(mesh.Vao);
-        GL.UniformMatrix4f(materialComponent.Shader.UniformLocations[UniformNames.uModel].Location, 1, false,
-            ref modelMatrix);
-
-        if (mesh.Ebo > 0)
-        {
-            GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-        }
-        else
-        {
-            GL.DrawArrays(mesh.PrimitiveType, 0, mesh.VertexCount);
-        }
-
-        GL.BindVertexArray(0);
-        GL.UseProgram(0);
+        using var shader = new ShaderProgram(materialComponent.Shader).Use();
+        shader.SetMatrix4(UniformNames.uModel,ref modelMatrix);
+        MeshRenderer.Draw(mesh);
     }
 }

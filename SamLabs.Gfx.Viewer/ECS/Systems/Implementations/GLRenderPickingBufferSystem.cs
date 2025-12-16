@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Avalonia;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
@@ -80,7 +81,6 @@ public class GLRenderPickingBufferSystem : RenderSystem
             RenderToPickingTexture(mesh, selectableEntity, finalPickingMatrix);
         }
 
-        
         HandlePickingIdReadBack(x, y, ref pickingData);
     }
 
