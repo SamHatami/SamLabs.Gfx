@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Assimp;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using Vector3 = OpenTK.Mathematics.Vector3;

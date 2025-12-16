@@ -5,7 +5,6 @@ using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
-using SamLabs.Gfx.Viewer.Rendering.Shaders;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities;

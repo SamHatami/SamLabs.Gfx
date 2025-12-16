@@ -1,7 +1,11 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Components;
+<<<<<<< Updated upstream
 using System;
 using System.Collections.Generic;
 using System.Text;
+=======
+using OpenTK.Graphics.OpenGL;
+>>>>>>> Stashed changes
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine
 {

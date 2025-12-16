@@ -1,12 +1,8 @@
-﻿using System.Runtime.InteropServices;
-using Avalonia;
+﻿using Avalonia;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
-using SamLabs.Gfx.Viewer.ECS.Core;
-using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -14,6 +10,7 @@ using SamLabs.Gfx.Viewer.Rendering;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 using SamLabs.Gfx.Viewer.Rendering.Shaders;
 using SamLabs.Gfx.Viewer.SceneGraph;
+using Buffer = System.Buffer;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
@@ -138,7 +135,11 @@ public class GLRenderPickingBufferSystem : RenderSystem
         unsafe
         {
             var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
+<<<<<<< Updated upstream
             if (pboPtr == IntPtr.Zero)
+=======
+            if (pboPtr == (void*)IntPtr.Zero)
+>>>>>>> Stashed changes
                 return -1;
 
             fixed (uint* destPtr = pixelData)
