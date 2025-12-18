@@ -29,7 +29,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
     private int _pickingEntity = -1;
     private const float GizmoPaddingScale = 1.02f;
 
-    public GLRenderPickingBufferSystem(ComponentManager componentManager, EntityManager entityManager) : base(
+    public GLRenderPickingBufferSystem( EntityManager entityManager) : base(
         componentManager, entityManager)
     {
         _entityManager = entityManager;
@@ -82,6 +82,14 @@ public class GLRenderPickingBufferSystem : RenderSystem
         }
 
         HandlePickingIdReadBack(x, y, ref pickingData);
+
+        if (frameInput.IsMouseLeftButtonDown)
+        {
+            
+        }
+            
+        //if a object hovered and clicked on with left mouse button remove the SelectedDataComponent on every other
+        //entity, if it is ctrl-clicked, just add the selectedDatacomponent to that specific entity
     }
 
 
