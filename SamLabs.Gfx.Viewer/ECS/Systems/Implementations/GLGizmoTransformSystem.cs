@@ -16,7 +16,7 @@ public class GLGizmoTransformSystem : RenderSystem
     public override int RenderPosition => RenderOrders.GizmoTransform;
     public const float GizmoBaseSize = 0.02f;
 
-    public GLGizmoTransformSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GLGizmoTransformSystem(EntityManager entityManager) : base(entityManager)
     {
     }
 
@@ -27,6 +27,7 @@ public class GLGizmoTransformSystem : RenderSystem
 
         var gizmoEntities = ComponentManager.GetEntityIdsForComponentType<GizmoComponent>();
         if (gizmoEntities.IsEmpty) return;
+
 
         var cameraEntities = ComponentManager.GetEntityIdsForComponentType<CameraComponent>();
         if (cameraEntities.IsEmpty) return;

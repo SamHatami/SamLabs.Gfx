@@ -15,7 +15,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLResourceCleanupSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.CleanUp;
-    public GLResourceCleanupSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GLResourceCleanupSystem(EntityManager entityManager) : base(entityManager)
     {
     }
 

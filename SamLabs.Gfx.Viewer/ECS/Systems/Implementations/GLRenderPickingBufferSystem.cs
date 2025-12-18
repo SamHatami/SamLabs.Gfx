@@ -29,8 +29,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
     private int _pickingEntity = -1;
     private const float GizmoPaddingScale = 1.02f;
 
-    public GLRenderPickingBufferSystem( EntityManager entityManager) : base(
-        componentManager, entityManager)
+    public GLRenderPickingBufferSystem( EntityManager entityManager) : base(entityManager)
     {
         _entityManager = entityManager;
     }

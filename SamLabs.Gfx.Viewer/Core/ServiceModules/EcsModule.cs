@@ -16,7 +16,6 @@ public class EcsModule:IServiceModule
         
         services.AddSingleton<EntityManager>();
         services.AddSingleton<SystemManager>();
-        services.AddSingleton<ComponentManager>();
       
         //Creators
         services.AddSingleton<EntityCreator>();

@@ -10,16 +10,14 @@ namespace SamLabs.Gfx.Viewer.Commands;
 public class ToggleTranslateGizmoVisibilityCommand : Command
 {
     private readonly CommandManager _commandManager;
-    private readonly ComponentManager _componentManager;
     private readonly Scene _scene;
     private readonly EntityCreator _entityCreator;
     private int _translateGizmoId = -1;
     private int _rotateGizmoId = -1;
     private int _scaleGizmoId = -1;
-    public ToggleTranslateGizmoVisibilityCommand(CommandManager commandManager, ComponentManager componentManager)
+    public ToggleTranslateGizmoVisibilityCommand(CommandManager commandManager)
     {
         _commandManager = commandManager;
-        _componentManager = componentManager;
     }
 
     public override void Execute()
@@ -30,20 +28,20 @@ public class ToggleTranslateGizmoVisibilityCommand : Command
         //should probably save all the gizmo entities and just toggle visibility of them
         GetGizmoIds();
         
-        if (_componentManager.HasComponent<ActiveGizmoComponent>(_translateGizmoId))
-            _componentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_translateGizmoId);
+        if (ComponentManager.HasComponent<ActiveGizmoComponent>(_translateGizmoId))
+            ComponentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_translateGizmoId);
         else
-            _componentManager.SetComponentToEntity(new ActiveGizmoComponent(), _translateGizmoId);
+            ComponentManager.SetComponentToEntity(new ActiveGizmoComponent(), _translateGizmoId);
     }
 
     private void GetGizmoIds()
     { 
         if (_translateGizmoId != -1 && _scaleGizmoId != -1 && _rotateGizmoId !=-1) return;
-        var gizmos = _componentManager.GetEntityIdsForComponentType<GizmoComponent>();
+        var gizmos = ComponentManager.GetEntityIdsForComponentType<GizmoComponent>();
         
         foreach (var gizmoEntity in gizmos)
         {
-            ref var gizmo = ref _componentManager.GetComponent<GizmoComponent>(gizmoEntity);
+            ref var gizmo = ref ComponentManager.GetComponent<GizmoComponent>(gizmoEntity);
             switch (gizmo.Type)
             {
                 case GizmoType.Translate:

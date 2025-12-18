@@ -14,21 +14,18 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class ViewProjectionSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.PreRenderUpdate;
-    private readonly ComponentManager _componentManager;
-
-    public ViewProjectionSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public ViewProjectionSystem(EntityManager entityManager) : base(entityManager)
     {
-        _componentManager = componentManager;
     }
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
         
-        var cameraEntity = _componentManager.GetEntityIdsForComponentType<CameraComponent>();
+        var cameraEntity = ComponentManager.GetEntityIdsForComponentType<CameraComponent>();
         if (cameraEntity.Length == 0) return;
 
-        var cameraTransform = _componentManager.GetComponent<TransformComponent>(cameraEntity[0]);
-        ref var cameraData = ref _componentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
+        var cameraTransform = ComponentManager.GetComponent<TransformComponent>(cameraEntity[0]);
+        ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraEntity[0]);
 
         if (renderContext.ResizeRequested)
         {

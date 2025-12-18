@@ -13,7 +13,7 @@ public class GLRenderMeshSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.MainRender;
 
-    public GLRenderMeshSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GLRenderMeshSystem(EntityManager entityManager) : base(entityManager)
     {
     }
 

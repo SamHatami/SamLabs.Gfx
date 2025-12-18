@@ -8,11 +8,8 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class PostRenderSystem : ISystem
 {
-    protected readonly ComponentManager ComponentManager;
-
-    protected PostRenderSystem(ComponentManager componentManager)
+    protected PostRenderSystem()
     {
-        ComponentManager = componentManager;
     }
     
     public void Initialize(IRenderer renderer) { } // No initialization required (yet)

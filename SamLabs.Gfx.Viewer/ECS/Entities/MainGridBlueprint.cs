@@ -11,12 +11,10 @@ namespace SamLabs.Gfx.Viewer.ECS.Entities;
 
 public class MainGridBlueprint : EntityBlueprint
 {
-    private readonly ComponentManager _componentManager;
     private readonly ShaderService _shaderService;
 
-    public MainGridBlueprint(ComponentManager componentManager, ShaderService shaderService) : base(componentManager)
+    public MainGridBlueprint(ShaderService shaderService) : base()
     {
-        _componentManager = componentManager;
         _shaderService = shaderService;
     }
 
@@ -45,12 +43,12 @@ public class MainGridBlueprint : EntityBlueprint
             VertexCount = vertices.Length
         };
 
-        _componentManager.SetComponentToEntity(material, entity.Id);
-        _componentManager.SetComponentToEntity(meshData, entity.Id);
-        _componentManager.SetComponentToEntity(gridData, entity.Id);
-        _componentManager.SetComponentToEntity(glMeshData, entity.Id);        
+        ComponentManager.SetComponentToEntity(material, entity.Id);
+        ComponentManager.SetComponentToEntity(meshData, entity.Id);
+        ComponentManager.SetComponentToEntity(gridData, entity.Id);
+        ComponentManager.SetComponentToEntity(glMeshData, entity.Id);        
         //add the creational flag to the entity
-        _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
+        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
     }
     
     public Vertex[] GetVertices(int linesPerSide, float spacing)

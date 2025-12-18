@@ -9,11 +9,8 @@ namespace SamLabs.Gfx.Viewer.ECS.Entities;
 
 public class MainCameraBlueprint : EntityBlueprint
 {
-    private readonly ComponentManager _componentManager;
-
-    public MainCameraBlueprint(ComponentManager componentManager) : base(componentManager)
+    public MainCameraBlueprint() : base()
     {
-        _componentManager = componentManager;
     }
 
     public override string Name { get; } = EntityNames.MainCamera;
@@ -40,9 +37,9 @@ public class MainCameraBlueprint : EntityBlueprint
         cameraData.Yaw = yaw;
         cameraData.Pitch = pitch;
 
-        _componentManager.SetComponentToEntity(transformComponent, entity.Id);
-        _componentManager.SetComponentToEntity(cameraComponent, entity.Id);
-        _componentManager.SetComponentToEntity(cameraData, entity.Id);
+        ComponentManager.SetComponentToEntity(transformComponent, entity.Id);
+        ComponentManager.SetComponentToEntity(cameraComponent, entity.Id);
+        ComponentManager.SetComponentToEntity(cameraData, entity.Id);
     }
     
     public static void CalculateYawPitchFromLookAt(Vector3 position, Vector3 target, out float yaw, out float pitch)

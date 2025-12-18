@@ -12,9 +12,12 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLGizmoRenderPassStartSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoPickingStart;
-    public GLGizmoRenderPassStartSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GLGizmoRenderPassStartSystem(EntityManager entityManager) : base(entityManager)
     {
     }
+    
+    //TODO: Replace start/end system with disposable renderstatesnapshots
+    //Take a snapshot of current render states and restore them after rendering
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {

@@ -10,12 +10,10 @@ namespace SamLabs.Gfx.Viewer.ECS.Entities;
 
 public class ImportedBlueprint : EntityBlueprint
 {
-    private readonly ComponentManager _componentManager;
     private readonly ShaderService _shaderService;
 
-    public ImportedBlueprint(ComponentManager componentManager, ShaderService shaderService) : base(componentManager)
+    public ImportedBlueprint(ShaderService shaderService) : base()
     {
-        _componentManager = componentManager;
         _shaderService = shaderService;
     }
 
@@ -42,13 +40,13 @@ public class ImportedBlueprint : EntityBlueprint
         material.Shader = _shaderService.GetShader("flat");
         material.PickingShader = _shaderService.GetShader("picking");
             
-        _componentManager.SetComponentToEntity(glMeshData, entity.Id);
-        _componentManager.SetComponentToEntity(meshData, entity.Id);
-        _componentManager.SetComponentToEntity(transformComponent, entity.Id);
-        _componentManager.SetComponentToEntity(material, entity.Id);
+        ComponentManager.SetComponentToEntity(glMeshData, entity.Id);
+        ComponentManager.SetComponentToEntity(meshData, entity.Id);
+        ComponentManager.SetComponentToEntity(transformComponent, entity.Id);
+        ComponentManager.SetComponentToEntity(material, entity.Id);
         
         //add the creational flag to the entity
-        _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
+        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
         
     }
 }

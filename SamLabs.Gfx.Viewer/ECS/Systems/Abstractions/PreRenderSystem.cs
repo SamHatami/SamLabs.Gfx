@@ -8,12 +8,10 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class PreRenderSystem : ISystem
 {
-    protected readonly ComponentManager ComponentManager;
     protected IRenderer Renderer;
 
-    protected PreRenderSystem(ComponentManager componentManager)
+    protected PreRenderSystem()
     {
-        ComponentManager = componentManager;
     }
 
     public void Initialize(IRenderer renderer)

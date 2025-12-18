@@ -14,8 +14,7 @@ public class GLGizmoRenderSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoRender;
 
-    public GLGizmoRenderSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager,
-        entityManager)
+    public GLGizmoRenderSystem(EntityManager entityManager) : base(entityManager)
     {
     }
 

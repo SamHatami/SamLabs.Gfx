@@ -14,7 +14,6 @@ namespace SamLabs.Gfx.StandAlone.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly ComponentManager _componentManager;
     private Scene _scene;
     private Grid _grid;
     public EcsRoot EcsRoot { get; }
@@ -31,7 +30,6 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(ISceneManager sceneManager, EcsRoot ecsRoot, CommandManager commandManager)
     {
         EcsRoot = ecsRoot;
-        _componentManager = ecsRoot.ComponentManager;
         _entityCreator = ecsRoot.EntityCreator;
         CommandManager = commandManager;
         SceneManager = sceneManager;
@@ -65,7 +63,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _entityCreator));
     }
 
-    public void ToggleTranslateGizmos() => CommandManager.EnqueueCommand(new ToggleTranslateGizmoVisibilityCommand(CommandManager, _componentManager));
+    public void ToggleTranslateGizmos() => CommandManager.EnqueueCommand(new ToggleTranslateGizmoVisibilityCommand(CommandManager));
 
     public void UpdateFps(double fpsValue)
     {

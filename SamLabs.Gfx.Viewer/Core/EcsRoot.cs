@@ -14,18 +14,16 @@ public class EcsRoot
 {
     private readonly ShaderService _shaderService;
     public SystemManager SystemManager { get; }
-    public ComponentManager ComponentManager { get; }
     public EntityManager EntityManager { get; }
     public EntityCreator EntityCreator { get; }
     public IRenderer Renderer { get; }
 
-    public EcsRoot(SystemManager systemManager, ComponentManager componentManager, EntityManager entityManager,
+    public EcsRoot(SystemManager systemManager, EntityManager entityManager,
         EntityCreator entityCreator, IRenderer renderer, ShaderService shaderService)
     {
         _shaderService = shaderService;
         Renderer = renderer;
         SystemManager = systemManager;
-        ComponentManager = componentManager;
         EntityManager = entityManager;
         EntityCreator = entityCreator;
 
@@ -34,11 +32,10 @@ public class EcsRoot
 
     private void InitializeCreators()
     {
-        EntityCreator.RegisterBlueprint(new MainCameraBlueprint(ComponentManager));
-        EntityCreator.RegisterBlueprint(new TransformGizmoBlueprint(ComponentManager, _shaderService, EntityManager));
-        EntityCreator.RegisterBlueprint(new CubeBlueprint(ComponentManager, _shaderService));
-        EntityCreator.RegisterBlueprint(new MainGridBlueprint(ComponentManager, _shaderService));
-        EntityCreator.RegisterBlueprint(new TransformGizmoBlueprint(ComponentManager, _shaderService, EntityManager));
-        EntityCreator.RegisterBlueprint(new ImportedBlueprint(ComponentManager, _shaderService));
+        EntityCreator.RegisterBlueprint(new MainCameraBlueprint());
+        EntityCreator.RegisterBlueprint(new TransformGizmoBlueprint(_shaderService, EntityManager));
+        EntityCreator.RegisterBlueprint(new CubeBlueprint(_shaderService));
+        EntityCreator.RegisterBlueprint(new MainGridBlueprint(_shaderService));
+        EntityCreator.RegisterBlueprint(new ImportedBlueprint(_shaderService));
     }
 }

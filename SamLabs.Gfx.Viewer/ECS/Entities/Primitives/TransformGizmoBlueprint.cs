@@ -11,13 +11,11 @@ namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 
 public class TransformGizmoBlueprint:EntityBlueprint
 {
-    private readonly ComponentManager _componentManager;
     private readonly ShaderService _shaderService;
     private readonly EntityManager _entityManager;
 
-    public TransformGizmoBlueprint(ComponentManager componentManager, ShaderService shaderService, EntityManager entityManager) : base(componentManager)
+    public TransformGizmoBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
     {
-        _componentManager = componentManager;
         _shaderService = shaderService;
         _entityManager = entityManager;
     }
@@ -37,10 +35,10 @@ public class TransformGizmoBlueprint:EntityBlueprint
            Rotation = Quaternion.Identity 
        };
 
-       _componentManager.SetComponentToEntity(transformComponent, entity.Id);
+       ComponentManager.SetComponentToEntity(transformComponent, entity.Id);
        
        var gizmoComponent = new GizmoComponent() { Type = GizmoType.Translate };
-       _componentManager.SetComponentToEntity(gizmoComponent, entity.Id);
+       ComponentManager.SetComponentToEntity(gizmoComponent, entity.Id);
        
        var modelPath = Path.Combine(AppContext.BaseDirectory, "Models", "Arrow.obj");
        var importedArrowMesh = await ModelLoader.LoadObj(modelPath); 
@@ -65,13 +63,13 @@ public class TransformGizmoBlueprint:EntityBlueprint
            VertexCount = importedArrowMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };
-       _componentManager.SetComponentToEntity(parentIdComponent, xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(transformX, xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(importedArrowMesh, xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(materialX, xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(parentIdComponent, xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(transformX, xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(importedArrowMesh, xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(materialX, xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
 
 
        var yAxisEntity = _entityManager.CreateEntity();
@@ -84,13 +82,13 @@ public class TransformGizmoBlueprint:EntityBlueprint
        };
        var materialY = new MaterialComponent { Shader = gizmoShader };
        
-       _componentManager.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(transformY, yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(importedArrowMesh, yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(materialY, yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(transformY, yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(importedArrowMesh, yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(materialY, yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
        
        
        var zAxisEntity = _entityManager.CreateEntity();
@@ -103,13 +101,13 @@ public class TransformGizmoBlueprint:EntityBlueprint
        };
        var materialZ = new MaterialComponent { Shader = gizmoShader};
        
-       _componentManager.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(transformZ, zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(importedArrowMesh, zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(materialZ, zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(glArrowMesh, zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), zAxisEntity.Id);
-       _componentManager.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(transformZ, zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(importedArrowMesh, zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(materialZ, zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(glArrowMesh, zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
 
         
        // --- 6. Plane Entities (Optional but recommended for Translate Gizmo) ---

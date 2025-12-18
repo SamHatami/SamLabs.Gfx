@@ -9,7 +9,6 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
 public class SystemManager
 {
-    private readonly ComponentManager _componentManager;
     private readonly EntityManager _entityManager;
     private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
     private UpdateSystem?[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
@@ -17,9 +16,8 @@ public class SystemManager
     private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[GlobalSettings.MaxSystems];
     private int _systemsCount;
 
-    public SystemManager(ComponentManager componentManager, EntityManager entityManager)
+    public SystemManager(EntityManager entityManager)
     {
-        _componentManager = componentManager;
         _entityManager = entityManager;
         RegisterSystems();
     }
@@ -55,7 +53,7 @@ public class SystemManager
             try
             {
                 _postRenderSystems[i] =
-                    (PostRenderSystem)Activator.CreateInstance(postRenderSystems.ElementAt(i), _componentManager);
+                    (PostRenderSystem)Activator.CreateInstance(postRenderSystems.ElementAt(i));
             }
             catch (Exception e)
             {
@@ -78,7 +76,7 @@ public class SystemManager
             try
             {
                 _renderSystems[i] =
-                    (RenderSystem)Activator.CreateInstance(renderSystems.ElementAt(i), _componentManager, _entityManager);
+                    (RenderSystem)Activator.CreateInstance(renderSystems.ElementAt(i), _entityManager);
             }
             catch (Exception e)
             {
@@ -115,7 +113,7 @@ public class SystemManager
             try
             {
                 _updateSystems[i] =
-                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), _componentManager);
+                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i));
             }
             catch (Exception e)
             {
@@ -140,7 +138,7 @@ public class SystemManager
             try
             {
                 _preRenderSystems[i] =
-                    (PreRenderSystem)Activator.CreateInstance(preRenderSystems.ElementAt(i), _componentManager);
+                    (PreRenderSystem)Activator.CreateInstance(preRenderSystems.ElementAt(i));
             }
             catch (Exception e)
             {

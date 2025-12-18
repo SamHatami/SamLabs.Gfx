@@ -10,24 +10,24 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class CameraControlSystem : UpdateSystem
 {
-    public CameraControlSystem(ComponentManager componentManager) : base(componentManager)
+    public CameraControlSystem() : base()
     {
     }
 
     public override void Update(FrameInput frameInput)
     {
         //if something is highlighted or selected, we can't control the camera only with mouse, we need keyboard too
-        var cameraEntities = _componentManager.GetEntityIdsForComponentType<CameraComponent>();
+        var cameraEntities = ComponentManager.GetEntityIdsForComponentType<CameraComponent>();
 
         if (cameraEntities.IsEmpty) return;
 
         foreach (var camera in cameraEntities)
         {
-            ref var cameraData = ref _componentManager.GetComponent<CameraDataComponent>(camera);
+            ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(camera);
             if(!cameraData.IsActive)
                 return;
             
-            ref var cameraTransform = ref _componentManager.GetComponent<TransformComponent>(camera);
+            ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(camera);
 
             if (frameInput.IsMouseMiddleButtonDown && frameInput.KeyDown == Key.LeftShift) //Key settings in config
                 Pan(frameInput, ref cameraData, ref cameraTransform);

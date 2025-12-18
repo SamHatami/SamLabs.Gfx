@@ -15,7 +15,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GlUpdateVertexPositionSystem: RenderSystem
 {
     public override int RenderPosition => RenderOrders.PreRenderUpdate;
-    public GlUpdateVertexPositionSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GlUpdateVertexPositionSystem(EntityManager entityManager) : base(entityManager)
     {
     }
 

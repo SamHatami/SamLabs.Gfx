@@ -6,7 +6,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class MaterialSystem:UpdateSystem
 {
-    public MaterialSystem(ComponentManager componentManager) : base(componentManager)
+    public MaterialSystem() : base()
     {
     }
 

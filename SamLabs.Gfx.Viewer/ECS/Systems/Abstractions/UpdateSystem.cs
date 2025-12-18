@@ -5,11 +5,8 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class UpdateSystem
 {
-    protected readonly ComponentManager _componentManager;
-
-    protected UpdateSystem(ComponentManager componentManager)
+    protected UpdateSystem()
     {
-        _componentManager = componentManager;
     }
 
     public abstract void Update(FrameInput frameInput);

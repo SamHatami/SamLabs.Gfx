@@ -15,26 +15,23 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLInitializeMeshDataSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.Init;
-    private readonly ComponentManager _componentManager;
-
-    public GLInitializeMeshDataSystem(ComponentManager componentManager, EntityManager entityManager) : base(componentManager, entityManager)
+    public GLInitializeMeshDataSystem(EntityManager entityManager) : base(entityManager)
     {
-        _componentManager = componentManager;
     }
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        var glMeshDataEntities = _componentManager.GetEntityIdsForComponentType<CreateGlMeshDataFlag>();
+        var glMeshDataEntities = ComponentManager.GetEntityIdsForComponentType<CreateGlMeshDataFlag>();
         if (glMeshDataEntities.IsEmpty) return;
 
         for (var i = 0; i < glMeshDataEntities.Length; i++)
         {
-            ref var glMeshData = ref _componentManager.GetComponent<GlMeshDataComponent>(glMeshDataEntities[i]);
-            ref var meshData = ref _componentManager.GetComponent<MeshDataComponent>(glMeshDataEntities[i]);
+            ref var glMeshData = ref ComponentManager.GetComponent<GlMeshDataComponent>(glMeshDataEntities[i]);
+            ref var meshData = ref ComponentManager.GetComponent<MeshDataComponent>(glMeshDataEntities[i]);
 
             CreateGlMeshData(ref glMeshData, ref meshData);
             
-            _componentManager.RemoveComponentFromEntity<CreateGlMeshDataFlag>(glMeshDataEntities[i]);
+            ComponentManager.RemoveComponentFromEntity<CreateGlMeshDataFlag>(glMeshDataEntities[i]);
         }
     }
 
