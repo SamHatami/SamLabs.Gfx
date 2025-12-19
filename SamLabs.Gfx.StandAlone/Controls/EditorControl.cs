@@ -104,6 +104,7 @@ public class EditorControl : OpenTkControlBase
     
     private bool _renderRequested = false;
     private DateTime _lastRenderTime = DateTime.Now;
+    private bool _leftClickOccured;
     private const double MinFrameTimeMs = 16.666667; // ~60 FPS
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
@@ -188,6 +189,8 @@ public class EditorControl : OpenTkControlBase
             IsMouseLeftButtonDown = _leftMouseButtonPressed,
             IsMouseRightButtonDown = _rightMouseButtonPressed,
             IsMouseMiddleButtonDown = _middleMouseButtonPressed,
+            LeftClickOccured = _leftClickOccured,
+            Cancelation = _keyUp == Key.Escape,
             MousePosition = _currentMousePosition,
             KeyDown = _keyDown,
             KeyUp = _keyUp,
@@ -202,6 +205,7 @@ public class EditorControl : OpenTkControlBase
     private void ClearInputData()
     {
         _resizeRequested = false;
+        _leftClickOccured  = false;
         _mouseWheelDelta = 0;
     }
 
@@ -251,6 +255,7 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
+        _leftClickOccured = e.InitialPressMouseButton ==  MouseButton.Left;
         base.OnPointerReleased(e);
         e.Pointer.Capture(null); // Release the mouse
     }

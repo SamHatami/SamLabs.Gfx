@@ -81,14 +81,6 @@ public class GLRenderPickingBufferSystem : RenderSystem
         }
 
         HandlePickingIdReadBack(x, y, ref pickingData);
-
-        if (frameInput.IsMouseLeftButtonDown)
-        {
-            
-        }
-            
-        //if a object hovered and clicked on with left mouse button remove the SelectedDataComponent on every other
-        //entity, if it is ctrl-clicked, just add the selectedDatacomponent to that specific entity
     }
 
 
@@ -133,21 +125,22 @@ public class GLRenderPickingBufferSystem : RenderSystem
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[writeIndex]);
         GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[readIndex]);
-        pickingData.BufferPickingIndex = readIndex; 
+        pickingData.BufferPickingIndex = readIndex;
 
-        pickingData.HoveredEntityId = ReadPickedIdFromPbo();
+        var pickedId = ReadPickedIdFromPbo();
+        pickingData.HoveredEntityId = pickedId == uint.MaxValue ? -1 : (int)pickedId;
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
 
     }
 
-    private int ReadPickedIdFromPbo()
+    private uint ReadPickedIdFromPbo()
     {
         Span<uint> pixelData = stackalloc uint[1];
         unsafe
         {
             var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
             if (pboPtr == (void*)IntPtr.Zero)
-                return -1;
+                return UInt32.MaxValue;
 
             fixed (uint* destPtr = pixelData)
             {
@@ -156,6 +149,6 @@ public class GLRenderPickingBufferSystem : RenderSystem
 
             GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
         }
-        return (int)pixelData[0];
+        return pixelData[0];
     }
 }
