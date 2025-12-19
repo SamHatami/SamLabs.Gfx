@@ -13,6 +13,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLGizmoRenderSystem : RenderSystem
 {
     public override int RenderPosition => RenderOrders.GizmoRender;
+    private const float GizmoBaseSize = 0.02f;
 
     public GLGizmoRenderSystem(EntityManager entityManager) : base(entityManager)
     {
@@ -21,37 +22,25 @@ public class GLGizmoRenderSystem : RenderSystem
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-        Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
-
         var gizmoEntities = ComponentManager.GetEntityIdsForComponentType<GizmoComponent>();
+        if (gizmoEntities.IsEmpty) return;
+        
         var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>()[0];
         var pickingData = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity);
-        if (gizmoEntities.IsEmpty) return;
 
-        int gizmoActiveCount = 0;
-        foreach (var gizmoEntity in gizmoEntities)
-        {
-            var gizmoComponent = ComponentManager.HasComponent<ActiveGizmoComponent>(gizmoEntity);
-            if (!gizmoComponent) continue;
+        var activeGizmo = ComponentManager.GetEntityIdsForComponentType<ActiveGizmoComponent>();
+        if (activeGizmo.IsEmpty) return;
+        if (activeGizmo.Length > 1) return; //Only one gizmo can be active at a time.
 
-#if DEBUG
-            gizmoActiveCount++;
-            if (gizmoActiveCount > 1)
-            {
-                throw new InvalidOperationException(
-                    "Only one gizmo can be active at a time. You're doing samthing wrong SAM.");
-            }
-#endif
-            var subEntities = ComponentManager.GetChildEntitiesForParent(gizmoEntity, childBuffer);
-            DrawGizmo(subEntities, pickingData);
-        }
+        Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
+        var subEntities = ComponentManager.GetChildEntitiesForParent(activeGizmo[0], childBuffer);
+        DrawGizmo(activeGizmo[0], subEntities, pickingData, childBuffer);
     }
 
-    private void DrawGizmo(ReadOnlySpan<int> gizmoSubEntities, PickingDataComponent pickingData)
+    private void DrawGizmo(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, PickingDataComponent pickingData,
+        Span<int> childBuffer)
     {
-        //get the meshes
-        //get shader program
-        //draw
+        ScaleToView(activeGizmo, gizmoSubEntities, childBuffer);
 
         foreach (var gizmoSubEntity in gizmoSubEntities)
         {
@@ -61,22 +50,36 @@ public class GLGizmoRenderSystem : RenderSystem
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity).WorldMatrix;
             RenderGizmoSubMesh(mesh, material, true, modelMatrix.Invoke(), pickingData, gizmoSubEntity);
         }
+    }
 
-        //same as meshrendering system ish
+    private void ScaleToView(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, Span<int> childBuffer)
+    {
+        var cameraEntities = ComponentManager.GetEntityIdsForComponentType<CameraComponent>();
+        if (cameraEntities.IsEmpty) return;
 
-        //highlight if something is selected?
-        //get highlightshader
-        //use it
-        //draw
+        ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraEntities[0]);
+        ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraEntities[0]);
+        ref var gizmoTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
+
+        var distance = Vector3.Distance(cameraTransform.Position, gizmoTransform.Position);
+        if (distance < 0.1f) distance = 0.1f;
+        var scale = distance * MathF.Tan(MathHelper.DegreesToRadians(cameraData.Fov) * 0.5f) * GizmoBaseSize;
+        gizmoTransform.Scale = new Vector3(scale);
+
+        //Scale arrows/plane handles
+        foreach (var subEntity in gizmoSubEntities)
+        {
+            ref var subTransform = ref ComponentManager.GetComponent<TransformComponent>(subEntity);
+            subTransform.Scale = new Vector3(scale);
+        }
     }
 
     private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected,
         Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId = -1)
     {
-        var shaderProgram = materialComponent.Shader.ProgramId;
         // var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
         var pickingDataHoveredEntityId = pickingData.HoveredEntityId;
-        int hovered = (pickingDataHoveredEntityId == entityId) ? 1 : 0;
+        var hovered = (pickingDataHoveredEntityId == entityId) ? 1 : 0;
 
         GL.Disable(EnableCap.DepthTest);
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
