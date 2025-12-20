@@ -7,7 +7,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class RenderSystem
 {
-    public virtual int RenderPosition { get; }
+    public virtual int SystemPosition { get; }
     protected readonly EntityManager EntityManager;
     protected IRenderer Renderer;
 

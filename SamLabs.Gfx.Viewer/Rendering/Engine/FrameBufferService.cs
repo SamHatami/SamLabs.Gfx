@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.SceneGraph;
@@ -145,8 +146,7 @@ public class FrameBufferService
         GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
     }
-
-
+    
     public void ResizeFrameBuffer(IFrameBufferInfo info, int newWidth, int newHeight, bool isPickingBuffer = false)
     {
         if (info.Width == newWidth && info.Height == newHeight)
@@ -191,15 +191,15 @@ public class FrameBufferService
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
-    public void ClearPickingBuffer(IFrameBufferInfo pickingBufferInfo)
+    public void RenderToPickingBuffer(IFrameBufferInfo pickingBufferInfo)
     {
-        uint[] clearId = { 0 };
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, pickingBufferInfo.FrameBufferId);
+        uint[] clearId = [uint.MaxValue];
 
+        GL.BindFramebuffer(FramebufferTarget.Framebuffer, pickingBufferInfo.FrameBufferId);
+        GL.Disable(EnableCap.ScissorTest);
+        GL.ColorMask(true, true, true, true);
         GL.ClearBufferui(Buffer.Color, 0, clearId);
         GL.Clear(ClearBufferMask.DepthBufferBit);
-        
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
     public void ClearRenderBuffer(int renderBufferId)
@@ -222,7 +222,7 @@ public class FrameBufferService
         GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);
         GL.BufferData(
             BufferTarget.PixelPackBuffer,
-            SizeOf.Pixel,
+            sizeof(uint),
             IntPtr.Zero, BufferUsage.StreamRead
         );
 

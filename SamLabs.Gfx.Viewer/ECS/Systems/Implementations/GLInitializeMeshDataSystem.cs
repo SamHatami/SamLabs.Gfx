@@ -11,10 +11,10 @@ using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-[RenderPassAttributes.RenderOrder(RenderOrders.Init)]
+[RenderPassAttributes.RenderOrder(SystemOrders.Init)]
 public class GLInitializeMeshDataSystem : RenderSystem
 {
-    public override int RenderPosition => RenderOrders.Init;
+    public override int SystemPosition => SystemOrders.Init;
     public GLInitializeMeshDataSystem(EntityManager entityManager) : base(entityManager)
     {
     }

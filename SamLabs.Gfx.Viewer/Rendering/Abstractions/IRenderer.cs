@@ -16,7 +16,5 @@ public interface IRenderer
     
     public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
 
-
-    public void ClearPickingBuffer(IViewPort viewport);
     GLShader? GetShader(string shaderName);
 }

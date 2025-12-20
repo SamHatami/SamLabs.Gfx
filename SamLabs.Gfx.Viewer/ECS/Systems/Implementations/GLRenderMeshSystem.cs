@@ -11,7 +11,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class GLRenderMeshSystem : RenderSystem
 {
-    public override int RenderPosition => RenderOrders.MainRender;
+    public override int SystemPosition => SystemOrders.MainRender;
 
     public GLRenderMeshSystem(EntityManager entityManager) : base(entityManager)
     {

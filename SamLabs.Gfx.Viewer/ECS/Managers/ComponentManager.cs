@@ -48,6 +48,8 @@ public static class ComponentManager
 
     public static void RemoveComponentFromEntity<T>(int entityId) where T : IDataComponent
     {
+        if (!HasComponent<T>(entityId)) return;
+        
         ComponentMaps[GetId<T>()].RemoveUsage(entityId);
     }
 
@@ -100,7 +102,7 @@ public static class ComponentManager
         var componentId = GetId<T>();
 
         // Safety: Component type not registered
-        if (componentId == -1) return false;
+        if (componentId == -1 ) return false;
 
         // You need to ensure your ComponentMap class has a Has/Contains method
         return ComponentMaps[componentId].Has(entityId);

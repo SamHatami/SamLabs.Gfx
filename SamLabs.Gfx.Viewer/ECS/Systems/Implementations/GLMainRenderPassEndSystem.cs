@@ -8,10 +8,10 @@ using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-[RenderPassAttributes.RenderOrder(RenderOrders.MainEnd)]
+[RenderPassAttributes.RenderOrder(SystemOrders.MainEnd)]
 public class GLMainRenderPassEndSystem: RenderSystem
 {
-    public override int RenderPosition => RenderOrders.MainEnd;
+    public override int SystemPosition => SystemOrders.MainEnd;
     public GLMainRenderPassEndSystem(EntityManager entityManager) : base(entityManager)
     {
     }

@@ -11,10 +11,10 @@ using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-[RenderPassAttributes.RenderOrder(RenderOrders.PreRenderUpdate)]
+[RenderPassAttributes.RenderOrder(SystemOrders.PreRenderUpdate)]
 public class GlUpdateVertexPositionSystem: RenderSystem
 {
-    public override int RenderPosition => RenderOrders.PreRenderUpdate;
+    public override int SystemPosition => SystemOrders.PreRenderUpdate;
     public GlUpdateVertexPositionSystem(EntityManager entityManager) : base(entityManager)
     {
     }

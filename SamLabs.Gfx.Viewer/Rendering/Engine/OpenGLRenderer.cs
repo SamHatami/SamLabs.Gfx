@@ -80,10 +80,6 @@ public class OpenGLRenderer : IDisposable, IRenderer
     {
     }
 
-    public void ClearPickingBuffer(IViewPort mainViewport)
-    {
-        _frameBufferService.ClearPickingBuffer(mainViewport.SelectionRenderView);
-    }
 
     public void ClearViewportBuffer(IViewPort mainViewport)
     {
@@ -98,8 +94,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
         }
         else
         {
-            _frameBufferService.ClearPickingBuffer(mainViewport.SelectionRenderView); //Kept for ImGui...
-            _frameBufferService.RenderToFrameBuffer(mainViewport.SelectionRenderView);
+            _frameBufferService.RenderToPickingBuffer(mainViewport.SelectionRenderView);
         }
     }
 

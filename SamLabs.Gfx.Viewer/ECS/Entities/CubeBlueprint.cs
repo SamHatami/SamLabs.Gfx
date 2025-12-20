@@ -22,6 +22,8 @@ public class CubeBlueprint : EntityBlueprint
 
     public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
+        entity.Type = EntityType.SceneObject;
+        
         var transformComponent = new TransformComponent
         {
             Position = new Vector3(0, 0, 0),
@@ -48,6 +50,7 @@ public class CubeBlueprint : EntityBlueprint
         ComponentManager.SetComponentToEntity(meshData, entity.Id);
         ComponentManager.SetComponentToEntity(transformComponent, entity.Id);
         ComponentManager.SetComponentToEntity(material, entity.Id);
+        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
         
         //add the creational flag to the entity
         ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);

@@ -17,7 +17,11 @@ public class Scene
         _renderables.RemoveAll(x => x.Id == id);
     }
 
-
+    public void Update()
+    {
+        //Update the scene, requests all the sceneobjectentities from the componentmanager, build up the hierarchy from the parent components
+    }
+    
     public void Clear()
     {
         _renderables.Clear();

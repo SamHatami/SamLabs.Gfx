@@ -94,7 +94,7 @@ public class SystemManager
     
             if (y == null) return -1;
 
-            return x.RenderPosition.CompareTo(y.RenderPosition);
+            return x.SystemPosition.CompareTo(y.SystemPosition);
         });
     }
 
@@ -154,7 +154,17 @@ public class SystemManager
         //Check if global no update flag is set (?)
 
         foreach (var updateSystem in _updateSystems)
-            updateSystem?.Update(frameInput);
+        {
+            try
+            {
+                updateSystem?.Update(frameInput);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 
     public void Render(FrameInput frameInput,RenderContext renderContext)

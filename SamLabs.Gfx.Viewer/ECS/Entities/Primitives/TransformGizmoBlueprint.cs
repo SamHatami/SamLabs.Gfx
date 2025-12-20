@@ -23,6 +23,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
     public override string Name { get; } = EntityNames.TransformGizmo;
     public override async void Build(Entity entity, MeshDataComponent meshData = default)
     {
+        entity.Type = EntityType.Gizmo;
         
         var scale = new Vector3(1f, 1f, 1f);
         
@@ -48,6 +49,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
        // var highlightShader = _shaderService.GetShader("Highlight");
        
        var xAxisEntity = _entityManager.CreateEntity();
+       xAxisEntity.Type = EntityType.Gizmo;
        var transformX = new TransformComponent
        {
            Scale = scale,
@@ -73,6 +75,7 @@ public class TransformGizmoBlueprint:EntityBlueprint
 
 
        var yAxisEntity = _entityManager.CreateEntity();
+       yAxisEntity.Type = EntityType.Gizmo;
        var transformY = new TransformComponent
        {
            Scale = scale,
@@ -89,9 +92,11 @@ public class TransformGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new GizmoChildComponent(), yAxisEntity.Id);
        
        
        var zAxisEntity = _entityManager.CreateEntity();
+       zAxisEntity.Type = EntityType.Gizmo;
        var transformZ = new TransformComponent
        {
            Scale = scale,

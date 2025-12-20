@@ -1,13 +1,8 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using Avalonia;
+﻿using Avalonia;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
-using SamLabs.Gfx.Viewer.ECS.Core;
-using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -19,17 +14,17 @@ using Buffer = System.Buffer;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
-public class GLRenderPickingBufferSystem : RenderSystem
+public class GLPickingSystem : RenderSystem
 {
     private readonly EntityManager _entityManager;
-    public override int RenderPosition => RenderOrders.GizmoPickingRender;
+    public override int SystemPosition => SystemOrders.PickingRender;
     private int _readPickingIndex;
     private IViewPort _viewport;
     private GLShader? _pickingShader = null;
     private int _pickingEntity = -1;
     private const float GizmoPaddingScale = 1.02f;
 
-    public GLRenderPickingBufferSystem( EntityManager entityManager) : base(entityManager)
+    public GLPickingSystem( EntityManager entityManager) : base(entityManager)
     {
         _entityManager = entityManager;
     }
@@ -49,13 +44,14 @@ public class GLRenderPickingBufferSystem : RenderSystem
 
         var selectableEntities = ComponentManager.GetEntityIdsForComponentType<SelectableDataComponent>();
         if (selectableEntities.Length == 0) return;
-        var pickingDataComponent = ComponentManager.GetComponent<SelectableDataComponent>(selectableEntities[0]);
 
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
 
         (var x, var y) = GetPixelPosition(frameInput.MousePosition, renderContext);
-        GL.Scissor(x, y, 2, 2);
+        
+        //Clear and render to picking buffer
+        Renderer.RenderToPickingBuffer(renderContext.ViewPort);
 
         foreach (var selectableEntity in selectableEntities)
         {
@@ -63,7 +59,7 @@ public class GLRenderPickingBufferSystem : RenderSystem
             if(mesh.IsGizmo)
                 continue;
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
-            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke());
+            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke(), renderContext);
         }
         
         GL.Clear(ClearBufferMask.DepthBufferBit);
@@ -76,33 +72,21 @@ public class GLRenderPickingBufferSystem : RenderSystem
             Matrix4 paddingMatrix = Matrix4.CreateScale(GizmoPaddingScale);
 
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
-            Matrix4 finalPickingMatrix = modelMatrix.Invoke() * paddingMatrix;
-            RenderToPickingTexture(mesh, selectableEntity, finalPickingMatrix);
+ 
+            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke(), renderContext);
         }
-
+        
         HandlePickingIdReadBack(x, y, ref pickingData);
     }
 
 
-    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix)
+    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix, RenderContext renderContext)
     {
         //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
-        GL.UseProgram(_pickingShader.ProgramId);
-        GL.BindVertexArray(mesh.Vao);
-        GL.UniformMatrix4f(_pickingShader.UniformLocations[UniformNames.uModel].Location, 1, false, ref modelMatrix);
-        GL.Uniform1ui(_pickingShader.UniformLocations[UniformNames.uPickingId].Location, (uint)entityId);
-       
-        if (mesh.Ebo > 0)
-        {
-            GL.DrawElements(mesh.PrimitiveType, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-        }
-        else
-        {
-            GL.DrawArrays(mesh.PrimitiveType, 0, mesh.IndexCount);
-        }
-
-        GL.BindVertexArray(0);
-        GL.UseProgram(0);
+        using var shader = new ShaderProgram(_pickingShader).Use()
+            .SetUInt(UniformNames.uPickingId, (uint)entityId)
+            .SetMatrix4(UniformNames.uModel, ref modelMatrix);
+        MeshRenderer.Draw(mesh);
     }
 
 
@@ -128,9 +112,14 @@ public class GLRenderPickingBufferSystem : RenderSystem
         pickingData.BufferPickingIndex = readIndex;
 
         var pickedId = ReadPickedIdFromPbo();
-        pickingData.HoveredEntityId = pickedId == uint.MaxValue ? -1 : (int)pickedId;
+        //Check if the picked id belongs to a gizmo
+        pickingData.HoveredEntityId =  (int)pickedId;
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
 
+        if (pickedId >= uint.MaxValue)
+            pickingData.HoveredEntityId = -1; // Nothing picked
+        else
+            pickingData.HoveredEntityId = (int)pickedId;
     }
 
     private uint ReadPickedIdFromPbo()

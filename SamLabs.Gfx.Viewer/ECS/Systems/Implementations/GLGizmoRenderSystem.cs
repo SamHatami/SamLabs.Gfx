@@ -12,8 +12,8 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class GLGizmoRenderSystem : RenderSystem
 {
-    public override int RenderPosition => RenderOrders.GizmoRender;
-    private const float GizmoBaseSize = 0.02f;
+    public override int SystemPosition => SystemOrders.GizmoRender;
+    private const float GizmoBaseSize = 1.0f;
 
     public GLGizmoRenderSystem(EntityManager entityManager) : base(entityManager)
     {

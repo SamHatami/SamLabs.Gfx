@@ -11,10 +11,10 @@ using SamLabs.Gfx.Viewer.Rendering.Engine;
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 
-[RenderPassAttributes.RenderOrder(RenderOrders.CleanUp)]
+[RenderPassAttributes.RenderOrder(SystemOrders.CleanUp)]
 public class GLResourceCleanupSystem: RenderSystem
 {
-    public override int RenderPosition => RenderOrders.CleanUp;
+    public override int SystemPosition => SystemOrders.CleanUp;
     public GLResourceCleanupSystem(EntityManager entityManager) : base(entityManager)
     {
     }
