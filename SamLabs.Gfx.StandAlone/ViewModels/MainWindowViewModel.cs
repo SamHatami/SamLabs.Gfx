@@ -27,6 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string _currentFpsString;
 
+    public MainWindowViewModel() {}
     public MainWindowViewModel(ISceneManager sceneManager, EcsRoot ecsRoot, CommandManager commandManager)
     {
         EcsRoot = ecsRoot;

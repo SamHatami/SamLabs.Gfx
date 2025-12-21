@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -22,6 +23,9 @@ public class GLRenderMeshSystem : RenderSystem
         //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
         var meshEntities = ComponentManager.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
+        
+        var pickingEntity = ComponentManager.GetEntityIdsForComponentType<PickingDataComponent>();
+        var pickingData = ComponentManager.GetComponent<PickingDataComponent>(pickingEntity[0]);
 
         foreach (var meshEntity in meshEntities)
         {
@@ -30,15 +34,23 @@ public class GLRenderMeshSystem : RenderSystem
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
             if (mesh.IsGizmo) continue;
             var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
-            RenderMesh(mesh, materials, modelMatrix.Invoke());
+            
+            var hovered = (pickingData.HoveredEntityId == meshEntity) ? 1 : 0;
+            var selected = pickingData.SelectedEntityIds.Contains(meshEntity) ? 1 : 0;
+            
+            RenderMesh(mesh, materials, modelMatrix.Invoke(), hovered,selected);
         }
     }
 
     private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
-        Matrix4 modelMatrix = default)
+        Matrix4 modelMatrix, int isHovered, int isSelected)
     {
+        
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
-        shader.SetMatrix4(UniformNames.uModel,ref modelMatrix);
+        shader.SetMatrix4(UniformNames.uModel,ref modelMatrix).
+            SetInt(UniformNames.uIsHovered, ref isHovered)
+            .SetInt(UniformNames.uIsSelected, ref isSelected);
+        materialComponent.Shader.UniformLocations.TryGetValue(UniformNames.uIsHovered, out var materialLocation);
         MeshRenderer.Draw(mesh);
     }
 }

@@ -37,7 +37,7 @@ public class ShaderService : IDisposable
             {
                 Console.WriteLine(e);
             }
-   
+
 
             //Maybe expand into its own shader record later on
         }
@@ -45,7 +45,7 @@ public class ShaderService : IDisposable
 
         Console.WriteLine($"Registered {vertPaths.Length} shaders");
     }
-    
+
     public GLShader? GetShader(string name)
     {
         var shader = _shadersProgram?.GetValueOrDefault(name, null);
@@ -59,20 +59,27 @@ public class ShaderService : IDisposable
         if (!_shadersProgram.TryGetValue(vertShader, out var shader))
         {
             programLocation = CreateShaderProgram(vertPath, fragPath);
-            
-            Dictionary<string, Uniform> uniformLocations = new();
-            foreach (var uniformName in UniformNameTypeDictionary.UniformInfo.Keys)
-            {
-                var shaderLocation = GL.GetUniformLocation(programLocation, uniformName);
-                var uniformType = UniformNameTypeDictionary.UniformInfo[uniformName];
-                uniformLocations.Add(uniformName, new Uniform(shaderLocation, uniformName, uniformType));
-            }
-        
+
+            var uniformLocations = RegisterUniformLocations(programLocation);
+
             shader = new GLShader(vertShader, programLocation, uniformLocations);
             _shadersProgram.Add(vertShader, shader);
         }
 
         return programLocation;
+    }
+
+    private Dictionary<string, Uniform> RegisterUniformLocations(int programLocation)
+    {
+        Dictionary<string, Uniform> uniformLocations = new();
+        foreach (var uniformName in UniformNameTypeDictionary.UniformInfo.Keys)
+        {
+            var shaderLocation = GL.GetUniformLocation(programLocation, uniformName);
+            var uniformType = UniformNameTypeDictionary.UniformInfo[uniformName];
+            uniformLocations.Add(uniformName, new Uniform(shaderLocation, uniformName, uniformType));
+        }
+
+        return uniformLocations;
     }
 
     public string[] GetShaderNames()
@@ -151,6 +158,4 @@ public class ShaderService : IDisposable
     {
         foreach (var shader in _shadersProgram.Values) GL.DeleteProgram(shader.ProgramId);
     }
-    
-
 }

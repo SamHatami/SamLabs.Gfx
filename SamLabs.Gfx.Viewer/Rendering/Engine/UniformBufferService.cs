@@ -131,8 +131,9 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uCameraPos, typeof(Vector3));
         UniformInfo.Add(UniformNames.uLightPos, typeof(Vector3));
         UniformInfo.Add(UniformNames.uLightColor, typeof(Vector3));
-        UniformInfo.Add(UniformNames.uIsHovered, typeof(bool));
+        UniformInfo.Add(UniformNames.uIsHovered, typeof(int));
         UniformInfo.Add(UniformNames.uObjectId, typeof(uint));
+        UniformInfo.Add(UniformNames.uIsSelected, typeof(int));
         
     }
 }
@@ -151,4 +152,5 @@ public static class UniformNames
     public const string uLightPos = "uLightPos";
     public const string uLightColor = "uLightColor";
     public const string uIsHovered = "uIsHovered";
+    public const string uIsSelected = "uIsSelected";
 }

@@ -19,6 +19,8 @@ public class TransformSystem:UpdateSystem
         
         var selectedEntities = GetEntities.With<SelectedComponent>().AndWith<TransformComponent>();
 
+        //TODO: How to attach the gizmo to the selected entity?
+        
        //which axis or plane is selected as the transfom origin?
        //is the user currently trying to transform?
         foreach (var entity in selectedEntities)

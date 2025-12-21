@@ -1,41 +1,72 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:SamLabs.Gfx.StandAlone.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:SamLabs.Gfx.StandAlone.Controls"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="SamLabs.Gfx.StandAlone.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="SamLabs.Gfx.StandAlone">
+<Window
+    x:Class="SamLabs.Gfx.StandAlone.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:SamLabs.Gfx.StandAlone.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:SamLabs.Gfx.StandAlone.ViewModels"
+    Title="SamLabs.Gfx.StandAlone"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainWindowViewModel"
+    Icon="/Assets/avalonia-logo.ico"
+    mc:Ignorable="d">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <!--
+            This only sets the DataContext for the previewer in an IDE,
+            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
+        -->
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
     <Grid>
-        <!--ADD command panel or something here-->
+        <!--  ADD command panel or something here  -->
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250" />
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0" Margin="5" Orientation="Vertical">
-            <Button Content="Add sBox" Command="{Binding AddBox}" />
-            <Button Content="Impasdasdasdort" Command="{Binding AddImportedFile}" />
-            <Button Content="Translate" Command="{Binding ToggleTranslateGizmos}" />
+        <StackPanel
+            Grid.Column="0"
+            Margin="5"
+            Orientation="Vertical">
+            <Button Command="{Binding AddBox}" Content="Add sBox" />
+            <Button Command="{Binding AddImportedFile}" Content="Impasdasdasdort" />
+            <Button Command="{Binding ToggleTranslateGizmos}" Content="Translate" />
         </StackPanel>
 
-        <controls:EditorControl 
-            Focusable="True"
-            Grid.Column="1" 
-            SceneManager="{Binding SceneManager}"
+
+        <controls:EditorControl
+            Grid.Column="1"
+            CommandManager="{Binding CommandManager}"
             EcsRoot="{Binding EcsRoot}"
-            CommandManager="{Binding CommandManager}"/>
-            <TextBlock Grid.Column="1"  Text="{Binding CurrentFpsString}" IsHitTestVisible="False"></TextBlock>
-        
+            Focusable="True"
+            SceneManager="{Binding SceneManager}" />
+        <Border
+            Grid.Column="1"
+            BorderBrush="Black"
+            BorderThickness="5"
+            ClipToBounds="True"
+            CornerRadius="10" IsHitTestVisible="False">
+        </Border>
+        <Border
+            Grid.Column="1"
+            BorderBrush="Black"
+            BorderThickness="5"
+            ClipToBounds="True"
+            IsHitTestVisible="False">
+        </Border>
+
+        <TextBlock
+            Grid.Column="1"
+            IsHitTestVisible="False"
+            Text="{Binding CurrentFpsString}" />
+
+        <Border Grid.Column="1" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d" CornerRadius="5"
+                VerticalAlignment="Bottom" Margin="0,10">
+        </Border>
+
 
         <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->
         <!--     <StackPanel Orientation="Horizontal"> -->

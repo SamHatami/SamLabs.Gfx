@@ -26,7 +26,6 @@ public class SelectionSystem:UpdateSystem
         //User hovers an transform sub-entity
         //User clicks the sub entity -> should not cause clear selection
         //User pushes mouse button down and drags while the mouse stays on the transform gizmo subentitu -> Should not cause clear selection
-        
         //requires seperation between object selection and gizmo selection
         if (frameInput.LeftClickOccured)
         {
@@ -34,17 +33,17 @@ public class SelectionSystem:UpdateSystem
                 ClearSelection();
             else
             {
-                if (_pickingData.HoveredEntityType == EntityType.Gizmo)
-                {
-                    // If we clicked a gizmo, we don't want to clear or change the scene object selection
-                    // The transform system will handle gizmo interaction.
-                }
-                else
-                {
+                // if (_pickingData.HoveredEntityType == EntityType.Gizmo)
+                // {
+                //     // If we clicked a gizmo, we don't want to clear or change the scene object selection
+                //     // The transform system will handle gizmo interaction.
+                // }
+                // else
+                // {
                     //single selection, remove selectecomponent from all other add it to the hovered one
                     ClearSelectionComponent();
                     SetNewSelection([_pickingData.HoveredEntityId]);
-                }
+                // }
             }
         }
 

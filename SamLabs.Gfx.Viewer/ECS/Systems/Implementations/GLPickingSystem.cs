@@ -59,10 +59,10 @@ public class GLPickingSystem : RenderSystem
             if(mesh.IsGizmo)
                 continue;
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
-            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke(), renderContext);
+            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke());
         }
         
-        GL.Clear(ClearBufferMask.DepthBufferBit);
+        // GL.Clear(ClearBufferMask.DepthBufferBit);
         
         foreach (var selectableEntity in selectableEntities)
         {
@@ -73,14 +73,14 @@ public class GLPickingSystem : RenderSystem
 
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
  
-            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke(), renderContext);
+            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke());
         }
         
         HandlePickingIdReadBack(x, y, ref pickingData);
     }
 
 
-    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix, RenderContext renderContext)
+    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix)
     {
         //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
         using var shader = new ShaderProgram(_pickingShader).Use()
@@ -120,6 +120,7 @@ public class GLPickingSystem : RenderSystem
             pickingData.HoveredEntityId = -1; // Nothing picked
         else
             pickingData.HoveredEntityId = (int)pickedId;
+        
     }
 
     private uint ReadPickedIdFromPbo()
