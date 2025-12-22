@@ -40,44 +40,51 @@ public class GLGizmoRenderSystem : RenderSystem
     private void DrawGizmo(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, PickingDataComponent pickingData,
         Span<int> childBuffer)
     {
-        ScaleToView(activeGizmo, gizmoSubEntities, childBuffer);
+        ref var parentTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
+        UpdateChildGizmos(activeGizmo, gizmoSubEntities, childBuffer,ref parentTransform); //Special case for the gizmo
 
         foreach (var gizmoSubEntity in gizmoSubEntities)
         {
             var selected = ComponentManager.GetComponent<SelectedComponent>(gizmoSubEntity);
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(gizmoSubEntity);
             var material = ComponentManager.GetComponent<MaterialComponent>(gizmoSubEntity);
-            var modelMatrix = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity).WorldMatrix;
-            RenderGizmoSubMesh(mesh, material, true, modelMatrix.Invoke(), pickingData, gizmoSubEntity);
+            var subGizmoTransform = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity);
+            RenderGizmoSubMesh(mesh, material, true, subGizmoTransform.WorldMatrix(), pickingData, gizmoSubEntity);
         }
     }
 
-    private void ScaleToView(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, Span<int> childBuffer)
+    private void UpdateChildGizmos(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, Span<int> childBuffer,
+        ref TransformComponent parentTransform)
     {
         var cameraEntities = ComponentManager.GetEntityIdsForComponentType<CameraComponent>();
         if (cameraEntities.IsEmpty) return;
 
         ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraEntities[0]);
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraEntities[0]);
-        ref var gizmoTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
 
-        var distance = Vector3.Distance(cameraTransform.Position, gizmoTransform.Position);
-        if (distance < 0.1f) distance = 0.1f;
+        var distance = Vector3.Distance(cameraTransform.Position, parentTransform.Position);
+        if (distance < 0.1f)
+        {
+            distance = 0.1f;
+        }
         var scale = distance * MathF.Tan(MathHelper.DegreesToRadians(cameraData.Fov) * 0.5f) * GizmoBaseSize;
-        gizmoTransform.Scale = new Vector3(scale);
-
+        parentTransform.Scale = new Vector3(scale);
         //Scale arrows/plane handles
         foreach (var subEntity in gizmoSubEntities)
         {
             ref var subTransform = ref ComponentManager.GetComponent<TransformComponent>(subEntity);
-            subTransform.Scale = new Vector3(scale);
+            var scaledLocalPosition = subTransform.LocalPosition * parentTransform.Scale;
+            subTransform.Scale = parentTransform.Scale*subTransform.LocalScale;
+            subTransform.Position = parentTransform.Position+scaledLocalPosition;
+            subTransform.Rotation = parentTransform.Rotation*subTransform.LocalRotation;
         }
     }
+
+
 
     private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected,
         Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId = -1)
     {
-        // var highlightShaderProgram = materialComponent.HighlightShader.ProgramId;
         var pickingDataHoveredEntityId = pickingData.HoveredEntityId;
         var hovered = (pickingDataHoveredEntityId == entityId) ? 1 : 0;
 

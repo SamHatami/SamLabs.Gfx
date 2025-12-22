@@ -10,7 +10,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class CameraControlSystem : UpdateSystem
 {
-    public CameraControlSystem() : base()
+    public CameraControlSystem(EntityManager entityManager) : base(entityManager)
     {
     }
 

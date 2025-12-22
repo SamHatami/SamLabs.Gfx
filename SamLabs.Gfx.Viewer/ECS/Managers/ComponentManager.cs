@@ -46,6 +46,19 @@ public static class ComponentManager
             }
     }
 
+    
+    public static void RemoveComponentFromEntities<T>(ReadOnlySpan<int> entityIds) where T : IDataComponent
+    {
+        foreach (var entityId in entityIds)
+            RemoveComponentFromEntity<T>(entityId);
+    }
+    
+    public static void RemoveComponentFromEntities<T>(int[] entityIds) where T : IDataComponent
+    {
+        foreach (var entityId in entityIds)
+            RemoveComponentFromEntity<T>(entityId);
+    }
+    
     public static void RemoveComponentFromEntity<T>(int entityId) where T : IDataComponent
     {
         if (!HasComponent<T>(entityId)) return;

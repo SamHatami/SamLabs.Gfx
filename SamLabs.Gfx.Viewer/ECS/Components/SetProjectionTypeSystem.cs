@@ -6,7 +6,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Components;
 
 public class SetProjectionTypeSystem:UpdateSystem
 {
-    public SetProjectionTypeSystem() : base()
+    public SetProjectionTypeSystem(EntityManager entityManager) : base(entityManager)
     {
     }
     

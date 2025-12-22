@@ -24,15 +24,15 @@
     <Grid>
         <!--  ADD command panel or something here  -->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250" />
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel
             Grid.Column="0"
             Margin="5"
             Orientation="Vertical">
-            <Button Command="{Binding AddBox}" Content="Add sBox" />
-            <Button Command="{Binding AddImportedFile}" Content="Impasdasdasdort" />
+            <Button Command="{Binding AddBox}" Content="Add Box" />
+            <Button Command="{Binding AddImportedFile}" Content="Import" />
             <Button Command="{Binding ToggleTranslateGizmos}" Content="Translate" />
         </StackPanel>
 

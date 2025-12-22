@@ -45,7 +45,6 @@ public class GLRenderMeshSystem : RenderSystem
     private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
         Matrix4 modelMatrix, int isHovered, int isSelected)
     {
-        
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
         shader.SetMatrix4(UniformNames.uModel,ref modelMatrix).
             SetInt(UniformNames.uIsHovered, ref isHovered)

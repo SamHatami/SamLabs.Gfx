@@ -13,7 +13,7 @@ public static class ModelLoader
                     // Ensure all faces are triangles
                     PostProcessSteps.FlipUVs |               // Align texture V-axis with OpenGL
                        // Create normals if missing
-                    PostProcessSteps.JoinIdenticalVertices;  // Optimization: Remove duplicate verts
+                    PostProcessSteps.JoinIdenticalVertices; 
 
         Scene scene;
         try

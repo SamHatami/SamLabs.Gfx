@@ -113,7 +113,7 @@ public class SystemManager
             try
             {
                 _updateSystems[i] =
-                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i));
+                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), _entityManager);
             }
             catch (Exception e)
             {

@@ -3,57 +3,62 @@ using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
-public static class GetEntities
+public static class GetEntitiesIds
 {
     private static readonly int[] QueryBuffer = new int[GlobalSettings.MaxEntities];
 
     public static ReadOnlySpan<int> With<T>() where T : IDataComponent => ComponentManager.GetEntityIdsForComponentType<T>();
 
-    public static ReadOnlySpan<int> AndWith<T>(this ReadOnlySpan<int> entities) where T : IDataComponent
+    extension(ReadOnlySpan<int> entities)
     {
-        var count = 0;
-        foreach (var entity in entities)
+        public ReadOnlySpan<int> AndWith<T>() where T : IDataComponent
         {
-            if (ComponentManager.HasComponent<T>(entity))
+            var count = 0;
+            foreach (var entity in entities)
             {
-                QueryBuffer[count++] = entity;
+                if (ComponentManager.HasComponent<T>(entity))
+                {
+                    QueryBuffer[count++] = entity;
+                }
             }
+
+            return QueryBuffer.AsSpan(0, count);
         }
 
-        return QueryBuffer.AsSpan(0, count);
-    }
-
-    public static ReadOnlySpan<int> OrWith<T>(this ReadOnlySpan<int> entities) where T : IDataComponent
-    {
-        var entsWithT = ComponentManager.GetEntityIdsForComponentType<T>();
-        if (entities.IsEmpty) return entsWithT;
-        if (entsWithT.IsEmpty) return entities;
-
-        entities.CopyTo(QueryBuffer);
-        var count = entities.Length;
-
-        foreach (var entity in entsWithT)
+        public ReadOnlySpan<int> OrWith<T>() where T : IDataComponent
         {
-            if (!entities.Contains(entity))
+            var entsWithT = ComponentManager.GetEntityIdsForComponentType<T>();
+            if (entities.IsEmpty) return entsWithT;
+            if (entsWithT.IsEmpty) return entities;
+
+            entities.CopyTo(QueryBuffer);
+            var count = entities.Length;
+
+            foreach (var entity in entsWithT)
             {
-                QueryBuffer[count++] = entity;
+                if (!entities.Contains(entity))
+                {
+                    QueryBuffer[count++] = entity;
+                }
             }
+
+            return QueryBuffer.AsSpan(0, count);
         }
 
-        return QueryBuffer.AsSpan(0, count);
-    }
-
-    public static ReadOnlySpan<int> Without<T>(this ReadOnlySpan<int> entities) where T : IDataComponent
-    {
-        var count = 0;
-        foreach (var entity in entities)
+        public ReadOnlySpan<int> Without<T>() where T : IDataComponent
         {
-            if (!ComponentManager.HasComponent<T>(entity))
+            var count = 0;
+            foreach (var entity in entities)
             {
-                QueryBuffer[count++] = entity;
+                if (!ComponentManager.HasComponent<T>(entity))
+                {
+                    QueryBuffer[count++] = entity;
+                }
             }
+
+            return QueryBuffer.AsSpan(0, count);
         }
 
-        return QueryBuffer.AsSpan(0, count);
+        public int First() => entities.IsEmpty ? -1 : entities[0];
     }
 }

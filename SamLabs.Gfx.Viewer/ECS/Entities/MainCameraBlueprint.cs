@@ -15,7 +15,7 @@ public class MainCameraBlueprint : EntityBlueprint
 
     public override string Name { get; } = EntityNames.MainCamera;
 
-    public override void Build(Entity entity, MeshDataComponent meshData = default)
+    public override void Build(Entity parentGizmo, MeshDataComponent meshData = default)
     {
         var transformComponent = new TransformComponent
         {
@@ -37,9 +37,9 @@ public class MainCameraBlueprint : EntityBlueprint
         cameraData.Yaw = yaw;
         cameraData.Pitch = pitch;
 
-        ComponentManager.SetComponentToEntity(transformComponent, entity.Id);
-        ComponentManager.SetComponentToEntity(cameraComponent, entity.Id);
-        ComponentManager.SetComponentToEntity(cameraData, entity.Id);
+        ComponentManager.SetComponentToEntity(transformComponent, parentGizmo.Id);
+        ComponentManager.SetComponentToEntity(cameraComponent, parentGizmo.Id);
+        ComponentManager.SetComponentToEntity(cameraData, parentGizmo.Id);
     }
     
     public static void CalculateYawPitchFromLookAt(Vector3 position, Vector3 target, out float yaw, out float pitch)

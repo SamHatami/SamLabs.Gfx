@@ -44,7 +44,7 @@ public class ComponentMap
 
     public bool Has(int entityId)
     {
-        if(entityId >= _entityIds.Length) return false;
+        if(entityId >= _entityIds.Length || entityId < 0) return false;
         return _entityIds[entityId] != -1;
     }
 }
