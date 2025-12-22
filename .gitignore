@@ -100,3 +100,11 @@ StyleCop.Cache
 *.bin
 /.vs
 /.vs
+SamLabs.Gfx.sln.DotSettings.user
+.vs/SamLabs.Gfx/v18/DocumentLayout.json
+.vs/SamLabs.Gfx/v18/DocumentLayout.backup.json
+.vs/SamLabs.Gfx/v18/.suo
+.vs/SamLabs.Gfx/v18/.futdcache.v2
+.vs/SamLabs.Gfx/DesignTimeBuild/.dtbcache.v2
+.vs/SamLabs.Gfx/CopilotIndices/18.0.877.25981/SemanticSymbols.db
+.vs/SamLabs.Gfx/CopilotIndices/18.0.877.25981/CodeChunks.db

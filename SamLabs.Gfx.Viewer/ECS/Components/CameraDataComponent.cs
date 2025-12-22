@@ -17,6 +17,8 @@ public struct CameraDataComponent : IDataComponent
     public float Pitch { get; set; } = 0;
     public float Yaw { get; set; } = 0;
     
+    public Matrix4 ViewMatrix { get; set; }
+    public Matrix4 ProjectionMatrix { get; set; }
     public bool IsActive { get; set; } = true; //If we ever gonna have more than one camera
 
     public CameraDataComponent()

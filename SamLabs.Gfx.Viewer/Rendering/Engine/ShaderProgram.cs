@@ -40,5 +40,20 @@ public class ShaderProgram : IDisposable
         return this;
     }
     
+    public ShaderProgram SetFloat(string name, float value)
+    {
+        if (_shader.UniformLocations.TryGetValue(name, out var uniform))
+            GL.Uniform1f(uniform.Location, value);
+        return this;
+    }
+    
+    public ShaderProgram SetVector3(string name, Vector3 value)
+    {
+        if (_shader.UniformLocations.TryGetValue(name, out var uniform))
+            GL.Uniform3f(uniform.Location, 1, ref value);
+        
+        return this;
+    }
+    
     public void Dispose() => GL.UseProgram(0);
 }

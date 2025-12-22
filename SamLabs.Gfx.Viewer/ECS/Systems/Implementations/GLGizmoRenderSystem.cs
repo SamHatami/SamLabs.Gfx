@@ -13,7 +13,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 public class GLGizmoRenderSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.GizmoRender;
-    private const float GizmoBaseSize = 1.0f;
+    private const float GizmoBaseSize = 0.01f;
 
     public GLGizmoRenderSystem(EntityManager entityManager) : base(entityManager)
     {
@@ -61,22 +61,24 @@ public class GLGizmoRenderSystem : RenderSystem
 
         ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraEntities[0]);
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraEntities[0]);
-
-        var distance = Vector3.Distance(cameraTransform.Position, parentTransform.Position);
-        if (distance < 0.1f)
-        {
-            distance = 0.1f;
-        }
-        var scale = distance * MathF.Tan(MathHelper.DegreesToRadians(cameraData.Fov) * 0.5f) * GizmoBaseSize;
+        
+        //Todo create a utility class for this
+        var toGizmo = parentTransform.Position - cameraTransform.Position;
+        var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
+        var depth = Vector3.Dot(toGizmo, forward);
+        if (depth < 0.1f) depth = 0.1f;
+    
+        var scale = depth * MathF.Tan(cameraData.Fov * 0.5f) * GizmoBaseSize; 
         parentTransform.Scale = new Vector3(scale);
-        //Scale arrows/plane handles
+    
         foreach (var subEntity in gizmoSubEntities)
         {
             ref var subTransform = ref ComponentManager.GetComponent<TransformComponent>(subEntity);
-            var scaledLocalPosition = subTransform.LocalPosition * parentTransform.Scale;
-            subTransform.Scale = parentTransform.Scale*subTransform.LocalScale;
-            subTransform.Position = parentTransform.Position+scaledLocalPosition;
-            subTransform.Rotation = parentTransform.Rotation*subTransform.LocalRotation;
+            var rotatedLocalPos = Vector3.Transform(subTransform.LocalPosition, parentTransform.Rotation);
+            var scaledRotatedPos = rotatedLocalPos * scale;
+            subTransform.Position = parentTransform.Position + scaledRotatedPos;
+            subTransform.Scale = parentTransform.Scale * subTransform.LocalScale;
+            subTransform.Rotation = parentTransform.Rotation * subTransform.LocalRotation;
         }
     }
 
