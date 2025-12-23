@@ -29,15 +29,10 @@ public class TransformSystem : UpdateSystem
             .Without<GizmoComponent>().Without<GizmoChildComponent>();
 
         if (selectedEntities.IsEmpty) return;
-        //TODO: How to attach the gizmo to the selected entity?
-
-        //which axis or plane is selected as the transfom origin?
-        //is the user currently trying to transform?
 
         ref var entityTransform = ref ComponentManager.GetComponent<TransformComponent>(selectedEntities[0]);
         ref var gizmoTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
 
-        // Keep gizmo at selected entity position
         gizmoTransform.Position = entityTransform.Position;
 
         // Update child gizmo world transforms based on parent
@@ -45,37 +40,32 @@ public class TransformSystem : UpdateSystem
         // var subGizmoEntities = ComponentManager.GetChildEntitiesForParent(activeGizmo, childBuffer);
         // // UpdateChildrenWorldTransforms(subGizmoEntities, gizmoTransform);
 
+        var pickingEntities = GetEntitiesIds.With<PickingDataComponent>();
+        if (pickingEntities.IsEmpty) return;
+
+        ref var pickingData = ref ComponentManager.GetComponent<PickingDataComponent>(pickingEntities[0]);
+
         if (frameInput.IsMouseLeftButtonDown && !_isTransforming)
         {
-            // Check if user clicked on gizmo child (axis)
-            var pickingEntities = GetEntitiesIds.With<PickingDataComponent>();
-            if (!pickingEntities.IsEmpty)
+            if (ComponentManager.HasComponent<GizmoChildComponent>(pickingData.HoveredEntityId))
             {
-                ref var pickingData = ref ComponentManager.GetComponent<PickingDataComponent>(pickingEntities[0]);
-
-                // Check if hovered entity is a gizmo child
-                if (ComponentManager.HasComponent<GizmoChildComponent>(pickingData.HoveredEntityId))
-                {
-                    _isTransforming = true;
-                    _selectedGizmoSubEntity = pickingData.HoveredEntityId;
-                    _transformStartPoint = entityTransform.Position;
-                }
+                _isTransforming = true;
+                _selectedGizmoSubEntity = pickingData.HoveredEntityId;
+                _transformStartPoint = entityTransform.Position;
             }
         }
 
         if (_isTransforming && frameInput.IsMouseLeftButtonDown)
         {
-            // Apply transformation based on mouse delta
             var delta = CalculateTransformDelta(frameInput);
             entityTransform.Position += delta;
             gizmoTransform.Position = entityTransform.Position;
         }
 
-        if (!frameInput.IsMouseLeftButtonDown && _isTransforming)
-        {
-            _isTransforming = false;
-            _selectedGizmoSubEntity = -1;
-        }
+        if (frameInput.IsMouseLeftButtonDown || !_isTransforming) return;
+
+        _isTransforming = false;
+        _selectedGizmoSubEntity = -1;
     }
 
     private void UpdateChildrenWorldTransforms(ReadOnlySpan<int> childEntities, TransformComponent parentTransform)
@@ -83,7 +73,7 @@ public class TransformSystem : UpdateSystem
         foreach (var childId in childEntities)
         {
             ref var childTransform = ref ComponentManager.GetComponent<TransformComponent>(childId);
-            childTransform.Position = parentTransform.Position + childTransform.LocalPosition ;
+            childTransform.Position = parentTransform.Position + childTransform.LocalPosition;
             childTransform.Rotation = parentTransform.Rotation * childTransform.LocalRotation;
             childTransform.Scale = parentTransform.Scale * childTransform.LocalScale;
         }
@@ -101,8 +91,7 @@ public class TransformSystem : UpdateSystem
         var mouseDelta = frameInput.DeltaMouseMove;
         var sensitivity = 0.01f;
 
-        // Constrain movement based on selected axis
-        // Note: Y is inverted because screen Y goes down but world Y goes up
+        //TOOD: this needs to be done properly
         return gizmoChild.Axis switch
         {
             GizmoAxis.X => new Vector3(mouseDelta.X * sensitivity, 0, 0),

@@ -43,8 +43,10 @@ public class TransformGizmoBlueprint:EntityBlueprint
        var gizmoComponent = new GizmoComponent() { Type = GizmoType.Translate };
        ComponentManager.SetComponentToEntity(gizmoComponent, parentGizmo.Id);
        
-       var modelPath = Path.Combine(AppContext.BaseDirectory, "Models", "Arrow.obj");
-       var importedArrowMesh = await ModelLoader.LoadObj(modelPath); 
+       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "Arrow.obj");
+       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "TranslatePlane.obj");
+       var importedArrowMesh = await ModelLoader.LoadObj(arrowPath); 
+       var importedPlaneMesh = await ModelLoader.LoadObj(planePath); 
        
        var parentIdComponent = new ParentIdComponent(parentGizmo.Id);
        var gizmoShader = _shaderService.GetShader("gizmo");
@@ -117,8 +119,69 @@ public class TransformGizmoBlueprint:EntityBlueprint
        
        //  
        // --- 6. Plane Entities (Optional but recommended for Translate Gizmo) ---
-       // The planes allow movement in two axes (e.g., XY plane for moving along the floor)
-       // This geometry is usually a small, transparent square.
+
+       var xyPlaneEntity = _entityManager.CreateEntity();
+       xyPlaneEntity.Type = EntityType.Gizmo;
+       var transformXY = new TransformComponent
+       {
+           ParentId = parentGizmo.Id,
+           LocalPosition =  new Vector3(2,2,0)
+       };
+       var materialXY = new MaterialComponent { Shader = gizmoShader };
+       var glPlaneMesh = new GlMeshDataComponent()
+       {
+           IsGizmo = true,
+           IndexCount = importedPlaneMesh.Indices.Length,
+           VertexCount = importedPlaneMesh.Vertices.Length,
+           PrimitiveType = PrimitiveType.Triangles
+       };
+       ComponentManager.SetComponentToEntity(parentIdComponent, xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(transformXY, xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(importedPlaneMesh, xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(materialXY, xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(glPlaneMesh, xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xyPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.XY), xyPlaneEntity.Id);   
+       
+       
+       var xzPlaneEntity = _entityManager.CreateEntity();
+       xzPlaneEntity.Type = EntityType.Gizmo;
+       var transformXZ = new TransformComponent
+       {
+           ParentId = parentGizmo.Id,
+           LocalPosition =  new Vector3(2,0,2),
+           LocalRotation =  Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(90f)) 
+       };
+       var materialXZ = new MaterialComponent { Shader = gizmoShader };
+       
+       ComponentManager.SetComponentToEntity(parentIdComponent, xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(transformXZ, xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(importedPlaneMesh, xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(materialXZ, xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(glPlaneMesh, xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.XZ), xzPlaneEntity.Id);          
+       
+       var yzPlaneEntity = _entityManager.CreateEntity();
+       yzPlaneEntity.Type = EntityType.Gizmo;
+       var transformYZ = new TransformComponent
+       {
+           ParentId = parentGizmo.Id,
+           LocalPosition =  new Vector3(0,2,2),
+           LocalRotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f)) 
+       };
+       var materialYZ = new MaterialComponent { Shader = gizmoShader };
+       
+       ComponentManager.SetComponentToEntity(parentIdComponent, yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(transformYZ, yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(importedPlaneMesh, yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(materialYZ, yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(glPlaneMesh, yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new SelectableDataComponent(), yzPlaneEntity.Id);
+       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.YZ), yzPlaneEntity.Id);   
        
        // Example Plane (XY)
        // var xyPlaneEntity = _entityManager.CreateEntity();
