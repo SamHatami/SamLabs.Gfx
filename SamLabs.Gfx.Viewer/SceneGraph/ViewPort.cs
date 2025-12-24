@@ -4,7 +4,7 @@
 
 namespace SamLabs.Gfx.Viewer.SceneGraph;
 
-public class ViewPort : IViewPort
+public class  ViewPort : IViewPort
 {
     public ViewPort(int width, int height)
     {

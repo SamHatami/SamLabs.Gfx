@@ -7,10 +7,11 @@ namespace SamLabs.Gfx.Viewer.Rendering.Utility;
 
 public static class CameraExtensions
 {
-    public static Ray ScreenPointToWorldRay(this CameraDataComponent cameraData, Vector2 screenPoint, ViewPort viewport)
+    public static Ray ScreenPointToWorldRay(this CameraDataComponent cameraData, Vector2 screenPoint, Vector2
+        viewSize)
     {
-        var ndcPointX = (2*screenPoint.X)/viewport.Width -1;    
-        var ndcPointY = 1- (2*screenPoint.Y)/viewport.Height;
+        var ndcPointX = (2*screenPoint.X)/viewSize.X -1;    
+        var ndcPointY = 1- (2*screenPoint.Y)/viewSize.Y;
         var ndcPoint = new Vector2(ndcPointX, ndcPointY);
         
         var inverseViewProj = Matrix4.Invert(cameraData.ViewMatrix * cameraData.ProjectionMatrix);

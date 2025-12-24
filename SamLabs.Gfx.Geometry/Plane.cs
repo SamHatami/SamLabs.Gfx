@@ -30,16 +30,22 @@ public struct Plane
 
 public static class PlaneExtensions
 {
-    public static bool RayCast(this Plane plane, Ray ray, out float ratio)
+    public static bool RayCast(this Plane plane, Ray ray, out float t)
     {
-        var hit = false;
-        ratio = 0.0f;       
-        
-        //p0 point on the plane creating a orthogonal axis to the normal
-        //t = ((P0 - RayOrigin) * PlaneNormal)/(RayDirection*PlanNormal)
+        t = 0f;
 
-        return hit;
+        var denom = Vector3.Dot(plane.Normal, ray.Direction);
 
+        // parallel check
+        if (Math.Abs(denom) < 1e-6f)
+            return false;
+
+        t = Vector3.Dot(plane.Normal, plane.Origin - ray.Origin) / denom;
+
+        if (t < 0f)
+            return false;
+
+        return true;
     }
     
 }

@@ -1,10 +1,16 @@
-﻿using OpenTK.Mathematics;
+﻿using Assimp;
+using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
+using SamLabs.Gfx.Viewer.Rendering.Utility;
+using Plane = SamLabs.Gfx.Geometry.Plane;
+using Ray = SamLabs.Gfx.Geometry.Ray;
+using Vector2 = OpenTK.Mathematics.Vector2;
+using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
@@ -85,33 +91,66 @@ public class TransformSystem : UpdateSystem
         var cameraEntities = GetEntitiesIds.With<CameraComponent>();
         if (cameraEntities.IsEmpty) return Vector3.Zero;
 
+        ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraEntities[0]);
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraEntities[0]);
-        
-        var distance = Vector3.Distance(cameraTransform.Position, gizmoTransform.Position);
         ref var gizmoChild = ref ComponentManager.GetComponent<GizmoChildComponent>(_selectedGizmoSubEntity);
 
-        var mouseDelta = Vector2.Normalize(frameInput.DeltaMouseMove)*distance; //wrong
-        //project point to world space delta 
-        //use camera forward as normal and gizmo transform to create plane to project on (for free move)
-        //use orthogonal axis when doing axis movement. Drag along at x -> use y or z
-        
-        //need plane, and ray and raycast 
-        
-        //projected point on plane will be the new position for the gizmo transform
-        
-        //for rotation create vector between the tranform and projected point and calculate angle between that and 
-        //one of the axis on that plane
-        var sensitivity = 0.01f;
+        var mouseRay =
+            cameraData.ScreenPointToWorldRay(
+                new Vector2((float)frameInput.MousePosition.X, (float)frameInput.MousePosition.Y),
+                frameInput.ViewportSize);
 
-        //TOOD: this needs to be done properly
-        return gizmoChild.Axis switch
+        var planeNormal = GetPlaneNormal(gizmoChild.Axis, cameraTransform, gizmoTransform);
+        var projectionPlane = new Plane(planeNormal, cameraTransform.Position);
+
+        if (!projectionPlane.RayCast(mouseRay, out var hit))
+            return Vector3.Zero;
+
+        return CalculateConstrainedDelta(mouseRay.GetPoint(hit), gizmoTransform.Position, gizmoChild.Axis,
+            _transformStartPoint);
+    }
+
+    private Vector3 GetPlaneNormal(GizmoAxis axis, TransformComponent cameraTransform,
+        TransformComponent gizmoTransform)
+    {
+        var cameraDir = Vector3.Normalize(gizmoTransform.Position - cameraTransform.Position);
+
+        return axis switch
         {
-            GizmoAxis.X => new Vector3(mouseDelta.X * sensitivity, 0, 0),
-            GizmoAxis.Y => new Vector3(0, -mouseDelta.Y * sensitivity, 0),
-            GizmoAxis.Z => new Vector3(0, 0, -mouseDelta.X * sensitivity),
-            GizmoAxis.XY => new Vector3(mouseDelta.X * sensitivity, -mouseDelta.Y * sensitivity, 0),
-            GizmoAxis.XZ => new Vector3(mouseDelta.X * sensitivity, 0, -mouseDelta.Y * sensitivity),
-            GizmoAxis.YZ => new Vector3(0, -mouseDelta.X * sensitivity, mouseDelta.Y * sensitivity),
+            // For single axis: plane perpendicular to camera, containing the axis
+            GizmoAxis.X => Vector3.Normalize(Vector3.Cross(Vector3.UnitX,
+                Vector3.Cross(cameraDir, Vector3.UnitX))),
+            GizmoAxis.Y => Vector3.Normalize(Vector3.Cross(Vector3.UnitY,
+                Vector3.Cross(cameraDir, Vector3.UnitY))),
+            GizmoAxis.Z => Vector3.Normalize(Vector3.Cross(Vector3.UnitZ,
+                Vector3.Cross(cameraDir, Vector3.UnitZ))),
+
+            // For plane handles: the plane's normal
+            GizmoAxis.XY => Vector3.UnitZ,
+            GizmoAxis.XZ => Vector3.UnitY,
+            GizmoAxis.YZ => Vector3.UnitX,
+
+            _ => cameraDir
+        };
+    }
+
+    private Vector3 CalculateConstrainedDelta(Vector3 currentPoint, Vector3 gizmoPosition,
+        GizmoAxis axis, Vector3 startPoint)
+    {
+        var totalDelta = currentPoint - startPoint;
+
+        return axis switch
+        {
+            // Single axis: project delta onto axis
+            GizmoAxis.X => new Vector3(totalDelta.X, 0, 0),
+            GizmoAxis.Y => new Vector3(0, totalDelta.Y, 0),
+            GizmoAxis.Z => new Vector3(0, 0, totalDelta.Z),
+
+            // Plane handles: allow movement in both axes
+            GizmoAxis.XY => new Vector3(totalDelta.X, totalDelta.Y, 0),
+            GizmoAxis.XZ => new Vector3(totalDelta.X, 0, totalDelta.Z),
+            GizmoAxis.YZ => new Vector3(0, totalDelta.Y, totalDelta.Z),
+
             _ => Vector3.Zero
         };
     }

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Input;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.IO;
 
