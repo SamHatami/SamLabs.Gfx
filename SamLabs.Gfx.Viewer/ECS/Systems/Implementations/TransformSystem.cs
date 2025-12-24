@@ -57,7 +57,7 @@ public class TransformSystem : UpdateSystem
 
         if (_isTransforming && frameInput.IsMouseLeftButtonDown)
         {
-            var delta = CalculateTransformDelta(frameInput);
+            var delta = CalculateTransformDelta(frameInput, gizmoTransform);
             entityTransform.Position += delta;
             gizmoTransform.Position = entityTransform.Position;
         }
@@ -79,16 +79,28 @@ public class TransformSystem : UpdateSystem
         }
     }
 
-    private Vector3 CalculateTransformDelta(FrameInput frameInput)
+    private Vector3 CalculateTransformDelta(FrameInput frameInput, TransformComponent gizmoTransform)
     {
         // Get camera for ray casting
         var cameraEntities = GetEntitiesIds.With<CameraComponent>();
         if (cameraEntities.IsEmpty) return Vector3.Zero;
 
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraEntities[0]);
+        
+        var distance = Vector3.Distance(cameraTransform.Position, gizmoTransform.Position);
         ref var gizmoChild = ref ComponentManager.GetComponent<GizmoChildComponent>(_selectedGizmoSubEntity);
 
-        var mouseDelta = frameInput.DeltaMouseMove;
+        var mouseDelta = Vector2.Normalize(frameInput.DeltaMouseMove)*distance; //wrong
+        //project point to world space delta 
+        //use camera forward as normal and gizmo transform to create plane to project on (for free move)
+        //use orthogonal axis when doing axis movement. Drag along at x -> use y or z
+        
+        //need plane, and ray and raycast 
+        
+        //projected point on plane will be the new position for the gizmo transform
+        
+        //for rotation create vector between the tranform and projected point and calculate angle between that and 
+        //one of the axis on that plane
         var sensitivity = 0.01f;
 
         //TOOD: this needs to be done properly

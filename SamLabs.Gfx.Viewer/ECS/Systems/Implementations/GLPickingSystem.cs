@@ -129,20 +129,15 @@ public class GLPickingSystem : RenderSystem
 
     private uint ReadPickedIdFromPbo()
     {
-        Span<uint> pixelData = stackalloc uint[1];
-        unsafe
-        {
-            var pboPtr = GL.MapBuffer(BufferTarget.PixelPackBuffer, BufferAccess.ReadOnly);
-            if (pboPtr == (void*)IntPtr.Zero)
-                return UInt32.MaxValue;
+        uint[] pixel = new uint[1];
 
-            fixed (uint* destPtr = pixelData)
-            {
-                Buffer.MemoryCopy((void*)pboPtr, destPtr, sizeof(uint), sizeof(uint));
-            }
+        GL.GetBufferSubData(
+            BufferTarget.PixelPackBuffer,
+            IntPtr.Zero,
+            sizeof(uint),
+            pixel
+        );
 
-            GL.UnmapBuffer(BufferTarget.PixelPackBuffer);
-        }
-        return pixelData[0];
+        return pixel[0];
     }
 }
