@@ -137,8 +137,9 @@ public class TransformSystem : UpdateSystem
     private Vector3 CalculateConstrainedDelta(Vector3 currentPoint, Vector3 gizmoPosition,
         GizmoAxis axis, Vector3 startPoint)
     {
-        var totalDelta = currentPoint - startPoint;
+        var totalDelta = currentPoint - gizmoPosition;
 
+        Console.WriteLine($"Total delta: {totalDelta} ");
         return axis switch
         {
             // Single axis: project delta onto axis

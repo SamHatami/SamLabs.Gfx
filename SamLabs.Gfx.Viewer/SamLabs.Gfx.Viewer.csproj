@@ -8,12 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.8" />
+    <PackageReference Include="Avalonia" Version="11.3.10" />
     <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-rc.2.25502.107" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-rc.2.25502.107" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
     <PackageReference Include="OpenTK" Version="5.0.0-pre.15" />
-    <PackageReference Include="Serilog" Version="4.3.1-dev-02387" />
+    <PackageReference Include="Serilog" Version="4.3.1-dev-02395" />
   </ItemGroup>
 
   <ItemGroup>
