@@ -16,8 +16,8 @@ public static class CameraExtensions
         
         var inverseViewProj = Matrix4.Invert(cameraData.ViewMatrix * cameraData.ProjectionMatrix);
 
-        var near = Vector4.TransformColumn(inverseViewProj,new Vector4(ndcPoint.X, ndcPoint.Y, -cameraData.Near, 1));
-        var far  = Vector4.TransformColumn(inverseViewProj,new Vector4(ndcPoint.X, ndcPoint.Y,  cameraData.Far, 1));
+        var near = Vector4.TransformRow(new Vector4(ndcPoint.X, ndcPoint.Y, -1, 1), inverseViewProj);
+        var far  = Vector4.TransformRow(new Vector4(ndcPoint.X, ndcPoint.Y,  1, 1), inverseViewProj);
 
         near /= near.W;
         far  /= far.W;
