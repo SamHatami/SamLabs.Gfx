@@ -17,14 +17,14 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class TransformSystem : UpdateSystem
 {
-    override public int SystemPosition => SystemOrders.TransformUpdate;
+    public override int SystemPosition => SystemOrders.TransformUpdate;
     private bool _isTransforming;
-    private Vector3 _transformStartPoint;
     private int _selectedGizmoSubEntity;
-    private TransformComponent _selectedGizmoTransform;
+    private Vector3 _lastHitPoint;
 
     public TransformSystem(EntityManager entityManager) : base(entityManager)
     {
+        _lastHitPoint = Vector3.Zero;
     }
 
     public override void Update(FrameInput frameInput)
@@ -42,11 +42,6 @@ public class TransformSystem : UpdateSystem
 
         gizmoTransform.Position = entityTransform.Position;
 
-        // Update child gizmo world transforms based on parent
-        Span<int> childBuffer = stackalloc int[12];
-        // var subGizmoEntities = ComponentManager.GetChildEntitiesForParent(activeGizmo, childBuffer);
-        // // UpdateChildrenWorldTransforms(subGizmoEntities, gizmoTransform);
-
         var pickingEntities = GetEntitiesIds.With<PickingDataComponent>();
         if (pickingEntities.IsEmpty) return;
 
@@ -58,7 +53,6 @@ public class TransformSystem : UpdateSystem
             {
                 _isTransforming = true;
                 _selectedGizmoSubEntity = pickingData.HoveredEntityId;
-                _transformStartPoint = entityTransform.Position;
             }
         }
 
@@ -73,6 +67,7 @@ public class TransformSystem : UpdateSystem
 
         _isTransforming = false;
         _selectedGizmoSubEntity = -1;
+        _lastHitPoint = Vector3.Zero;
     }
 
     private void UpdateChildrenWorldTransforms(ReadOnlySpan<int> childEntities, TransformComponent parentTransform)
@@ -86,6 +81,7 @@ public class TransformSystem : UpdateSystem
         }
     }
 
+    //this is for translate gizmos only -Sam
     private Vector3 CalculateTransformDelta(FrameInput frameInput, TransformComponent gizmoTransform)
     {
         // Get camera for ray casting
@@ -102,33 +98,39 @@ public class TransformSystem : UpdateSystem
             cameraData.ScreenPointToWorldRay(
                 new Vector2((float)frameInput.MousePosition.X, (float)frameInput.MousePosition.Y),
                 frameInput.ViewportSize);
-
+        
         var projectionPlane = new Plane(gizmoTransform.Position,cameraDir);
 
         if (!projectionPlane.RayCast(mouseRay, out var hit))
             return Vector3.Zero;
 
-        return CalculateConstrainedDelta(mouseRay.GetPoint(hit), gizmoTransform.Position, gizmoChild.Axis);
+        var currentHitPoint = mouseRay.GetPoint(hit);
+    
+        if (_lastHitPoint == Vector3.Zero)
+        {
+            _lastHitPoint = currentHitPoint;
+            return Vector3.Zero; 
+        }
+
+        var transformDelta = CalculateConstrainedDelta(currentHitPoint - _lastHitPoint, gizmoChild.Axis);
+        _lastHitPoint = currentHitPoint;
+    
+        return transformDelta;
     }
 
-   private Vector3 CalculateConstrainedDelta(Vector3 currentPoint, Vector3 gizmoPosition,
-        GizmoAxis axis)
+    private Vector3 CalculateConstrainedDelta(Vector3 transformDelta, GizmoAxis axis)
     {
-        var totalDelta = currentPoint - gizmoPosition;
-        var totalDistance = Vector3.Distance(currentPoint, gizmoPosition);
-        if(totalDistance < 0.00001f)
-            return Vector3.Zero;
         return axis switch
         {
             // Single axis: project delta onto axis
-            GizmoAxis.X => new Vector3(totalDelta.X, 0, 0),
-            GizmoAxis.Y => new Vector3(0, totalDelta.Y, 0),
-            GizmoAxis.Z => new Vector3(0, 0, totalDelta.Z),
+            GizmoAxis.X => new Vector3(transformDelta.X, 0, 0),
+            GizmoAxis.Y => new Vector3(0, transformDelta.Y, 0),
+            GizmoAxis.Z => new Vector3(0, 0, transformDelta.Z),
 
             // Plane handles: allow movement in both axes
-            GizmoAxis.XY => new Vector3(totalDelta.X, totalDelta.Y, 0),
-            GizmoAxis.XZ => new Vector3(totalDelta.X, 0, totalDelta.Z),
-            GizmoAxis.YZ => new Vector3(0, totalDelta.Y, totalDelta.Z),
+            GizmoAxis.XY => new Vector3(transformDelta.X, transformDelta.Y, 0),
+            GizmoAxis.XZ => new Vector3(transformDelta.X, 0, transformDelta.Z),
+            GizmoAxis.YZ => new Vector3(0, transformDelta.Y, transformDelta.Z),
 
             _ => Vector3.Zero
         };
