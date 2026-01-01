@@ -9,24 +9,21 @@ using SamLabs.Gfx.Viewer.ECS.Components.Flags; // Need this for the flag
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 
-public class TransformGizmoBlueprint:EntityBlueprint
+public class TranslateGizmoBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityManager _entityManager;
 
-    public TransformGizmoBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
+    public TranslateGizmoBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
     {
         _shaderService = shaderService;
         _entityManager = entityManager;
     }
 
-    public override string Name { get; } = EntityNames.TransformGizmo;
+    public override string Name { get; } = EntityNames.TranslateGizmo;
     public override async void Build(Entity parentGizmo, MeshDataComponent meshData = default)
     {
-        
-        
         parentGizmo.Type = EntityType.Gizmo;
-        
         var scale = new Vector3(1f, 1f, 1f);
         
        // --- 1. Setup Parent Gizmo Entity ---
@@ -183,8 +180,5 @@ public class TransformGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), yzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.YZ), yzPlaneEntity.Id);   
        
-       // Example Plane (XY)
-       // var xyPlaneEntity = _entityManager.CreateEntity();
-       // ... setup components for the plane geometry here ...
     }
 }

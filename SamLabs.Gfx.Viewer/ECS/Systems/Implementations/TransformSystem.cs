@@ -1,8 +1,10 @@
 ﻿using Assimp;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -39,9 +41,9 @@ public class TransformSystem : UpdateSystem
 
         ref var entityTransform = ref ComponentManager.GetComponent<TransformComponent>(selectedEntities[0]);
         ref var gizmoTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
-
+        var gizmoComponent = ComponentManager.GetComponent<GizmoComponent>(activeGizmo);
+        
         gizmoTransform.Position = entityTransform.Position;
-
         var pickingEntities = GetEntitiesIds.With<PickingDataComponent>();
         if (pickingEntities.IsEmpty) return;
 
@@ -58,9 +60,20 @@ public class TransformSystem : UpdateSystem
 
         if (_isTransforming && frameInput.IsMouseLeftButtonDown)
         {
-            var delta = CalculateTransformDelta(frameInput, gizmoTransform);
-            entityTransform.Position += delta;
-            gizmoTransform.Position = entityTransform.Position;
+            ref var gizmoChild = ref ComponentManager.GetComponent<GizmoChildComponent>(_selectedGizmoSubEntity);
+            
+            switch (gizmoComponent.Type)
+            {
+                case GizmoType.Translate:
+                    Translate(frameInput, ref gizmoTransform, ref entityTransform, gizmoChild);
+                    break;
+                case GizmoType.Scale:
+                    Scale(frameInput, gizmoTransform, ref entityTransform, gizmoChild);
+                    break;
+                case GizmoType.Rotate:
+                    Rotate(frameInput, gizmoTransform, ref entityTransform, gizmoChild);
+                    break;
+            }
         }
 
         if (frameInput.IsMouseLeftButtonDown || !_isTransforming) return;
@@ -68,6 +81,29 @@ public class TransformSystem : UpdateSystem
         _isTransforming = false;
         _selectedGizmoSubEntity = -1;
         _lastHitPoint = Vector3.Zero;
+    }
+
+    private void Rotate(FrameInput frameInput, TransformComponent gizmoTransform, ref TransformComponent entityTransform,
+        GizmoChildComponent gizmoChild)
+    {
+        var delta = GetTransformDelta(frameInput, gizmoTransform,  gizmoChild, true).Length;
+        var rotationSpeed = 1f;
+        entityTransform.Rotation *= Quaternion.FromAxisAngle(gizmoChild.Axis.ToVector3(),  delta);
+    }
+
+    private void Scale(FrameInput frameInput, TransformComponent gizmoTransform, ref TransformComponent entityTransform,
+        GizmoChildComponent gizmoChild)
+    {
+        var delta = GetTransformDelta(frameInput, gizmoTransform,  gizmoChild);
+        entityTransform.Scale *= delta;
+    }
+
+    private void Translate(FrameInput frameInput, ref TransformComponent gizmoTransform, ref TransformComponent entityTransform,
+        GizmoChildComponent gizmoChild)
+    {
+        var delta = GetTransformDelta(frameInput, gizmoTransform,  gizmoChild);
+        entityTransform.Position += delta;
+        gizmoTransform.Position = entityTransform.Position;
     }
 
     private void UpdateChildrenWorldTransforms(ReadOnlySpan<int> childEntities, TransformComponent parentTransform)
@@ -81,19 +117,17 @@ public class TransformSystem : UpdateSystem
         }
     }
 
-    //this is for translate gizmos only -Sam
-    private Vector3 CalculateTransformDelta(FrameInput frameInput, TransformComponent gizmoTransform)
+    private Vector3 GetTransformDelta(FrameInput frameInput, TransformComponent gizmoTransform, GizmoChildComponent gizmoChild, bool constrainDelta = false)
     {
-        // Get camera for ray casting
         var cameraEntities = GetEntitiesIds.With<CameraComponent>();
         if (cameraEntities.IsEmpty) return Vector3.Zero;
 
         ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraEntities[0]);
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraEntities[0]);
-        ref var gizmoChild = ref ComponentManager.GetComponent<GizmoChildComponent>(_selectedGizmoSubEntity);
 
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         
+        //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at gizmo position
         var mouseRay =
             cameraData.ScreenPointToWorldRay(
                 new Vector2((float)frameInput.MousePosition.X, (float)frameInput.MousePosition.Y),
@@ -112,13 +146,13 @@ public class TransformSystem : UpdateSystem
             return Vector3.Zero; 
         }
 
-        var transformDelta = CalculateConstrainedDelta(currentHitPoint - _lastHitPoint, gizmoChild.Axis);
+        var delta = currentHitPoint - _lastHitPoint;
+        var transformDelta = constrainDelta ? delta : ConstrainedTransform(delta, gizmoChild.Axis);
         _lastHitPoint = currentHitPoint;
-    
         return transformDelta;
     }
 
-    private Vector3 CalculateConstrainedDelta(Vector3 transformDelta, GizmoAxis axis)
+    private Vector3 ConstrainedTransform(Vector3 transformDelta, GizmoAxis axis)
     {
         return axis switch
         {

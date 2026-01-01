@@ -65,6 +65,8 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     public void ToggleTranslateGizmos() => CommandManager.EnqueueCommand(new ToggleTranslateGizmoVisibilityCommand(CommandManager));
+    public void ToggleRotateGizmo() => CommandManager.EnqueueCommand(new ToggleRotateGizmoVisibilityCommand(CommandManager));
+    public void ToggleScaleGizmo() => CommandManager.EnqueueCommand(new ToggleRotateGizmoVisibilityCommand(CommandManager));
 
     public void UpdateFps(double fpsValue)
     {

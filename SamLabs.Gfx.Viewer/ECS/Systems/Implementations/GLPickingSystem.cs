@@ -67,17 +67,18 @@ public class GLPickingSystem : RenderSystem
         // GL.Clear(ClearBufferMask.DepthBufferBit);
         
         var parentGizmo = ComponentManager.GetEntityIdsForComponentType<ActiveGizmoComponent>();
-        if(parentGizmo.IsEmpty) return; //No active gizmo (no gizmo selected)
-        var parentTransform = ComponentManager.GetComponent<TransformComponent>(parentGizmo[0]);
-        foreach (var selectableEntity in selectableEntities)
+        if(!parentGizmo.IsEmpty) //No active gizmo (no gizmo selected)
         {
-            var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
-            
-            if(!mesh.IsGizmo)
-                continue;
-            Matrix4 paddingMatrix = Matrix4.CreateScale(GizmoPaddingScale);
-            var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix();
-            RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
+            Span<int> childBuffer = stackalloc int[6]; //Make sure only the active parents children are fetched
+            var childGizmos = ComponentManager.GetChildEntitiesForParent(parentGizmo[0], childBuffer);
+            foreach (var childGizmo in childGizmos)
+            {
+                var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(childGizmo);
+                if (!mesh.IsGizmo)
+                    continue;
+                var modelMatrix = ComponentManager.GetComponent<TransformComponent>(childGizmo).WorldMatrix();
+                RenderToPickingTexture(mesh, childGizmo, modelMatrix);
+            }
         }
         
         HandlePickingIdReadBack(x, y, ref pickingData);

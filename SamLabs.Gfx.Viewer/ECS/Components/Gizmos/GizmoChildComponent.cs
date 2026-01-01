@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Managers;
+﻿using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 
@@ -11,6 +12,24 @@ public enum GizmoAxis
     XY = 4,
     XZ = 5,
     YZ = 6
+}
+
+public static class GizmoChildExtension
+{
+    public static Vector3 ToVector3(this GizmoAxis gizmoAxis)
+    {
+        switch (gizmoAxis)
+        {
+            case GizmoAxis.X:
+                return new Vector3(1,0,0);
+            case GizmoAxis.Y:
+                return new Vector3(0,1,0);
+            case GizmoAxis.Z:
+                return new Vector3(0,0,1);
+        }
+        
+        return Vector3.Zero;
+    }
 }
 
 public struct GizmoChildComponent: IDataComponent
