@@ -7,42 +7,52 @@ using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
-public class ToggleTranslateGizmoVisibilityCommand : Command
+public class ToggleGizmoCommand : Command
 {
     private readonly CommandManager _commandManager;
+    private readonly GizmoType _gizmoType;
     private readonly Scene _scene;
     private readonly EntityCreator _entityCreator;
     private int _translateGizmoId = -1;
     private int _rotateGizmoId = -1;
     private int _scaleGizmoId = -1;
+    private int _targetGizmoId;
 
-    public ToggleTranslateGizmoVisibilityCommand(CommandManager commandManager)
+    public ToggleGizmoCommand(CommandManager commandManager, GizmoType gizmoType)
     {
         _commandManager = commandManager;
+        _gizmoType = gizmoType;
     }
 
     public override void Execute()
     {
-        //get the TransformGizmo entity
-        //if it has VisibilityComponent, remove it
-        //else add it
-        //should probably save all the gizmo entities and just toggle visibility of them
-        //but for now i'll just clone the commands...
-        GetGizmoIds();
+        GetGizmoIds(); //execution order here instead of constructor, entities might not have been created before the commands have.
+        _targetGizmoId = _gizmoType switch
+        {
+            GizmoType.Translate => _translateGizmoId,
+            GizmoType.Rotate => _rotateGizmoId,
+            GizmoType.Scale => _scaleGizmoId,
+            _ => -1
+        };
+
+        if (_targetGizmoId == -1) return;
+
         HideOtherGizmos();
 
-        if (ComponentManager.HasComponent<ActiveGizmoComponent>(_translateGizmoId))
-            ComponentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_translateGizmoId);
+        if (ComponentManager.HasComponent<ActiveGizmoComponent>(_targetGizmoId))
+            ComponentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_targetGizmoId);
         else
-            ComponentManager.SetComponentToEntity(new ActiveGizmoComponent(), _translateGizmoId);
+            ComponentManager.SetComponentToEntity(new ActiveGizmoComponent(), _targetGizmoId);
     }
 
     private void HideOtherGizmos()
     {
-        if (ComponentManager.HasComponent<ActiveGizmoComponent>(_rotateGizmoId))
-            ComponentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_rotateGizmoId);
-        if (ComponentManager.HasComponent<ActiveGizmoComponent>(_scaleGizmoId))
-            ComponentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(_scaleGizmoId);
+        var gizmoIds = new[] { _translateGizmoId, _rotateGizmoId, _scaleGizmoId };
+        foreach (var id in gizmoIds.Where(id => id != _targetGizmoId))
+        {
+            if (ComponentManager.HasComponent<ActiveGizmoComponent>(id))
+                ComponentManager.RemoveComponentFromEntity<ActiveGizmoComponent>(id);
+        }
     }
 
     private void GetGizmoIds()

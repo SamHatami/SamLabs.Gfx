@@ -68,6 +68,8 @@ public static class ComponentManager
 
     public static void RemoveEntity(int entityId)
     {
+        if(entityId == -1) return;
+        
         foreach (var componentMap in ComponentMaps) componentMap.RemoveUsage(entityId);
 
         foreach (var storage in ComponentStorages) storage?.Clear(entityId);
@@ -75,6 +77,8 @@ public static class ComponentManager
 
     public static void SetComponentToEntity<T>(T component, int entityId) where T : IDataComponent
     {
+        if(entityId == -1) return;
+        
         var componentId = GetId<T>();
         var storage = (ComponentStorage<T>)ComponentStorages[componentId];
         storage.Get(entityId) = component;
@@ -112,12 +116,11 @@ public static class ComponentManager
 
     public static bool HasComponent<T>(int entityId) where T : IDataComponent
     {
+        if(entityId == -1) return false;
         var componentId = GetId<T>();
 
-        // Safety: Component type not registered
         if (componentId == -1 ) return false;
 
-        // You need to ensure your ComponentMap class has a Has/Contains method
         return ComponentMaps[componentId].Has(entityId);
     }
 

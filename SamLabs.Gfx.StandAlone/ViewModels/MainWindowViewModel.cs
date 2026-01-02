@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
+using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -64,9 +65,9 @@ public partial class MainWindowViewModel : ViewModelBase
             _entityCreator));
     }
 
-    public void ToggleTranslateGizmos() => CommandManager.EnqueueCommand(new ToggleTranslateGizmoVisibilityCommand(CommandManager));
-    public void ToggleRotateGizmo() => CommandManager.EnqueueCommand(new ToggleRotateGizmoVisibilityCommand(CommandManager));
-    public void ToggleScaleGizmo() => CommandManager.EnqueueCommand(new ToggleRotateGizmoVisibilityCommand(CommandManager));
+    public void ToggleTranslateGizmos() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Translate));
+    public void ToggleRotateGizmo() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Rotate));
+    public void ToggleScaleGizmo() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Scale));
 
     public void UpdateFps(double fpsValue)
     {
