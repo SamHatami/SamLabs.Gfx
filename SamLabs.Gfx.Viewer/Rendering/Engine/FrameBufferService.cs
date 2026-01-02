@@ -1,6 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using SamLabs.Gfx.Viewer.Core;
-using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.SceneGraph;
 using Buffer = OpenTK.Graphics.OpenGL.Buffer;

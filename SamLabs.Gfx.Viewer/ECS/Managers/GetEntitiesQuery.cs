@@ -1,9 +1,8 @@
 ﻿using SamLabs.Gfx.Viewer.Core;
-using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
-public static class GetEntitiesIds
+public static class GetEntityIds
 {
     private static readonly int[] QueryBuffer = new int[GlobalSettings.MaxEntities];
 

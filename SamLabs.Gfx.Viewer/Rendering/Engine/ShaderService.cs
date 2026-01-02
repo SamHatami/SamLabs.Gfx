@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
-using SamLabs.Gfx.Viewer.Rendering.Shaders;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 

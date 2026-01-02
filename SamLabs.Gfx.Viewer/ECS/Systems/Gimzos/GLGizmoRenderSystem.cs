@@ -8,7 +8,7 @@ using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Gimzos;
 
 public class GLGizmoRenderSystem : RenderSystem
 {

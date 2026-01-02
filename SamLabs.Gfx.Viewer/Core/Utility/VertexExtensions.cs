@@ -1,4 +1,4 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Managers;
+﻿using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.Core.Utility;
 

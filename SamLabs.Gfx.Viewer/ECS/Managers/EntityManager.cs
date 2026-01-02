@@ -4,6 +4,7 @@ using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
+//manage entities, respond to entity queries (GetEnteties should be moved here)
 public class EntityManager
 {  
     private readonly Entity?[] _entities  = new Entity?[GlobalSettings.MaxEntities];

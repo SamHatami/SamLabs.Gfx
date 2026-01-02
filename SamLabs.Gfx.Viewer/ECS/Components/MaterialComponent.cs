@@ -1,5 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Managers;
-using SamLabs.Gfx.Viewer.Rendering.Shaders;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 

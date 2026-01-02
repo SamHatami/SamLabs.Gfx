@@ -1,8 +1,9 @@
 ﻿using Assimp;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Managers;
+using SamLabs.Gfx.Viewer.ECS.Core;
 
+namespace SamLabs.Gfx.Viewer.Core.Utility;
 
 public static class ModelLoader
 {
@@ -12,7 +13,7 @@ public static class ModelLoader
         var steps = PostProcessSteps.Triangulate |    
                     // Ensure all faces are triangles
                     PostProcessSteps.FlipUVs |               // Align texture V-axis with OpenGL
-                       // Create normals if missing
+                    // Create normals if missing
                     PostProcessSteps.JoinIdenticalVertices; 
 
         Scene scene;

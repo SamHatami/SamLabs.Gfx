@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SamLabs.Gfx.Viewer.ECS.Managers;
+namespace SamLabs.Gfx.Viewer.ECS.Core;
 
 public struct Vertex
 {

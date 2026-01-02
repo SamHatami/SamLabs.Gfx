@@ -1,5 +1,5 @@
 ﻿using OpenTK.Mathematics;
-using SamLabs.Gfx.Viewer.Rendering.Shaders;
+using SamLabs.Gfx.Viewer.Rendering.Engine;
 using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Abstractions;

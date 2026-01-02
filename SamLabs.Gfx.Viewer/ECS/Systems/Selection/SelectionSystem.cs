@@ -1,12 +1,11 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
-using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Selection;
 
 public class SelectionSystem : UpdateSystem
 {
@@ -52,10 +51,10 @@ public class SelectionSystem : UpdateSystem
 
     private void SetNewGizmoSelection(int gizmoEntityId)
     {
-        var activeGizmo = GetEntitiesIds.With<ActiveGizmoComponent>();
+        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>();
         if (activeGizmo.IsEmpty) return;
 
-        var previousSelection = GetEntitiesIds.With<SelectedChildGizmoComponent>();
+        var previousSelection = GetEntityIds.With<SelectedChildGizmoComponent>();
         if (!previousSelection.IsEmpty)
             ComponentManager.RemoveComponentFromEntities<SelectedChildGizmoComponent>(previousSelection);
 
@@ -75,12 +74,12 @@ public class SelectionSystem : UpdateSystem
 
     private void AttachToGizmo(int[] entityIds)
     {
-        var activeGizmo = GetEntitiesIds.With<ActiveGizmoComponent>();
+        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>();
 
         // If no active gizmo, clear all attachments
         if (activeGizmo.IsEmpty)
         {
-            var attachedEntities = GetEntitiesIds.With<GizmoAttachedComponent>();
+            var attachedEntities = GetEntityIds.With<GizmoAttachedComponent>();
             if (!attachedEntities.IsEmpty)
             {
                 foreach (var entityId in attachedEntities)
@@ -91,7 +90,7 @@ public class SelectionSystem : UpdateSystem
         }
 
         // Clear existing attachments first to ensure only current selection is attached
-        var currentAttachments = GetEntitiesIds.With<GizmoAttachedComponent>();
+        var currentAttachments = GetEntityIds.With<GizmoAttachedComponent>();
         foreach (var entityId in currentAttachments)
         {
             ComponentManager.RemoveComponentFromEntity<GizmoAttachedComponent>(entityId);
@@ -108,7 +107,7 @@ public class SelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var entities = GetEntitiesIds.With<PickingDataComponent>();
+        var entities = GetEntityIds.With<PickingDataComponent>();
         if (entities.IsEmpty) return; //hmm
         _pickingEntity = entities[0];
     }
@@ -144,7 +143,7 @@ public class SelectionSystem : UpdateSystem
 
     private void ClearSelectionComponent()
     {
-        var earlierSelection = GetEntitiesIds.With<SelectedComponent>();
+        var earlierSelection = GetEntityIds.With<SelectedComponent>();
         if (earlierSelection.IsEmpty) return;
 
         foreach (var entity in earlierSelection)

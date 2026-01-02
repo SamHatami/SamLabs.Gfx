@@ -8,11 +8,9 @@ using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
-using SamLabs.Gfx.Viewer.Rendering.Shaders;
 using SamLabs.Gfx.Viewer.SceneGraph;
-using Buffer = System.Buffer;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Selection;
 
 public class GLPickingSystem : RenderSystem
 {

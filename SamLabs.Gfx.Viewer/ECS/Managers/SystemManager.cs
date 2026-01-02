@@ -37,39 +37,13 @@ public class SystemManager
         RegisterRenderSystems();
     }
 
-    private void RegisterPostRenderSystems()
-    {
-        var postRenderSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
-            where t.IsClass
-                  && t.Namespace == EcsStrings.SystemsFolder
-                  && typeof(PostRenderSystem).IsAssignableFrom(t)
-                  && !t.IsAbstract && !t.IsInterface
-            select t;
-
-        _systemsCount = postRenderSystems.Count();
-
-        for (var i = 0; i < _systemsCount; i++)
-        {
-            try
-            {
-                _postRenderSystems[i] =
-                    (PostRenderSystem)Activator.CreateInstance(postRenderSystems.ElementAt(i));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Could not add system {postRenderSystems.ElementAt(i).Name} to systemregistry");
-            }
-        }
-    }
-
     private void RegisterRenderSystems()
     {
-        var renderSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
-            where t.IsClass
-                  && t.Namespace == EcsStrings.SystemsFolder
-                  && typeof(RenderSystem).IsAssignableFrom(t)
-                  && !t.IsAbstract && !t.IsInterface
-            select t;
+        var renderSystems = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsClass
+                        && !t.IsAbstract
+                        && typeof(RenderSystem).IsAssignableFrom(t))
+            .ToArray();
 
         for (var i = 0; i < renderSystems.Count(); i++)
         {
@@ -100,12 +74,11 @@ public class SystemManager
 
     private void RegisterUpdateSystems()
     {
-        var updateSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
-            where t.IsClass
-                  && t.Namespace == EcsStrings.SystemsFolder
-                  && typeof(UpdateSystem).IsAssignableFrom(t)
-                  && !t.IsAbstract && !t.IsInterface
-            select t;
+        var updateSystems = Assembly.GetExecutingAssembly().GetTypes()
+            .Where(t => t.IsClass
+                        && !t.IsAbstract
+                        && typeof(UpdateSystem).IsAssignableFrom(t))
+            .ToArray();
 
 
         for (var i = 0; i < updateSystems.Count(); i++)
@@ -122,32 +95,6 @@ public class SystemManager
         }
     }
 
-    private void RegisterPreRenderSystems()
-    {
-        var preRenderSystems = from t in Assembly.GetExecutingAssembly().GetTypes()
-            where t.IsClass
-                  && t.Namespace == EcsStrings.SystemsFolder
-                  && typeof(PreRenderSystem).IsAssignableFrom(t)
-                  && !t.IsAbstract && !t.IsInterface
-            select t;
-
-        _systemsCount = preRenderSystems.Count();
-
-        for (var i = 0; i < _systemsCount; i++)
-        {
-            try
-            {
-                _preRenderSystems[i] =
-                    (PreRenderSystem)Activator.CreateInstance(preRenderSystems.ElementAt(i));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Could not add system {preRenderSystems.ElementAt(i).Name} to systemregistry");
-            }
-        }
-        
-        
-    }
 
     public void Update(FrameInput frameInput)
     {

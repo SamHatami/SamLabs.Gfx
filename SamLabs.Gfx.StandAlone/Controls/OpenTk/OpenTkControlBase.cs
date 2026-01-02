@@ -38,7 +38,15 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         //Tell our subclass to render
         if (Bounds.Width != 0 && Bounds.Height != 0)
         {
-            OpenTkRender(fb, size.width, size.height);
+            try
+            {
+                OpenTkRender(fb, size.width, size.height);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         //Schedule next UI update with avalonia

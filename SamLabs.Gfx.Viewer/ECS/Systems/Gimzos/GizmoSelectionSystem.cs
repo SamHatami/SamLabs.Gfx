@@ -1,12 +1,11 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
-using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Gimzos;
 
 public class GizmoSelectionSystem : UpdateSystem
 {
@@ -45,14 +44,14 @@ public class GizmoSelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var entities = GetEntitiesIds.With<PickingDataComponent>();
+        var entities = GetEntityIds.With<PickingDataComponent>();
         if (entities.IsEmpty) return; //hmm
         _pickingEntity = entities[0];
     }
 
     private void SetNewGizmoSelection(int gizmoEntityId)
     {
-        var activeGizmo = GetEntitiesIds.With<ActiveGizmoComponent>();
+        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>();
         if (activeGizmo.IsEmpty) return;
         
         ClearPreviousSelection();
@@ -74,7 +73,7 @@ public class GizmoSelectionSystem : UpdateSystem
 
     private void ClearPreviousSelection()
     {
-        var previousSelection = GetEntitiesIds.With<SelectedChildGizmoComponent>();
+        var previousSelection = GetEntityIds.With<SelectedChildGizmoComponent>();
         if (previousSelection.IsEmpty) return;
 
         foreach (var entity in previousSelection)

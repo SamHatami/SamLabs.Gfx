@@ -116,7 +116,6 @@ public static class ComponentManager
 
     public static bool HasComponent<T>(int entityId) where T : IDataComponent
     {
-        if(entityId == -1) return false;
         var componentId = GetId<T>();
 
         if (componentId == -1 ) return false;

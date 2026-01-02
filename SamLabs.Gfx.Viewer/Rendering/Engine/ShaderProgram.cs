@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Viewer.Rendering.Shaders;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Engine;
 

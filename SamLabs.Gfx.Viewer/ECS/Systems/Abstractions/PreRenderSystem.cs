@@ -1,5 +1,4 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Interfaces;
-using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
