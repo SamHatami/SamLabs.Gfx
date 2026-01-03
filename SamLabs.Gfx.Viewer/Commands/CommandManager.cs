@@ -8,7 +8,7 @@ public class CommandManager
     //For instance if its in the global state, it'll have commandstate = global
     
     private readonly ConcurrentQueue<ICommand> _commands = new();
-    private readonly ConcurrentQueue<ICommand> _undoCommands = new();
+    private readonly ConcurrentStack<ICommand> _undoCommands = new();
     private readonly ConcurrentQueue<ICommand> _redoCommands = new();
 
     public void EnqueueCommand(ICommand command) => _commands.Enqueue(command);
@@ -22,17 +22,15 @@ public class CommandManager
         while (_commands.TryDequeue(out var command))
         {
             command.Execute();
-            
             //Don't record internal commands
             if(command.Internal) continue;
-            
-            _undoCommands.Enqueue(command);
+            _undoCommands.Push(command);
         }
     }
 
     public void UndoLatestCommand()
     {
-        _undoCommands.TryDequeue(out var command);
+        _undoCommands.TryPop(out var command);
         _redoCommands.Enqueue(command);
         command?.Undo();
     }
@@ -44,7 +42,7 @@ public class CommandManager
     }
     
     
-    public void AddUndoCommand(ICommand command) => _undoCommands.Enqueue(command);
+    public void AddUndoCommand(ICommand command) => _undoCommands.Push(command);
 
 
     public void EnqueueCommand()

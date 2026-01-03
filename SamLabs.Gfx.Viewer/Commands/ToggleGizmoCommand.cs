@@ -6,7 +6,8 @@ using SamLabs.Gfx.Viewer.SceneGraph;
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
-public class ToggleGizmoCommand : Command
+//Invoked by user but not recorded, hence Internal
+public class ToggleGizmoCommand : InternalCommand 
 {
     private readonly CommandManager _commandManager;
     private readonly GizmoType _gizmoType;

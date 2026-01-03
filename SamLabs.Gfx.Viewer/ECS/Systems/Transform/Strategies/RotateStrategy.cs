@@ -15,9 +15,10 @@ public class RotateStrategy:ITransformStrategy
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
         GizmoChildComponent gizmoChild)
     {
-        var delta = GetTransformDelta(input, gizmoTransform,  gizmoChild, true).Length;
-        var rotationSpeed = 1f;
-        target.Rotation *= Quaternion.FromAxisAngle(gizmoChild.Axis.ToVector3(),  delta);
+        var delta = GetRotateDelta(input, gizmoTransform,  gizmoChild, true);
+        if(delta == 0f) return;
+        
+        target.Rotation *= Quaternion.Normalize(Quaternion.FromAxisAngle(gizmoChild.Axis.ToVector3(),  delta));
     }
 
     public void Reset()
@@ -25,10 +26,10 @@ public class RotateStrategy:ITransformStrategy
         _lastHitPoint = Vector3.Zero;
     }
 
-    private Vector3 GetTransformDelta(FrameInput input, TransformComponent gizmoTransform, GizmoChildComponent gizmoChild, bool constrainDelta = false)
+    private float GetRotateDelta(FrameInput input, TransformComponent gizmoTransform, GizmoChildComponent gizmoChild, bool constrainDelta = false)
     {
         var cameraId = GetEntityIds.With<CameraComponent>().First();
-        if (cameraId == -1) return Vector3.Zero;
+        if (cameraId == -1) return 0;
 
         //Get cameraData (still only one camera)
         ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraId);
@@ -44,19 +45,28 @@ public class RotateStrategy:ITransformStrategy
         var projectionPlane = new Plane(gizmoTransform.Position,cameraDir);
 
         if (!projectionPlane.RayCast(mouseRay, out var hit))
-            return Vector3.Zero;
+            return 0f;
 
         var currentHitPoint = mouseRay.GetPoint(hit);
-    
         if (_lastHitPoint == Vector3.Zero)
         {
             _lastHitPoint = currentHitPoint;
-            return Vector3.Zero; 
+            return 0f;
         }
-        //Filter results and return
-        var delta = currentHitPoint - _lastHitPoint;
+
+        //A bit of claude magic
+        var axisVector = gizmoChild.Axis.ToVector3();
+        var gizmoPos = gizmoTransform.Position; 
+
+        var lastDir = Vector3.Normalize(_lastHitPoint - gizmoPos);
+        var currentDir = Vector3.Normalize(currentHitPoint - gizmoPos);
+
+        var cross = Vector3.Cross(lastDir, currentDir);
+        var sign = MathF.Sign(Vector3.Dot(cross, axisVector));
+        var angle = MathF.Acos(Math.Clamp(Vector3.Dot(lastDir, currentDir), -1, 1));
+
         _lastHitPoint = currentHitPoint;
-        return delta;
+        return angle * sign;
     }
 
 }

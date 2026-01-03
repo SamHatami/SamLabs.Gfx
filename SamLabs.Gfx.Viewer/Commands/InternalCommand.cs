@@ -9,4 +9,6 @@ public abstract class InternalCommand : ICommand
     public virtual void Redo() => Execute();
 
     public bool Internal { get; set; } = true;
+    
+    //add logger
 }

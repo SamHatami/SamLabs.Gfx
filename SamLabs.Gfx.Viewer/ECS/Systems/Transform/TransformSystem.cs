@@ -45,6 +45,7 @@ public class TransformSystem : UpdateSystem
         if (selectedEntities.IsEmpty) return;
 
         //TODO: Currently only supporting single object selection
+        //TODO: Option to use global transform or local transform
         ref var entityTransform = ref ComponentManager.GetComponent<TransformComponent>(selectedEntities[0]);
         ref var gizmoTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
         var gizmoComponent = ComponentManager.GetComponent<GizmoComponent>(activeGizmo);

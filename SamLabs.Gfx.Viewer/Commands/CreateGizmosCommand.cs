@@ -3,7 +3,7 @@
 namespace SamLabs.Gfx.Viewer.Commands;
 
 //Todo: Add logger
-public class CreateGizmosCommand: Command //InternalCommand or HiddenCommand?
+public class CreateGizmosCommand: InternalCommand //InternalCommand or HiddenCommand?
 {
     private readonly CommandManager _commandManager;
     private readonly EntityCreator _entityCreator;
@@ -16,7 +16,6 @@ public class CreateGizmosCommand: Command //InternalCommand or HiddenCommand?
     
     public override void Execute()
     {
-        //These are actual internal commands, some of them can be invoked before gl context is created, This is not one of them
         try
         {
             _entityCreator.CreateFromBlueprint(EntityNames.TranslateGizmo);

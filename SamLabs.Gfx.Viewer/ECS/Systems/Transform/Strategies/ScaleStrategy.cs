@@ -8,26 +8,23 @@ using SamLabs.Gfx.Viewer.Rendering.Utility;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
 
-public class ScaleStrategy:ITransformStrategy
+public class ScaleStrategy : ITransformStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
-    
+
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
         GizmoChildComponent gizmoChild)
     {
-        var delta = GetTransformDelta(input, gizmoTransform,  gizmoChild).Length;
-        
-        //<1 decrease
-        //>1 increase
-        target.Scale *= delta; //not correct
+        var delta = GetTransformDelta(input, gizmoTransform, gizmoChild);
+        target.Scale *= 1 + delta; 
     }
-
     public void Reset()
     {
         _lastHitPoint = Vector3.Zero;
     }
 
-    private Vector3 GetTransformDelta(FrameInput input, TransformComponent gizmoTransform, GizmoChildComponent gizmoChild)
+    private Vector3 GetTransformDelta(FrameInput input, TransformComponent gizmoTransform,
+        GizmoChildComponent gizmoChild)
     {
         var cameraId = GetEntityIds.With<CameraComponent>().First();
         if (cameraId == -1) return Vector3.Zero;
@@ -36,47 +33,56 @@ public class ScaleStrategy:ITransformStrategy
         ref var cameraData = ref ComponentManager.GetComponent<CameraDataComponent>(cameraId);
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraId);
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
-        
+
         //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at gizmo position
         var mouseRay =
             cameraData.ScreenPointToWorldRay(
                 new Vector2((float)input.MousePosition.X, (float)input.MousePosition.Y),
                 input.ViewportSize);
-        
-        var projectionPlane = new Plane(gizmoTransform.Position,cameraDir);
+
+        var projectionPlane = new Plane(gizmoTransform.Position, cameraDir);
 
         if (!projectionPlane.RayCast(mouseRay, out var hit))
             return Vector3.Zero;
 
         var currentHitPoint = mouseRay.GetPoint(hit);
-    
+        var directionFromCenter = Vector3.Normalize(currentHitPoint - gizmoTransform.Position);
         if (_lastHitPoint == Vector3.Zero)
         {
             _lastHitPoint = currentHitPoint;
-            return Vector3.Zero; 
+            return Vector3.Zero;
         }
+
         //Filter results and return
         var delta = currentHitPoint - _lastHitPoint;
-        var transformDelta = ConstrainedTransform(delta, gizmoChild.Axis);
+        var transformDelta = ConstrainedTransform(delta, directionFromCenter,gizmoChild.Axis);
         _lastHitPoint = currentHitPoint;
         return transformDelta;
     }
-    
-    private Vector3 ConstrainedTransform(Vector3 transformDelta, GizmoAxis axis)
+
+    private Vector3 ConstrainedTransform(Vector3 delta, Vector3 directionFromCenter, GizmoAxis axis)
     {
+        float dragDirection = MathF.Sign(Vector3.Dot(delta, directionFromCenter));
         return axis switch
         {
-            // Single axis: project delta onto axis
-            GizmoAxis.X => new Vector3(transformDelta.X, 0, 0),
-            GizmoAxis.Y => new Vector3(0, transformDelta.Y, 0),
-            GizmoAxis.Z => new Vector3(0, 0, transformDelta.Z),
+            GizmoAxis.X => new Vector3(delta.X, 0, 0),
+            GizmoAxis.Y => new Vector3(0, delta.Y, 0),
+            GizmoAxis.Z => new Vector3(0, 0, delta.Z),
 
-            // Plane handles: allow movement in both axes
-            GizmoAxis.XY => new Vector3(transformDelta.X, transformDelta.Y, 0),
-            GizmoAxis.XZ => new Vector3(transformDelta.X, 0, transformDelta.Z),
-            GizmoAxis.YZ => new Vector3(0, transformDelta.Y, transformDelta.Z),
+            GizmoAxis.XY => CreatePlaneScale(delta.X, delta.Y, 0, dragDirection),
+            GizmoAxis.XZ => CreatePlaneScale(delta.X, 0, delta.Z, dragDirection),
+            GizmoAxis.YZ => CreatePlaneScale(0, delta.Y, delta.Z, dragDirection),
 
-            _ => Vector3.Zero
+            _ => Vector3.One
         };
+    }
+
+    private static Vector3 CreatePlaneScale(float a, float b, float c, float sign)
+    {
+        var mag = MathF.Sqrt(a * a + b * b + c * c) * sign;
+        return new Vector3(
+            a != 0 ? mag : 0, 
+            b != 0 ? mag : 0, 
+            c != 0 ? mag : 0);
     }
 }

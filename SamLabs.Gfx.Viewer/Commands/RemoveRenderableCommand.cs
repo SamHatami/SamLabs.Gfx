@@ -14,7 +14,7 @@ public class RemoveRenderableCommand:Command
     }
     public override void Execute()
     {
-        _scene?.RemoveRenderable(_renderableId);
+        _scene?.RemoveRenderable(_renderableId); //ololol.... old code pre ECS
     }
 
     public override void Undo()
