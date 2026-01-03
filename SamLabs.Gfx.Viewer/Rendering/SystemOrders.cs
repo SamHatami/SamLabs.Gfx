@@ -2,8 +2,8 @@
 
 public static class SystemOrders
 {
-    public const int Init = -2;
-    public const int PreRenderUpdate = -1;
+    public const int Init = -100;
+    public const int PreRenderUpdate = -99;
     public const int GizmoSelectionUpdate = 0;
     public const int SelectionUpdate = 1;
     public const int TransformUpdate = 2;

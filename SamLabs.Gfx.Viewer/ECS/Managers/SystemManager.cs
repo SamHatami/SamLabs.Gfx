@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -10,15 +11,17 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 public class SystemManager
 {
     private readonly EntityManager _entityManager;
+    private readonly CommandManager _commandManager;
     private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
     private UpdateSystem?[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
     private RenderSystem?[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
     private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[GlobalSettings.MaxSystems];
     private int _systemsCount;
 
-    public SystemManager(EntityManager entityManager)
+    public SystemManager(EntityManager entityManager, CommandManager  commandManager)
     {
         _entityManager = entityManager;
+        _commandManager = commandManager;
         RegisterSystems();
     }
 
@@ -86,7 +89,7 @@ public class SystemManager
             try
             {
                 _updateSystems[i] =
-                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), _entityManager);
+                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), _entityManager, _commandManager);
             }
             catch (Exception e)
             {

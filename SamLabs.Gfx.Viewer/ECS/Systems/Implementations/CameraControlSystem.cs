@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -10,7 +11,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Implementations;
 
 public class CameraControlSystem : UpdateSystem
 {
-    public CameraControlSystem(EntityManager entityManager) : base(entityManager)
+    public CameraControlSystem(EntityManager entityManager, CommandManager commandManager) : base(entityManager, commandManager)
     {
     }
 

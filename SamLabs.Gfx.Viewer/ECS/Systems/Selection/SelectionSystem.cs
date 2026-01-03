@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Components;
+﻿using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -11,7 +12,7 @@ public class SelectionSystem : UpdateSystem
 {
     private readonly EntityManager _entityManager;
 
-    public SelectionSystem(EntityManager entityManager) : base(entityManager)
+    public SelectionSystem(EntityManager entityManager, CommandManager commandManager) : base(entityManager, commandManager)
     {
         _entityManager = entityManager;
     }
