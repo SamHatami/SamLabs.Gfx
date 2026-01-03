@@ -67,6 +67,7 @@
             <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding ToggleTranslateGizmos}" Content="T" />
                 <Button Command="{Binding ToggleRotateGizmo}" Content="R" />
+                <Button Command="{Binding ToggleScaleGizmo}" Content="S" />
             </StackPanel>
 
         </Border>

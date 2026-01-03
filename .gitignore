@@ -108,3 +108,5 @@ SamLabs.Gfx.sln.DotSettings.user
 .vs/SamLabs.Gfx/DesignTimeBuild/.dtbcache.v2
 .vs/SamLabs.Gfx/CopilotIndices/18.0.877.25981/SemanticSymbols.db
 .vs/SamLabs.Gfx/CopilotIndices/18.0.877.25981/CodeChunks.db
+SamLabs.Gfx.Viewer/Models/ScaleArrow.mtl
+SamLabs.Gfx.Viewer/Models/ScalePlane.mtl
