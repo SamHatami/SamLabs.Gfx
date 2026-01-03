@@ -1,6 +1,6 @@
 ﻿namespace SamLabs.Gfx.Viewer.Commands;
 
-public abstract class Command : ICommand
+public abstract class InternalCommand : ICommand
 {
     public abstract void Execute();
 
@@ -8,5 +8,5 @@ public abstract class Command : ICommand
 
     public virtual void Redo() => Execute();
 
-    public bool Internal { get; set; } = false;
+    public bool Internal { get; set; } = true;
 }

@@ -2,7 +2,7 @@
 
 namespace SamLabs.Gfx.Viewer.Commands;
 
-public class AddMainGridCommand: Command //InternalCommand or HiddenCommand?
+public class AddMainGridCommand: InternalCommand //InternalCommand or HiddenCommand?
 {
     private readonly CommandManager _commandManager;
     private readonly EntityCreator _entityCreator;

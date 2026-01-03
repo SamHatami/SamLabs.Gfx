@@ -22,7 +22,10 @@ public class CommandManager
         while (_commands.TryDequeue(out var command))
         {
             command.Execute();
-            //need a global settings to set amount of undo commands
+            
+            //Don't record internal commands
+            if(command.Internal) continue;
+            
             _undoCommands.Enqueue(command);
         }
     }
@@ -30,6 +33,7 @@ public class CommandManager
     public void UndoLatestCommand()
     {
         _undoCommands.TryDequeue(out var command);
+        _redoCommands.Enqueue(command);
         command?.Undo();
     }
 
@@ -39,15 +43,6 @@ public class CommandManager
         command?.Redo();
     }
     
-
-    public void UndoLastCommand()
-    {
-        while (_undoCommands.TryDequeue(out var command))
-        {
-            command.Undo();
-            _redoCommands.Enqueue(command);
-        }
-    }
     
     public void AddUndoCommand(ICommand command) => _undoCommands.Enqueue(command);
 
@@ -62,5 +57,6 @@ public interface ICommand
     public void Execute();
     public void Undo();
     public void Redo();
+    public bool Internal { get; set; }
 }
 

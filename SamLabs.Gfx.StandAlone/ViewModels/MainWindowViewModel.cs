@@ -69,7 +69,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public void ToggleRotateGizmo() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Rotate));
     public void ToggleScaleGizmo() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Scale));
 
-    public void UndoCommand() => CommandManager.UndoLastCommand();
+    public void UndoCommand() => CommandManager.UndoLatestCommand();
     public void RedoCommand() => CommandManager.RedoLatestCommand();
 
     public void UpdateFps(double fpsValue)

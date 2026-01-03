@@ -20,6 +20,11 @@
         -->
         <vm:MainWindowViewModel />
     </Design.DataContext>
+    
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
+        <KeyBinding Gesture="Shift+Z" Command="{Binding RedoCommand}" />
+    </Window.KeyBindings>
 
     <Grid>
         <!--  ADD command panel or something here  -->

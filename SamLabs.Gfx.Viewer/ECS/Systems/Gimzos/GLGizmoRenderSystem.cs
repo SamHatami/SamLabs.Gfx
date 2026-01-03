@@ -13,7 +13,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Gimzos;
 public class GLGizmoRenderSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.GizmoRender;
-    private const float GizmoBaseSize = 0.025f;
+    private const float GizmoBaseSize = 0.02f;
 
     public GLGizmoRenderSystem(EntityManager entityManager) : base(entityManager)
     {
@@ -67,8 +67,8 @@ public class GLGizmoRenderSystem : RenderSystem
         var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         var depth = Vector3.Dot(toGizmo, forward);
         if (depth < 0.1f) depth = 0.1f;
-    
-        var scale = depth * MathF.Tan(cameraData.Fov * 0.5f) * GizmoBaseSize; 
+
+        var scale = GizmoBaseSize * depth;
         parentTransform.Scale = new Vector3(scale);
     
         foreach (var subEntity in gizmoSubEntities)
