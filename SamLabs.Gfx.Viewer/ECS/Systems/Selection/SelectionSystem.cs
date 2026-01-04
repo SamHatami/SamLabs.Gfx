@@ -21,6 +21,7 @@ public class SelectionSystem : UpdateSystem
     private PickingDataComponent _pickingData;
     private int _pickingEntity = -1;
     private int[] _currentSelection;
+    private bool _isGizmoDragging;
 
     public override void Update(FrameInput frameInput)
     {
@@ -28,12 +29,17 @@ public class SelectionSystem : UpdateSystem
 
         if (_pickingEntity == -1) return;
         _pickingData = ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
+        
+        var selectedGizmos = GetEntityIds.With<SelectedChildGizmoComponent>();
+        _isGizmoDragging = !selectedGizmos.IsEmpty && frameInput.IsDragging;
 
+        if(_isGizmoDragging) return; 
+        
         var validEntities = FilterSelection([_pickingData.HoveredEntityId]);
 
         if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
         {
-            if (_pickingData.HoveredEntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
+            if (_pickingData.NothingHovered()) //Clear if clicked outside any selectable, add esc key to clear
                 ClearSelection(validEntities);
             if (ComponentManager.HasComponent<GizmoChildComponent>(_pickingData.HoveredEntityId))
                 return;
@@ -41,7 +47,7 @@ public class SelectionSystem : UpdateSystem
             SetNewSelection(validEntities);
         }
 
-        if (frameInput.Cancelation)
+        if (frameInput.Cancellation)
             ClearSelection(validEntities);
 
         //attach gizmos to selected entities if there is an active gizmo

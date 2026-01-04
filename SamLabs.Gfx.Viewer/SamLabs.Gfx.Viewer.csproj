@@ -105,6 +105,8 @@
     <None Update="Models\ScaleArrow.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Remove="Models\ScalePlane.mtl" />
+    <None Remove="Models\ScaleArrow.mtl" />
   </ItemGroup>
 
   <ItemGroup>

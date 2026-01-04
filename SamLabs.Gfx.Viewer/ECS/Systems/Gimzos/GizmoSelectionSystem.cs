@@ -18,7 +18,6 @@ public class GizmoSelectionSystem : UpdateSystem
     }
 
     public override int SystemPosition => SystemOrders.GizmoSelectionUpdate;
-    private PickingDataComponent _pickingData;
     private int _pickingEntity = -1;
 
     public override void Update(FrameInput frameInput)
@@ -26,19 +25,29 @@ public class GizmoSelectionSystem : UpdateSystem
         GetPickingEntity();
 
         if (_pickingEntity == -1) return;
-        _pickingData = ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
+        ref var pickingData = ref ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
+        if(pickingData.GizmoSelected() && frameInput.IsDragging) return;
         
-        if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
+        if (frameInput.IsMouseLeftButtonDown) //TODO: ctrl-click to do add to selection
         {
-            if (_pickingData.HoveredEntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
+            if(pickingData.NothingHovered()) return;
+            
+            if (pickingData.HoveredEntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
                 ClearPreviousSelection();
             
-            if(ComponentManager.HasComponent<GizmoComponent>(_pickingData.HoveredEntityId) || ComponentManager.HasComponent<GizmoChildComponent>(_pickingData.HoveredEntityId))
-                SetNewGizmoSelection(_pickingData.HoveredEntityId);
+            //Are we hovering over a gizmo ?
+            if(ComponentManager.HasComponent<GizmoComponent>(pickingData.HoveredEntityId) || ComponentManager.HasComponent<GizmoChildComponent>(pickingData.HoveredEntityId))
+            {
+                pickingData.SelectedGizmoId = pickingData.HoveredEntityId;
+                ComponentManager.SetComponentToEntity(pickingData, _pickingEntity);
+                SetNewGizmoSelection(pickingData.HoveredEntityId);
+                return;
+            }
         }
-
-        if (frameInput.Cancelation)
-            ClearPreviousSelection();
+        
+        pickingData.SelectedGizmoId = -1;
+        ComponentManager.SetComponentToEntity(pickingData, _pickingEntity);
+        ClearPreviousSelection();
     }
     
     private void GetPickingEntity()

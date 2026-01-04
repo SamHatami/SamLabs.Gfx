@@ -135,6 +135,7 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uObjectId, typeof(uint));
         UniformInfo.Add(UniformNames.uIsSelected, typeof(int));
         UniformInfo.Add(UniformNames.uGizmoCenter, typeof(Vector3));
+        UniformInfo.Add(UniformNames.uGizmoAxis, typeof(Vector3));
         
     }
 }
@@ -155,4 +156,5 @@ public static class UniformNames
     public const string uIsHovered = "uIsHovered";
     public const string uIsSelected = "uIsSelected";
     public const string uGizmoCenter = "uGizmoCenter";
+    public const string uGizmoAxis = "uGizmoAxis";
 }

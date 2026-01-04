@@ -28,15 +28,19 @@ public class GLRenderMeshSystem : RenderSystem
         foreach (var meshEntity in meshEntities)
         {
             var transform = ComponentManager.GetComponent<TransformComponent>(meshEntity);
-            var modelMatrix = transform.WorldMatrix; //Todo this should be updated every frame when the model is moving
+            var modelMatrix = transform.WorldMatrix;
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
+            
+            //Gizmos are rendered in the GizmoRenderSystem
             if (mesh.IsGizmo) continue;
+            
             var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
             
-            var hovered = (pickingData.HoveredEntityId == meshEntity) ? 1 : 0;
-            var selected = pickingData.SelectedEntityIds.Contains(meshEntity) ? 1 : 0;
+            var isSelected = pickingData.SelectedEntityIds.Contains(meshEntity);
+            var isHovered = (!isSelected && pickingData.HoveredEntityId == meshEntity) ? 1 : 0;
+            var isSelectedInt = isSelected ? 1 : 0;
             
-            RenderMesh(mesh, materials, modelMatrix.Invoke(), hovered,selected);
+            RenderMesh(mesh, materials, modelMatrix.Invoke(), isHovered, isSelectedInt);
         }
     }
 

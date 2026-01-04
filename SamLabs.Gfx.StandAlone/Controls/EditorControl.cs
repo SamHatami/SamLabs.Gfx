@@ -94,24 +94,18 @@ public class EditorControl : OpenTkControlBase
     private DateTime _lastUpdateTime = DateTime.Now;
     private int _frameCount = 0;
     private double _currentFps = 0.0; // The calculated FPS value
-    private int _callCount;
-    private DateTime _lastCheckedTime;
-    private TimeSpan _checkInterval;
-    private DateTime _lastProcessTime;
     private Stopwatch _frameTimer = new();
     private double _lastFrameTime;
     private const double FpsUpdateIntervalSeconds = 1.0; // Update FPS every second
     
-    private bool _renderRequested = false;
     private DateTime _lastRenderTime = DateTime.Now;
     private bool _leftClickOccured;
+    private bool _isDragging;
     private const double MinFrameTimeMs = 16.666667; // ~60 FPS
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
-        _renderRequested = false;
         _lastRenderTime = DateTime.Now;
-        
         _frameCount++;
         DateTime currentTime = DateTime.Now;
         TimeSpan elapsedTime = currentTime - _lastUpdateTime;
@@ -189,8 +183,9 @@ public class EditorControl : OpenTkControlBase
             IsMouseLeftButtonDown = _leftMouseButtonPressed,
             IsMouseRightButtonDown = _rightMouseButtonPressed,
             IsMouseMiddleButtonDown = _middleMouseButtonPressed,
+            IsDragging = _isDragging,
             LeftClickOccured = _leftClickOccured,
-            Cancelation = _keyUp == Key.Escape,
+            Cancellation = _keyUp == Key.Escape,
             MousePosition = _currentMousePosition,
             KeyDown = _keyDown,
             KeyUp = _keyUp,
@@ -243,51 +238,41 @@ public class EditorControl : OpenTkControlBase
         base.OnPointerWheelChanged(e);
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-        // if (!e.Handled)
-        // {
-        //     e.Pointer.Capture(this); // Lock the mouse to this control
-        //     _currentMousePosition = e.GetPosition(this); // Reset "Last" so we don't get a huge jump
-        // }
-    }
-
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         _leftClickOccured = e.InitialPressMouseButton ==  MouseButton.Left;
+        _isDragging = false; 
         base.OnPointerReleased(e);
         e.Pointer.Capture(null); // Release the mouse
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-
         _currentMousePosition = e.GetPosition(this);
         var eventDelta = _currentMousePosition - _lastMousePosition;
+        
         if (eventDelta.X != 0.0 || eventDelta.Y != 0.0)
         {
             _pointerDeltas.Enqueue(new Vector2((float)eventDelta.X, (float)eventDelta.Y));
         }
         
+        _isViewportHovered = true;
+        _lastMousePosition = _currentMousePosition;
+        
+        if(_leftMouseButtonPressed &&  eventDelta.X != 0.0 && eventDelta.Y != 0.0)
+            _isDragging = true;
+        
+        CaptureMouseState(e);
+        
+        base.OnPointerMoved(e);
+    }
+
+    private void CaptureMouseState(PointerEventArgs e)
+    {
         var props = e.GetCurrentPoint(this).Properties;
         _leftMouseButtonPressed = props.IsLeftButtonPressed;
         _rightMouseButtonPressed = props.IsRightButtonPressed;
         _middleMouseButtonPressed = props.IsMiddleButtonPressed;
-        _isViewportHovered = true;
-        
-        _lastMousePosition = _currentMousePosition;
-        
-        // var now = DateTime.Now;
-        // var elapsed = (now - _lastRenderTime).TotalMilliseconds;
-        //
-        // if (elapsed >= MinFrameTimeMs && !_renderRequested)
-        // {
-        //     _renderRequested = true;
-        //     RequestNextFrameRendering();
-        // }
-        
-        base.OnPointerMoved(e);
     }
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e) => _resizeRequested = true;

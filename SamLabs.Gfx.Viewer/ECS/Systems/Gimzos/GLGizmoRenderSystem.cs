@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using System.ComponentModel;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
@@ -34,23 +35,33 @@ public class GLGizmoRenderSystem : RenderSystem
 
         Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
         var subEntities = ComponentManager.GetChildEntitiesForParent(activeGizmo[0], childBuffer);
-        DrawGizmo(activeGizmo[0], subEntities, pickingData, childBuffer);
+        var selectedGizmos = GetEntityIds.With<SelectedChildGizmoComponent>();
+        bool isAnyGizmoDragging = !selectedGizmos.IsEmpty && frameInput.IsMouseLeftButtonDown;
+        
+        DrawGizmo(activeGizmo[0], subEntities, pickingData, childBuffer, isAnyGizmoDragging);
     }
 
     private void DrawGizmo(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, PickingDataComponent pickingData,
-        Span<int> childBuffer)
+        Span<int> childBuffer, bool isDragging)
     {
         ref var parentTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
         UpdateChildGizmos(activeGizmo, gizmoSubEntities, childBuffer,ref parentTransform); //Special case for the gizmo
 
         foreach (var gizmoSubEntity in gizmoSubEntities)
         {
-            var selected = ComponentManager.GetComponent<SelectedComponent>(gizmoSubEntity);
+            var isSelected = CheckSelection(gizmoSubEntity, pickingData);
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(gizmoSubEntity);
             var material = ComponentManager.GetComponent<MaterialComponent>(gizmoSubEntity);
             var subGizmoTransform = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity);
-            RenderGizmoSubMesh(mesh, material, true, subGizmoTransform.WorldMatrix(), pickingData, gizmoSubEntity);
+            var gizmoChildComponent = ComponentManager.GetComponent<GizmoChildComponent>(gizmoSubEntity);
+            
+            RenderGizmoSubMesh(mesh, material, isSelected, isDragging, subGizmoTransform.WorldMatrix(), pickingData, gizmoSubEntity, gizmoChildComponent);
         }
+    }
+
+    private bool CheckSelection(int gizmoSubEntity, PickingDataComponent pickingData)
+    {
+        return !pickingData.IsSelectionEmpty() && ComponentManager.HasComponent<SelectedChildGizmoComponent>(gizmoSubEntity);
     }
 
     private void UpdateChildGizmos(int activeGizmo, ReadOnlySpan<int> gizmoSubEntities, Span<int> childBuffer,
@@ -84,16 +95,24 @@ public class GLGizmoRenderSystem : RenderSystem
 
 
 
-    private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected,
-        Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId = -1)
+    private void RenderGizmoSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected, bool isDragging,
+        Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId,
+        GizmoChildComponent gizmoChildComponent)
     {
-        var pickingDataHoveredEntityId = pickingData.HoveredEntityId;
-        var hovered = (pickingDataHoveredEntityId == entityId) ? 1 : 0;
+        
+        var isHovered = isDragging 
+            ? (isSelected ? 1 : 0)  // During drag: only selected is highlighted
+            : (pickingData.HoveredEntityId == entityId ? 1 : 0);  // Not dragging: use picking
+        var axis = gizmoChildComponent.Axis.ToInt();
+        var selected = isSelected ? 1 : 0;
 
+        // Console.WriteLine($"IsHovered: {isHovered}, IsSelected: {isSelected}");
         GL.Disable(EnableCap.DepthTest);
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
         shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
-            .SetInt(UniformNames.uIsHovered, ref hovered);
+            .SetInt(UniformNames.uIsHovered, ref isHovered)
+            .SetInt(UniformNames.uIsSelected, ref selected)
+            .SetInt(UniformNames.uGizmoAxis, ref axis);
         MeshRenderer.Draw(mesh);
 
         GL.Enable(EnableCap.DepthTest);

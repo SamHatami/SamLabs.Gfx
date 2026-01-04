@@ -30,6 +30,20 @@ public static class GizmoChildExtension
         
         return Vector3.Zero;
     }
+
+    public static int ToInt(this GizmoAxis gizmoAxis)
+    {
+        return gizmoAxis switch
+        {
+            GizmoAxis.X => 0,
+            GizmoAxis.Y => 1,
+            GizmoAxis.Z => 2,
+            GizmoAxis.XY => 0,
+            GizmoAxis.XZ => 1,
+            GizmoAxis.YZ => 2,
+            _ => 3
+        };
+    }
 }
 
 public struct GizmoChildComponent: IDataComponent
