@@ -88,16 +88,5 @@ public class TransformSystem : UpdateSystem
         _selectedGizmoSubEntity = -1;
         transformStrategy.Reset();
     }
-
-
-    private void UpdateChildrenWorldTransforms(ReadOnlySpan<int> childEntities, TransformComponent parentTransform)
-    {
-        foreach (var childId in childEntities)
-        {
-            ref var childTransform = ref ComponentManager.GetComponent<TransformComponent>(childId);
-            childTransform.Position = parentTransform.Position + childTransform.Position;
-            childTransform.Rotation = parentTransform.Rotation * childTransform.Rotation;
-            childTransform.Scale = parentTransform.Scale * childTransform.Scale;
-        }
-    }
+    
 }

@@ -24,6 +24,9 @@
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
         <KeyBinding Gesture="Shift+Z" Command="{Binding RedoCommand}" />
+        <KeyBinding Gesture="Q" Command="{Binding ToggleTranslateGizmos}" />
+        <KeyBinding Gesture="W" Command="{Binding ToggleRotateGizmo}" />
+        <KeyBinding Gesture="E" Command="{Binding ToggleScaleGizmo}" />
     </Window.KeyBindings>
 
     <Grid>
