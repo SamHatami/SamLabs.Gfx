@@ -13,11 +13,41 @@ public class TranslateStrategy:ITransformStrategy
     private Vector3 _lastHitPoint = Vector3.Zero;
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
-        GizmoChildComponent gizmoChild)
+        GizmoChildComponent gizmoChild, bool isGlobalMode = true)
     {
         var delta = GetTransformDelta(input, gizmoTransform,  gizmoChild);
-        target.Position += delta;
+        var translationMatrix = Matrix4.CreateTranslation(delta);
+
+        // 3. Apply it
+        // Post-Multiplication (Matrix * Translation) simply adds the translation 
+        // to the existing position, regardless of rotation or scale.
+        target.LocalMatrix *= translationMatrix;
+
+        // 4. Mark Dirty
+        target.IsDirty = true;
         gizmoTransform.Position = target.Position;
+        
+        
+        // // (Save this snippet for when you implement Hierarchy)
+        // if (hasParent)
+        // {
+        //     // Convert the World Delta into Local Delta (relative to Parent)
+        //     // We ignore the Parent's position, we only care about how the Parent is Scaled/Rotated.
+        //
+        //     var parentRotation = parentTransform.WorldMatrix.ExtractRotation();
+        //     // (Invert rotation to go from World -> Local)
+        //     var localDelta = Vector3.Transform(delta, Quaternion.Invert(parentRotation));
+        //
+        //     // If parent is scaled, we might need to divide by scale too, 
+        //     // but usually standard translation ignores parent scale.
+        //
+        //     target.LocalMatrix = target.LocalMatrix * Matrix4.CreateTranslation(localDelta);
+        // }
+        // else
+        // {
+        //     // No parent? Just add world delta.
+        //     target.LocalMatrix = target.LocalMatrix * Matrix4.CreateTranslation(delta);
+        // }
     }
 
     public void Reset()

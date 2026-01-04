@@ -13,10 +13,43 @@ public class ScaleStrategy : ITransformStrategy
     private Vector3 _lastHitPoint = Vector3.Zero;
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
-        GizmoChildComponent gizmoChild)
+        GizmoChildComponent gizmoChild, bool isGlobalMode = true)
     {
         var delta = GetTransformDelta(input, gizmoTransform, gizmoChild);
-        target.Scale *= 1 + delta; 
+        var scaleFactor = Vector3.One + delta;
+        var scaleMatrix = Matrix4.CreateScale(scaleFactor);
+
+        if (isGlobalMode)
+        {
+            // --- GLOBAL MODE (Distortion) ---
+            // Logic: Rotate(Old) -> Scale(World) -> Translate(Old)
+        
+            // A. Extract current position to preserve it
+            var pos = target.LocalMatrix.ExtractTranslation();
+
+            // B. Apply Scale in World Space (Post-Multiply logic)
+            // 1. target.LocalMatrix:        Apply existing Scale/Rotation/Translation
+            // 2. CreateTranslation(-pos):   Move Pivot to World Origin (0,0,0)
+            // 3. scaleMatrix:               Apply World Scale (Shears if object is rotated)
+            // 4. CreateTranslation(pos):    Move Pivot back to original spot
+        
+            target.LocalMatrix = target.LocalMatrix * Matrix4.CreateTranslation(-pos) * scaleMatrix * Matrix4.CreateTranslation(pos);
+        }
+        else
+        {
+            // --- LOCAL MODE (Standard) ---
+            // Logic: Scale(Local) -> Rotate(Old) -> Translate(Old)
+        
+            // In OpenTK (Row-Major), Pre-Multiplying applies the transform "First" (conceptually local).
+            // Since the ScaleMatrix is centered and diagonal, this scales along the object's 
+            // internal axes without affecting the Position.
+        
+            target.LocalMatrix = scaleMatrix * target.LocalMatrix;
+        }
+
+        // Mark dirty so the system recalculates WorldMatrix for the Renderer
+        target.IsDirty = true;
+        
     }
     public void Reset()
     {

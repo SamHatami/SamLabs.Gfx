@@ -7,7 +7,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
 public interface ITransformStrategy
 {
     void Apply(FrameInput input, ref TransformComponent target, 
-        ref TransformComponent gizmoTransform, GizmoChildComponent gizmoChild);
+        ref TransformComponent gizmoTransform, GizmoChildComponent gizmoChild, bool isGlobalMode);
 
     void Reset();
 }

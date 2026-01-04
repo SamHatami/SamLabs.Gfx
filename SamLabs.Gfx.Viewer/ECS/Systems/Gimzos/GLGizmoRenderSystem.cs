@@ -55,7 +55,7 @@ public class GLGizmoRenderSystem : RenderSystem
             var subGizmoTransform = ComponentManager.GetComponent<TransformComponent>(gizmoSubEntity);
             var gizmoChildComponent = ComponentManager.GetComponent<GizmoChildComponent>(gizmoSubEntity);
             
-            RenderGizmoSubMesh(mesh, material, isSelected, isDragging, subGizmoTransform.WorldMatrix(), pickingData, gizmoSubEntity, gizmoChildComponent);
+            RenderGizmoSubMesh(mesh, material, isSelected, isDragging, subGizmoTransform.WorldMatrix, pickingData, gizmoSubEntity, gizmoChildComponent);
         }
     }
 
@@ -78,18 +78,21 @@ public class GLGizmoRenderSystem : RenderSystem
         var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         var depth = Vector3.Dot(toGizmo, forward);
         if (depth < 0.1f) depth = 0.1f;
-
         var scale = GizmoBaseSize * depth;
-        parentTransform.Scale = new Vector3(scale);
     
+        var parentRot = parentTransform.LocalMatrix.ExtractRotation();
+        var parentPos = parentTransform.LocalMatrix.ExtractTranslation();
+
+        var parentGizmoMatrix = Matrix4.CreateScale(scale) 
+                                * Matrix4.CreateFromQuaternion(parentRot) 
+                                * Matrix4.CreateTranslation(parentPos);
+        
         foreach (var subEntity in gizmoSubEntities)
         {
             ref var subTransform = ref ComponentManager.GetComponent<TransformComponent>(subEntity);
-            var rotatedLocalPos = Vector3.Transform(subTransform.LocalPosition, parentTransform.Rotation);
-            var scaledRotatedPos = rotatedLocalPos * scale;
-            subTransform.Position = parentTransform.Position + scaledRotatedPos;
-            subTransform.Scale = parentTransform.Scale * subTransform.LocalScale;
-            subTransform.Rotation = parentTransform.Rotation * subTransform.LocalRotation;
+
+            subTransform.WorldMatrix = subTransform.LocalMatrix * parentGizmoMatrix;
+            subTransform.IsDirty = false;
         }
     }
 

@@ -13,12 +13,45 @@ public class RotateStrategy:ITransformStrategy
     private Vector3 _lastHitPoint = Vector3.Zero;
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
-        GizmoChildComponent gizmoChild)
+        GizmoChildComponent gizmoChild, bool isGlobalMode = true)
     {
-        var delta = GetRotateDelta(input, gizmoTransform,  gizmoChild, true);
-        if(delta == 0f) return;
-        
-        target.Rotation *= Quaternion.Normalize(Quaternion.FromAxisAngle(gizmoChild.Axis.ToVector3(),  delta));
+
+        // 1. Get the rotation amount (angle) and the axis from input
+        float angle = GetRotateDelta(input, gizmoTransform,  gizmoChild, true); 
+        Vector3 axis = gizmoChild.Axis.ToVector3(); // e.g., Vector3.UnitX
+
+        // 2. Create the Rotation Matrix for this frame's change
+        Matrix4 rotationDelta = Matrix4.CreateFromAxisAngle(axis, angle);
+
+        if (isGlobalMode)
+        {
+            // --- GLOBAL ROTATION ---
+            // We want to rotate the object's ORIENTATION around the World Axes,
+            // but keep it at the same POSITION.
+            
+            // A. Extract Position
+            Vector3 pos = target.LocalMatrix.ExtractTranslation();
+            
+            // B. Remove Position (Move to Origin)
+            target.LocalMatrix.Row3 = Vector4.UnitW; 
+            
+            // C. Apply Rotation (Pre-Multiply = Global Frame)
+            target.LocalMatrix *= rotationDelta;
+            
+            // D. Restore Position
+            target.LocalMatrix.Row3 = new Vector4(pos, 1.0f);
+        }
+        else
+        {
+            // --- LOCAL ROTATION ---
+            // We want to rotate around the object's EXISTING axes.
+            
+            // Apply Rotation (Post-Multiply = Local Frame)
+            // This appends the rotation to whatever rotation/scale already exists.
+            target.LocalMatrix = rotationDelta * target.LocalMatrix;
+        }
+
+        target.IsDirty = true;
     }
 
     public void Reset()

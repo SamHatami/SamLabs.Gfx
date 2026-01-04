@@ -1,39 +1,62 @@
-﻿using OpenTK.Mathematics;
+﻿using Avalonia;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components;
 
 public struct TransformComponent : IDataComponent
 {
+    public Matrix4 LocalMatrix;
+    
+    public Matrix4 WorldMatrix;
+
+    public bool IsDirty;
+
     public TransformComponent()
     {
-        LocalPosition = Vector3.Zero;
-        LocalScale = Vector3.One;
-        LocalRotation = Quaternion.Identity;
-        Position = Vector3.Zero;
-        Scale = Vector3.One;
-        Rotation = Quaternion.Identity;
+        LocalMatrix = Matrix4.Identity;
+        WorldMatrix = Matrix4.Identity;
+        IsDirty = true;
     }
 
-    public Vector3 LocalPosition { get; set; }
-    public Vector3 LocalScale { get; set; } 
-    public Quaternion LocalRotation { get; set; } 
-    
-    public Vector3 Position { get; set; }
-    public Vector3 Scale { get; set; } 
-    public Quaternion Rotation { get; set; }
+    public Vector3 Position
+    {
+        readonly get => LocalMatrix.ExtractTranslation();
+        set
+        {
+            LocalMatrix.Row3 = new Vector4(value, 1.0f);
+            IsDirty = true;
+        }
+    }
 
-    public Vector3 Y => Vector3.Transform(Vector3.UnitY, Rotation);
-    public Vector3 X => Vector3.Transform(Vector3.UnitX, Rotation);
-    public Vector3 Z => Vector3.Transform(Vector3.UnitZ, Rotation);
-    public Matrix4 WorldMatrixInverse() => Matrix4.Invert(WorldMatrix());
-    
-    public Matrix4 WorldMatrix() =>
+    public Quaternion Rotation
+    {
+        readonly get => LocalMatrix.ExtractRotation();
+        set
+        {
+            var scale = LocalMatrix.ExtractScale();
+            var pos = LocalMatrix.ExtractTranslation();
+            
+            LocalMatrix = Matrix4.CreateScale(scale) 
+                        * Matrix4.CreateFromQuaternion(value) 
+                        * Matrix4.CreateTranslation(pos);
+            IsDirty = true;
+        }
+    }
 
-        Matrix4.CreateScale(Scale) *
-        Matrix4.CreateFromQuaternion(Rotation) *
-        Matrix4.CreateTranslation(Position);
-
-
+    public Vector3 Scale
+    {
+        readonly get => LocalMatrix.ExtractScale();
+        set
+        {
+            var rot = LocalMatrix.ExtractRotation();
+            var pos = LocalMatrix.ExtractTranslation();
+            
+            LocalMatrix = Matrix4.CreateScale(value) 
+                        * Matrix4.CreateFromQuaternion(rot) 
+                        * Matrix4.CreateTranslation(pos);
+            IsDirty = true;
+        }
+    }
     public int ParentId { get; set; }
 }

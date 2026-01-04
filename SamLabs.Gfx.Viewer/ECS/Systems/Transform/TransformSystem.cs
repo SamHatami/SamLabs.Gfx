@@ -71,7 +71,13 @@ public class TransformSystem : UpdateSystem
         if (_isTransforming && frameInput.IsMouseLeftButtonDown)
         {
             ref var gizmoChild = ref ComponentManager.GetComponent<GizmoChildComponent>(_selectedGizmoSubEntity);
-            transformStrategy.Apply(frameInput, ref entityTransform, ref gizmoTransform, gizmoChild);
+            transformStrategy.Apply(frameInput, ref entityTransform, ref gizmoTransform, gizmoChild, true);
+
+            if (entityTransform.IsDirty) //This is the parent
+            {
+                entityTransform.WorldMatrix = entityTransform.LocalMatrix;
+                entityTransform.IsDirty  = false;
+            }
         }
 
         if (frameInput.IsMouseLeftButtonDown || !_isTransforming) return;
@@ -89,9 +95,9 @@ public class TransformSystem : UpdateSystem
         foreach (var childId in childEntities)
         {
             ref var childTransform = ref ComponentManager.GetComponent<TransformComponent>(childId);
-            childTransform.Position = parentTransform.Position + childTransform.LocalPosition;
-            childTransform.Rotation = parentTransform.Rotation * childTransform.LocalRotation;
-            childTransform.Scale = parentTransform.Scale * childTransform.LocalScale;
+            childTransform.Position = parentTransform.Position + childTransform.Position;
+            childTransform.Rotation = parentTransform.Rotation * childTransform.Rotation;
+            childTransform.Scale = parentTransform.Scale * childTransform.Scale;
         }
     }
 }

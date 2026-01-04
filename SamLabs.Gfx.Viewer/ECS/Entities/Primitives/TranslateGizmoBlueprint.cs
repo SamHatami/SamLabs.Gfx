@@ -55,7 +55,7 @@ public class TranslateGizmoBlueprint:EntityBlueprint
        var transformX = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition =  new Vector3(10,0,0),
+           Position =  new Vector3(10,0,0),
        };
        var materialX = new MaterialComponent { Shader = gizmoShader };
        var glArrowMesh = new GlMeshDataComponent()
@@ -80,8 +80,8 @@ public class TranslateGizmoBlueprint:EntityBlueprint
        var transformY = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition = new Vector3(0,10,0),
-           LocalRotation =  Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(90f)) 
+           Position = new Vector3(0,10,0),
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(90f)) 
        };
        var materialY = new MaterialComponent { Shader = gizmoShader };
        
@@ -99,10 +99,10 @@ public class TranslateGizmoBlueprint:EntityBlueprint
        zAxisEntity.Type = EntityType.Gizmo;
        var transformZ = new TransformComponent
        {
-           LocalScale = scale,
+           Scale = scale,
            ParentId = parentGizmo.Id,
-           LocalPosition = new Vector3(0,0,10),
-           LocalRotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f))
+           Position = new Vector3(0,0,10),
+           Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f))
        };
        var materialZ = new MaterialComponent { Shader = gizmoShader};
        
@@ -123,7 +123,7 @@ public class TranslateGizmoBlueprint:EntityBlueprint
        var transformXY = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition =  new Vector3(2,2,0)
+           Position =  new Vector3(2,2,0)
        };
        var materialXY = new MaterialComponent { Shader = gizmoShader };
        var glPlaneMesh = new GlMeshDataComponent()
@@ -148,8 +148,8 @@ public class TranslateGizmoBlueprint:EntityBlueprint
        var transformXZ = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition =  new Vector3(2,0,2),
-           LocalRotation =  Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(90f)) 
+           Position =  new Vector3(2,0,2),
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(90f)) 
        };
        var materialXZ = new MaterialComponent { Shader = gizmoShader };
        
@@ -167,8 +167,8 @@ public class TranslateGizmoBlueprint:EntityBlueprint
        var transformYZ = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition =  new Vector3(0,2,2),
-           LocalRotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f)) 
+           Position =  new Vector3(0,2,2),
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f)) 
        };
        var materialYZ = new MaterialComponent { Shader = gizmoShader };
        

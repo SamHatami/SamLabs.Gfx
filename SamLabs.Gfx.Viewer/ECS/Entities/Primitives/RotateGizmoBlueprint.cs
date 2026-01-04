@@ -53,8 +53,8 @@ public class RotateGizmoBlueprint:EntityBlueprint
        var transformX = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition =  new Vector3(0,0,0),
-           LocalRotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
+           Position =  new Vector3(0,0,0),
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
            
        };
        var materialX = new MaterialComponent { Shader = gizmoShader };
@@ -81,8 +81,8 @@ public class RotateGizmoBlueprint:EntityBlueprint
        var transformY = new TransformComponent
        {
            ParentId = parentGizmo.Id,
-           LocalPosition = new Vector3(0,0,0),
-           LocalRotation = Quaternion.FromEulerAngles(meshRotation)
+           Position = new Vector3(0,0,0),
+           Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
        var materialY = new MaterialComponent { Shader = gizmoShader };
        
@@ -100,10 +100,10 @@ public class RotateGizmoBlueprint:EntityBlueprint
        meshRotation = new Vector3(0,0,MathHelper.DegreesToRadians(-90f));
        var transformZ = new TransformComponent
        {
-           LocalScale = scale,
+           Scale = scale,
            ParentId = parentGizmo.Id,
-           LocalPosition = new Vector3(0,0,0),
-           LocalRotation = Quaternion.FromEulerAngles(meshRotation)
+           Position = new Vector3(0,0,0),
+           Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
        var materialZ = new MaterialComponent { Shader = gizmoShader};
        

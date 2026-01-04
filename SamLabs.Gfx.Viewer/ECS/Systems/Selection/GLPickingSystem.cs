@@ -59,7 +59,7 @@ public class GLPickingSystem : RenderSystem
             
             //TODO: Check if this is a child and then do world * local
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
-            RenderToPickingTexture(mesh, selectableEntity, modelMatrix.Invoke());
+            RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
         }
         
         // GL.Clear(ClearBufferMask.DepthBufferBit);
@@ -74,7 +74,7 @@ public class GLPickingSystem : RenderSystem
                 var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(childGizmo);
                 if (!mesh.IsGizmo)
                     continue;
-                var modelMatrix = ComponentManager.GetComponent<TransformComponent>(childGizmo).WorldMatrix();
+                var modelMatrix = ComponentManager.GetComponent<TransformComponent>(childGizmo).WorldMatrix;
                 RenderToPickingTexture(mesh, childGizmo, modelMatrix);
             }
         }

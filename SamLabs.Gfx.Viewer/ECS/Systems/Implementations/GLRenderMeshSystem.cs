@@ -40,7 +40,7 @@ public class GLRenderMeshSystem : RenderSystem
             var isHovered = (!isSelected && pickingData.HoveredEntityId == meshEntity) ? 1 : 0;
             var isSelectedInt = isSelected ? 1 : 0;
             
-            RenderMesh(mesh, materials, modelMatrix.Invoke(), isHovered, isSelectedInt);
+            RenderMesh(mesh, materials, modelMatrix, isHovered, isSelectedInt);
         }
     }
 
