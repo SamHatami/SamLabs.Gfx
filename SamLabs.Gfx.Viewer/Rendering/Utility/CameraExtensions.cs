@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Camera;
 
 namespace SamLabs.Gfx.Viewer.Rendering.Utility;
 

@@ -2,12 +2,13 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Flags;
+using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
-namespace SamLabs.Gfx.Viewer.ECS.Entities;
+namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 
 public class CubeBlueprint : EntityBlueprint
 {

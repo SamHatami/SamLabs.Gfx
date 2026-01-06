@@ -2,7 +2,7 @@
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 
-namespace SamLabs.Gfx.Viewer.ECS.Components;
+namespace SamLabs.Gfx.Viewer.ECS.Components.Camera;
 
 public struct CameraDataComponent : IDataComponent
 {

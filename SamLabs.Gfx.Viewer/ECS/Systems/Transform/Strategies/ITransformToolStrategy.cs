@@ -4,7 +4,7 @@ using SamLabs.Gfx.Viewer.IO;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
 
-public interface ITransformStrategy
+public interface ITransformToolStrategy
 {
     void Apply(FrameInput input, ref TransformComponent target, 
         ref TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild, bool isGlobalMode);

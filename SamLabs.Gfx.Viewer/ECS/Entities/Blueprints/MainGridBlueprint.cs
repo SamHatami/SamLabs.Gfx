@@ -7,7 +7,7 @@ using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
-namespace SamLabs.Gfx.Viewer.ECS.Entities;
+namespace SamLabs.Gfx.Viewer.ECS.Entities.Blueprints;
 
 public class MainGridBlueprint : EntityBlueprint
 {

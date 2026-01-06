@@ -2,6 +2,7 @@
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
+using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -12,23 +13,23 @@ using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform;
 
-public class TransformSystem : UpdateSystem
+public class TransformToolSystem : UpdateSystem
 {
     private bool _isTransforming;
     private int _selectedManipulatorSubEntity;
-    private Dictionary<ManipulatorType, ITransformStrategy> _transformStrategies;
+    private Dictionary<ManipulatorType, ITransformToolStrategy> _transformStrategies;
     private TransformComponent _preChangeTransform;
     private TransformComponent _postChangeTransform;
 
     public override int SystemPosition => SystemOrders.TransformUpdate;
 
-    public TransformSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
+    public TransformToolSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
     {
-        _transformStrategies = new Dictionary<ManipulatorType, ITransformStrategy>
+        _transformStrategies = new Dictionary<ManipulatorType, ITransformToolStrategy>
         {
-            [ManipulatorType.Translate] = new TranslateStrategy(),
-            [ManipulatorType.Rotate] = new RotateStrategy(),
-            [ManipulatorType.Scale] = new ScaleStrategy()
+            [ManipulatorType.Translate] = new TranslateToolStrategy(),
+            [ManipulatorType.Rotate] = new RotateToolStrategy(),
+            [ManipulatorType.Scale] = new ScaleToolStrategy()
         };
         
         _preChangeTransform = new TransformComponent();

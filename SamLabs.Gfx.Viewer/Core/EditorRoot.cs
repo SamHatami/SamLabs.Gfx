@@ -1,4 +1,6 @@
 ﻿using SamLabs.Gfx.Viewer.ECS.Entities;
+using SamLabs.Gfx.Viewer.ECS.Entities.Blueprints;
+using SamLabs.Gfx.Viewer.ECS.Entities.Blueprints.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Abstractions;

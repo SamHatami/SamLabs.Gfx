@@ -1,15 +1,16 @@
-﻿using System.ComponentModel;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Camera;
 using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
+using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Gimzos;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Manipulators;
 
 public class GLManipulatorRenderSystem : RenderSystem
 {

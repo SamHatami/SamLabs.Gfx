@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Camera;
 using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
@@ -8,7 +9,7 @@ using SamLabs.Gfx.Viewer.Rendering.Utility;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
 
-public class TranslateStrategy:ITransformStrategy
+public class TranslateToolStrategy:ITransformToolStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
 

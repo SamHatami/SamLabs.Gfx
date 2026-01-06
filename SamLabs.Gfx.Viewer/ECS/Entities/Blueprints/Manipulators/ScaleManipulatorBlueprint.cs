@@ -2,26 +2,29 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Flags;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
+using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
-using SamLabs.Gfx.Viewer.ECS.Components.Flags;
-using SamLabs.Gfx.Viewer.ECS.Components.Manipulators; // Need this for the flag
 
-namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
+// Need this for the flag
 
-public class TranslateManipulatorBlueprint:EntityBlueprint
+namespace SamLabs.Gfx.Viewer.ECS.Entities.Blueprints.Manipulators;
+
+public class ScaleManipulatorBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityManager _entityManager;
 
-    public TranslateManipulatorBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
+    public ScaleManipulatorBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
     {
         _shaderService = shaderService;
         _entityManager = entityManager;
     }
 
-    public override string Name { get; } = EntityNames.TranslateManipulator;
+    public override string Name { get; } = EntityNames.ScaleManipulator;
     public override async void Build(Entity parentManipulator, MeshDataComponent meshData = default)
     {
         parentManipulator.Type = EntityType.Manipulator;
@@ -38,11 +41,11 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
 
        ComponentManager.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
        
-       var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Translate };
+       var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Scale };
        ComponentManager.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
-       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "Arrow.obj");
-       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "TranslatePlane.obj");
+       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "ScaleArrow.obj");
+       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "ScalePlane.obj");
        var importedArrowMesh = await ModelLoader.LoadObj(arrowPath); 
        var importedPlaneMesh = await ModelLoader.LoadObj(planePath); 
        
@@ -73,7 +76,6 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), xAxisEntity.Id);
-
 
        var yAxisEntity = _entityManager.CreateEntity();
        yAxisEntity.Type = EntityType.Manipulator;
@@ -115,15 +117,13 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), zAxisEntity.Id);
        
-       //  
-       // --- 6. Plane Entities (Optional but recommended for Translate Manipulator) ---
-
        var xyPlaneEntity = _entityManager.CreateEntity();
        xyPlaneEntity.Type = EntityType.Manipulator;
        var transformXY = new TransformComponent
        {
            ParentId = parentManipulator.Id,
-           Position =  new Vector3(2,2,0)
+           Position =  new Vector3(2,2,0),
+           Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(180f)) 
        };
        var materialXY = new MaterialComponent { Shader = manipulatorShader };
        var glPlaneMesh = new GlMeshDataComponent()
@@ -142,14 +142,14 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xyPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XY), xyPlaneEntity.Id);   
        
-       
        var xzPlaneEntity = _entityManager.CreateEntity();
        xzPlaneEntity.Type = EntityType.Manipulator;
+       var meshRotation = new Vector3(MathHelper.DegreesToRadians(90f),MathHelper.DegreesToRadians(180f),0f);
        var transformXZ = new TransformComponent
        {
            ParentId = parentManipulator.Id,
            Position =  new Vector3(2,0,2),
-           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(90f)) 
+           Rotation =  Quaternion.FromEulerAngles(meshRotation) 
        };
        var materialXZ = new MaterialComponent { Shader = manipulatorShader };
        
@@ -168,7 +168,7 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        {
            ParentId = parentManipulator.Id,
            Position =  new Vector3(0,2,2),
-           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f)) 
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
        };
        var materialYZ = new MaterialComponent { Shader = manipulatorShader };
        

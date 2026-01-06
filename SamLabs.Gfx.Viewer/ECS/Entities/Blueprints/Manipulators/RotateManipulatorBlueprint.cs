@@ -2,13 +2,14 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
+using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
+using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
-using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 
-namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
+namespace SamLabs.Gfx.Viewer.ECS.Entities.Blueprints.Manipulators;
 
 public class RotateManipulatorBlueprint:EntityBlueprint
 {

@@ -6,7 +6,7 @@ using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
 
-namespace SamLabs.Gfx.Viewer.ECS.Entities;
+namespace SamLabs.Gfx.Viewer.ECS.Entities.Blueprints;
 
 public class ImportedBlueprint : EntityBlueprint
 {
