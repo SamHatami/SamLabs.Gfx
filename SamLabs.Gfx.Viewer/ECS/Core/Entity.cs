@@ -5,7 +5,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Core;
 public struct Entity(int id)
 {
     public int Id { get; } = id;
-    public EntityType Type { get; set; }
+    public EntityType Type { get; set; } //Use component instead?
 }
 
 public static class EntityExtensions

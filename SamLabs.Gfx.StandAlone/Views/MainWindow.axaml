@@ -24,9 +24,9 @@
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
         <KeyBinding Gesture="Shift+Z" Command="{Binding RedoCommand}" />
-        <KeyBinding Gesture="Q" Command="{Binding ToggleTranslateGizmos}" />
-        <KeyBinding Gesture="W" Command="{Binding ToggleRotateGizmo}" />
-        <KeyBinding Gesture="E" Command="{Binding ToggleScaleGizmo}" />
+        <KeyBinding Gesture="Q" Command="{Binding ToggleTranslateManipulators}" />
+        <KeyBinding Gesture="W" Command="{Binding ToggleRotateManipulator}" />
+        <KeyBinding Gesture="E" Command="{Binding ToggleScaleManipulator}" />
     </Window.KeyBindings>
 
     <Grid>
@@ -54,9 +54,9 @@
         <Border x:Name="BaseTools" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d" CornerRadius="5"
                 VerticalAlignment="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding ToggleTranslateGizmos}" Content="T" />
-                <Button Command="{Binding ToggleRotateGizmo}" Content="R" />
-                <Button Command="{Binding ToggleScaleGizmo}" Content="S" />
+                <Button Command="{Binding ToggleTranslateManipulators}" Content="T" />
+                <Button Command="{Binding ToggleRotateManipulator}" Content="R" />
+                <Button Command="{Binding ToggleScaleManipulator}" Content="S" />
             </StackPanel>
 
         </Border>

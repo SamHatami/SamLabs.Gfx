@@ -9,9 +9,9 @@ public struct PickingDataComponent :IDataComponent
     {
         BufferPickingIndex = 0;
         HoveredEntityId = 0;
-        HoveredEntityType = EntityType.Gizmo;
+        HoveredEntityType = EntityType.Manipulator;
         HoveredVertexId = 0;
-        SelectedGizmoId = 0;
+        SelectedManipulatorId = 0;
         SelectedEntityIds = [];
     }
 
@@ -19,7 +19,7 @@ public struct PickingDataComponent :IDataComponent
     public int HoveredEntityId { get; set; }
     public EntityType HoveredEntityType { get; set; }
     public int HoveredVertexId { get; set; }
-    public int SelectedGizmoId { get; set; }
+    public int SelectedManipulatorId { get; set; }
     public int[] SelectedEntityIds { get; set; } 
     
 }
@@ -31,7 +31,7 @@ public static class PickingDataComponentExtensions
         public bool IsSelectionEmpty() => pickingData.SelectedEntityIds.Length == 0;
         public bool NothingHovered() => pickingData.HoveredEntityId == 0;
         
-        public bool GizmoHovered() => pickingData.HoveredEntityType == EntityType.Gizmo;
-        public bool GizmoSelected() => pickingData.SelectedGizmoId >= 0;
+        public bool ManipulatorHovered() => pickingData.HoveredEntityType == EntityType.Manipulator;
+        public bool ManipualtorSelected() => pickingData.SelectedManipulatorId >= 0;
     }
 }

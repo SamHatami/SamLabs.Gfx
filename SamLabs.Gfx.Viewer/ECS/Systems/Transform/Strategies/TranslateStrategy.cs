@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Utility;
@@ -12,10 +12,10 @@ public class TranslateStrategy:ITransformStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
 
-    public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
-        GizmoChildComponent gizmoChild, bool isGlobalMode = true)
+    public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent manipulatorTransform,
+        ManipulatorChildComponent manipulatorChild, bool isGlobalMode = true)
     {
-        var delta = GetTransformDelta(input, gizmoTransform,  gizmoChild);
+        var delta = GetTransformDelta(input, manipulatorTransform,  manipulatorChild);
         var translationMatrix = Matrix4.CreateTranslation(delta);
 
         // 3. Apply it
@@ -25,7 +25,7 @@ public class TranslateStrategy:ITransformStrategy
 
         // 4. Mark Dirty
         target.IsDirty = true;
-        gizmoTransform.Position = target.Position;
+        manipulatorTransform.Position = target.Position;
         
         
         // // (Save this snippet for when you implement Hierarchy)
@@ -55,7 +55,7 @@ public class TranslateStrategy:ITransformStrategy
         _lastHitPoint = Vector3.Zero;
     }
 
-    private Vector3 GetTransformDelta(FrameInput frameInput, TransformComponent gizmoTransform, GizmoChildComponent gizmoChild)
+    private Vector3 GetTransformDelta(FrameInput frameInput, TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild)
     {
         var cameraId = GetEntityIds.With<CameraComponent>().First();
         if (cameraId == -1) return Vector3.Zero;
@@ -65,13 +65,13 @@ public class TranslateStrategy:ITransformStrategy
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraId);
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         
-        //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at gizmo position
+        //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at manipulator position
         var mouseRay =
             cameraData.ScreenPointToWorldRay(
                 new Vector2((float)frameInput.MousePosition.X, (float)frameInput.MousePosition.Y),
                 frameInput.ViewportSize);
         
-        var projectionPlane = new Plane(gizmoTransform.Position,cameraDir);
+        var projectionPlane = new Plane(manipulatorTransform.Position,cameraDir);
 
         if (!projectionPlane.RayCast(mouseRay, out var hit))
             return Vector3.Zero;
@@ -85,24 +85,24 @@ public class TranslateStrategy:ITransformStrategy
         }
         //Filter results and return
         var delta = currentHitPoint - _lastHitPoint;
-        var transformDelta = ConstrainedTransform(delta, gizmoChild.Axis);
+        var transformDelta = ConstrainedTransform(delta, manipulatorChild.Axis);
         _lastHitPoint = currentHitPoint;
         return transformDelta;
     }
 
-    private Vector3 ConstrainedTransform(Vector3 transformDelta, GizmoAxis axis)
+    private Vector3 ConstrainedTransform(Vector3 transformDelta, ManipulatorAxis axis)
     {
         return axis switch
         {
             // Single axis: project delta onto axis
-            GizmoAxis.X => new Vector3(transformDelta.X, 0, 0),
-            GizmoAxis.Y => new Vector3(0, transformDelta.Y, 0),
-            GizmoAxis.Z => new Vector3(0, 0, transformDelta.Z),
+            ManipulatorAxis.X => new Vector3(transformDelta.X, 0, 0),
+            ManipulatorAxis.Y => new Vector3(0, transformDelta.Y, 0),
+            ManipulatorAxis.Z => new Vector3(0, 0, transformDelta.Z),
 
             // Plane handles: allow movement in both axes
-            GizmoAxis.XY => new Vector3(transformDelta.X, transformDelta.Y, 0),
-            GizmoAxis.XZ => new Vector3(transformDelta.X, 0, transformDelta.Z),
-            GizmoAxis.YZ => new Vector3(0, transformDelta.Y, transformDelta.Z),
+            ManipulatorAxis.XY => new Vector3(transformDelta.X, transformDelta.Y, 0),
+            ManipulatorAxis.XZ => new Vector3(transformDelta.X, 0, transformDelta.Z),
+            ManipulatorAxis.YZ => new Vector3(0, transformDelta.Y, transformDelta.Z),
 
             _ => Vector3.Zero
         };

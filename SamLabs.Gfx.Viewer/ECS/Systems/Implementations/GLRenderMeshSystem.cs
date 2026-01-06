@@ -31,8 +31,8 @@ public class GLRenderMeshSystem : RenderSystem
             var modelMatrix = transform.WorldMatrix;
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(meshEntity);
             
-            //Gizmos are rendered in the GizmoRenderSystem
-            if (mesh.IsGizmo) continue;
+            //Manipulators are rendered in the ManipulatorRenderSystem
+            if (mesh.IsManipulator) continue;
             
             var materials = ComponentManager.GetComponent<MaterialComponent>(meshEntity);
             

@@ -11,8 +11,8 @@ public static class EntityNames
 
     public static string MainCamera = "MainCamera";
     public static string MainGrid = "MainGrid";
-    public static string TranslateGizmo { get; set; } = "TranslateGizmo";
-    public static string RotateGizmo { get; set; } = "RotateGizmo";
-    public static string ScaleGizmo { get; set; } = "ScaleGizmo";
+    public static string TranslateManipulator { get; set; } = "TranslateManipulator";
+    public static string RotateManipulator { get; set; } = "RotateManipulator";
+    public static string ScaleManipulator { get; set; } = "ScaleManipulator";
     public static string Imported { get; set; } = "Imported";
 }

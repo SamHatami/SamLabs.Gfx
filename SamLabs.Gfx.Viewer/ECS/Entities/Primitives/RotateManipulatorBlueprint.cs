@@ -2,65 +2,65 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
-using SamLabs.Gfx.Viewer.ECS.Components.Flags; // Need this for the flag
+using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 
-public class RotateGizmoBlueprint:EntityBlueprint
+public class RotateManipulatorBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityManager _entityManager;
 
-    public RotateGizmoBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
+    public RotateManipulatorBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
     {
         _shaderService = shaderService;
         _entityManager = entityManager;
     }
 
-    public override string Name { get; } = EntityNames.RotateGizmo;
-    public override async void Build(Entity parentGizmo, MeshDataComponent meshData = default)
+    public override string Name { get; } = EntityNames.RotateManipulator;
+    public override async void Build(Entity parentManipulator, MeshDataComponent meshData = default)
     {
-        parentGizmo.Type = EntityType.Gizmo;
+        parentManipulator.Type = EntityType.Manipulator;
         var scale = new Vector3(1f, 1f, 1f);
         
-       // --- 1. Setup Parent Gizmo Entity ---
-       var parentGizmoTransform = new TransformComponent
+       // --- 1. Setup Parent Manipulator Entity ---
+       var parentManipulatorTransform = new TransformComponent
        {
            Scale = new Vector3(1f,1f, 1f),
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.Identity 
        };
 
-       ComponentManager.SetComponentToEntity(parentGizmoTransform, parentGizmo.Id);
+       ComponentManager.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
        
-       var gizmoComponent = new GizmoComponent() { Type = GizmoType.Rotate };
-       ComponentManager.SetComponentToEntity(gizmoComponent, parentGizmo.Id);
+       var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Rotate };
+       ComponentManager.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
        var rotatePath = Path.Combine(AppContext.BaseDirectory, "Models", "Rotate.obj");
        var importedRotateMesh = await ModelLoader.LoadObj(rotatePath); 
        
-       var parentIdComponent = new ParentIdComponent(parentGizmo.Id);
-       var gizmoShader = _shaderService.GetShader("gizmo");
+       var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
+       var manipulatorShader = _shaderService.GetShader("manipulator");
        // var highlightShader = _shaderService.GetShader("Highlight");
        
        var rotateX = _entityManager.CreateEntity();
-       rotateX.Type = EntityType.Gizmo;
+       rotateX.Type = EntityType.Manipulator;
        var transformX = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position =  new Vector3(0,0,0),
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
            
        };
-       var materialX = new MaterialComponent { Shader = gizmoShader };
+       var materialX = new MaterialComponent { Shader = manipulatorShader };
        var glRotateMesh = new GlMeshDataComponent()
        {
-           IsGizmo = true,
+           IsManipulator = true,
            IndexCount = importedRotateMesh.Indices.Length,
            VertexCount = importedRotateMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
@@ -72,19 +72,19 @@ public class RotateGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateX.Id);
        ComponentManager.SetComponentToEntity(glRotateMesh, rotateX.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), rotateX.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.X), rotateX.Id);
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), rotateX.Id);
 
 
        var rotateY = _entityManager.CreateEntity();
-       rotateY.Type = EntityType.Gizmo;
+       rotateY.Type = EntityType.Manipulator;
        var meshRotation = new Vector3(MathHelper.DegreesToRadians(-90f),0,MathHelper.DegreesToRadians(180f));
        var transformY = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
-       var materialY = new MaterialComponent { Shader = gizmoShader };
+       var materialY = new MaterialComponent { Shader = manipulatorShader };
        
        ComponentManager.SetComponentToEntity(parentIdComponent, rotateY.Id);
        ComponentManager.SetComponentToEntity(transformY, rotateY.Id);
@@ -93,19 +93,19 @@ public class RotateGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(glRotateMesh, rotateY.Id);
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateY.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), rotateY.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.Y), rotateY.Id);
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Y), rotateY.Id);
        
        var rotateZ = _entityManager.CreateEntity();
-       rotateZ.Type = EntityType.Gizmo;
+       rotateZ.Type = EntityType.Manipulator;
        meshRotation = new Vector3(0,0,MathHelper.DegreesToRadians(-90f));
        var transformZ = new TransformComponent
        {
            Scale = scale,
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
-       var materialZ = new MaterialComponent { Shader = gizmoShader};
+       var materialZ = new MaterialComponent { Shader = manipulatorShader};
        
        ComponentManager.SetComponentToEntity(parentIdComponent, rotateZ.Id);
        ComponentManager.SetComponentToEntity(transformZ, rotateZ.Id);
@@ -114,7 +114,7 @@ public class RotateGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(glRotateMesh, rotateZ.Id);
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateZ.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), rotateZ.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.Z), rotateZ.Id);
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), rotateZ.Id);
        
     }
 }

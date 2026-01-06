@@ -25,7 +25,7 @@ public static class ComponentManager //TODO: Remake into instance class and inje
         Span<Type> componentTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t =>
                 t is { IsValueType: true, IsEnum: false, Namespace: not null } &&
-                t.Namespace.StartsWith(EcsStrings.ComponentsFolder))
+                t.Namespace.StartsWith(EditorAssemblyPaths.ComponentsFolder))
             .ToArray();
 
         var i = 0;

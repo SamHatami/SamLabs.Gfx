@@ -86,10 +86,10 @@
     <None Update="Rendering\Shaders\picking.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Rendering\Shaders\gizmo.frag">
+    <None Update="Rendering\Shaders\manipulator.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Rendering\Shaders\gizmo.vert">
+    <None Update="Rendering\Shaders\manipulator.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Models\TranslatePlane.obj">
@@ -115,6 +115,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ECS\Components\VisualAids\" />
     <Folder Include="ECS\Systems\Input\" />
   </ItemGroup>
 </Project>

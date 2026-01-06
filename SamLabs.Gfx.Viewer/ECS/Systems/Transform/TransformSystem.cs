@@ -1,7 +1,7 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -15,8 +15,8 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform;
 public class TransformSystem : UpdateSystem
 {
     private bool _isTransforming;
-    private int _selectedGizmoSubEntity;
-    private Dictionary<GizmoType, ITransformStrategy> _transformStrategies;
+    private int _selectedManipulatorSubEntity;
+    private Dictionary<ManipulatorType, ITransformStrategy> _transformStrategies;
     private TransformComponent _preChangeTransform;
     private TransformComponent _postChangeTransform;
 
@@ -24,11 +24,11 @@ public class TransformSystem : UpdateSystem
 
     public TransformSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
     {
-        _transformStrategies = new Dictionary<GizmoType, ITransformStrategy>
+        _transformStrategies = new Dictionary<ManipulatorType, ITransformStrategy>
         {
-            [GizmoType.Translate] = new TranslateStrategy(),
-            [GizmoType.Rotate] = new RotateStrategy(),
-            [GizmoType.Scale] = new ScaleStrategy()
+            [ManipulatorType.Translate] = new TranslateStrategy(),
+            [ManipulatorType.Rotate] = new RotateStrategy(),
+            [ManipulatorType.Scale] = new ScaleStrategy()
         };
         
         _preChangeTransform = new TransformComponent();
@@ -37,23 +37,23 @@ public class TransformSystem : UpdateSystem
 
     public override void Update(FrameInput frameInput)
     {
-        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>().First();
-        if (activeGizmo == -1) return;
+        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>().First();
+        if (activeManipulator == -1) return;
 
         var selectedEntities = GetEntityIds.With<SelectedComponent>().AndWith<TransformComponent>()
-            .Without<GizmoComponent>().Without<GizmoChildComponent>();
+            .Without<ManipulatorComponent>().Without<ManipulatorChildComponent>();
 
         if (selectedEntities.IsEmpty) return;
 
         //TODO: Currently only supporting single object selection
         //TODO: Option to use global transform or local transform
         ref var entityTransform = ref ComponentManager.GetComponent<TransformComponent>(selectedEntities[0]);
-        ref var gizmoTransform = ref ComponentManager.GetComponent<TransformComponent>(activeGizmo);
-        var gizmoComponent = ComponentManager.GetComponent<GizmoComponent>(activeGizmo);
+        ref var manipulatorTransform = ref ComponentManager.GetComponent<TransformComponent>(activeManipulator);
+        var manipulatorComponent = ComponentManager.GetComponent<ManipulatorComponent>(activeManipulator);
 
-        var transformStrategy = _transformStrategies[gizmoComponent.Type];
+        var transformStrategy = _transformStrategies[manipulatorComponent.Type];
 
-        gizmoTransform.Position = entityTransform.Position;
+        manipulatorTransform.Position = entityTransform.Position;
         var pickingEntities = GetEntityIds.With<PickingDataComponent>();
         if (pickingEntities.IsEmpty) return;
 
@@ -61,18 +61,18 @@ public class TransformSystem : UpdateSystem
 
         if (frameInput.IsMouseLeftButtonDown && !_isTransforming)
         {
-            if (ComponentManager.HasComponent<GizmoChildComponent>(pickingData.HoveredEntityId))
+            if (ComponentManager.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
             {
                 _preChangeTransform = entityTransform;
                 _isTransforming = true;
-                _selectedGizmoSubEntity = pickingData.HoveredEntityId;
+                _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
             }
         }
 
         if (_isTransforming && frameInput.IsMouseLeftButtonDown)
         {
-            ref var gizmoChild = ref ComponentManager.GetComponent<GizmoChildComponent>(_selectedGizmoSubEntity);
-            transformStrategy.Apply(frameInput, ref entityTransform, ref gizmoTransform, gizmoChild, true);
+            ref var manipulatorChild = ref ComponentManager.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
+            transformStrategy.Apply(frameInput, ref entityTransform, ref manipulatorTransform, manipulatorChild, true);
 
             if (entityTransform.IsDirty) //This is the parent
             {
@@ -86,7 +86,7 @@ public class TransformSystem : UpdateSystem
         _postChangeTransform = ComponentManager.GetComponent<TransformComponent>(selectedEntities[0]);
         CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform, _postChangeTransform));
         _isTransforming = false;
-        _selectedGizmoSubEntity = -1;
+        _selectedManipulatorSubEntity = -1;
         transformStrategy.Reset();
     }
     

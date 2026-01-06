@@ -3,7 +3,7 @@
 out vec4 FragColor;
 uniform int uIsHovered;
 uniform int uIsSelected;
-uniform int uGizmoAxis;
+uniform int uManipulatorAxis;
 
 void main()
 {
@@ -13,7 +13,7 @@ void main()
     }
     else
     { 
-        switch(uGizmoAxis)
+        switch(uManipulatorAxis)
         {
             case 0:
                 FragColor = vec4(0.8, 0.1, 0.1, 1.0);

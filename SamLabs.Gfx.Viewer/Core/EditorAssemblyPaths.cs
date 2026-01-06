@@ -1,6 +1,6 @@
 ﻿namespace SamLabs.Gfx.Viewer.Core;
 
-public static class EcsStrings
+public static class EditorAssemblyPaths
 {
     public const string SystemsFolder = "SamLabs.Gfx.Viewer.ECS.Systems.Implementations";
     public const string ComponentsFolder = "SamLabs.Gfx.Viewer.ECS.Components";

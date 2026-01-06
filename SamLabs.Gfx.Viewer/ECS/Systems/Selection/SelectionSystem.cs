@@ -1,7 +1,7 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -17,7 +17,7 @@ public class SelectionSystem : UpdateSystem
     private PickingDataComponent _pickingData;
     private int _pickingEntity = -1;
     private int[] _currentSelection;
-    private bool _isGizmoDragging;
+    private bool _isManipulatorDragging;
     
     public SelectionSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
     {
@@ -31,10 +31,10 @@ public class SelectionSystem : UpdateSystem
         if (_pickingEntity == -1) return;
         _pickingData = ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
         
-        var selectedGizmos = GetEntityIds.With<SelectedChildGizmoComponent>();
-        _isGizmoDragging = !selectedGizmos.IsEmpty && frameInput.IsDragging;
+        var selectedManipulators = GetEntityIds.With<SelectedManipulatorChildComponent>();
+        _isManipulatorDragging = !selectedManipulators.IsEmpty && frameInput.IsDragging;
 
-        if(_isGizmoDragging) return; 
+        if(_isManipulatorDragging) return; 
         
         var validEntities = FilterSelection([_pickingData.HoveredEntityId]);
 
@@ -42,7 +42,7 @@ public class SelectionSystem : UpdateSystem
         {
             if (_pickingData.NothingHovered()) //Clear if clicked outside any selectable, add esc key to clear
                 ClearSelection(validEntities);
-            if (ComponentManager.HasComponent<GizmoChildComponent>(_pickingData.HoveredEntityId))
+            if (ComponentManager.HasComponent<ManipulatorChildComponent>(_pickingData.HoveredEntityId))
                 return;
 
             SetNewSelection(validEntities);
@@ -51,22 +51,22 @@ public class SelectionSystem : UpdateSystem
         if (frameInput.Cancellation)
             ClearSelection(validEntities);
 
-        //attach gizmos to selected entities if there is an active gizmo
-        AttachToGizmo(_pickingData.SelectedEntityIds);
+        //attach manipulators to selected entities if there is an active manipulator
+        AttachToManipulator(_pickingData.SelectedEntityIds);
 
         //TODO: Add box selection
     }
 
-    private void SetNewGizmoSelection(int gizmoEntityId)
+    private void SetNewManipulatorSelection(int manipulatorEntityId)
     {
-        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>();
-        if (activeGizmo.IsEmpty) return;
+        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>();
+        if (activeManipulator.IsEmpty) return;
 
-        var previousSelection = GetEntityIds.With<SelectedChildGizmoComponent>();
+        var previousSelection = GetEntityIds.With<SelectedManipulatorChildComponent>();
         if (!previousSelection.IsEmpty)
-            ComponentManager.RemoveComponentFromEntities<SelectedChildGizmoComponent>(previousSelection);
+            ComponentManager.RemoveComponentFromEntities<SelectedManipulatorChildComponent>(previousSelection);
 
-        ComponentManager.SetComponentToEntity(new SelectedChildGizmoComponent(), gizmoEntityId);
+        ComponentManager.SetComponentToEntity(new SelectedManipulatorChildComponent(), manipulatorEntityId);
     }
 
     private int[] FilterSelection(int[] entityIds)
@@ -75,39 +75,39 @@ public class SelectionSystem : UpdateSystem
 
         return entityIds
             .Where(id => id >= 0)
-            .Where(id => !ComponentManager.HasComponent<GizmoComponent>(id))
-            .Where(id => !ComponentManager.HasComponent<GizmoChildComponent>(id))
+            .Where(id => !ComponentManager.HasComponent<ManipulatorComponent>(id))
+            .Where(id => !ComponentManager.HasComponent<ManipulatorChildComponent>(id))
             .ToArray();
     }
 
-    private void AttachToGizmo(int[] entityIds)
+    private void AttachToManipulator(int[] entityIds)
     {
-        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>();
+        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>();
 
-        // If no active gizmo, clear all attachments
-        if (activeGizmo.IsEmpty)
+        // If no active manipulator, clear all attachments
+        if (activeManipulator.IsEmpty)
         {
-            var attachedEntities = GetEntityIds.With<GizmoAttachedComponent>();
+            var attachedEntities = GetEntityIds.With<ManipulatorAttachedComponent>();
             if (!attachedEntities.IsEmpty)
             {
                 foreach (var entityId in attachedEntities)
-                    ComponentManager.RemoveComponentFromEntity<GizmoAttachedComponent>(entityId);
+                    ComponentManager.RemoveComponentFromEntity<ManipulatorAttachedComponent>(entityId);
             }
 
             return;
         }
 
         // Clear existing attachments first to ensure only current selection is attached
-        var currentAttachments = GetEntityIds.With<GizmoAttachedComponent>();
+        var currentAttachments = GetEntityIds.With<ManipulatorAttachedComponent>();
         foreach (var entityId in currentAttachments)
         {
-            ComponentManager.RemoveComponentFromEntity<GizmoAttachedComponent>(entityId);
+            ComponentManager.RemoveComponentFromEntity<ManipulatorAttachedComponent>(entityId);
         }
 
         // Attach to currently selected entities
         foreach (var entityId in entityIds)
         {
-            ComponentManager.SetComponentToEntity(new GizmoAttachedComponent(), entityId);
+            ComponentManager.SetComponentToEntity(new ManipulatorAttachedComponent(), entityId);
         }
     }
 
@@ -137,16 +137,16 @@ public class SelectionSystem : UpdateSystem
     private void ClearSelection(int[] entityIds)
     {
         ClearSelectionComponent();
-        DetachGizmosFromEntities(entityIds);
+        DetachManipulatorsFromEntities(entityIds);
 
         _pickingData.SelectedEntityIds = [];
         ComponentManager.SetComponentToEntity(_pickingData, _pickingEntity);
     }
 
-    private void DetachGizmosFromEntities(int[] entityIds)
+    private void DetachManipulatorsFromEntities(int[] entityIds)
     {
         foreach (var id in entityIds)
-            ComponentManager.RemoveComponentFromEntity<GizmoAttachedComponent>(id);
+            ComponentManager.RemoveComponentFromEntity<ManipulatorAttachedComponent>(id);
     }
 
     private void ClearSelectionComponent()

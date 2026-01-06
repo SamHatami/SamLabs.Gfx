@@ -69,9 +69,9 @@ public partial class MainWindowViewModel : ViewModelBase
             _entityCreator));
     }
 
-    public void ToggleTranslateGizmos() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Translate));
-    public void ToggleRotateGizmo() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Rotate));
-    public void ToggleScaleGizmo() => CommandManager.EnqueueCommand(new ToggleGizmoCommand(CommandManager, GizmoType.Scale));
+    public void ToggleTranslateManipulators() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Translate));
+    public void ToggleRotateManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Rotate));
+    public void ToggleScaleManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Scale));
 
     public void UndoCommand() => CommandManager.UndoLatestCommand();
     public void RedoCommand() => CommandManager.RedoLatestCommand();

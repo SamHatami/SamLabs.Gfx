@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Geometry;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Utility;
@@ -12,13 +12,13 @@ public class RotateStrategy:ITransformStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
 
-    public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent gizmoTransform,
-        GizmoChildComponent gizmoChild, bool isGlobalMode = true)
+    public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent manipulatorTransform,
+        ManipulatorChildComponent manipulatorChild, bool isGlobalMode = true)
     {
 
         // 1. Get the rotation amount (angle) and the axis from input
-        float angle = GetRotateDelta(input, gizmoTransform,  gizmoChild, true); 
-        Vector3 axis = gizmoChild.Axis.ToVector3(); // e.g., Vector3.UnitX
+        float angle = GetRotateDelta(input, manipulatorTransform,  manipulatorChild, true); 
+        Vector3 axis = manipulatorChild.Axis.ToVector3(); // e.g., Vector3.UnitX
 
         // 2. Create the Rotation Matrix for this frame's change
         Matrix4 rotationDelta = Matrix4.CreateFromAxisAngle(axis, angle);
@@ -59,7 +59,7 @@ public class RotateStrategy:ITransformStrategy
         _lastHitPoint = Vector3.Zero;
     }
 
-    private float GetRotateDelta(FrameInput input, TransformComponent gizmoTransform, GizmoChildComponent gizmoChild, bool constrainDelta = false)
+    private float GetRotateDelta(FrameInput input, TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild, bool constrainDelta = false)
     {
         var cameraId = GetEntityIds.With<CameraComponent>().First();
         if (cameraId == -1) return 0;
@@ -69,13 +69,13 @@ public class RotateStrategy:ITransformStrategy
         ref var cameraTransform = ref ComponentManager.GetComponent<TransformComponent>(cameraId);
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         
-        //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at gizmo position
+        //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at manipulator position
         var mouseRay =
             cameraData.ScreenPointToWorldRay(
                 new Vector2((float)input.MousePosition.X, (float)input.MousePosition.Y),
                 input.ViewportSize);
         
-        var projectionPlane = new Plane(gizmoTransform.Position,cameraDir);
+        var projectionPlane = new Plane(manipulatorTransform.Position,cameraDir);
 
         if (!projectionPlane.RayCast(mouseRay, out var hit))
             return 0f;
@@ -88,11 +88,11 @@ public class RotateStrategy:ITransformStrategy
         }
 
         //A bit of claude magic
-        var axisVector = gizmoChild.Axis.ToVector3();
-        var gizmoPos = gizmoTransform.Position; 
+        var axisVector = manipulatorChild.Axis.ToVector3();
+        var manipulatorPos = manipulatorTransform.Position; 
 
-        var lastDir = Vector3.Normalize(_lastHitPoint - gizmoPos);
-        var currentDir = Vector3.Normalize(currentHitPoint - gizmoPos);
+        var lastDir = Vector3.Normalize(_lastHitPoint - manipulatorPos);
+        var currentDir = Vector3.Normalize(currentHitPoint - manipulatorPos);
 
         var cross = Vector3.Cross(lastDir, currentDir);
         var sign = MathF.Sign(Vector3.Dot(cross, axisVector));

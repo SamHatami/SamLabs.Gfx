@@ -8,7 +8,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Components;
 /// </summary>
 public struct GlMeshDataComponent : IDataComponent
 {
-    public bool IsGizmo { get; set; }
+    public bool IsManipulator { get; set; }
     public int Vao;
     public int Vbo;
     public int Ebo;

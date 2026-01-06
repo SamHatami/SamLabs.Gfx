@@ -2,65 +2,65 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.Rendering.Engine;
-using SamLabs.Gfx.Viewer.ECS.Components.Flags; // Need this for the flag
+using SamLabs.Gfx.Viewer.ECS.Components.Flags;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators; // Need this for the flag
 
 namespace SamLabs.Gfx.Viewer.ECS.Entities.Primitives;
 
-public class ScaleGizmoBlueprint:EntityBlueprint
+public class TranslateManipulatorBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityManager _entityManager;
 
-    public ScaleGizmoBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
+    public TranslateManipulatorBlueprint(ShaderService shaderService, EntityManager entityManager) : base()
     {
         _shaderService = shaderService;
         _entityManager = entityManager;
     }
 
-    public override string Name { get; } = EntityNames.ScaleGizmo;
-    public override async void Build(Entity parentGizmo, MeshDataComponent meshData = default)
+    public override string Name { get; } = EntityNames.TranslateManipulator;
+    public override async void Build(Entity parentManipulator, MeshDataComponent meshData = default)
     {
-        parentGizmo.Type = EntityType.Gizmo;
+        parentManipulator.Type = EntityType.Manipulator;
         var scale = new Vector3(1f, 1f, 1f);
         
-       // --- 1. Setup Parent Gizmo Entity ---
-       var parentGizmoTransform = new TransformComponent
+       // --- 1. Setup Parent Manipulator Entity ---
+       var parentManipulatorTransform = new TransformComponent
        {
            Scale = new Vector3(1f,1f, 1f),
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.Identity 
        };
 
-       ComponentManager.SetComponentToEntity(parentGizmoTransform, parentGizmo.Id);
+       ComponentManager.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
        
-       var gizmoComponent = new GizmoComponent() { Type = GizmoType.Scale };
-       ComponentManager.SetComponentToEntity(gizmoComponent, parentGizmo.Id);
+       var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Translate };
+       ComponentManager.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
-       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "ScaleArrow.obj");
-       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "ScalePlane.obj");
+       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "Arrow.obj");
+       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "TranslatePlane.obj");
        var importedArrowMesh = await ModelLoader.LoadObj(arrowPath); 
        var importedPlaneMesh = await ModelLoader.LoadObj(planePath); 
        
-       var parentIdComponent = new ParentIdComponent(parentGizmo.Id);
-       var gizmoShader = _shaderService.GetShader("gizmo");
+       var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
+       var manipulatorShader = _shaderService.GetShader("manipulator");
        // var highlightShader = _shaderService.GetShader("Highlight");
        
        var xAxisEntity = _entityManager.CreateEntity();
-       xAxisEntity.Type = EntityType.Gizmo;
+       xAxisEntity.Type = EntityType.Manipulator;
        var transformX = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position =  new Vector3(10,0,0),
        };
-       var materialX = new MaterialComponent { Shader = gizmoShader };
+       var materialX = new MaterialComponent { Shader = manipulatorShader };
        var glArrowMesh = new GlMeshDataComponent()
        {
-           IsGizmo = true,
+           IsManipulator = true,
            IndexCount = importedArrowMesh.Indices.Length,
            VertexCount = importedArrowMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
@@ -72,17 +72,18 @@ public class ScaleGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xAxisEntity.Id);
        ComponentManager.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.X), xAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), xAxisEntity.Id);
+
 
        var yAxisEntity = _entityManager.CreateEntity();
-       yAxisEntity.Type = EntityType.Gizmo;
+       yAxisEntity.Type = EntityType.Manipulator;
        var transformY = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position = new Vector3(0,10,0),
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(90f)) 
        };
-       var materialY = new MaterialComponent { Shader = gizmoShader };
+       var materialY = new MaterialComponent { Shader = manipulatorShader };
        
        ComponentManager.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
        ComponentManager.SetComponentToEntity(transformY, yAxisEntity.Id);
@@ -91,19 +92,19 @@ public class ScaleGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.Y), yAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Y), yAxisEntity.Id);
        
        
        var zAxisEntity = _entityManager.CreateEntity();
-       zAxisEntity.Type = EntityType.Gizmo;
+       zAxisEntity.Type = EntityType.Manipulator;
        var transformZ = new TransformComponent
        {
            Scale = scale,
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position = new Vector3(0,0,10),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f))
        };
-       var materialZ = new MaterialComponent { Shader = gizmoShader};
+       var materialZ = new MaterialComponent { Shader = manipulatorShader};
        
        ComponentManager.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
        ComponentManager.SetComponentToEntity(transformZ, zAxisEntity.Id);
@@ -112,20 +113,22 @@ public class ScaleGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(glArrowMesh, zAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), zAxisEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.Z), zAxisEntity.Id);
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), zAxisEntity.Id);
        
+       //  
+       // --- 6. Plane Entities (Optional but recommended for Translate Manipulator) ---
+
        var xyPlaneEntity = _entityManager.CreateEntity();
-       xyPlaneEntity.Type = EntityType.Gizmo;
+       xyPlaneEntity.Type = EntityType.Manipulator;
        var transformXY = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
-           Position =  new Vector3(2,2,0),
-           Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(180f)) 
+           ParentId = parentManipulator.Id,
+           Position =  new Vector3(2,2,0)
        };
-       var materialXY = new MaterialComponent { Shader = gizmoShader };
+       var materialXY = new MaterialComponent { Shader = manipulatorShader };
        var glPlaneMesh = new GlMeshDataComponent()
        {
-           IsGizmo = true,
+           IsManipulator = true,
            IndexCount = importedPlaneMesh.Indices.Length,
            VertexCount = importedPlaneMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
@@ -137,18 +140,18 @@ public class ScaleGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xyPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(glPlaneMesh, xyPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xyPlaneEntity.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.XY), xyPlaneEntity.Id);   
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XY), xyPlaneEntity.Id);   
+       
        
        var xzPlaneEntity = _entityManager.CreateEntity();
-       xzPlaneEntity.Type = EntityType.Gizmo;
-       var meshRotation = new Vector3(MathHelper.DegreesToRadians(90f),MathHelper.DegreesToRadians(180f),0f);
+       xzPlaneEntity.Type = EntityType.Manipulator;
        var transformXZ = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position =  new Vector3(2,0,2),
-           Rotation =  Quaternion.FromEulerAngles(meshRotation) 
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(90f)) 
        };
-       var materialXZ = new MaterialComponent { Shader = gizmoShader };
+       var materialXZ = new MaterialComponent { Shader = manipulatorShader };
        
        ComponentManager.SetComponentToEntity(parentIdComponent, xzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(transformXZ, xzPlaneEntity.Id);
@@ -157,17 +160,17 @@ public class ScaleGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), xzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(glPlaneMesh, xzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), xzPlaneEntity.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.XZ), xzPlaneEntity.Id);          
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XZ), xzPlaneEntity.Id);          
        
        var yzPlaneEntity = _entityManager.CreateEntity();
-       yzPlaneEntity.Type = EntityType.Gizmo;
+       yzPlaneEntity.Type = EntityType.Manipulator;
        var transformYZ = new TransformComponent
        {
-           ParentId = parentGizmo.Id,
+           ParentId = parentManipulator.Id,
            Position =  new Vector3(0,2,2),
-           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
+           Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f)) 
        };
-       var materialYZ = new MaterialComponent { Shader = gizmoShader };
+       var materialYZ = new MaterialComponent { Shader = manipulatorShader };
        
        ComponentManager.SetComponentToEntity(parentIdComponent, yzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(transformYZ, yzPlaneEntity.Id);
@@ -176,7 +179,7 @@ public class ScaleGizmoBlueprint:EntityBlueprint
        ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), yzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(glPlaneMesh, yzPlaneEntity.Id);
        ComponentManager.SetComponentToEntity(new SelectableDataComponent(), yzPlaneEntity.Id);
-       ComponentManager.SetComponentToEntity(new GizmoChildComponent(parentGizmo.Id, GizmoAxis.YZ), yzPlaneEntity.Id);   
+       ComponentManager.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.YZ), yzPlaneEntity.Id);   
        
     }
 }

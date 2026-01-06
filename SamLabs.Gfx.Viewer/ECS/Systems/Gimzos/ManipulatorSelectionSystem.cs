@@ -1,7 +1,7 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -9,14 +9,14 @@ using SamLabs.Gfx.Viewer.Rendering;
 
 namespace SamLabs.Gfx.Viewer.ECS.Systems.Gimzos;
 
-public class GizmoSelectionSystem : UpdateSystem
+public class ManipulatorSelectionSystem : UpdateSystem
 {
 
-    public GizmoSelectionSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager,editorEvents)
+    public ManipulatorSelectionSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager,editorEvents)
     {
     }
 
-    public override int SystemPosition => SystemOrders.GizmoSelectionUpdate;
+    public override int SystemPosition => SystemOrders.ManipulatorSelectionUpdate;
     private int _pickingEntity = -1;
 
     public override void Update(FrameInput frameInput)
@@ -25,7 +25,7 @@ public class GizmoSelectionSystem : UpdateSystem
 
         if (_pickingEntity == -1) return;
         ref var pickingData = ref ComponentManager.GetComponent<PickingDataComponent>(_pickingEntity);
-        if(pickingData.GizmoSelected() && frameInput.IsDragging) return;
+        if(pickingData.ManipualtorSelected() && frameInput.IsDragging) return;
         
         if (frameInput.IsMouseLeftButtonDown) //TODO: ctrl-click to do add to selection
         {
@@ -34,17 +34,17 @@ public class GizmoSelectionSystem : UpdateSystem
             if (pickingData.HoveredEntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
                 ClearPreviousSelection();
             
-            //Are we hovering over a gizmo ?
-            if(ComponentManager.HasComponent<GizmoComponent>(pickingData.HoveredEntityId) || ComponentManager.HasComponent<GizmoChildComponent>(pickingData.HoveredEntityId))
+            //Are we hovering over a manpulator ?
+            if(ComponentManager.HasComponent<ManipulatorComponent>(pickingData.HoveredEntityId) || ComponentManager.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
             {
-                pickingData.SelectedGizmoId = pickingData.HoveredEntityId;
+                pickingData.SelectedManipulatorId = pickingData.HoveredEntityId;
                 ComponentManager.SetComponentToEntity(pickingData, _pickingEntity);
-                SetNewGizmoSelection(pickingData.HoveredEntityId);
+                SetNewManipulatorSelection(pickingData.HoveredEntityId);
                 return;
             }
         }
         
-        pickingData.SelectedGizmoId = -1;
+        pickingData.SelectedManipulatorId = -1;
         ComponentManager.SetComponentToEntity(pickingData, _pickingEntity);
         ClearPreviousSelection();
     }
@@ -58,23 +58,23 @@ public class GizmoSelectionSystem : UpdateSystem
         _pickingEntity = entities[0];
     }
 
-    private void SetNewGizmoSelection(int gizmoEntityId)
+    private void SetNewManipulatorSelection(int manpulatorEntityId)
     {
-        var activeGizmo = GetEntityIds.With<ActiveGizmoComponent>();
-        if (activeGizmo.IsEmpty) return;
+        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>();
+        if (activeManipulator.IsEmpty) return;
         
         ClearPreviousSelection();
         
-        ComponentManager.SetComponentToEntity(new SelectedChildGizmoComponent(), gizmoEntityId);
+        ComponentManager.SetComponentToEntity(new SelectedManipulatorChildComponent(), manpulatorEntityId);
     }
 
-    private int[] GetGizmosFromSelection(int[] entityIds)
+    private int[] GetManipulatorsFromSelection(int[] entityIds)
     {
         if (entityIds.Length == 0) return entityIds;
         
         return entityIds
-            .Where(id => ComponentManager.HasComponent<GizmoComponent>(id))
-            .Where(id => ComponentManager.HasComponent<GizmoChildComponent>(id))
+            .Where(id => ComponentManager.HasComponent<ManipulatorComponent>(id))
+            .Where(id => ComponentManager.HasComponent<ManipulatorChildComponent>(id))
             .ToArray();
     }
 
@@ -82,11 +82,11 @@ public class GizmoSelectionSystem : UpdateSystem
 
     private void ClearPreviousSelection()
     {
-        var previousSelection = GetEntityIds.With<SelectedChildGizmoComponent>();
+        var previousSelection = GetEntityIds.With<SelectedManipulatorChildComponent>();
         if (previousSelection.IsEmpty) return;
 
         foreach (var entity in previousSelection)
-            ComponentManager.RemoveComponentFromEntity<SelectedChildGizmoComponent>(entity);
+            ComponentManager.RemoveComponentFromEntity<SelectedManipulatorChildComponent>(entity);
     }
 
 }

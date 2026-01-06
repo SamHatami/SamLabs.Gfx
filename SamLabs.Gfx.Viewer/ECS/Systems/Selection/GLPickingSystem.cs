@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
+using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 using SamLabs.Gfx.Viewer.IO;
@@ -16,13 +16,11 @@ public class GLPickingSystem : RenderSystem
 {
     private readonly EntityManager _entityManager;
     public override int SystemPosition => SystemOrders.PickingRender;
-    private int _readPickingIndex;
     private IViewPort _viewport;
     private GLShader? _pickingShader = null;
     private int _pickingEntity = -1;
-    private const float GizmoPaddingScale = 1.02f;
 
-    public GLPickingSystem( EntityManager entityManager) : base(entityManager)
+    public GLPickingSystem(EntityManager entityManager) : base(entityManager)
     {
         _entityManager = entityManager;
     }
@@ -47,38 +45,38 @@ public class GLPickingSystem : RenderSystem
         if (meshEntities.Length == 0) return;
 
         (var x, var y) = GetPixelPosition(frameInput.MousePosition, renderContext);
-        
+
         //Clear and render to picking buffer
         Renderer.RenderToPickingBuffer(renderContext.ViewPort);
 
         foreach (var selectableEntity in selectableEntities)
         {
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
-            if(mesh.IsGizmo)
+            if (mesh.IsManipulator)
                 continue;
-            
+
             //TODO: Check if this is a child and then do world * local
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
             RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
         }
-        
+
         // GL.Clear(ClearBufferMask.DepthBufferBit);
-        
-        var parentGizmo = ComponentManager.GetEntityIdsForComponentType<ActiveGizmoComponent>();
-        if(!parentGizmo.IsEmpty) //No active gizmo (no gizmo selected)
+
+        var parentManipulator = ComponentManager.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
+        if (!parentManipulator.IsEmpty) //No active manipulator (no manipulator selected)
         {
             Span<int> childBuffer = stackalloc int[6]; //Make sure only the active parents children are fetched
-            var childGizmos = ComponentManager.GetChildEntitiesForParent(parentGizmo[0], childBuffer);
-            foreach (var childGizmo in childGizmos)
+            var childManipulators = ComponentManager.GetChildEntitiesForParent(parentManipulator[0], childBuffer);
+            foreach (var childManipulator in childManipulators)
             {
-                var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(childGizmo);
-                if (!mesh.IsGizmo)
+                var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(childManipulator);
+                if (!mesh.IsManipulator)
                     continue;
-                var modelMatrix = ComponentManager.GetComponent<TransformComponent>(childGizmo).WorldMatrix;
-                RenderToPickingTexture(mesh, childGizmo, modelMatrix);
+                var modelMatrix = ComponentManager.GetComponent<TransformComponent>(childManipulator).WorldMatrix;
+                RenderToPickingTexture(mesh, childManipulator, modelMatrix);
             }
         }
-        
+
         HandlePickingIdReadBack(x, y, ref pickingData);
     }
 
@@ -115,15 +113,14 @@ public class GLPickingSystem : RenderSystem
         pickingData.BufferPickingIndex = readIndex;
 
         var pickedId = ReadPickedIdFromPbo();
-        //Check if the picked id belongs to a gizmo
-        pickingData.HoveredEntityId =  (int)pickedId;
+        //Check if the picked id belongs to a manipulator
+        pickingData.HoveredEntityId = (int)pickedId;
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
 
         if (pickedId >= uint.MaxValue)
             pickingData.HoveredEntityId = -1; // Nothing picked
         else
             pickingData.HoveredEntityId = (int)pickedId;
-        
     }
 
     private uint ReadPickedIdFromPbo()

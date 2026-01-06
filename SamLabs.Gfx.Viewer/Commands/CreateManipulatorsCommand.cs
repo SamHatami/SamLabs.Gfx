@@ -3,12 +3,12 @@
 namespace SamLabs.Gfx.Viewer.Commands;
 
 //Todo: Add logger
-public class CreateGizmosCommand: InternalCommand //InternalCommand or HiddenCommand?
+public class CreateManipulatorsCommand: InternalCommand //InternalCommand or HiddenCommand?
 {
     private readonly CommandManager _commandManager;
     private readonly EntityCreator _entityCreator;
     private int _gridId;
-    public CreateGizmosCommand(CommandManager commandManager, EntityCreator entityCreator)
+    public CreateManipulatorsCommand(CommandManager commandManager, EntityCreator entityCreator)
     {
         _commandManager = commandManager;
         _entityCreator = entityCreator;
@@ -18,9 +18,9 @@ public class CreateGizmosCommand: InternalCommand //InternalCommand or HiddenCom
     {
         try
         {
-            _entityCreator.CreateFromBlueprint(EntityNames.TranslateGizmo);
-            _entityCreator.CreateFromBlueprint(EntityNames.RotateGizmo);
-            _entityCreator.CreateFromBlueprint(EntityNames.ScaleGizmo);
+            _entityCreator.CreateFromBlueprint(EntityNames.TranslateManipulator);
+            _entityCreator.CreateFromBlueprint(EntityNames.RotateManipulator);
+            _entityCreator.CreateFromBlueprint(EntityNames.ScaleManipulator);
         }
         catch (Exception e)
         {

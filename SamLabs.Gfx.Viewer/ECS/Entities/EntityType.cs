@@ -2,7 +2,7 @@
 
 public enum EntityType
 {
-    Gizmo,
+    Manipulator,
     SceneObject,
     Camera,
     Light,

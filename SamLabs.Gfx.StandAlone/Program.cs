@@ -33,7 +33,7 @@ internal sealed class Program
                 
             }) //This line is the important one.
             .LogToTrace()
-            .WithDeveloperTools();
+            .WithDeveloperTools();//Sam:for Avalonia devtools
 
     }
 }

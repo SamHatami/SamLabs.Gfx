@@ -210,7 +210,7 @@ public class EditorControl : OpenTkControlBase
         SceneManager.GetCurrentScene();
 
         CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EditorRoot.EntityCreator));
-        CommandManager.EnqueueCommand(new CreateGizmosCommand(CommandManager, EditorRoot.EntityCreator));
+        CommandManager.EnqueueCommand(new CreateManipulatorsCommand(CommandManager, EditorRoot.EntityCreator));
         SizeChanged += OnSizeChanged;
     }
 
