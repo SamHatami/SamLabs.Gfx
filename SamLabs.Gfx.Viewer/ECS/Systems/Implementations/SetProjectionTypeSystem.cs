@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -11,7 +12,7 @@ public class SetProjectionTypeSystem:UpdateSystem
 {
     public override int SystemPosition { get; } = SystemOrders.PreRenderUpdate;
 
-    public SetProjectionTypeSystem(EntityManager entityManager, CommandManager commandManager) : base(entityManager, commandManager)
+    public SetProjectionTypeSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
     {
     }
     

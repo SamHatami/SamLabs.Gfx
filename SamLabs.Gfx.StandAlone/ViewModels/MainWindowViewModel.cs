@@ -17,11 +17,9 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private Scene _scene;
     private Grid _grid;
-    public EcsRoot EcsRoot { get; }
+    public EditorRoot EditorRoot { get; }
     public CommandManager CommandManager { get; }
     public ISceneManager SceneManager { get; }
-
-    public string Greeting { get; } = "Welcome to Avalonia!";
 
     [ObservableProperty] private int _objectId;
     private readonly EntityCreator _entityCreator;
@@ -29,14 +27,20 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _currentFpsString;
 
     public MainWindowViewModel() {}
-    public MainWindowViewModel(ISceneManager sceneManager, EcsRoot ecsRoot, CommandManager commandManager)
+    public MainWindowViewModel(ISceneManager sceneManager, EditorRoot editorRoot, CommandManager commandManager)
     {
-        EcsRoot = ecsRoot;
-        _entityCreator = ecsRoot.EntityCreator;
+        //use EditorService to convey the commands rather than directly using the commandmanager, the editorRoot is needed for the editorcontrol
+        EditorRoot = editorRoot;
+        _entityCreator = editorRoot.EntityCreator;
         CommandManager = commandManager;
         SceneManager = sceneManager;
 
         InitializeMainScene();
+        
+        //we also need sub-viewmodels that subscribe to whatever events they need
+        //SceneViewModel
+        //TransformViewModel
+        //PropertiesViewmodel (perhaps includes the transform?)
     }
 
     private void InitializeMainScene()

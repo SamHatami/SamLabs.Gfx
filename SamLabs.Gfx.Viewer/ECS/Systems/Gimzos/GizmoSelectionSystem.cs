@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -10,11 +11,9 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Gimzos;
 
 public class GizmoSelectionSystem : UpdateSystem
 {
-    private readonly EntityManager _entityManager;
 
-    public GizmoSelectionSystem(EntityManager entityManager, CommandManager commandManager) : base(entityManager, commandManager)
+    public GizmoSelectionSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager,editorEvents)
     {
-        _entityManager = entityManager;
     }
 
     public override int SystemPosition => SystemOrders.GizmoSelectionUpdate;

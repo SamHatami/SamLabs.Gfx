@@ -34,7 +34,7 @@
 
         <controls:EditorControl
             CommandManager="{Binding CommandManager}"
-            EcsRoot="{Binding EcsRoot}"
+            EditorRoot="{Binding EditorRoot}"
             Focusable="True"
             SceneManager="{Binding SceneManager}" />
         <Border

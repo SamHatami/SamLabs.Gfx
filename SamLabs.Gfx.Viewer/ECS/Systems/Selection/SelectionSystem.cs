@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -12,16 +13,16 @@ public class SelectionSystem : UpdateSystem
 {
     private readonly EntityManager _entityManager;
 
-    public SelectionSystem(EntityManager entityManager, CommandManager commandManager) : base(entityManager, commandManager)
-    {
-        _entityManager = entityManager;
-    }
-
     public override int SystemPosition => SystemOrders.SelectionUpdate;
     private PickingDataComponent _pickingData;
     private int _pickingEntity = -1;
     private int[] _currentSelection;
     private bool _isGizmoDragging;
+    
+    public SelectionSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
+    {
+        _entityManager = entityManager;
+    }
 
     public override void Update(FrameInput frameInput)
     {

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.Logging;
 using SamLabs.Gfx.Viewer.Commands;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
@@ -12,16 +13,20 @@ public class SystemManager
 {
     private readonly EntityManager _entityManager;
     private readonly CommandManager _commandManager;
+    private readonly EditorEvents _editorEvents;
+    private readonly ILogger<SystemManager> _logger;
     private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
     private UpdateSystem?[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
     private RenderSystem?[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
     private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[GlobalSettings.MaxSystems];
     private int _systemsCount;
 
-    public SystemManager(EntityManager entityManager, CommandManager  commandManager)
+    public SystemManager(EntityManager entityManager, CommandManager  commandManager, EditorEvents editorEvents, ILogger<SystemManager> logger)
     {
         _entityManager = entityManager;
         _commandManager = commandManager;
+        _editorEvents = editorEvents;
+        _logger = logger;
         RegisterSystems();
     }
 
@@ -58,6 +63,7 @@ public class SystemManager
             catch (Exception e)
             {
                 Console.WriteLine($"Could not add system {renderSystems.ElementAt(i).Name} to systemregistry");
+                _logger.LogError(e.Message);
             }
         }
         
@@ -89,11 +95,12 @@ public class SystemManager
             try
             {
                 _updateSystems[i] =
-                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), _entityManager, _commandManager);
+                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), [_entityManager, _commandManager, _editorEvents]);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Could not add system {updateSystems.ElementAt(i).Name} to systemregistry");
+                _logger.LogError(e.Message);
             }
         }
     }
@@ -112,7 +119,7 @@ public class SystemManager
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                _logger.LogError(e.Message);
             }
         }
     }

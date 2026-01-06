@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
 
@@ -6,13 +7,15 @@ namespace SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
 
 public abstract class UpdateSystem
 {
-    private readonly EntityManager _entityManager;
-    protected readonly CommandManager _commandManager;
+    protected readonly EntityManager EntityManager;
+    protected readonly CommandManager CommandManager;
+    protected readonly EditorEvents EditorEvents;
     public virtual int SystemPosition { get; }
-    protected UpdateSystem(EntityManager entityManager, CommandManager commandManager)
+    protected UpdateSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents)
     {
-        _entityManager = entityManager;
-        _commandManager = commandManager;
+        EntityManager = entityManager;
+        CommandManager = commandManager;
+        EditorEvents = editorEvents;
     }
 
     public abstract void Update(FrameInput frameInput);

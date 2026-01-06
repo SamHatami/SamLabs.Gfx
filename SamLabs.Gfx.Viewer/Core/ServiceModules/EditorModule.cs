@@ -5,12 +5,12 @@ using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.Core.ServiceModules;
 
-public class EcsModule:IServiceModule
+public class EditorModule:IServiceModule
 {
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         //ECS entry point
-        services.AddSingleton<EcsRoot>();
+        services.AddSingleton<EditorRoot>();
         
         //Main managers
         
@@ -20,6 +20,7 @@ public class EcsModule:IServiceModule
         //Creators
         services.AddSingleton<EntityCreator>();
         
+        services.AddSingleton<EditorEvents>();
         
         
         return services;

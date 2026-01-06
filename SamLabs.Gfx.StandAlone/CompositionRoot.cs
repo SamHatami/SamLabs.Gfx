@@ -42,7 +42,7 @@ public class CompositionRoot
         {
             new RenderServiceModule(),
             new GeometryServiceModule(),
-            new EcsModule(),
+            new EditorModule(),
             new CommandsModule()
         };
 

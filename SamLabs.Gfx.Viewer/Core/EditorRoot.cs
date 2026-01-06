@@ -10,7 +10,7 @@ namespace SamLabs.Gfx.Viewer.Core;
 /// "Container" root container for the Entity Component System.
 /// Is registered as a singleton in the DI container, but should be sent to other classes as a parameter.
 /// </summary>
-public class EcsRoot
+public class EditorRoot
 {
     private readonly ShaderService _shaderService;
     public SystemManager SystemManager { get; }
@@ -18,7 +18,7 @@ public class EcsRoot
     public EntityCreator EntityCreator { get; }
     public IRenderer Renderer { get; }
 
-    public EcsRoot(SystemManager systemManager, EntityManager entityManager,
+    public EditorRoot(SystemManager systemManager, EntityManager entityManager,
         EntityCreator entityCreator, IRenderer renderer, ShaderService shaderService)
     {
         _shaderService = shaderService;

@@ -7,4 +7,13 @@ public static class EnumTypes
         Perspective,
         Orthographic,
     }
+    
+    public enum ToolType
+    {
+        None,
+        Translate,
+        Rotate,
+        Scale,
+        Boolean
+    }
 }

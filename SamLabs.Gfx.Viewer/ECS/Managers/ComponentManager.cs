@@ -5,7 +5,7 @@ using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
-public static class ComponentManager
+public static class ComponentManager //TODO: Remake into instance class and inject logger
 {
     private static readonly ComponentMap[]
         ComponentMaps =

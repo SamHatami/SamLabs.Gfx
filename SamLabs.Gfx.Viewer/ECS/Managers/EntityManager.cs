@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.Core;
+﻿using Microsoft.Extensions.Logging;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Core;
 
@@ -6,10 +7,16 @@ namespace SamLabs.Gfx.Viewer.ECS.Managers;
 
 //manage entities, respond to entity queries (GetEnteties should be moved here)
 public class EntityManager
-{  
+{
+    private readonly ILogger<EntityManager> _logger;
     private readonly Entity?[] _entities  = new Entity?[GlobalSettings.MaxEntities];
     
     public event EventHandler<EntityEventArgs>? OnEntityCreated;
+
+    public EntityManager(ILogger<EntityManager> logger)
+    {
+        _logger = logger;
+    }
 
     public Entity CreateEntity()
     {

@@ -1,4 +1,5 @@
 ﻿using SamLabs.Gfx.Viewer.Commands;
+using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Gizmos;
 using SamLabs.Gfx.Viewer.ECS.Core;
@@ -21,7 +22,7 @@ public class TransformSystem : UpdateSystem
 
     public override int SystemPosition => SystemOrders.TransformUpdate;
 
-    public TransformSystem(EntityManager entityManager, CommandManager commandManager) : base(entityManager, commandManager)
+    public TransformSystem(EntityManager entityManager, CommandManager commandManager, EditorEvents editorEvents) : base(entityManager, commandManager, editorEvents)
     {
         _transformStrategies = new Dictionary<GizmoType, ITransformStrategy>
         {
@@ -83,7 +84,7 @@ public class TransformSystem : UpdateSystem
         if (frameInput.IsMouseLeftButtonDown || !_isTransforming) return;
         
         _postChangeTransform = ComponentManager.GetComponent<TransformComponent>(selectedEntities[0]);
-        _commandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform, _postChangeTransform));
+        CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform, _postChangeTransform));
         _isTransforming = false;
         _selectedGizmoSubEntity = -1;
         transformStrategy.Reset();

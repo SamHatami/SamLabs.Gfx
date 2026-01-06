@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Threading;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.StandAlone.Controls.OpenTk;
 using SamLabs.Gfx.StandAlone.ViewModels;
@@ -21,9 +18,9 @@ using SamLabs.Gfx.Viewer.SceneGraph;
 namespace SamLabs.Gfx.StandAlone.Controls;
 
 /// <summary>
-/// The main Avalonia control that renders the scene. This control can't be injected into the DI container,
-/// instead properties are passed via Avalonias DirectProperties, from the main view model.
-/// This control is the main hub for the ECS and rendering system and all rendering calls most originate from the OpenTKRender method.
+/// The main WPF control that renders the scene. This control can't be injected into the DI container,
+/// Properties are passed via Avalonias DirectProperties, from the main view model.
+/// This control is the main hub for the entity-component-system, all rendering calls must originate from the OpenTKRender method, since we are using the Avalonia OpenGlContext.
 /// The render context and frame input are updated inside this class.
 /// </summary>
 public class EditorControl : OpenTkControlBase
@@ -40,16 +37,16 @@ public class EditorControl : OpenTkControlBase
         set => SetAndRaise(CommandManagerProperty, ref field, value);
     }
 
-    public static readonly DirectProperty<EditorControl, EcsRoot> EcsRootProperty =
-        AvaloniaProperty.RegisterDirect<EditorControl, EcsRoot>(
-            nameof(EcsRoot),
-            o => o.EcsRoot,
-            (o, v) => o.EcsRoot = v);
+    public static readonly DirectProperty<EditorControl, EditorRoot> EditorRootProperty =
+        AvaloniaProperty.RegisterDirect<EditorControl, EditorRoot>(
+            nameof(EditorRoot),
+            o => o.EditorRoot,
+            (o, v) => o.EditorRoot = v);
 
-    public EcsRoot EcsRoot
+    public EditorRoot EditorRoot
     {
         get;
-        set => SetAndRaise(EcsRootProperty, ref field, value);
+        set => SetAndRaise(EditorRootProperty, ref field, value);
     }
 
     public static readonly DirectProperty<EditorControl, ISceneManager> SceneManagerProperty =
@@ -66,7 +63,6 @@ public class EditorControl : OpenTkControlBase
 
     private IRenderer _renderer;
     private SystemManager _systemManager;
-
     private IViewPort _mainViewport;
     private bool _isViewportHovered;
     private Point _currentMousePosition;
@@ -89,7 +85,6 @@ public class EditorControl : OpenTkControlBase
     private int _width;
 
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
-
 
     private DateTime _lastUpdateTime = DateTime.Now;
     private int _frameCount = 0;
@@ -206,16 +201,16 @@ public class EditorControl : OpenTkControlBase
 
     protected override void InitializeOpenTk()
     {
-        _systemManager = EcsRoot.SystemManager;
-        _renderer = EcsRoot.Renderer;
+        _systemManager = EditorRoot.SystemManager;
+        _renderer = EditorRoot.Renderer;
 
         _renderer.Initialize();
         _systemManager.InitializeRenderSystems(_renderer);
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         SceneManager.GetCurrentScene();
 
-        CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EcsRoot.EntityCreator));
-        CommandManager.EnqueueCommand(new CreateGizmosCommand(CommandManager, EcsRoot.EntityCreator));
+        CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EditorRoot.EntityCreator));
+        CommandManager.EnqueueCommand(new CreateGizmosCommand(CommandManager, EditorRoot.EntityCreator));
         SizeChanged += OnSizeChanged;
     }
 
