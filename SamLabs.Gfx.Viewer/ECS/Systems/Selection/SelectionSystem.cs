@@ -116,9 +116,9 @@ public class SelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var entities = GetEntityIds.With<PickingDataComponent>();
-        if (entities.IsEmpty) return; //hmm
-        _pickingEntity = entities[0];
+        var pickingEntity = GetEntityIds.With<PickingDataComponent>().First();
+        if (pickingEntity == -1) return; //hmm
+        _pickingEntity = pickingEntity;
     }
 
     private void SetNewSelection(int[] entityIds)

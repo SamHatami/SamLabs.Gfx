@@ -6,12 +6,11 @@ using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Core;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.ECS.Systems.Abstractions;
-using SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
+using SamLabs.Gfx.Viewer.ECS.Systems.Tools.Transform.Strategies;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering;
-using Vector3 = OpenTK.Mathematics.Vector3;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Tools.Transform;
 
 public class TransformToolSystem : UpdateSystem
 {

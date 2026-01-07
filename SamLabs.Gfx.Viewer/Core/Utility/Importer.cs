@@ -1,7 +1,8 @@
 ﻿using Assimp;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Geometry.Mesh;
 using SamLabs.Gfx.Viewer.ECS.Components;
-using SamLabs.Gfx.Viewer.ECS.Core;
+using Face = SamLabs.Gfx.Geometry.Mesh.Face;
 
 namespace SamLabs.Gfx.Viewer.Core.Utility;
 
@@ -10,11 +11,9 @@ public static class ModelLoader
     public static async Task<MeshDataComponent> LoadObj(string filePath)
     {
         var importer = new AssimpContext();
-        var steps = PostProcessSteps.Triangulate |    
-                    // Ensure all faces are triangles
-                    PostProcessSteps.FlipUVs |               // Align texture V-axis with OpenGL
-                    // Create normals if missing
-                    PostProcessSteps.JoinIdenticalVertices; 
+        var steps = PostProcessSteps.FlipUVs | // Align texture V-axis with OpenGL
+                    PostProcessSteps.GenerateNormals |
+                    PostProcessSteps.JoinIdenticalVertices;
 
         Scene scene;
         try
@@ -31,16 +30,16 @@ public static class ModelLoader
             throw;
         }
 
-
-
-
+        //we are combining all meshes into one, hence "combined", if we want to support multiple mesh, we need to return an array of meshdatacomponents
         var combinedVertices = new List<Vertex>();
-        var combinedIndices = new List<int>();
-        int vertexOffset = 0;
-
+        var combinedIndices = new List<int>(); //The EBO for GL_TRIANGLES
+        var combinedFaces = new List<Face>();
+        var vertexOffset = 0;
+        var faceId = 0;
         foreach (var mesh in scene.Meshes)
         {
-            for (int i = 0; i < mesh.VertexCount; i++)
+            //Vertices
+            for (var i = 0; i < mesh.VertexCount; i++)
             {
                 var aPos = mesh.Vertices[i];
                 var position = new Vector3(aPos.X, aPos.Y, aPos.Z);
@@ -62,20 +61,43 @@ public static class ModelLoader
                 combinedVertices.Add(new Vertex(position, normal, uv));
             }
 
-            var meshIndices = mesh.GetIndices().ToArray();
-            for (int i = 0; i < meshIndices.Count(); i++)
+
+            //Faces
+            for (int i = 0; i < mesh.FaceCount; i++)
             {
-                combinedIndices.Add(meshIndices[i] + vertexOffset);
+                var surface = mesh.Faces[i];
+                var localSurfaceIndices = surface.Indices.ToArray();
+
+                var globalIndices = new int[localSurfaceIndices.Length];
+                for (int j = 0; j < localSurfaceIndices.Length; j++)
+                {
+                    globalIndices[j] = localSurfaceIndices[j] + vertexOffset;
+                }
+
+                var triangulatedIndices = MeshUtils.TriangulateFace(globalIndices);
+                combinedIndices.AddRange(triangulatedIndices);
+                combinedFaces.Add(new Face()
+                {
+                    Id = faceId++,
+                    VertexIndices = globalIndices,
+                    RenderIndices = triangulatedIndices,
+                    Normal = MeshUtils.CalculateFaceNormal(combinedVertices, globalIndices),
+                    CenterPoint = MeshUtils.CalculateCenter(combinedVertices, globalIndices),
+                });
             }
 
-            vertexOffset += mesh.VertexCount;
+            vertexOffset += mesh.VertexCount; //Since we are combining multiple meshes into one
         }
 
+        var edges = MeshUtils.GenerateEdges(combinedFaces.ToArray());
         return new MeshDataComponent
         {
+            Name = Path.GetFileNameWithoutExtension(filePath),
             Vertices = combinedVertices.ToArray(),
-            Indices = combinedIndices.ToArray(),
-            Name = Path.GetFileNameWithoutExtension(filePath)
+            Faces = combinedFaces.ToArray(),
+            Edges = edges.ToArray(),
+            TriangleIndices = combinedIndices.ToArray(),
+            EdgeIndices = edges.SelectMany(e => new[] { e.V2, e.V1 }).ToArray()
         };
     }
 }

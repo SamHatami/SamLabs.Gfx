@@ -7,7 +7,7 @@ using SamLabs.Gfx.Viewer.ECS.Managers;
 using SamLabs.Gfx.Viewer.IO;
 using SamLabs.Gfx.Viewer.Rendering.Utility;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Tools.Transform.Strategies;
 
 public class RotateToolStrategy:ITransformToolStrategy
 {

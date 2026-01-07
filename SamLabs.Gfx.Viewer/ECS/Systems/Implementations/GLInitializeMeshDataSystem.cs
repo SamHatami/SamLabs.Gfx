@@ -48,7 +48,7 @@ public class GLInitializeMeshDataSystem : RenderSystem
 
         SetupVertexAttributes();
         
-        if( meshData.Indices.Length > 0)
+        if( meshData.TriangleIndices.Length > 0)
             IndexVertices(ref glMeshData, ref meshData);
         else
             glMeshData.Ebo = 0;
@@ -60,8 +60,8 @@ public class GLInitializeMeshDataSystem : RenderSystem
     {
         glMeshData.Ebo = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, glMeshData.Ebo);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.Indices.Length * sizeof(uint),
-            meshData.Indices, BufferUsage.StaticDraw);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.TriangleIndices.Length * sizeof(uint),
+            meshData.TriangleIndices, BufferUsage.StaticDraw);
     }
 
     private void SetupVertexAttributes()

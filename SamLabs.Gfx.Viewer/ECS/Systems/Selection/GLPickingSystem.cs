@@ -50,19 +50,28 @@ public class GLPickingSystem : RenderSystem
         //Clear and render to picking buffer
         Renderer.RenderToPickingBuffer(renderContext.ViewPort);
 
+        //Pass 1,render full object
+        //we only render full objects here. I need a way to render everything and then selectionmode will disable or filter out.
         foreach (var selectableEntity in selectableEntities)
         {
             var mesh = ComponentManager.GetComponent<GlMeshDataComponent>(selectableEntity);
             if (mesh.IsManipulator)
                 continue;
 
-            //TODO: Check if this is a child and then do world * local
             var modelMatrix = ComponentManager.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
             RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
         }
+        
+        //if in subselection mode
+        //Pass 2
 
-        // GL.Clear(ClearBufferMask.DepthBufferBit);
+        RenderActiveMainpulatorToPickingBuffer();
 
+        HandlePickingIdReadBack(x, y, ref pickingData);
+    }
+
+    private void RenderActiveMainpulatorToPickingBuffer()
+    {
         var parentManipulator = ComponentManager.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
         if (!parentManipulator.IsEmpty) //No active manipulator (no manipulator selected)
         {
@@ -77,14 +86,15 @@ public class GLPickingSystem : RenderSystem
                 RenderToPickingTexture(mesh, childManipulator, modelMatrix);
             }
         }
-
-        HandlePickingIdReadBack(x, y, ref pickingData);
     }
 
 
     private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix)
     {
         //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
+        //set uPickingType to be able to id what we are rendering to the picking buffer
+        //set uEntityId to be able to read which entity these belong to 
+        //set u
         using var shader = new ShaderProgram(_pickingShader).Use()
             .SetUInt(UniformNames.uPickingId, (uint)entityId)
             .SetMatrix4(UniformNames.uModel, ref modelMatrix);

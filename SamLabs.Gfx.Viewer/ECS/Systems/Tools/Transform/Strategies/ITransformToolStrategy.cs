@@ -2,7 +2,7 @@
 using SamLabs.Gfx.Viewer.ECS.Components.Manipulators;
 using SamLabs.Gfx.Viewer.IO;
 
-namespace SamLabs.Gfx.Viewer.ECS.Systems.Transform.Strategies;
+namespace SamLabs.Gfx.Viewer.ECS.Systems.Tools.Transform.Strategies;
 
 public interface ITransformToolStrategy
 {

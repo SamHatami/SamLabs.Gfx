@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Geometry.Mesh;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Core;
@@ -29,7 +30,7 @@ public class MainGridBlueprint : EntityBlueprint
         var gridData = new GridComponent(linesPerSide, spacing);
         meshData = new MeshDataComponent()
         {
-            Indices = Array.Empty<int>(),
+            TriangleIndices = Array.Empty<int>(),
             Vertices = vertices,
             Name = "Main Grid"
         };

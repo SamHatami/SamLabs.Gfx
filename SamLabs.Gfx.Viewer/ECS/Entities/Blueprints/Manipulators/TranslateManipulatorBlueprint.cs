@@ -64,7 +64,7 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        var glArrowMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
-           IndexCount = importedArrowMesh.Indices.Length,
+           IndexCount = importedArrowMesh.TriangleIndices.Length,
            VertexCount = importedArrowMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };
@@ -132,7 +132,7 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        var glPlaneMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
-           IndexCount = importedPlaneMesh.Indices.Length,
+           IndexCount = importedPlaneMesh.TriangleIndices.Length,
            VertexCount = importedPlaneMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };

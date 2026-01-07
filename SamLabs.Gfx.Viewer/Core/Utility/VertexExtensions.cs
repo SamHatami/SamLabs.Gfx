@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Core;
+﻿using SamLabs.Gfx.Geometry.Mesh;
+using SamLabs.Gfx.Viewer.ECS.Core;
 
 namespace SamLabs.Gfx.Viewer.Core.Utility;
 

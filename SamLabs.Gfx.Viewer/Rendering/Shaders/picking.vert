@@ -7,7 +7,8 @@ layout(std140) uniform ViewProjection
     mat4 projection;
 };
 
-uniform uint uPickingId;
+uniform uint uEntityId;
+uniform uint uPickingType;
 uniform mat4 uModel;
 flat out uint vertexPickingId;
 
@@ -15,5 +16,6 @@ void main()
 {
     gl_Position = projection *view * uModel * vec4(aPos, 1.0);
     
+    //vertexPickingId = (objectId << 20) | uint(gl_VertexID);
     vertexPickingId = uPickingId;
 }

@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using SamLabs.Gfx.Geometry.Mesh;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Flags;
 using SamLabs.Gfx.Viewer.ECS.Components.Selection;
@@ -39,7 +40,7 @@ public class CubeBlueprint : EntityBlueprint
         {
             PrimitiveType = PrimitiveType.Triangles,
             VertexCount = meshData.Vertices.Length,
-            IndexCount = meshData.Indices.Length 
+            IndexCount = meshData.TriangleIndices.Length 
             
         };
 
@@ -93,7 +94,7 @@ public class CubeBlueprint : EntityBlueprint
         indices[30] = 1; indices[31] = 6; indices[32] = 5;
         indices[33] = 5; indices[34] = 2; indices[35] = 1;
         
-        cube.Indices = indices;
+        cube.TriangleIndices = indices;
         cube.Vertices = vertices;
         
         return cube;

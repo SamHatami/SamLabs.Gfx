@@ -32,7 +32,7 @@ public class ImportedBlueprint : EntityBlueprint
         {
             PrimitiveType = PrimitiveType.Triangles,
             VertexCount = meshData.Vertices.Length,
-            IndexCount = meshData.Indices.Length 
+            IndexCount = meshData.TriangleIndices.Length 
             
         };
 

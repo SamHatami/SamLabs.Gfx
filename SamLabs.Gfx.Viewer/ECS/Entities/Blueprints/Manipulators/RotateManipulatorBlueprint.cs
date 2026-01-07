@@ -62,7 +62,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
        var glRotateMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
-           IndexCount = importedRotateMesh.Indices.Length,
+           IndexCount = importedRotateMesh.TriangleIndices.Length,
            VertexCount = importedRotateMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };

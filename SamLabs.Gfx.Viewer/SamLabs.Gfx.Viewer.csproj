@@ -118,5 +118,6 @@
     <Folder Include="ECS\Components\Tools\" />
     <Folder Include="ECS\Components\VisualAids\" />
     <Folder Include="ECS\Systems\Input\" />
+    <Folder Include="ECS\Systems\Tools\Extrude\" />
   </ItemGroup>
 </Project>

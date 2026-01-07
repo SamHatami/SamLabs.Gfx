@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Geometry.Mesh;
 using SamLabs.Gfx.Viewer.Core;
 using SamLabs.Gfx.Viewer.Core.Utility;
 using SamLabs.Gfx.Viewer.ECS.Components;

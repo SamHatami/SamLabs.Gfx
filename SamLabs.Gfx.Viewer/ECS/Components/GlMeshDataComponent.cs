@@ -9,13 +9,22 @@ namespace SamLabs.Gfx.Viewer.ECS.Components;
 public struct GlMeshDataComponent : IDataComponent
 {
     public bool IsManipulator { get; set; }
+    
+    //Vertex buffer
     public int Vao;
     public int Vbo;
+    
+    //Face buffer
     public int Ebo;
-    public int VertexCount;
     public int IndexCount { get; set; }
-    public PrimitiveType PrimitiveType;
+    
+    //Edge buffer
+    public int EdgeEbo { get; set; }
+    public int EdgeIndexCount { get; set; }
+    
+    public int VertexCount;
 
+    public PrimitiveType PrimitiveType { get; set; }
     public GlMeshDataComponent(int vertexCount)
     {
         VertexCount = vertexCount;
