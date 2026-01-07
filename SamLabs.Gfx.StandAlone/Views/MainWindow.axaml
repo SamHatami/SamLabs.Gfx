@@ -50,13 +50,20 @@
             IsHitTestVisible="False">
         </Border>
 
+        
 
         <Border x:Name="BaseTools" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d" CornerRadius="5"
                 VerticalAlignment="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding ToggleTranslateManipulators}" Content="T" />
-                <Button Command="{Binding ToggleRotateManipulator}" Content="R" />
-                <Button Command="{Binding ToggleScaleManipulator}" Content="S" />
+                <Button Command="{Binding ToggleTranslateManipulators}">
+                    <Image Source="../Assets/expand-arrows.png"/>
+                </Button>
+                <Button Command="{Binding ToggleRotateManipulator}">
+                    <Image Source="../Assets/rotate.png"/>
+                </Button>
+                <Button Command="{Binding ToggleScaleManipulator}" >
+                    <Image Source="../Assets/scale.png"/>
+                </Button>
             </StackPanel>
 
         </Border>
@@ -66,7 +73,9 @@
             <StackPanel
                 Margin="5"
                 Orientation="Vertical">
-                <Button Command="{Binding AddBox}" Content="Add Box" />
+                <Button Command="{Binding AddBox}"  >
+                    <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform"/>
+                </Button>
             </StackPanel>
         </Border>
 
