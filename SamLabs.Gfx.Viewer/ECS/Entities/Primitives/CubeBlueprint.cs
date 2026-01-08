@@ -58,45 +58,64 @@ public class CubeBlueprint : EntityBlueprint
         ComponentManager.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
     }
     
-    private MeshDataComponent GenerateMeshData(int size = 1)
+    private MeshDataComponent GenerateMeshData(float size = 1f)
     {
         var cube = new MeshDataComponent();
         
-        var vertices = new Vertex[8];
-        var indices = new int[36];
+        // 1. Vertices
+        var half = size * 0.5f;
+        var vertices = new Vertex[]
+        {
+            new(new Vector3( half,  half,  half)), // 0
+            new(new Vector3( half,  half, -half)), // 1
+            new(new Vector3( half, -half, -half)), // 2
+            new(new Vector3( half, -half,  half)), // 3
+            new(new Vector3(-half, -half,  half)), // 4
+            new(new Vector3(-half, -half, -half)), // 5
+            new(new Vector3(-half,  half, -half)), // 6
+            new(new Vector3(-half,  half,  half))  // 7
+        };
 
-        var halfSize = size * 0.5f;
-        vertices[0] = new Vertex(new Vector3(halfSize, halfSize, halfSize));
-        vertices[1] = new Vertex(new Vector3(halfSize, halfSize, -halfSize));
-        vertices[2] = new Vertex(new Vector3(halfSize, -halfSize, -halfSize));
-        vertices[3] = new Vertex(new Vector3(halfSize, -halfSize, halfSize));
-        vertices[4] = new Vertex(new Vector3(-halfSize, -halfSize, halfSize));
-        vertices[5] = new Vertex(new Vector3(-halfSize, -halfSize, -halfSize));
-        vertices[6] = new Vertex(new Vector3(-halfSize, halfSize, -halfSize));
-        vertices[7] = new Vertex(new Vector3(-halfSize, halfSize, halfSize));
+        // 2. Faces (Topology)
+        // We define them as Quads (Logical) and Triangles (Visual)
+        var faces = new Face[6];
 
+        // Helper to create a face
+        void SetFace(int id, int[] quad, int[] tris) 
+        {
+            faces[id] = new Face
+            {
+                Id = id,
+                VertexIndices = quad,
+                RenderIndices = tris,
+                Normal = MeshUtils.CalculateFaceNormal(vertices.ToList(), quad),
+                CenterPoint = MeshUtils.CalculateCenter(vertices.ToList(), quad)
+            };
+        }
 
-        indices[0] = 0; indices[1] = 1; indices[2] = 2;
-        indices[3] = 2; indices[4] = 3; indices[5] = 0;
+        // Front (0,1,2,3)
+        SetFace(0, [0, 1, 2, 3], [0, 1, 2, 0, 2, 3]);
+        // Back (4,5,6,7)
+        SetFace(1, [4, 5, 6, 7], [4, 5, 6, 4, 6, 7]);
+        // Top (0,3,7,?) - Note: Check your winding order preferences
+        SetFace(2, [0, 3, 4, 7], [0, 3, 4, 0, 4, 7]); // Top
+        SetFace(3, [1, 6, 5, 2], [1, 6, 5, 1, 5, 2]); // Bottom
+        SetFace(4, [3, 2, 5, 4], [3, 2, 5, 3, 5, 4]); // Right
+        SetFace(5, [7, 6, 1, 0], [7, 6, 1, 7, 1, 0]); // Left
 
-        indices[6] = 4; indices[7] = 5; indices[8] = 6;
-        indices[9] = 6; indices[10] = 7; indices[11] = 4;
+        // 3. Edges (Topology)
+        // Generate edges automatically from the faces we just defined
+        var edges = MeshUtils.GenerateEdges(faces);
 
-        indices[12] = 0; indices[13] = 7; indices[14] = 6;
-        indices[15] = 6; indices[16] = 1; indices[17] = 0;
-
-        indices[18] = 3; indices[19] = 2; indices[20] = 5;
-        indices[21] = 5; indices[22] = 4; indices[23] = 3;
-
-        indices[24] = 7; indices[25] = 4; indices[26] = 3;
-        indices[27] = 3; indices[28] = 0; indices[29] = 7;
-
-        indices[30] = 1; indices[31] = 6; indices[32] = 5;
-        indices[33] = 5; indices[34] = 2; indices[35] = 1;
-        
-        cube.TriangleIndices = indices;
+        // 4. Populate Component
         cube.Vertices = vertices;
+        cube.Faces = faces;
+        cube.Edges = edges;
         
+        // Flatten for GPU Buffers
+        cube.TriangleIndices = faces.SelectMany(f => f.RenderIndices).ToArray();
+        cube.EdgeIndices = edges.SelectMany(e => new[] {  e.V1, e.V2 }).ToArray();
+
         return cube;
     }
     

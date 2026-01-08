@@ -65,12 +65,12 @@ public class GLPickingSystem : RenderSystem
         //if in subselection mode
         //Pass 2
 
-        RenderActiveMainpulatorToPickingBuffer();
+        RenderActiveManipulatorToPickingBuffer();
 
         HandlePickingIdReadBack(x, y, ref pickingData);
     }
 
-    private void RenderActiveMainpulatorToPickingBuffer()
+    private void RenderActiveManipulatorToPickingBuffer()
     {
         var parentManipulator = ComponentManager.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
         if (!parentManipulator.IsEmpty) //No active manipulator (no manipulator selected)
@@ -89,16 +89,21 @@ public class GLPickingSystem : RenderSystem
     }
 
 
-    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix)
+    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix, SelectionType selectionType = SelectionType.None)
     {
         //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
         //set uPickingType to be able to id what we are rendering to the picking buffer
         //set uEntityId to be able to read which entity these belong to 
         //set u
+        var selectionEnumInt =  (int)selectionType;
         using var shader = new ShaderProgram(_pickingShader).Use()
-            .SetUInt(UniformNames.uPickingId, (uint)entityId)
+            .SetInt(UniformNames.uEntityId, ref entityId)
+            .SetInt(UniformNames.uPickingType, ref selectionEnumInt)
             .SetMatrix4(UniformNames.uModel, ref modelMatrix);
-        MeshRenderer.Draw(mesh);
+
+        var rendererContext = MeshRenderer.Begin(mesh);
+        rendererContext.Edges().Faces().Vertices();
+        rendererContext.Dispose();
     }
 
 
@@ -119,24 +124,38 @@ public class GLPickingSystem : RenderSystem
         var readIndex = pickingData.BufferPickingIndex ^ 1;
 
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[writeIndex]);
-        GL.ReadPixels(x, y, 1, 1, PixelFormat.RedInteger, PixelType.UnsignedInt, IntPtr.Zero);
+        GL.ReadPixels(x, y, 1, 1, PixelFormat.RgInteger, PixelType.Int, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, _viewport.SelectionRenderView.PixelBuffers[readIndex]);
         pickingData.BufferPickingIndex = readIndex;
 
-        var pickedId = ReadPickedIdFromPbo();
-        //Check if the picked id belongs to a manipulator
-        pickingData.HoveredEntityId = (int)pickedId;
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+        var readPixelId = ReadPickedIdFromPbo();
+        
+        var entityId = readPixelId[0]; // Red
+        var packedId = readPixelId[1]; // Green
 
-        if (pickedId >= uint.MaxValue)
-            pickingData.HoveredEntityId = -1; // Nothing picked
-        else
-            pickingData.HoveredEntityId = (int)pickedId;
+        if (entityId == -1)
+        {
+            pickingData.ClearHoveredIds();
+            return; 
+        }
+        // Decode Bit-Packing
+        
+        var type = (int)(packedId >> 28) & 0xF;      // Top 4 bits
+        var id   = (int)(packedId & 0x0FFFFFFF);     // Bottom 28 bits
+        
+        //Check if the picked id belongs to a manipulator
+        pickingData.HoveredEntityId = (int)entityId;
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+        
+        pickingData.HoveredEntityId = (int)entityId;
+        pickingData.HoveredElementId = id;
+        pickingData.HoveredType = (SelectionType)type;
+
     }
 
-    private uint ReadPickedIdFromPbo()
+    private int[] ReadPickedIdFromPbo()
     {
-        uint[] pixel = new uint[1];
+        var pixel = new int[2];
 
         GL.GetBufferSubData(
             BufferTarget.PixelPackBuffer,
@@ -145,6 +164,6 @@ public class GLPickingSystem : RenderSystem
             pixel
         );
 
-        return pixel[0];
+        return pixel;
     }
 }

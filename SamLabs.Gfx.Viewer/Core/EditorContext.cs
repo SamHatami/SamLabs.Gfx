@@ -6,7 +6,7 @@ public class EditorContext
 {
     //Keeper of the edit state
     
-    public SelectionMode SelectionMode { get; }
+    public SelectionType SelectionType { get; }
     
     public EditorContext()
     {

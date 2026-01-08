@@ -1,4 +1,5 @@
-﻿using SamLabs.Gfx.Viewer.ECS.Entities;
+﻿using System.ComponentModel.Design;
+using SamLabs.Gfx.Viewer.ECS.Entities;
 using SamLabs.Gfx.Viewer.ECS.Managers;
 
 namespace SamLabs.Gfx.Viewer.ECS.Components.Selection;
@@ -8,20 +9,29 @@ public struct PickingDataComponent :IDataComponent
     public PickingDataComponent()
     {
         BufferPickingIndex = 0;
-        HoveredEntityId = 0;
+        HoveredEntityId = -1;
         HoveredEntityType = EntityType.Manipulator;
-        HoveredVertexId = 0;
-        SelectedManipulatorId = 0;
+        HoveredType = SelectionType.None;
+        SelectedManipulatorId = -1;
         SelectedEntityIds = [];
     }
+
+    public SelectionType HoveredType { get; set; }
+
 
     public int BufferPickingIndex { get; set; } //For gl buffer rendering
     public int HoveredEntityId { get; set; }
     public EntityType HoveredEntityType { get; set; }
-    public int HoveredVertexId { get; set; }
     public int SelectedManipulatorId { get; set; }
-    public int[] SelectedEntityIds { get; set; } 
-    
+    public int[] SelectedEntityIds { get; set; }
+    public int HoveredElementId { get; set; }
+
+    public void ClearHoveredIds()
+    {
+        HoveredEntityId = -1;
+        HoveredEntityType = EntityType.None;
+        HoveredType = SelectionType.None;
+    }
 }
 
 public static class PickingDataComponentExtensions

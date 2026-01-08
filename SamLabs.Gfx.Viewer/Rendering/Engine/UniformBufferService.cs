@@ -132,10 +132,12 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uLightPos, typeof(Vector3));
         UniformInfo.Add(UniformNames.uLightColor, typeof(Vector3));
         UniformInfo.Add(UniformNames.uIsHovered, typeof(int));
-        UniformInfo.Add(UniformNames.uObjectId, typeof(uint));
+        UniformInfo.Add(UniformNames.uEntityId, typeof(int));
         UniformInfo.Add(UniformNames.uIsSelected, typeof(int));
         UniformInfo.Add(UniformNames.uManipulatorCenter, typeof(Vector3));
         UniformInfo.Add(UniformNames.uManipulatorAxis, typeof(Vector3));
+        UniformInfo.Add(UniformNames.uPickingType, typeof(int));
+        UniformInfo.Add(UniformNames.uVertexRenderSize, typeof(int));
         
     }
 }
@@ -148,7 +150,7 @@ public static class UniformNames
     public const string uColor = "uColor";
     public const string uPickingColor = "uPickingColor";
     public const string uPickingId = "uPickingId";
-    public const string uObjectId = "uObjectId";
+    public const string uEntityId = "uEntityId";
     public const string uTime = "uTime";
     public const string uCameraPos = "uCameraPos";
     public const string uLightPos = "uLightPos";
@@ -157,4 +159,6 @@ public static class UniformNames
     public const string uIsSelected = "uIsSelected";
     public const string uManipulatorCenter = "uManipulatorCenter";
     public const string uManipulatorAxis = "uManipulatorAxis";
+    public const string uPickingType = "uPickingType";
+    public const string uVertexRenderSize = "uVertexRenderSize";
 }

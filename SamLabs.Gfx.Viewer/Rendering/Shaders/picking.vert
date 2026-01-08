@@ -7,15 +7,17 @@ layout(std140) uniform ViewProjection
     mat4 projection;
 };
 
-uniform uint uEntityId;
-uniform uint uPickingType;
+uniform int uEntityId;
 uniform mat4 uModel;
-flat out uint vertexPickingId;
+uniform int uVertexRenderSize;
+flat out int vertexPickingId;
 
 void main()
 {
     gl_Position = projection *view * uModel * vec4(aPos, 1.0);
     
-    //vertexPickingId = (objectId << 20) | uint(gl_VertexID);
-    vertexPickingId = uPickingId;
+    gl_PointSize = (uVertexRenderSize > 0.0) ? uVertexRenderSize: 5.0;
+    
+    vertexPickingId = gl_VertexID;
+    
 }

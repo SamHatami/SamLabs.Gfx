@@ -50,6 +50,8 @@ public class GLInitializeMeshDataSystem : RenderSystem
         
         if( meshData.TriangleIndices.Length > 0)
             IndexVertices(ref glMeshData, ref meshData);
+        if (meshData.EdgeIndices != null && meshData.EdgeIndices.Length > 0)
+            IndexEdges(ref glMeshData, meshData.EdgeIndices);
         else
             glMeshData.Ebo = 0;
         
@@ -62,6 +64,16 @@ public class GLInitializeMeshDataSystem : RenderSystem
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, glMeshData.Ebo);
         GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.TriangleIndices.Length * sizeof(uint),
             meshData.TriangleIndices, BufferUsage.StaticDraw);
+    }
+    
+    private void IndexEdges(ref GlMeshDataComponent glMeshData, int[] edgeIndices)
+    {
+        glMeshData.EdgeEbo = GL.GenBuffer();
+        glMeshData.EdgeIndexCount = edgeIndices.Length;
+
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, glMeshData.EdgeEbo);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, edgeIndices.Length * sizeof(uint),
+            edgeIndices, BufferUsage.StaticDraw);
     }
 
     private void SetupVertexAttributes()

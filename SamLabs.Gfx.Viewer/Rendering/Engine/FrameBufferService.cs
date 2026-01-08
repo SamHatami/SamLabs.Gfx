@@ -99,12 +99,12 @@ public class FrameBufferService
         GL.TexImage2D(
             TextureTarget.Texture2d,
             0,
-            InternalFormat.R32ui,
+            InternalFormat.Rg32i,
             width,
             height,
             0,
-            PixelFormat.RedInteger,
-            PixelType.UnsignedInt,
+            PixelFormat.RgInteger,
+            PixelType.Int,
             IntPtr.Zero);
 
         GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -191,12 +191,11 @@ public class FrameBufferService
 
     public void RenderToPickingBuffer(IFrameBufferInfo pickingBufferInfo)
     {
-        uint[] clearId = [uint.MaxValue];
-
+        int[] clearValues = [-1, -1, -1, -1];
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, pickingBufferInfo.FrameBufferId);
         GL.Disable(EnableCap.ScissorTest);
         GL.ColorMask(true, true, true, true);
-        GL.ClearBufferui(Buffer.Color, 0, clearId);
+        GL.ClearBufferi(Buffer.Color, 0, clearValues);
         GL.Clear(ClearBufferMask.DepthBufferBit);
     }
 
@@ -220,7 +219,7 @@ public class FrameBufferService
         GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);
         GL.BufferData(
             BufferTarget.PixelPackBuffer,
-            sizeof(uint),
+            sizeof(int)*2,
             IntPtr.Zero, BufferUsage.StreamRead
         );
 

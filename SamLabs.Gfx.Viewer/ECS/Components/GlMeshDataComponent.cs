@@ -9,6 +9,7 @@ namespace SamLabs.Gfx.Viewer.ECS.Components;
 public struct GlMeshDataComponent : IDataComponent
 {
     public bool IsManipulator { get; set; }
+    public bool IsGrid { get; set; }
     
     //Vertex buffer
     public int Vao;

@@ -40,6 +40,7 @@ public class MainGridBlueprint : EntityBlueprint
         
         var glMeshData = new GlMeshDataComponent()
         {
+            IsGrid =  true,
             PrimitiveType = PrimitiveType.Lines,
             VertexCount = vertices.Length
         };

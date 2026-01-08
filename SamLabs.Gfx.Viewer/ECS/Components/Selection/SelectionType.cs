@@ -1,6 +1,6 @@
 ﻿namespace SamLabs.Gfx.Viewer.ECS.Components.Selection;
 
-public enum SelectionMode
+public enum SelectionType
 {
     None,
     Object,

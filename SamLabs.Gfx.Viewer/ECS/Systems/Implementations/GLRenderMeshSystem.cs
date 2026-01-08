@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Viewer.ECS.Components;
 using SamLabs.Gfx.Viewer.ECS.Components.Selection;
 using SamLabs.Gfx.Viewer.ECS.Managers;
@@ -53,6 +54,15 @@ public class GLRenderMeshSystem : RenderSystem
             SetInt(UniformNames.uIsHovered, ref isHovered)
             .SetInt(UniformNames.uIsSelected, ref isSelected);
         materialComponent.Shader.UniformLocations.TryGetValue(UniformNames.uIsHovered, out var materialLocation);
-        MeshRenderer.Draw(mesh);
+        
+        if(mesh.IsGrid)
+            MeshRenderer.Draw(mesh);
+        else
+        {
+            using var renderContext = MeshRenderer.Begin(mesh).Faces().Edges();
+            renderContext.Vertices();
+        }
+
+
     }
 }

@@ -34,7 +34,8 @@ public class ShaderService : IDisposable
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(fragPath + "" + e);
+                _logger.LogError(e.Message);
             }
 
 
