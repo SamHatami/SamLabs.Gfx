@@ -4,23 +4,18 @@ using SamLabs.Gfx.Engine.Core;
 
 namespace SamLabs.Gfx.Engine.Components;
 
-public static class ComponentRegistry //TODO: Remake into instance class and inject logger
+public class ComponentRegistry : IComponentRegistry
 {
-    private static readonly ComponentMap[]
-        ComponentMaps =
-            new ComponentMap[GlobalSettings.MaxComponents]; //for quick tracking which entities have which components
 
-    private static readonly Dictionary<Type, int>
-        ComponentTypeRegistry = new(GlobalSettings.MaxComponents); //only used for building up the ComponentTypeCache
+    private readonly ComponentMap[] _componentMaps = new ComponentMap[EditorSettings.MaxComponents]; //for quick tracking which entities have which components
 
-    private static readonly IComponentStorage[] ComponentStorages = new IComponentStorage[GlobalSettings.MaxComponents];
+    private readonly Dictionary<Type, int> _componentTypeRegistry = new(EditorSettings.MaxComponents); //only used for building up the ComponentTypeCache
 
-    public class ComponentMap<T> where T : IDataComponent
+    private readonly IComponentStorage[] _componentStorages = new IComponentStorage[EditorSettings.MaxComponents];
+
+    public ComponentRegistry()
     {
-    }
 
-    static ComponentRegistry()
-    {
         var componentTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t =>
                 t.IsValueType &&
@@ -35,9 +30,9 @@ public static class ComponentRegistry //TODO: Remake into instance class and inj
             var componentType = componentTypes[i];
             try
             {
-                ComponentMaps[i] = new ComponentMap(componentType);
-                ComponentTypeRegistry[componentType] = i;
-                ComponentStorages[i] = (IComponentStorage)Activator.CreateInstance(
+                _componentMaps[i] = new ComponentMap(componentType);
+                _componentTypeRegistry[componentType] = i;
+                _componentStorages[i] = (IComponentStorage)Activator.CreateInstance(
                     typeof(ComponentStorage<>).MakeGenericType(componentType))!;
             }
             catch (Exception e)
@@ -47,67 +42,67 @@ public static class ComponentRegistry //TODO: Remake into instance class and inj
         }
     }
 
+    // --- Instance API ---
 
-
-    public static void RemoveComponentFromEntities<T>(ReadOnlySpan<int> entityIds) where T : IDataComponent
+    public void RemoveComponentFromEntities<T>(ReadOnlySpan<int> entityIds) where T : IDataComponent
     {
         foreach (var entityId in entityIds)
             RemoveComponentFromEntity<T>(entityId);
     }
 
-    public static void RemoveComponentFromEntities<T>(int[] entityIds) where T : IDataComponent
+    public void RemoveComponentFromEntities<T>(int[] entityIds) where T : IDataComponent
     {
         foreach (var entityId in entityIds)
             RemoveComponentFromEntity<T>(entityId);
     }
 
-    public static void RemoveComponentFromEntity<T>(int entityId) where T : IDataComponent
+    public void RemoveComponentFromEntity<T>(int entityId) where T : IDataComponent
     {
         if (!HasComponent<T>(entityId)) return;
 
-        ComponentMaps[GetId<T>()].RemoveUsage(entityId);
+        _componentMaps[GetId<T>()].RemoveUsage(entityId);
     }
 
-    public static void RemoveEntity(int entityId)
+    public void RemoveEntity(int entityId)
     {
         if (entityId == -1) return;
 
-        foreach (var componentMap in ComponentMaps) componentMap.RemoveUsage(entityId);
+        foreach (var componentMap in _componentMaps) componentMap.RemoveUsage(entityId);
 
-        foreach (var storage in ComponentStorages) storage?.Clear(entityId);
+        foreach (var storage in _componentStorages) storage?.Clear(entityId);
     }
 
-    public static void SetComponentToEntity<T>(T component, int entityId) where T : IDataComponent
+    public void SetComponentToEntity<T>(T component, int entityId) where T : IDataComponent
     {
         if (entityId == -1) return;
 
         var componentId = GetId<T>();
-        var storage = (ComponentStorage<T>)ComponentStorages[componentId];
+        var storage = (ComponentStorage<T>)_componentStorages[componentId];
         storage.Get(entityId) = component;
-        ComponentMaps[GetId<T>()].AddUsage(entityId);
+        _componentMaps[GetId<T>()].AddUsage(entityId);
     }
 
-    public static ref T GetComponent<T>(int entityId) where T : struct, IDataComponent
+    public ref T GetComponent<T>(int entityId) where T : struct, IDataComponent
     {
         var componentId = GetId<T>();
-        var storage = (ComponentStorage<T>)ComponentStorages[componentId];
+        var storage = (ComponentStorage<T>)_componentStorages[componentId];
         return ref storage.Get(entityId);
     }
 
-    public static int GetId<T>() where T : IDataComponent
+    public int GetId<T>() where T : IDataComponent
     {
-        return ComponentTypeCache<T>.Id;
+        return _componentTypeRegistry.GetValueOrDefault(typeof(T), -1);
     }
 
-    public static ReadOnlySpan<int> GetEntityIdsForComponentType<T>() where T : IDataComponent
+    public ReadOnlySpan<int> GetEntityIdsForComponentType<T>() where T : IDataComponent
     {
-        return GetId<T>() == -1 ? ReadOnlySpan<int>.Empty : ComponentMaps[GetId<T>()].GetUsageIds();
+        return GetId<T>() == -1 ? ReadOnlySpan<int>.Empty : _componentMaps[GetId<T>()].GetUsageIds();
     }
 
     //Children must have the ParentIdComponent
-    public static ReadOnlySpan<int> GetChildEntitiesForParent(int parentId, Span<int> results)
+    public ReadOnlySpan<int> GetChildEntitiesForParent(int parentId, Span<int> results)
     {
-        var childrenEntities = ComponentMaps[GetId<ParentIdComponent>()].GetUsageIds();
+        var childrenEntities = _componentMaps[GetId<ParentIdComponent>()].GetUsageIds();
         int childCount = 0;
         foreach (var childId in childrenEntities)
             if (GetComponent<ParentIdComponent>(childId).ParentId == parentId)
@@ -116,22 +111,13 @@ public static class ComponentRegistry //TODO: Remake into instance class and inj
         return results[..childCount];
     }
 
-    public static bool HasComponent<T>(int entityId) where T : IDataComponent
+    public bool HasComponent<T>(int entityId) where T : IDataComponent
     {
         var componentId = GetId<T>();
 
         if (componentId == -1) return false;
 
-        return ComponentMaps[componentId].Has(entityId);
-    }
-
-    private static class ComponentTypeCache<T> where T : IDataComponent
-    {
-        public static int Id = -1;
-
-        static ComponentTypeCache()
-        {
-            Id = ComponentTypeRegistry.GetValueOrDefault(typeof(T), -1);
-        }
+        return _componentMaps[componentId].Has(entityId);
     }
 }
+

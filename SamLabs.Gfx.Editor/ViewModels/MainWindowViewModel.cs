@@ -3,6 +3,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamLabs.Gfx.Engine.Commands;
+using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Entities.Primitives;
@@ -22,6 +23,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly EntityFactory _entityFactory;
 
     [ObservableProperty] private string _currentFpsString;
+    private readonly IComponentRegistry _componentRegistry;
 
     public MainWindowViewModel() {}
     public MainWindowViewModel(ISceneManager sceneManager, EditorRoot editorRoot, CommandManager commandManager)
@@ -29,6 +31,7 @@ public partial class MainWindowViewModel : ViewModelBase
         //use EditorService to convey the commands rather than directly using the commandmanager, the editorRoot is needed for the editorcontrol
         EditorRoot = editorRoot;
         _entityFactory = editorRoot.EntityFactory;
+        _componentRegistry = editorRoot.ComponentRegistry;
         CommandManager = commandManager;
         SceneManager = sceneManager;
 
@@ -66,9 +69,9 @@ public partial class MainWindowViewModel : ViewModelBase
             _entityFactory));
     }
 
-    public void ToggleTranslateManipulators() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Translate));
-    public void ToggleRotateManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Rotate));
-    public void ToggleScaleManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Scale));
+    public void ToggleTranslateManipulators() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Translate, _componentRegistry));
+    public void ToggleRotateManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Rotate, _componentRegistry));
+    public void ToggleScaleManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Scale, _componentRegistry));
 
     public void UndoCommand() => CommandManager.UndoLatestCommand();
     public void RedoCommand() => CommandManager.RedoLatestCommand();

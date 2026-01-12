@@ -8,20 +8,22 @@ public class TransformCommand:Command
     private readonly int _entityId;
     private readonly TransformComponent _preChangeTransform;
     private readonly TransformComponent _postChangeTransform;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public TransformCommand(int entityId, TransformComponent preChangeTransform, TransformComponent postChangeTransform)
+    public TransformCommand(int entityId, TransformComponent preChangeTransform, TransformComponent postChangeTransform, IComponentRegistry componentRegistry)
     {
         _entityId = entityId;
         _preChangeTransform = preChangeTransform;
         _postChangeTransform = postChangeTransform;
+        _componentRegistry = componentRegistry;
     }
     public override void Execute()
     {
-        ComponentRegistry.SetComponentToEntity(_postChangeTransform, _entityId);
+        _componentRegistry.SetComponentToEntity(_postChangeTransform, _entityId);
     }
 
     public override void Undo()
     {
-        ComponentRegistry.SetComponentToEntity(_preChangeTransform, _entityId);
+        _componentRegistry.SetComponentToEntity(_preChangeTransform, _entityId);
     }
 }

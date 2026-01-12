@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Core;
@@ -16,18 +17,20 @@ public class SystemScheduler
     private readonly CommandManager _commandManager;
     private readonly EditorEvents _editorEvents;
     private readonly ILogger<SystemScheduler> _logger;
-    private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[GlobalSettings.MaxSystems];
-    private UpdateSystem?[] _updateSystems = new UpdateSystem[GlobalSettings.MaxSystems];
-    private RenderSystem?[] _renderSystems = new RenderSystem[GlobalSettings.MaxSystems];
-    private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[GlobalSettings.MaxSystems];
+    private readonly IServiceProvider _serviceProvider;
+    private PreRenderSystem?[] _preRenderSystems = new PreRenderSystem[EditorSettings.MaxSystems];
+    private UpdateSystem?[] _updateSystems = new UpdateSystem[EditorSettings.MaxSystems];
+    private RenderSystem?[] _renderSystems = new RenderSystem[EditorSettings.MaxSystems];
+    private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[EditorSettings.MaxSystems];
     private int _systemsCount;
 
-    public SystemScheduler(EntityRegistry entityRegistry, CommandManager  commandManager, EditorEvents editorEvents, ILogger<SystemScheduler> logger)
+    public SystemScheduler(EntityRegistry entityRegistry, CommandManager  commandManager, EditorEvents editorEvents, ILogger<SystemScheduler> logger, IServiceProvider serviceProvider)
     {
         _entityRegistry = entityRegistry;
         _commandManager = commandManager;
         _editorEvents = editorEvents;
         _logger = logger;
+        _serviceProvider = serviceProvider;
         RegisterSystems();
     }
 
@@ -58,8 +61,7 @@ public class SystemScheduler
         {
             try
             {
-                _renderSystems[i] =
-                    (RenderSystem)Activator.CreateInstance(renderSystems.ElementAt(i), _entityRegistry);
+                _renderSystems[i] = (RenderSystem)ActivatorUtilities.CreateInstance(_serviceProvider, renderSystems.ElementAt(i));
             }
             catch (Exception e)
             {
@@ -95,8 +97,7 @@ public class SystemScheduler
         {
             try
             {
-                _updateSystems[i] =
-                    (UpdateSystem)Activator.CreateInstance(updateSystems.ElementAt(i), [_entityRegistry, _commandManager, _editorEvents]);
+                _updateSystems[i] = (UpdateSystem)ActivatorUtilities.CreateInstance(_serviceProvider, updateSystems.ElementAt(i));
             }
             catch (Exception e)
             {

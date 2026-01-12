@@ -16,24 +16,28 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 public class ViewProjectionSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.PreRenderUpdate;
-    public ViewProjectionSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    private readonly IComponentRegistry _componentRegistry;
+
+    public ViewProjectionSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(
+        entityRegistry, componentRegistry)
     {
+        _componentRegistry = componentRegistry;
     }
 
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-        
-        var cameraEntity = ComponentRegistry.GetEntityIdsForComponentType<CameraComponent>();
+        var cameraEntity = _componentRegistry.GetEntityIdsForComponentType<CameraComponent>();
         if (cameraEntity.Length == 0) return;
 
-        var cameraTransform = ComponentRegistry.GetComponent<TransformComponent>(cameraEntity[0]);
-        ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(cameraEntity[0]);
+        var cameraTransform = _componentRegistry.GetComponent<TransformComponent>(cameraEntity[0]);
+        ref var cameraData = ref _componentRegistry.GetComponent<CameraDataComponent>(cameraEntity[0]);
 
         if (renderContext.ResizeRequested)
         {
             Renderer.ResizeViewportBuffers(renderContext.ViewPort, renderContext.ViewWidth, renderContext.ViewHeight);
             cameraData.AspectRatio = renderContext.ViewWidth / (float)renderContext.ViewHeight;
         }
+
         var viewMatrix = ViewMatrix(cameraData, cameraTransform);
         var projectionMatrix = Matrix4.Identity;
         switch (cameraData.ProjectionType)
@@ -45,12 +49,12 @@ public class ViewProjectionSystem : RenderSystem
                 projectionMatrix = PerspectiveProjectionMatrix(cameraData);
                 break;
         }
-        
+
         Renderer.SetViewProjection(viewMatrix, projectionMatrix);
-        
+
         cameraData.ProjectionMatrix = projectionMatrix;
         cameraData.ViewMatrix = viewMatrix;
-        
+
         renderContext.CameraMoved = false;
         renderContext.ResizeRequested = false;
     }
@@ -60,7 +64,7 @@ public class ViewProjectionSystem : RenderSystem
 
     private Matrix4 PerspectiveProjectionMatrix(CameraDataComponent camera) =>
         Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
-    
+
     private Matrix4 OrthographicProjectionMatrix(CameraDataComponent camera, RenderContext renderContext) =>
-    Matrix4.CreateOrthographic(renderContext.ViewWidth, renderContext.ViewHeight, camera.Near, camera.Far);
+        Matrix4.CreateOrthographic(renderContext.ViewWidth, renderContext.ViewHeight, camera.Near, camera.Far);
 }

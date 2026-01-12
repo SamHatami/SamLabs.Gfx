@@ -14,7 +14,7 @@ public class CubeBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
 
-    public CubeBlueprint( ShaderService shaderService) : base()
+    public CubeBlueprint(ShaderService shaderService, IComponentRegistry _componentRegistry) : base(_componentRegistry)
     {
         _shaderService = shaderService;
     }
@@ -47,14 +47,14 @@ public class CubeBlueprint : EntityBlueprint
         material.Shader = _shaderService.GetShader("flat");
         material.PickingShader = _shaderService.GetShader("picking");
             
-        ComponentRegistry.SetComponentToEntity(glMeshData, entity.Id);
-        ComponentRegistry.SetComponentToEntity(meshData, entity.Id);
-        ComponentRegistry.SetComponentToEntity(transformComponent, entity.Id);
-        ComponentRegistry.SetComponentToEntity(material, entity.Id);
-        ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
+        _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
+        _componentRegistry.SetComponentToEntity(meshData, entity.Id);
+        _componentRegistry.SetComponentToEntity(transformComponent, entity.Id);
+        _componentRegistry.SetComponentToEntity(material, entity.Id);
+        _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
         
         //add the creational flag to the entity
-        ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
+        _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
     }
     
     private MeshDataComponent GenerateMeshData(float size = 1f)

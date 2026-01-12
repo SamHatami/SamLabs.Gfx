@@ -17,9 +17,11 @@ public class GLManipulatorRenderSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.ManipulatorRender;
     private const float manipulatorBaseSize = 0.015f;
+    private readonly EntityQueryService _query;
 
-    public GLManipulatorRenderSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, componentRegistry)
     {
+        _query = query;
     }
 
 
@@ -37,7 +39,7 @@ public class GLManipulatorRenderSystem : RenderSystem
 
         Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
         var subEntities = ComponentRegistry.GetChildEntitiesForParent(activemanipulator[0], childBuffer);
-        var selectedmanipulators = GetEntityIds.With<SelectedManipulatorChildComponent>();
+        var selectedmanipulators = _query.With<SelectedManipulatorChildComponent>();
         bool isAnymanipulatorDragging = !selectedmanipulators.IsEmpty && frameInput.IsMouseLeftButtonDown;
         
         Drawmanipulator(activemanipulator[0], subEntities, pickingData, childBuffer, isAnymanipulatorDragging);

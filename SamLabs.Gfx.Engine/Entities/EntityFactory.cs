@@ -1,15 +1,18 @@
 ﻿using SamLabs.Gfx.Engine.Components.Common;
+using SamLabs.Gfx.Engine.Components;
 
 namespace SamLabs.Gfx.Engine.Entities;
 
 public class EntityFactory
 {
     private readonly EntityRegistry _entityRegistry;
+    private readonly IComponentRegistry _componentRegistry;
     private readonly Dictionary<string, EntityBlueprint> _blueprintRegistry = new();
 
-    public EntityFactory(EntityRegistry entityRegistry)
+    public EntityFactory(EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
         _entityRegistry = entityRegistry;
+        _componentRegistry = componentRegistry;
     }
 
     public void RegisterBlueprint(EntityBlueprint blueprint)

@@ -11,7 +11,7 @@ public class ImportedBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
 
-    public ImportedBlueprint(ShaderService shaderService) : base()
+    public ImportedBlueprint(ShaderService shaderService,IComponentRegistry componentRegistry) : base(componentRegistry)
     {
         _shaderService = shaderService;
     }
@@ -39,13 +39,13 @@ public class ImportedBlueprint : EntityBlueprint
         material.Shader = _shaderService.GetShader("flat");
         material.PickingShader = _shaderService.GetShader("picking");
             
-        ComponentRegistry.SetComponentToEntity(glMeshData, entity.Id);
-        ComponentRegistry.SetComponentToEntity(meshData, entity.Id);
-        ComponentRegistry.SetComponentToEntity(transformComponent, entity.Id);
-        ComponentRegistry.SetComponentToEntity(material, entity.Id);
+        _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
+        _componentRegistry.SetComponentToEntity(meshData, entity.Id);
+        _componentRegistry.SetComponentToEntity(transformComponent, entity.Id);
+        _componentRegistry.SetComponentToEntity(material, entity.Id);
         
         //add the creational flag to the entity
-        ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
+        _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
         
     }
 }

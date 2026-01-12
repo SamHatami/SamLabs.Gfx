@@ -6,7 +6,6 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Core;
-using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
@@ -15,7 +14,8 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 
 public class CameraControlSystem : UpdateSystem
 {
-    public CameraControlSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents) : base(entityRegistry, commandManager, editorEvents)
+    public CameraControlSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
+        IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
     }
 
@@ -29,9 +29,9 @@ public class CameraControlSystem : UpdateSystem
         foreach (var camera in cameraEntities)
         {
             ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(camera);
-            if(!cameraData.IsActive)
+            if (!cameraData.IsActive)
                 return;
-            
+
             ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(camera);
 
             if (frameInput.IsMouseMiddleButtonDown && frameInput.KeyDown == Key.LeftShift) //Key settings in config

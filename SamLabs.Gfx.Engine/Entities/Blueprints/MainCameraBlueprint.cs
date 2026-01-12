@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -9,7 +9,7 @@ namespace SamLabs.Gfx.Engine.Entities.Blueprints;
 
 public class MainCameraBlueprint : EntityBlueprint
 {
-    public MainCameraBlueprint() : base()
+    public MainCameraBlueprint(IComponentRegistry componentRegistry) : base(componentRegistry)
     {
     }
 
@@ -37,9 +37,9 @@ public class MainCameraBlueprint : EntityBlueprint
         cameraData.Yaw = yaw;
         cameraData.Pitch = pitch;
 
-        ComponentRegistry.SetComponentToEntity(transformComponent, parentManipulator.Id);
-        ComponentRegistry.SetComponentToEntity(cameraComponent, parentManipulator.Id);
-        ComponentRegistry.SetComponentToEntity(cameraData, parentManipulator.Id);
+        _componentRegistry.SetComponentToEntity(transformComponent, parentManipulator.Id);
+        _componentRegistry.SetComponentToEntity(cameraComponent, parentManipulator.Id);
+        _componentRegistry.SetComponentToEntity(cameraData, parentManipulator.Id);
     }
     
     public static void CalculateYawPitchFromLookAt(Vector3 position, Vector3 target, out float yaw, out float pitch)

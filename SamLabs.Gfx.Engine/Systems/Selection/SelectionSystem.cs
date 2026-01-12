@@ -13,6 +13,7 @@ namespace SamLabs.Gfx.Engine.Systems.Selection;
 public class SelectionSystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
+    private readonly EntityQueryService _query;
 
     public override int SystemPosition => SystemOrders.SelectionUpdate;
     private PickingDataComponent _pickingData;
@@ -20,9 +21,10 @@ public class SelectionSystem : UpdateSystem
     private int[] _currentSelection;
     private bool _isManipulatorDragging;
     
-    public SelectionSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents) : base(entityRegistry, commandManager, editorEvents)
+    public SelectionSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
         _entityRegistry = entityRegistry;
+        _query = query;
     }
 
     public override void Update(FrameInput frameInput)
@@ -32,12 +34,12 @@ public class SelectionSystem : UpdateSystem
         if (_pickingEntity == -1) return;
         _pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(_pickingEntity);
         
-        var selectedManipulators = GetEntityIds.With<SelectedManipulatorChildComponent>();
+        var selectedManipulators = _query.With<SelectedManipulatorChildComponent>();
         _isManipulatorDragging = !selectedManipulators.IsEmpty && frameInput.IsDragging;
 
         if(_isManipulatorDragging) return; 
         
-        var validEntities = FilterSelection([_pickingData.HoveredEntityId]);
+        var validEntities = FilterSelection(new[] {_pickingData.HoveredEntityId});
 
         if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
         {
@@ -60,10 +62,10 @@ public class SelectionSystem : UpdateSystem
 
     private void SetNewManipulatorSelection(int manipulatorEntityId)
     {
-        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>();
+        var activeManipulator = _query.With<ActiveManipulatorComponent>();
         if (activeManipulator.IsEmpty) return;
 
-        var previousSelection = GetEntityIds.With<SelectedManipulatorChildComponent>();
+        var previousSelection = _query.With<SelectedManipulatorChildComponent>();
         if (!previousSelection.IsEmpty)
             ComponentRegistry.RemoveComponentFromEntities<SelectedManipulatorChildComponent>(previousSelection);
 
@@ -83,12 +85,12 @@ public class SelectionSystem : UpdateSystem
 
     private void AttachToManipulator(int[] entityIds)
     {
-        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>();
+        var activeManipulator = _query.With<ActiveManipulatorComponent>();
 
         // If no active manipulator, clear all attachments
         if (activeManipulator.IsEmpty)
         {
-            var attachedEntities = GetEntityIds.With<ManipulatorAttachedComponent>();
+            var attachedEntities = _query.With<ManipulatorAttachedComponent>();
             if (!attachedEntities.IsEmpty)
             {
                 foreach (var entityId in attachedEntities)
@@ -99,7 +101,7 @@ public class SelectionSystem : UpdateSystem
         }
 
         // Clear existing attachments first to ensure only current selection is attached
-        var currentAttachments = GetEntityIds.With<ManipulatorAttachedComponent>();
+        var currentAttachments = _query.With<ManipulatorAttachedComponent>();
         foreach (var entityId in currentAttachments)
         {
             ComponentRegistry.RemoveComponentFromEntity<ManipulatorAttachedComponent>(entityId);
@@ -116,9 +118,10 @@ public class SelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var pickingEntity = GetEntityIds.With<PickingDataComponent>().First();
-        if (pickingEntity == -1) return; //hmm
-        _pickingEntity = pickingEntity;
+        var pickingEntity = _query.With<PickingDataComponent>();
+        var id = _query.First(pickingEntity);
+        if (id == -1) return; //hmm
+        _pickingEntity = id;
     }
 
     private void SetNewSelection(int[] entityIds)
@@ -140,7 +143,7 @@ public class SelectionSystem : UpdateSystem
         ClearSelectionComponent();
         DetachManipulatorsFromEntities(entityIds);
 
-        _pickingData.SelectedEntityIds = [];
+        _pickingData.SelectedEntityIds = Array.Empty<int>();
         ComponentRegistry.SetComponentToEntity(_pickingData, _pickingEntity);
     }
 
@@ -152,7 +155,7 @@ public class SelectionSystem : UpdateSystem
 
     private void ClearSelectionComponent()
     {
-        var earlierSelection = GetEntityIds.With<SelectedComponent>();
+        var earlierSelection = _query.With<SelectedComponent>();
         if (earlierSelection.IsEmpty) return;
 
         foreach (var entity in earlierSelection)

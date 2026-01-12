@@ -17,7 +17,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
 
-    public ScaleManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry) : base()
+    public ScaleManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(componentRegistry)
     {
         _shaderService = shaderService;
         _entityRegistry = entityRegistry;
@@ -38,10 +38,10 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Rotation = Quaternion.Identity 
        };
 
-       ComponentRegistry.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
+       _componentRegistry.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
        
        var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Scale };
-       ComponentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
+       _componentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
        var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "ScaleArrow.obj");
        var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "ScalePlane.obj");
@@ -67,14 +67,14 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            VertexCount = importedArrowMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(transformX, xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(importedArrowMesh, xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(materialX, xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(parentIdComponent, xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(transformX, xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(importedArrowMesh, xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(materialX, xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(glArrowMesh, xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), xAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), xAxisEntity.Id);
 
        var yAxisEntity = _entityRegistry.CreateEntity();
        yAxisEntity.Type = EntityType.Manipulator;
@@ -86,14 +86,14 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
        };
        var materialY = new MaterialComponent { Shader = manipulatorShader };
        
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(transformY, yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(importedArrowMesh, yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(materialY, yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Y), yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(transformY, yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(importedArrowMesh, yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(materialY, yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(glArrowMesh, yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), yAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Y), yAxisEntity.Id);
        
        
        var zAxisEntity = _entityRegistry.CreateEntity();
@@ -107,14 +107,14 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
        };
        var materialZ = new MaterialComponent { Shader = manipulatorShader};
        
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(transformZ, zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(importedArrowMesh, zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(materialZ, zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(glArrowMesh, zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(transformZ, zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(importedArrowMesh, zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(materialZ, zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(glArrowMesh, zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), zAxisEntity.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), zAxisEntity.Id);
        
        var xyPlaneEntity = _entityRegistry.CreateEntity();
        xyPlaneEntity.Type = EntityType.Manipulator;
@@ -132,14 +132,14 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            VertexCount = importedPlaneMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(transformXY, xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(importedPlaneMesh, xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(materialXY, xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(glPlaneMesh, xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), xyPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XY), xyPlaneEntity.Id);   
+       _componentRegistry.SetComponentToEntity(parentIdComponent, xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(transformXY, xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(importedPlaneMesh, xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(materialXY, xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(glPlaneMesh, xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), xyPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XY), xyPlaneEntity.Id);   
        
        var xzPlaneEntity = _entityRegistry.CreateEntity();
        xzPlaneEntity.Type = EntityType.Manipulator;
@@ -152,14 +152,14 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
        };
        var materialXZ = new MaterialComponent { Shader = manipulatorShader };
        
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(transformXZ, xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(importedPlaneMesh, xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(materialXZ, xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(glPlaneMesh, xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), xzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XZ), xzPlaneEntity.Id);          
+       _componentRegistry.SetComponentToEntity(parentIdComponent, xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(transformXZ, xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(importedPlaneMesh, xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(materialXZ, xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(glPlaneMesh, xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), xzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.XZ), xzPlaneEntity.Id);          
        
        var yzPlaneEntity = _entityRegistry.CreateEntity();
        yzPlaneEntity.Type = EntityType.Manipulator;
@@ -171,14 +171,14 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
        };
        var materialYZ = new MaterialComponent { Shader = manipulatorShader };
        
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(transformYZ, yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(importedPlaneMesh, yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(materialYZ, yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(glPlaneMesh, yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), yzPlaneEntity.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.YZ), yzPlaneEntity.Id);   
+       _componentRegistry.SetComponentToEntity(parentIdComponent, yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(transformYZ, yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(importedPlaneMesh, yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(materialYZ, yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(glPlaneMesh, yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), yzPlaneEntity.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.YZ), yzPlaneEntity.Id);   
        
     }
 }

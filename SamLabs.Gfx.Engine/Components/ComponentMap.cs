@@ -5,9 +5,9 @@ namespace SamLabs.Gfx.Engine.Components;
 public class ComponentMap
 {
     public Type ComponentType { get;}
-    private int[] _entityIds = new int[GlobalSettings.MaxEntities]; //spare array for fast lookup
+    private int[] _entityIds = new int[EditorSettings.MaxEntities]; //spare array for fast lookup
     
-    private int[] _lookUpSpanSet = new int[GlobalSettings.MaxEntities]; //dense array for fast iteration when system ask for usages
+    private int[] _lookUpSpanSet = new int[EditorSettings.MaxEntities]; //dense array for fast iteration when system ask for usages
 
     private int _entityCount = 0;
 

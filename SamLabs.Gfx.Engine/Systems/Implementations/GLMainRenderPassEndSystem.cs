@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
@@ -12,7 +13,7 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 public class GLMainRenderPassEndSystem: RenderSystem
 {
     public override int SystemPosition => SystemOrders.MainEnd;
-    public GLMainRenderPassEndSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    public GLMainRenderPassEndSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
     {
     }
 

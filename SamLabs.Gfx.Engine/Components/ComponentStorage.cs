@@ -4,7 +4,7 @@ namespace SamLabs.Gfx.Engine.Components;
 
 public class ComponentStorage<T>: IComponentStorage where T : IDataComponent
 {
-    public T[] Items { get; } = new T[GlobalSettings.MaxEntities];
+    public T[] Items { get; } = new T[EditorSettings.MaxEntities];
 
     public ref T Get(int entityId) => ref Items[entityId];
     public void Clear(int entityId) => Items[entityId] = default;

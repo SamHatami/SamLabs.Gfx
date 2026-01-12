@@ -10,6 +10,7 @@ public class ToggleManipulatorCommand : InternalCommand
 {
     private readonly CommandManager _commandManager;
     private readonly ManipulatorType _manipulatorType;
+    private readonly IComponentRegistry _componentRegistry;
     private readonly Scene _scene;
     private readonly EntityFactory _entityFactory;
     private int _translateManipulatorId = -1;
@@ -17,10 +18,11 @@ public class ToggleManipulatorCommand : InternalCommand
     private int _scaleManipulatorId = -1;
     private int _targetManipulatorId;
 
-    public ToggleManipulatorCommand(CommandManager commandManager, ManipulatorType manipulatorType)
+    public ToggleManipulatorCommand(CommandManager commandManager, ManipulatorType manipulatorType, IComponentRegistry componentRegistry)
     {
         _commandManager = commandManager;
         _manipulatorType = manipulatorType;
+        _componentRegistry = componentRegistry;
     }
 
     public override void Execute()
@@ -38,10 +40,10 @@ public class ToggleManipulatorCommand : InternalCommand
 
         HideOtherManipulators();
 
-        if (ComponentRegistry.HasComponent<ActiveManipulatorComponent>(_targetManipulatorId))
-            ComponentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(_targetManipulatorId);
+        if (_componentRegistry.HasComponent<ActiveManipulatorComponent>(_targetManipulatorId))
+            _componentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(_targetManipulatorId);
         else
-            ComponentRegistry.SetComponentToEntity(new ActiveManipulatorComponent(), _targetManipulatorId);
+            _componentRegistry.SetComponentToEntity(new ActiveManipulatorComponent(), _targetManipulatorId);
     }
 
     private void HideOtherManipulators()
@@ -49,19 +51,19 @@ public class ToggleManipulatorCommand : InternalCommand
         var manipulatorIds = new[] { _translateManipulatorId, _rotateManipulatorId, _scaleManipulatorId };
         foreach (var id in manipulatorIds.Where(id => id != _targetManipulatorId))
         {
-            if (ComponentRegistry.HasComponent<ActiveManipulatorComponent>(id))
-                ComponentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(id);
+            if (_componentRegistry.HasComponent<ActiveManipulatorComponent>(id))
+                _componentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(id);
         }
     }
 
     private void GetManipulatorIds()
     {
         if (_translateManipulatorId != -1 && _scaleManipulatorId != -1 && _rotateManipulatorId != -1) return;
-        var manipulators = ComponentRegistry.GetEntityIdsForComponentType<ManipulatorComponent>();
+        var manipulators = _componentRegistry.GetEntityIdsForComponentType<ManipulatorComponent>();
 
         foreach (var manipulatorEntity in manipulators)
         {
-            ref var manipulator = ref ComponentRegistry.GetComponent<ManipulatorComponent>(manipulatorEntity);
+            ref var manipulator = ref _componentRegistry.GetComponent<ManipulatorComponent>(manipulatorEntity);
             switch (manipulator.Type)
             {
                 case ManipulatorType.Translate:

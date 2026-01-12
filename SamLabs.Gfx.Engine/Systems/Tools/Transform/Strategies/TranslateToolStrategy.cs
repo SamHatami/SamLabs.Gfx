@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using System;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -10,14 +11,22 @@ using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Engine.Systems.Tools.Transform.Strategies;
 
-public class TranslateToolStrategy:ITransformToolStrategy
+public class TranslateToolStrategy : ITransformToolStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
+    private readonly IComponentRegistry _componentRegistry;
+    private readonly EntityQueryService _query;
+
+    public TranslateToolStrategy(IComponentRegistry componentRegistry, EntityQueryService query)
+    {
+        _componentRegistry = componentRegistry;
+        _query = query;
+    }
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent manipulatorTransform,
         ManipulatorChildComponent manipulatorChild, bool isGlobalMode = true)
     {
-        var delta = GetTransformDelta(input, manipulatorTransform,  manipulatorChild);
+        var delta = GetTransformDelta(input, manipulatorTransform, manipulatorChild);
         var translationMatrix = Matrix4.CreateTranslation(delta);
 
         // 3. Apply it
@@ -28,28 +37,6 @@ public class TranslateToolStrategy:ITransformToolStrategy
         // 4. Mark Dirty
         target.IsDirty = true;
         manipulatorTransform.Position = target.Position;
-        
-        
-        // // (Save this snippet for when you implement Hierarchy)
-        // if (hasParent)
-        // {
-        //     // Convert the World Delta into Local Delta (relative to Parent)
-        //     // We ignore the Parent's position, we only care about how the Parent is Scaled/Rotated.
-        //
-        //     var parentRotation = parentTransform.WorldMatrix.ExtractRotation();
-        //     // (Invert rotation to go from World -> Local)
-        //     var localDelta = Vector3.Transform(delta, Quaternion.Invert(parentRotation));
-        //
-        //     // If parent is scaled, we might need to divide by scale too, 
-        //     // but usually standard translation ignores parent scale.
-        //
-        //     target.LocalMatrix = target.LocalMatrix * Matrix4.CreateTranslation(localDelta);
-        // }
-        // else
-        // {
-        //     // No parent? Just add world delta.
-        //     target.LocalMatrix = target.LocalMatrix * Matrix4.CreateTranslation(delta);
-        // }
     }
 
     public void Reset()
@@ -59,12 +46,12 @@ public class TranslateToolStrategy:ITransformToolStrategy
 
     private Vector3 GetTransformDelta(FrameInput frameInput, TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild)
     {
-        var cameraId = GetEntityIds.With<CameraComponent>().First();
+        var cameraId = _query.First(_query.With<CameraComponent>());
         if (cameraId == -1) return Vector3.Zero;
 
         //Get cameraData (still only one camera)
-        ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(cameraId);
-        ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(cameraId);
+        ref var cameraData = ref _componentRegistry.GetComponent<CameraDataComponent>(cameraId);
+        ref var cameraTransform = ref _componentRegistry.GetComponent<TransformComponent>(cameraId);
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         
         //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at manipulator position

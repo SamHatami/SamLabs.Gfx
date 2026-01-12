@@ -13,6 +13,14 @@ namespace SamLabs.Gfx.Engine.Systems.Tools.Transform.Strategies;
 public class RotateToolStrategy:ITransformToolStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
+    private readonly IComponentRegistry _componentRegistry;
+    private readonly EntityQueryService _query;
+
+    public RotateToolStrategy(IComponentRegistry componentRegistry, EntityQueryService query)
+    {
+        _componentRegistry = componentRegistry;
+        _query = query;
+    }
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent manipulatorTransform,
         ManipulatorChildComponent manipulatorChild, bool isGlobalMode = true)
@@ -63,12 +71,12 @@ public class RotateToolStrategy:ITransformToolStrategy
 
     private float GetRotateDelta(FrameInput input, TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild, bool constrainDelta = false)
     {
-        var cameraId = GetEntityIds.With<CameraComponent>().First();
+        var cameraId = _query.First(_query.With<CameraComponent>());
         if (cameraId == -1) return 0;
 
         //Get cameraData (still only one camera)
-        ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(cameraId);
-        ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(cameraId);
+        ref var cameraData = ref _componentRegistry.GetComponent<CameraDataComponent>(cameraId);
+        ref var cameraTransform = ref _componentRegistry.GetComponent<TransformComponent>(cameraId);
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         
         //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at manipulator position

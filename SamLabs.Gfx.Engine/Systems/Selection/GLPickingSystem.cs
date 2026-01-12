@@ -17,14 +17,17 @@ namespace SamLabs.Gfx.Engine.Systems.Selection;
 public class GLPickingSystem : RenderSystem
 {
     private readonly EntityRegistry _entityRegistry;
+    private readonly IComponentRegistry _componentRegistry;
     public override int SystemPosition => SystemOrders.PickingRender;
     private IViewPort _viewport;
     private GLShader? _pickingShader = null;
     private int _pickingEntity = -1;
 
-    public GLPickingSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    public GLPickingSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry,
+        componentRegistry)
     {
         _entityRegistry = entityRegistry;
+        _componentRegistry = componentRegistry;
     }
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
@@ -32,18 +35,18 @@ public class GLPickingSystem : RenderSystem
         if (_pickingEntity == -1)
         {
             _pickingEntity = _entityRegistry.CreateEntity().Id;
-            ComponentRegistry.SetComponentToEntity(new PickingDataComponent(), _pickingEntity);
+            _componentRegistry.SetComponentToEntity(new PickingDataComponent(), _pickingEntity);
         }
 
-        ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(_pickingEntity);
+        ref var pickingData = ref _componentRegistry.GetComponent<PickingDataComponent>(_pickingEntity);
 
         _pickingShader ??= Renderer.GetShader("picking");
         _viewport = renderContext.ViewPort;
 
-        var selectableEntities = ComponentRegistry.GetEntityIdsForComponentType<SelectableDataComponent>();
+        var selectableEntities = _componentRegistry.GetEntityIdsForComponentType<SelectableDataComponent>();
         if (selectableEntities.Length == 0) return;
 
-        var meshEntities = ComponentRegistry.GetEntityIdsForComponentType<GlMeshDataComponent>();
+        var meshEntities = _componentRegistry.GetEntityIdsForComponentType<GlMeshDataComponent>();
         if (meshEntities.Length == 0) return;
 
         (var x, var y) = GetPixelPosition(frameInput.MousePosition, renderContext);
@@ -55,14 +58,14 @@ public class GLPickingSystem : RenderSystem
         //we only render full objects here. I need a way to render everything and then selectionmode will disable or filter out.
         foreach (var selectableEntity in selectableEntities)
         {
-            var mesh = ComponentRegistry.GetComponent<GlMeshDataComponent>(selectableEntity);
+            var mesh = _componentRegistry.GetComponent<GlMeshDataComponent>(selectableEntity);
             if (mesh.IsManipulator)
                 continue;
 
-            var modelMatrix = ComponentRegistry.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
+            var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
             RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
         }
-        
+
         //if in subselection mode
         //Pass 2
 
@@ -73,30 +76,31 @@ public class GLPickingSystem : RenderSystem
 
     private void RenderActiveManipulatorToPickingBuffer()
     {
-        var parentManipulator = ComponentRegistry.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
+        var parentManipulator = _componentRegistry.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
         if (!parentManipulator.IsEmpty) //No active manipulator (no manipulator selected)
         {
             Span<int> childBuffer = stackalloc int[6]; //Make sure only the active parents children are fetched
-            var childManipulators = ComponentRegistry.GetChildEntitiesForParent(parentManipulator[0], childBuffer);
+            var childManipulators = _componentRegistry.GetChildEntitiesForParent(parentManipulator[0], childBuffer);
             foreach (var childManipulator in childManipulators)
             {
-                var mesh = ComponentRegistry.GetComponent<GlMeshDataComponent>(childManipulator);
+                var mesh = _componentRegistry.GetComponent<GlMeshDataComponent>(childManipulator);
                 if (!mesh.IsManipulator)
                     continue;
-                var modelMatrix = ComponentRegistry.GetComponent<TransformComponent>(childManipulator).WorldMatrix;
+                var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(childManipulator).WorldMatrix;
                 RenderToPickingTexture(mesh, childManipulator, modelMatrix);
             }
         }
     }
 
 
-    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix, SelectionType selectionType = SelectionType.None)
+    private void RenderToPickingTexture(GlMeshDataComponent mesh, int entityId, Matrix4 modelMatrix,
+        SelectionType selectionType = SelectionType.None)
     {
         //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
         //set uPickingType to be able to id what we are rendering to the picking buffer
         //set uEntityId to be able to read which entity these belong to 
         //set u
-        var selectionEnumInt =  (int)selectionType;
+        var selectionEnumInt = (int)selectionType;
         using var shader = new ShaderProgram(_pickingShader).Use()
             .SetInt(UniformNames.uEntityId, ref entityId)
             .SetInt(UniformNames.uPickingType, ref selectionEnumInt)
@@ -130,28 +134,27 @@ public class GLPickingSystem : RenderSystem
         pickingData.BufferPickingIndex = readIndex;
 
         var readPixelId = ReadPickedIdFromPbo();
-        
+
         var entityId = readPixelId[0]; // Red
         var packedId = readPixelId[1]; // Green
 
         if (entityId == -1)
         {
             pickingData.ClearHoveredIds();
-            return; 
+            return;
         }
         // Decode Bit-Packing
-        
-        var type = (int)(packedId >> 28) & 0xF;      // Top 4 bits
-        var id   = (int)(packedId & 0x0FFFFFFF);     // Bottom 28 bits
-        
+
+        var type = (int)(packedId >> 28) & 0xF; // Top 4 bits
+        var id = (int)(packedId & 0x0FFFFFFF); // Bottom 28 bits
+
         //Check if the picked id belongs to a manipulator
         pickingData.HoveredEntityId = (int)entityId;
         GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
-        
+
         pickingData.HoveredEntityId = (int)entityId;
         pickingData.HoveredElementId = id;
         pickingData.HoveredType = (SelectionType)type;
-
     }
 
     private int[] ReadPickedIdFromPbo()

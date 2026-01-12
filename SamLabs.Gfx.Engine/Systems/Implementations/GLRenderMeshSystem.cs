@@ -14,7 +14,7 @@ public class GLRenderMeshSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.MainRender;
 
-    public GLRenderMeshSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
     {
     }
 

@@ -13,7 +13,7 @@ public class MainGridBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
 
-    public MainGridBlueprint(ShaderService shaderService) : base()
+    public MainGridBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry) : base(componentRegistry)
     {
         _shaderService = shaderService;
     }
@@ -44,12 +44,12 @@ public class MainGridBlueprint : EntityBlueprint
             VertexCount = vertices.Length
         };
 
-        ComponentRegistry.SetComponentToEntity(material, entity.Id);
-        ComponentRegistry.SetComponentToEntity(meshData, entity.Id);
-        ComponentRegistry.SetComponentToEntity(gridData, entity.Id);
-        ComponentRegistry.SetComponentToEntity(glMeshData, entity.Id);        
+        _componentRegistry.SetComponentToEntity(material, entity.Id);
+        _componentRegistry.SetComponentToEntity(meshData, entity.Id);
+        _componentRegistry.SetComponentToEntity(gridData, entity.Id);
+        _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);        
         //add the creational flag to the entity
-        ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
+        _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
     }
     
     public Vertex[] GetVertices(int linesPerSide, float spacing)

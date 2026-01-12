@@ -19,49 +19,54 @@ public class TransformToolSystem : UpdateSystem
     private Dictionary<ManipulatorType, ITransformToolStrategy> _transformStrategies;
     private TransformComponent _preChangeTransform;
     private TransformComponent _postChangeTransform;
+    private readonly IComponentRegistry _componentRegistry;
+    private readonly EntityQueryService _query;
 
     public override int SystemPosition => SystemOrders.TransformUpdate;
 
-    public TransformToolSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents) : base(entityRegistry, commandManager, editorEvents)
+    public TransformToolSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
+        IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
+        _componentRegistry = componentRegistry;
+        _query = query;
+
         _transformStrategies = new Dictionary<ManipulatorType, ITransformToolStrategy>
         {
-            [ManipulatorType.Translate] = new TranslateToolStrategy(),
-            [ManipulatorType.Rotate] = new RotateToolStrategy(),
-            [ManipulatorType.Scale] = new ScaleToolStrategy()
+            [ManipulatorType.Translate] = new TranslateToolStrategy(_componentRegistry, _query),
+            [ManipulatorType.Rotate] = new RotateToolStrategy(_componentRegistry, _query),
+            [ManipulatorType.Scale] = new ScaleToolStrategy(_componentRegistry, _query)
         };
-        
+
         _preChangeTransform = new TransformComponent();
         _postChangeTransform = new TransformComponent();
     }
 
     public override void Update(FrameInput frameInput)
     {
-        var activeManipulator = GetEntityIds.With<ActiveManipulatorComponent>().First();
+        var activeManipulator = _query.First(_query.With<ActiveManipulatorComponent>());
         if (activeManipulator == -1) return;
 
-        var selectedEntities = GetEntityIds.With<SelectedComponent>().AndWith<TransformComponent>()
-            .Without<ManipulatorComponent>().Without<ManipulatorChildComponent>();
+        var selectedEntities = _query.AndWith<TransformComponent>(_query.With<SelectedComponent>());
 
         if (selectedEntities.IsEmpty) return;
 
         //TODO: Currently only supporting single object selection
         //TODO: Option to use global transform or local transform
-        ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
-        ref var manipulatorTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activeManipulator);
-        var manipulatorComponent = ComponentRegistry.GetComponent<ManipulatorComponent>(activeManipulator);
+        ref var entityTransform = ref _componentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
+        ref var manipulatorTransform = ref _componentRegistry.GetComponent<TransformComponent>(activeManipulator);
+        var manipulatorComponent = _componentRegistry.GetComponent<ManipulatorComponent>(activeManipulator);
 
         var transformStrategy = _transformStrategies[manipulatorComponent.Type];
 
         manipulatorTransform.Position = entityTransform.Position;
-        var pickingEntities = GetEntityIds.With<PickingDataComponent>();
+        var pickingEntities = _query.With<PickingDataComponent>();
         if (pickingEntities.IsEmpty) return;
 
-        ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
+        ref var pickingData = ref _componentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
 
         if (frameInput.IsMouseLeftButtonDown && !_isTransforming)
         {
-            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
+            if (_componentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
             {
                 _preChangeTransform = entityTransform;
                 _isTransforming = true;
@@ -71,23 +76,24 @@ public class TransformToolSystem : UpdateSystem
 
         if (_isTransforming && frameInput.IsMouseLeftButtonDown)
         {
-            ref var manipulatorChild = ref ComponentRegistry.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
+            ref var manipulatorChild =
+                ref _componentRegistry.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
             transformStrategy.Apply(frameInput, ref entityTransform, ref manipulatorTransform, manipulatorChild, true);
 
             if (entityTransform.IsDirty) //This is the parent
             {
                 entityTransform.WorldMatrix = entityTransform.LocalMatrix;
-                entityTransform.IsDirty  = false;
+                entityTransform.IsDirty = false;
             }
         }
 
         if (frameInput.IsMouseLeftButtonDown || !_isTransforming) return;
-        
-        _postChangeTransform = ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
-        CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform, _postChangeTransform));
+
+        _postChangeTransform = _componentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
+        CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform,
+            _postChangeTransform,_componentRegistry));
         _isTransforming = false;
         _selectedManipulatorSubEntity = -1;
         transformStrategy.Reset();
     }
-    
 }

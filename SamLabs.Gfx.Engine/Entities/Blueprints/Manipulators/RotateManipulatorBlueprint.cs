@@ -14,11 +14,13 @@ public class RotateManipulatorBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public RotateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry) : base()
+    public RotateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(componentRegistry)
     {
         _shaderService = shaderService;
         _entityRegistry = entityRegistry;
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.RotateManipulator;
@@ -36,10 +38,10 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Rotation = Quaternion.Identity 
        };
 
-       ComponentRegistry.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
+       _componentRegistry.SetComponentToEntity(parentManipulatorTransform, parentManipulator.Id);
        
        var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Rotate };
-       ComponentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
+       _componentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
        var rotatePath = Path.Combine(AppContext.BaseDirectory, "Models", "Rotate.obj");
        var importedRotateMesh = await ModelLoader.LoadObj(rotatePath); 
@@ -65,14 +67,14 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            VertexCount = importedRotateMesh.Vertices.Length,
            PrimitiveType = PrimitiveType.Triangles
        };
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(transformX, rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(importedRotateMesh, rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(materialX, rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(glRotateMesh, rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), rotateX.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), rotateX.Id);
+       _componentRegistry.SetComponentToEntity(parentIdComponent, rotateX.Id);
+       _componentRegistry.SetComponentToEntity(transformX, rotateX.Id);
+       _componentRegistry.SetComponentToEntity(importedRotateMesh, rotateX.Id);
+       _componentRegistry.SetComponentToEntity(materialX, rotateX.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateX.Id);
+       _componentRegistry.SetComponentToEntity(glRotateMesh, rotateX.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), rotateX.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.X), rotateX.Id);
 
 
        var rotateY = _entityRegistry.CreateEntity();
@@ -86,14 +88,14 @@ public class RotateManipulatorBlueprint:EntityBlueprint
        };
        var materialY = new MaterialComponent { Shader = manipulatorShader };
        
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(transformY, rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(importedRotateMesh, rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(materialY, rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(glRotateMesh, rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), rotateY.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Y), rotateY.Id);
+       _componentRegistry.SetComponentToEntity(parentIdComponent, rotateY.Id);
+       _componentRegistry.SetComponentToEntity(transformY, rotateY.Id);
+       _componentRegistry.SetComponentToEntity(importedRotateMesh, rotateY.Id);
+       _componentRegistry.SetComponentToEntity(materialY, rotateY.Id);
+       _componentRegistry.SetComponentToEntity(glRotateMesh, rotateY.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateY.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), rotateY.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Y), rotateY.Id);
        
        var rotateZ = _entityRegistry.CreateEntity();
        rotateZ.Type = EntityType.Manipulator;
@@ -107,14 +109,14 @@ public class RotateManipulatorBlueprint:EntityBlueprint
        };
        var materialZ = new MaterialComponent { Shader = manipulatorShader};
        
-       ComponentRegistry.SetComponentToEntity(parentIdComponent, rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(transformZ, rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(importedRotateMesh, rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(materialZ, rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(glRotateMesh, rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(new SelectableDataComponent(), rotateZ.Id);
-       ComponentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(parentIdComponent, rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(transformZ, rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(importedRotateMesh, rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(materialZ, rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(glRotateMesh, rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), rotateZ.Id);
+       _componentRegistry.SetComponentToEntity(new ManipulatorChildComponent(parentManipulator.Id, ManipulatorAxis.Z), rotateZ.Id);
        
     }
 }

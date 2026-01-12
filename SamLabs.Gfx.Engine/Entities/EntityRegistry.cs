@@ -9,13 +9,15 @@ namespace SamLabs.Gfx.Engine.Entities;
 public class EntityRegistry
 {
     private readonly ILogger<EntityRegistry> _logger;
-    private readonly Entity?[] _entities  = new Entity?[GlobalSettings.MaxEntities];
+    private readonly IComponentRegistry _componentRegistry;
+    private readonly Entity?[] _entities  = new Entity?[EditorSettings.MaxEntities];
     
     public event EventHandler<EntityEventArgs>? OnEntityCreated;
 
-    public EntityRegistry(ILogger<EntityRegistry> logger)
+    public EntityRegistry(ILogger<EntityRegistry> logger, IComponentRegistry componentRegistry)
     {
         _logger = logger;
+        _componentRegistry = componentRegistry;
     }
 
     public Entity CreateEntity()
@@ -41,11 +43,11 @@ public class EntityRegistry
     public int[] GetChildrenIds(int parentId)
     {
         List<int> children = new();
-        var childrenOfDoom = ComponentRegistry.GetEntityIdsForComponentType<ParentIdComponent>();
+        var childrenOfDoom = _componentRegistry.GetEntityIdsForComponentType<ParentIdComponent>();
 
         foreach (var child in childrenOfDoom)
         {
-            if(ComponentRegistry.GetComponent<ParentIdComponent>(child).ParentId != parentId) continue;
+            if(_componentRegistry.GetComponent<ParentIdComponent>(child).ParentId != parentId) continue;
             children.Add(child);
         }
         

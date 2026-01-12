@@ -16,21 +16,23 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 public class GLResourceCleanupSystem: RenderSystem
 {
     public override int SystemPosition => SystemOrders.CleanUp;
-    public GLResourceCleanupSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    private readonly IComponentRegistry _componentRegistry;
+    public GLResourceCleanupSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
     {
+        _componentRegistry = componentRegistry;
     }
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        var entityIds = ComponentRegistry.GetEntityIdsForComponentType<GlMeshRemoved>();
+        var entityIds = _componentRegistry.GetEntityIdsForComponentType<GlMeshRemoved>();
         if (entityIds.Length == 0) return;
         
         
         foreach (var entityId in entityIds)
         {
-            ref var glData = ref ComponentRegistry.GetComponent<GlMeshDataComponent>(entityId);
+            ref var glData = ref _componentRegistry.GetComponent<GlMeshDataComponent>(entityId);
             DisposeGLResources(ref glData);
-            ComponentRegistry.RemoveComponentFromEntity<GlMeshRemoved>(entityId);
+            _componentRegistry.RemoveComponentFromEntity<GlMeshRemoved>(entityId);
         }
     }
 

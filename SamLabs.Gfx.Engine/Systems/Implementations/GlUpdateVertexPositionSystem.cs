@@ -17,20 +17,22 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 public class GlUpdateVertexPositionSystem: RenderSystem
 {
     public override int SystemPosition => SystemOrders.PreRenderUpdate;
-    public GlUpdateVertexPositionSystem(EntityRegistry entityRegistry) : base(entityRegistry)
+    private readonly IComponentRegistry _componentRegistry;
+    public GlUpdateVertexPositionSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
     {
+        _componentRegistry = componentRegistry;
     }
 
     public override void Update(FrameInput frameInput,RenderContext renderContext)
     {
-        var entityIds = ComponentRegistry.GetEntityIdsForComponentType<GlMeshDataChangedComponent>();
+        var entityIds = _componentRegistry.GetEntityIdsForComponentType<GlMeshDataChangedComponent>();
         if (entityIds.IsEmpty) return;
         
         foreach (var entityId in entityIds)
         {
-            var glMeshData = ComponentRegistry.GetComponent<GlMeshDataComponent>(entityId);
-            var meshData = ComponentRegistry.GetComponent<MeshDataComponent>(entityId);
-            var selectedVertices = ComponentRegistry.GetComponent<VertexSelectionComponent>(entityId);
+            var glMeshData = _componentRegistry.GetComponent<GlMeshDataComponent>(entityId);
+            var meshData = _componentRegistry.GetComponent<MeshDataComponent>(entityId);
+            var selectedVertices = _componentRegistry.GetComponent<VertexSelectionComponent>(entityId);
             var startIndex = selectedVertices.SelectedIndices.Min();
             var endIndex = selectedVertices.SelectedIndices.Max();
             var sliceLength = endIndex - startIndex + 1;
@@ -39,7 +41,7 @@ public class GlUpdateVertexPositionSystem: RenderSystem
             
             UpdatePositions(vertices, glMeshData, startIndex);
             
-            ComponentRegistry.RemoveComponentFromEntity<GlMeshDataChangedComponent>(entityId);
+            _componentRegistry.RemoveComponentFromEntity<GlMeshDataChangedComponent>(entityId);
         }
     }
 
