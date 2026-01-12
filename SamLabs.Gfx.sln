@@ -2,13 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{06B47154-0434-4D96-B76D-F50C73F15DEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Viewer", "SamLabs.Gfx.Viewer\SamLabs.Gfx.Viewer.csproj", "{9CB5E959-B978-4330-8BBF-D6108C991189}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Engine", "SamLabs.Gfx.Engine\SamLabs.Gfx.Engine.csproj", "{9CB5E959-B978-4330-8BBF-D6108C991189}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Geometry", "SamLabs.Gfx.Geometry\SamLabs.Gfx.Geometry.csproj", "{66D3E24D-054B-4F06-B9EC-1457DC9CD3A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Core", "SamLabs.Gfx.Core\SamLabs.Gfx.Core.csproj", "{0B60F439-16C1-4292-B2DD-82D7FE4C9A26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.StandAlone", "SamLabs.Gfx.StandAlone\SamLabs.Gfx.StandAlone.csproj", "{03B936CF-FD38-472B-8077-65A445C29C6B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamLabs.Gfx.Editor", "SamLabs.Gfx.Editor\SamLabs.Gfx.Editor.csproj", "{03B936CF-FD38-472B-8077-65A445C29C6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,106 @@
+<Window
+    x:Class="SamLabs.Gfx.Editor.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:SamLabs.Gfx.Editor.ViewModels"
+    xmlns:viewModels="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
+    xmlns:controls="clr-namespace:SamLabs.Gfx.Editor.Controls"
+    Title="SamLabs.Gfx.Editor"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="viewModels:MainWindowViewModel"
+    Icon="/Assets/avalonia-logo.ico"
+    mc:Ignorable="d">
+
+    <Design.DataContext>
+        <!--
+            This only sets the DataContext for the previewer in an IDE,
+            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
+        -->
+        <viewModels:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
+        <KeyBinding Gesture="Shift+Z" Command="{Binding RedoCommand}" />
+        <KeyBinding Gesture="Q" Command="{Binding ToggleTranslateManipulators}" />
+        <KeyBinding Gesture="W" Command="{Binding ToggleRotateManipulator}" />
+        <KeyBinding Gesture="E" Command="{Binding ToggleScaleManipulator}" />
+    </Window.KeyBindings>
+
+    <Grid>
+        <!--  ADD command panel or something here  -->
+
+        <controls:EditorControl
+            CommandManager="{Binding CommandManager}"
+            EditorRoot="{Binding EditorRoot}"
+            Focusable="True"
+            SceneManager="{Binding SceneManager}" />
+        <Border
+            BorderBrush="Black"
+            BorderThickness="5"
+            ClipToBounds="True"
+            CornerRadius="10" IsHitTestVisible="False">
+        </Border>
+        <Border
+            BorderBrush="Black"
+            BorderThickness="5"
+            ClipToBounds="True"
+            IsHitTestVisible="False">
+        </Border>
+
+        
+
+        <Border x:Name="BaseTools" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d" CornerRadius="5"
+                VerticalAlignment="Bottom" Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding ToggleTranslateManipulators}">
+                    <Image Source="../Assets/expand-arrows.png"/>
+                </Button>
+                <Button Command="{Binding ToggleRotateManipulator}">
+                    <Image Source="../Assets/rotate.png"/>
+                </Button>
+                <Button Command="{Binding ToggleScaleManipulator}" >
+                    <Image Source="../Assets/scale.png"/>
+                </Button>
+            </StackPanel>
+
+        </Border>
+
+        <Border x:Name="Create" HorizontalAlignment="Center" Background="#7d7d7d7d" CornerRadius="5"
+                VerticalAlignment="Top" Margin="10">
+            <StackPanel
+                Margin="5"
+                Orientation="Vertical">
+                <Button Command="{Binding AddBox}"  >
+                    <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="InfoBorder" HorizontalAlignment="Right" Background="#7d7d7d7d"
+                CornerRadius="5" 
+                VerticalAlignment="Bottom" Margin="10">
+            <StackPanel
+                Margin="5"
+                Orientation="Vertical">
+                <TextBlock
+                    IsHitTestVisible="False"
+                    Text="{Binding CurrentFpsString}" />
+            </StackPanel>
+        </Border>
+
+
+        <!-- <Border Grid.Column="1" ZIndex="1" Background="DimGray" CornerRadius="4" VerticalAlignment="Top" Margin="5" > -->
+        <!--     <StackPanel Orientation="Horizontal"> -->
+        <!--         <TextBlock Text="Inspector Panel" Foreground="White" FontWeight="Bold"/> -->
+        <!--         <TextBlock Text="Object: Cube 1" Foreground="White" Margin="0,5,0,0"/> -->
+        <!--         <Button Content="Reset View" Margin="0,10,0,0"/> -->
+        <!--     </StackPanel> -->
+        <!-- </Border> -->
+
+    </Grid>
+
+</Window>
