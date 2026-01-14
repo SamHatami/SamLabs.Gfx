@@ -1,4 +1,5 @@
-﻿using Assimp;
+﻿using System.Reflection;
+using Assimp;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Geometry.Mesh;
@@ -30,6 +31,59 @@ public static class ModelLoader
             throw;
         }
 
+        return ProcessScene(scene, Path.GetFileNameWithoutExtension(filePath));
+    }
+
+    public static async Task<MeshDataComponent> LoadObjFromResource(string resourceName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        // Resource names are typically Namespace.Folder.FileName
+        // Assuming the namespace starts with SamLabs.Gfx.Engine
+        var fullResourceName = assembly.GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith(resourceName, StringComparison.OrdinalIgnoreCase));
+
+        if (string.IsNullOrEmpty(fullResourceName))
+        {
+            throw new Exception($"Resource {resourceName} not found. Available resources: {string.Join(", ", assembly.GetManifestResourceNames())}");
+        }
+
+        using var stream = assembly.GetManifestResourceStream(fullResourceName);
+        if (stream == null)
+        {
+            throw new Exception($"Could not get manifest resource stream for {fullResourceName}");
+        }
+
+        return await LoadObj(stream, Path.GetFileNameWithoutExtension(resourceName));
+    }
+
+    public static async Task<MeshDataComponent> LoadObj(Stream stream, string name)
+    {
+        var importer = new AssimpContext();
+        var steps = PostProcessSteps.FlipUVs | // Align texture V-axis with OpenGL
+                    PostProcessSteps.GenerateNormals |
+                    PostProcessSteps.JoinIdenticalVertices;
+
+        Scene scene;
+        try
+        {
+            // AssimpContext.ImportFileFromStream might need a format hint for .obj
+            scene = await Task.Run(() => importer.ImportFileFromStream(stream, steps, "obj"));
+            if (scene == null || scene.SceneFlags.HasFlag(SceneFlags.Incomplete) || scene.RootNode == null)
+            {
+                throw new Exception($"Error loading model from stream: {name}");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return ProcessScene(scene, name);
+    }
+
+    private static MeshDataComponent ProcessScene(Scene scene, string name)
+    {
         //we are combining all meshes into one, hence "combined", if we want to support multiple mesh, we need to return an array of meshdatacomponents
         var combinedVertices = new List<Vertex>();
         var combinedIndices = new List<int>(); //The EBO for GL_TRIANGLES
@@ -92,7 +146,7 @@ public static class ModelLoader
         var edges = MeshUtils.GenerateEdges(combinedFaces.ToArray());
         return new MeshDataComponent
         {
-            Name = Path.GetFileNameWithoutExtension(filePath),
+            Name = name,
             Vertices = combinedVertices.ToArray(),
             Faces = combinedFaces.ToArray(),
             Edges = edges.ToArray(),

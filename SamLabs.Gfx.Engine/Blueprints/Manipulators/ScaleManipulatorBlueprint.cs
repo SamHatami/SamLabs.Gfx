@@ -43,10 +43,8 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
        var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Scale };
        _componentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
-       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "ScaleArrow.obj");
-       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "ScalePlane.obj");
-       var importedArrowMesh = await ModelLoader.LoadObj(arrowPath); 
-       var importedPlaneMesh = await ModelLoader.LoadObj(planePath); 
+       var importedArrowMesh = await ModelLoader.LoadObjFromResource("ScaleArrow.obj"); 
+       var importedPlaneMesh = await ModelLoader.LoadObjFromResource("ScalePlane.obj"); 
        
        var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
        var manipulatorShader = _shaderService.GetShader("manipulator");

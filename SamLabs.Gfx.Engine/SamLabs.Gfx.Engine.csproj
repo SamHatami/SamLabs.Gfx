@@ -77,12 +77,6 @@
     <None Update="Rendering\Shaders\simple.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Models\TestModel_1.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Models\Arrow.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Rendering\Shaders\picking.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -92,21 +86,13 @@
     <None Update="Rendering\Shaders\manipulator.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Models\TranslatePlane.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Models\Rotate.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Remove="Models\Rotate.mtl" />
-    <None Update="Models\ScalePlane.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Models\ScaleArrow.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Remove="Models\ScalePlane.mtl" />
     <None Remove="Models\ScaleArrow.mtl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Models\*.obj" />
   </ItemGroup>
 
   <ItemGroup>

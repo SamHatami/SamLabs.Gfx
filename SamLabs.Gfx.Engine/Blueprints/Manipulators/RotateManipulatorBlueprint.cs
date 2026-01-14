@@ -43,8 +43,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
        var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Rotate };
        _componentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
-       var rotatePath = Path.Combine(AppContext.BaseDirectory, "Models", "Rotate.obj");
-       var importedRotateMesh = await ModelLoader.LoadObj(rotatePath); 
+       var importedRotateMesh = await ModelLoader.LoadObjFromResource("Rotate.obj"); 
        
        var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
        var manipulatorShader = _shaderService.GetShader("manipulator");

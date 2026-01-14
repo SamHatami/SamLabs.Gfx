@@ -43,10 +43,8 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
        var manipulatorComponent = new ManipulatorComponent() { Type = ManipulatorType.Translate };
        _componentRegistry.SetComponentToEntity(manipulatorComponent, parentManipulator.Id);
        
-       var arrowPath = Path.Combine(AppContext.BaseDirectory, "Models", "Arrow.obj");
-       var planePath = Path.Combine(AppContext.BaseDirectory, "Models", "TranslatePlane.obj");
-       var importedArrowMesh = await ModelLoader.LoadObj(arrowPath); 
-       var importedPlaneMesh = await ModelLoader.LoadObj(planePath); 
+       var importedArrowMesh = await ModelLoader.LoadObjFromResource("Arrow.obj"); 
+       var importedPlaneMesh = await ModelLoader.LoadObjFromResource("TranslatePlane.obj"); 
        
        var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
        var manipulatorShader = _shaderService.GetShader("manipulator");
