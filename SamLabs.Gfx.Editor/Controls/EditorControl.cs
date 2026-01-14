@@ -31,22 +31,24 @@ public class EditorControl : OpenTkControlBase
             o => o.CommandManager,
             (o, v) => o.CommandManager = v);
 
+    private CommandManager _commandManager;
     public CommandManager CommandManager
     {
-        get;
-        set => SetAndRaise(CommandManagerProperty, ref field, value);
+        get => _commandManager;
+        set => SetAndRaise(CommandManagerProperty, ref _commandManager, value);
     }
 
-    public static readonly DirectProperty<EditorControl, EditorRoot> EditorRootProperty =
-        AvaloniaProperty.RegisterDirect<EditorControl, EditorRoot>(
-            nameof(EditorRoot),
-            o => o.EditorRoot,
-            (o, v) => o.EditorRoot = v);
+    public static readonly DirectProperty<EditorControl, EngineContext> EngineContextProperty =
+        AvaloniaProperty.RegisterDirect<EditorControl, EngineContext>(
+            nameof(EngineContext),
+            o => o.EngineContext,
+            (o, v) => o.EngineContext = v);
 
-    public EditorRoot EditorRoot
+    private EngineContext _engineContext;
+    public EngineContext EngineContext
     {
-        get;
-        set => SetAndRaise(EditorRootProperty, ref field, value);
+        get => _engineContext;
+        set => SetAndRaise(EngineContextProperty, ref _engineContext, value);
     }
 
     public static readonly DirectProperty<EditorControl, ISceneManager> SceneManagerProperty =
@@ -55,10 +57,11 @@ public class EditorControl : OpenTkControlBase
             o => o.SceneManager,
             (o, v) => o.SceneManager = v);
 
+    private ISceneManager _sceneManager;
     public ISceneManager SceneManager
     {
-        get;
-        set => SetAndRaise(SceneManagerProperty, ref field, value);
+        get => _sceneManager;
+        set => SetAndRaise(SceneManagerProperty, ref _sceneManager, value);
     }
 
     private IRenderer _renderer;
@@ -201,16 +204,16 @@ public class EditorControl : OpenTkControlBase
 
     protected override void InitializeOpenTk()
     {
-        _systemScheduler = EditorRoot.SystemScheduler;
-        _renderer = EditorRoot.Renderer;
+        _systemScheduler = EngineContext.SystemScheduler;
+        _renderer = EngineContext.Renderer;
 
         _renderer.Initialize();
         _systemScheduler.InitializeRenderSystems(_renderer);
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         SceneManager.GetCurrentScene();
 
-        CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EditorRoot.EntityFactory));
-        CommandManager.EnqueueCommand(new CreateManipulatorsCommand(CommandManager, EditorRoot.EntityFactory));
+        CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EngineContext.EntityFactory));
+        CommandManager.EnqueueCommand(new CreateManipulatorsCommand(CommandManager, EngineContext.EntityFactory));
         SizeChanged += OnSizeChanged;
     }
 

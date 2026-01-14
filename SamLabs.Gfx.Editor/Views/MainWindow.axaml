@@ -35,7 +35,7 @@
 
         <controls:EditorControl
             CommandManager="{Binding CommandManager}"
-            EditorRoot="{Binding EditorRoot}"
+            EngineContext="{Binding EngineContext}"
             Focusable="True"
             SceneManager="{Binding SceneManager}" />
         <Border

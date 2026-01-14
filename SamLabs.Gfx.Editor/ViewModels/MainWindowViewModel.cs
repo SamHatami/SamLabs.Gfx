@@ -13,9 +13,10 @@ namespace SamLabs.Gfx.Editor.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private readonly EditorService _editorService;
     private Scene _scene;
     private Grid _grid;
-    public EditorRoot EditorRoot { get; }
+    public EngineContext EngineContext { get; }
     public CommandManager CommandManager { get; }
     public ISceneManager SceneManager { get; }
 
@@ -25,13 +26,13 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _currentFpsString;
     private readonly IComponentRegistry _componentRegistry;
 
-    public MainWindowViewModel() {}
-    public MainWindowViewModel(ISceneManager sceneManager, EditorRoot editorRoot, CommandManager commandManager)
+    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager, EditorService editorService)
     {
-        //use EditorService to convey the commands rather than directly using the commandmanager, the editorRoot is needed for the editorcontrol
-        EditorRoot = editorRoot;
-        _entityFactory = editorRoot.EntityFactory;
-        _componentRegistry = editorRoot.ComponentRegistry;
+        _editorService = editorService;
+        //use EditorService to convey the commands rather than directly using the commandmanager, the engineContext is needed for the editorcontrol
+        EngineContext = engineContext;
+        _entityFactory = engineContext.EntityFactory;
+        _componentRegistry = engineContext.ComponentRegistry;
         CommandManager = commandManager;
         SceneManager = sceneManager;
 

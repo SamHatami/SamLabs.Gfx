@@ -11,7 +11,10 @@ public class EditorModule:IServiceModule
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
         //ECS entry point
-        services.AddSingleton<EditorRoot>();
+        services.AddSingleton<EngineContext>();
+        
+        //Editor Service for UI
+        services.AddSingleton<EditorService>();
         
         //Main managers
         

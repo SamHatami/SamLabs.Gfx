@@ -5,10 +5,10 @@ namespace SamLabs.Gfx.Engine.Core;
 
 public class EditorService
 {
-    public EditorRoot EditorRoot { get; }
+    public EngineContext EngineContext { get; }
 
-    public EditorService(EditorRoot editorRoot, CommandManager commandManager,  ILogger<EditorService> logger)
+    public EditorService(EngineContext engineContext, CommandManager commandManager,  ILogger<EditorService> logger)
     {
-        EditorRoot = editorRoot;
+        EngineContext = engineContext;
     }
 }
