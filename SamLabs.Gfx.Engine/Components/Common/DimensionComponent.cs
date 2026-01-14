@@ -1,6 +1,6 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Common;
+namespace SamLabs.Gfx.Engine.Components.Common;
 
-public struct DimensionComponent : IDataComponent
+public struct DimensionComponent : IComponent
 {
     public float Width { get; set; }
     public float Height { get; set; }

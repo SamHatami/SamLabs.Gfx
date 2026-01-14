@@ -1,6 +1,6 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Flags;
+namespace SamLabs.Gfx.Engine.Components.Flags;
 
-public struct GridComponent:IDataComponent
+public struct GridComponent:IComponent
 {
     public int LinesPerSide { get;}
     public float Spacing { get;}

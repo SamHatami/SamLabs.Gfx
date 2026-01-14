@@ -1,6 +1,6 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Flags;
+namespace SamLabs.Gfx.Engine.Components.Flags;
 
-public struct ApplyMaterialFlag:IDataComponent
+public struct ApplyMaterialFlag:IComponent
 {
     
 }

@@ -1,5 +1,5 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Selection;
+namespace SamLabs.Gfx.Engine.Components.Selection;
 
-public struct SelectableDataComponent:IDataComponent
+public struct SelectableDataComponent:IComponent
 {
 }

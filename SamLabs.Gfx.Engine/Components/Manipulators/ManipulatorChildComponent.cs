@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+using OpenTK.Mathematics;
 
 namespace SamLabs.Gfx.Engine.Components.Manipulators;
 
@@ -45,7 +45,7 @@ public static class ManipulatorChildExtension
     }
 }
 
-public struct ManipulatorChildComponent: IDataComponent
+public struct ManipulatorChildComponent: IComponent
 {
     public ManipulatorChildComponent(int parentId, ManipulatorAxis axis = ManipulatorAxis.None)
     {

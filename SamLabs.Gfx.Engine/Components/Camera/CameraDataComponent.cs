@@ -1,9 +1,9 @@
-﻿using OpenTK.Mathematics;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Core.Utility;
 
 namespace SamLabs.Gfx.Engine.Components.Camera;
 
-public struct CameraDataComponent : IDataComponent
+public struct CameraDataComponent : IComponent
 {
     public EnumTypes.ProjectionType ProjectionType { get; set; }
     public Vector3 Target { get; set; }

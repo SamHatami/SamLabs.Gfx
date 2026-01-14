@@ -1,8 +1,8 @@
-﻿using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core;
 
 namespace SamLabs.Gfx.Engine.Components;
 
-public class ComponentStorage<T>: IComponentStorage where T : IDataComponent
+public class ComponentStorage<T>: IComponentStorage where T : IComponent
 {
     public T[] Items { get; } = new T[EditorSettings.MaxEntities];
 

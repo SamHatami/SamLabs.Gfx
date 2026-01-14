@@ -1,8 +1,8 @@
-﻿using SamLabs.Gfx.Engine.Entities;
+using SamLabs.Gfx.Engine.Entities;
 
 namespace SamLabs.Gfx.Engine.Components.Selection;
 
-public struct PickingDataComponent :IDataComponent
+public struct PickingDataComponent :IComponent
 {
     public PickingDataComponent()
     {

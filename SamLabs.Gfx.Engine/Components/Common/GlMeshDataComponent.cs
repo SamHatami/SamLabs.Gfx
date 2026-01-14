@@ -1,11 +1,11 @@
-﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics.OpenGL;
 
 namespace SamLabs.Gfx.Engine.Components.Common;
 
 /// <summary>
 /// Contains OpenGL data for a mesh
 /// </summary>
-public struct GlMeshDataComponent : IDataComponent
+public struct GlMeshDataComponent : IComponent
 {
     public bool IsManipulator { get; set; }
     public bool IsGrid { get; set; }

@@ -1,8 +1,8 @@
-﻿using SamLabs.Gfx.Geometry;
+using SamLabs.Gfx.Geometry;
 
 namespace SamLabs.Gfx.Engine.Components.Construction;
 
-public struct ConstructionPlaneDataComponent:IDataComponent
+public struct ConstructionPlaneDataComponent:IComponent
 {
     Plane Plane { get; set; }
 }

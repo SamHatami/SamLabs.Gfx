@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Core;
 
@@ -22,7 +22,7 @@ public class ComponentRegistry : IComponentRegistry
                 !t.IsEnum &&
                 !t.IsAbstract &&
                 t.Namespace != null &&
-                typeof(IDataComponent).IsAssignableFrom(t))
+                typeof(IComponent).IsAssignableFrom(t))
             .ToArray();
 
         for (int i = 0; i < componentTypes.Length; i++)
@@ -44,19 +44,19 @@ public class ComponentRegistry : IComponentRegistry
 
     // --- Instance API ---
 
-    public void RemoveComponentFromEntities<T>(ReadOnlySpan<int> entityIds) where T : IDataComponent
+    public void RemoveComponentFromEntities<T>(ReadOnlySpan<int> entityIds) where T : IComponent
     {
         foreach (var entityId in entityIds)
             RemoveComponentFromEntity<T>(entityId);
     }
 
-    public void RemoveComponentFromEntities<T>(int[] entityIds) where T : IDataComponent
+    public void RemoveComponentFromEntities<T>(int[] entityIds) where T : IComponent
     {
         foreach (var entityId in entityIds)
             RemoveComponentFromEntity<T>(entityId);
     }
 
-    public void RemoveComponentFromEntity<T>(int entityId) where T : IDataComponent
+    public void RemoveComponentFromEntity<T>(int entityId) where T : IComponent
     {
         if (!HasComponent<T>(entityId)) return;
 
@@ -72,7 +72,7 @@ public class ComponentRegistry : IComponentRegistry
         foreach (var storage in _componentStorages) storage?.Clear(entityId);
     }
 
-    public void SetComponentToEntity<T>(T component, int entityId) where T : IDataComponent
+    public void SetComponentToEntity<T>(T component, int entityId) where T : IComponent
     {
         if (entityId == -1) return;
 
@@ -82,19 +82,19 @@ public class ComponentRegistry : IComponentRegistry
         _componentMaps[GetId<T>()].AddUsage(entityId);
     }
 
-    public ref T GetComponent<T>(int entityId) where T : struct, IDataComponent
+    public ref T GetComponent<T>(int entityId) where T : struct, IComponent
     {
         var componentId = GetId<T>();
         var storage = (ComponentStorage<T>)_componentStorages[componentId];
         return ref storage.Get(entityId);
     }
 
-    public int GetId<T>() where T : IDataComponent
+    public int GetId<T>() where T : IComponent
     {
         return _componentTypeRegistry.GetValueOrDefault(typeof(T), -1);
     }
 
-    public ReadOnlySpan<int> GetEntityIdsForComponentType<T>() where T : IDataComponent
+    public ReadOnlySpan<int> GetEntityIdsForComponentType<T>() where T : IComponent
     {
         return GetId<T>() == -1 ? ReadOnlySpan<int>.Empty : _componentMaps[GetId<T>()].GetUsageIds();
     }
@@ -111,7 +111,7 @@ public class ComponentRegistry : IComponentRegistry
         return results[..childCount];
     }
 
-    public bool HasComponent<T>(int entityId) where T : IDataComponent
+    public bool HasComponent<T>(int entityId) where T : IComponent
     {
         var componentId = GetId<T>();
 

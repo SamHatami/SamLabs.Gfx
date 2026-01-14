@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 
@@ -14,12 +14,12 @@ public class EntityQueryService
         _components = components;
     }
 
-    public ReadOnlySpan<int> With<T>() where T : IDataComponent
+    public ReadOnlySpan<int> With<T>() where T : IComponent
     {
         return _components.GetEntityIdsForComponentType<T>();
     }
 
-    public ReadOnlySpan<int> AndWith<T>(ReadOnlySpan<int> entities) where T : IDataComponent
+    public ReadOnlySpan<int> AndWith<T>(ReadOnlySpan<int> entities) where T : IComponent
     {
         var count = 0;
         foreach (var e in entities)
@@ -30,7 +30,7 @@ public class EntityQueryService
         return _queryBuffer.AsSpan(0, count);
     }
 
-    public ReadOnlySpan<int> OrWith<T>(ReadOnlySpan<int> entities) where T : IDataComponent
+    public ReadOnlySpan<int> OrWith<T>(ReadOnlySpan<int> entities) where T : IComponent
     {
         var entsWithT = _components.GetEntityIdsForComponentType<T>();
         if (entities.IsEmpty) return entsWithT;
@@ -52,7 +52,7 @@ public class EntityQueryService
         return _queryBuffer.AsSpan(0, count);
     }
 
-    public ReadOnlySpan<int> Without<T>(ReadOnlySpan<int> entities) where T : IDataComponent
+    public ReadOnlySpan<int> Without<T>(ReadOnlySpan<int> entities) where T : IComponent
     {
         var count = 0;
         foreach (var e in entities)

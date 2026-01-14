@@ -1,6 +1,6 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Manipulators;
+namespace SamLabs.Gfx.Engine.Components.Manipulators;
 
-public struct ManipulatorAttachedComponent:IDataComponent
+public struct ManipulatorAttachedComponent:IComponent
 {
     
 }

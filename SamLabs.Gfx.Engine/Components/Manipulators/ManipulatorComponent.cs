@@ -1,8 +1,8 @@
-﻿using SamLabs.Gfx.Engine.Entities;
+using SamLabs.Gfx.Engine.Entities;
 
 namespace SamLabs.Gfx.Engine.Components.Manipulators;
 
-public struct ManipulatorComponent:IDataComponent
+public struct ManipulatorComponent:IComponent
 {
     public ManipulatorType Type { get; set; }
 }

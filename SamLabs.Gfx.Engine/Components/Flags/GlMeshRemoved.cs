@@ -1,6 +1,6 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Flags;
+namespace SamLabs.Gfx.Engine.Components.Flags;
 
-public struct GlMeshRemoved:IDataComponent //TBD should perhaps be its own component type - IComponentFlag 
+public struct GlMeshRemoved:IComponent //TBD should perhaps be its own component type - IComponentFlag 
 {
     
 }

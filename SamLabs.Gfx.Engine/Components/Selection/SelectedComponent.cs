@@ -1,6 +1,6 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Selection;
+namespace SamLabs.Gfx.Engine.Components.Selection;
 
-public struct SelectedComponent : IDataComponent
+public struct SelectedComponent : IComponent
 {
     
 }

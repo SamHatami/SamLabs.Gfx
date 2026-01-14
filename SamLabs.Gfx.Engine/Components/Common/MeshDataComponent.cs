@@ -1,10 +1,10 @@
-﻿using SamLabs.Gfx.Geometry.Mesh;
+using SamLabs.Gfx.Geometry.Mesh;
 
 namespace SamLabs.Gfx.Engine.Components.Common;
 /// <summary>
 /// Contains data for a mesh
 /// </summary>
-public struct MeshDataComponent: IDataComponent
+public struct MeshDataComponent: IComponent
 {
     public Vertex[] Vertices { get; set; }
     public Edge[] Edges { get; set; }

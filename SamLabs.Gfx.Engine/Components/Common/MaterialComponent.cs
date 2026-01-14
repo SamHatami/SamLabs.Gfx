@@ -1,8 +1,8 @@
-﻿using SamLabs.Gfx.Engine.Rendering.Engine;
+using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Components.Common;
 
-public struct MaterialComponent:IDataComponent
+public struct MaterialComponent:IComponent
 {
     public GLShader Shader { get; set; }
     public GLShader PickingShader { get; set; }

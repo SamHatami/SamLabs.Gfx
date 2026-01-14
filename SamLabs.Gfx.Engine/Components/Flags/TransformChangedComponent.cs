@@ -1,3 +1,3 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Flags;
+namespace SamLabs.Gfx.Engine.Components.Flags;
 
-public struct TransformChangedComponent : IDataComponent;
+public struct TransformChangedComponent : IComponent;

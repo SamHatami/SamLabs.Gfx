@@ -1,8 +1,8 @@
-﻿using OpenTK.Mathematics;
+using OpenTK.Mathematics;
 
 namespace SamLabs.Gfx.Engine.Components.Common;
 
-public struct TransformComponent : IDataComponent
+public struct TransformComponent : IComponent
 {
     public Matrix4 LocalMatrix;
     
