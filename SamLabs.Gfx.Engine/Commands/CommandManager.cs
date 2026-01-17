@@ -11,7 +11,14 @@ public class CommandManager
     private readonly ConcurrentStack<ICommand> _undoCommands = new();
     private readonly ConcurrentQueue<ICommand> _redoCommands = new();
 
-    public void EnqueueCommand(ICommand command) => _commands.Enqueue(command);
+    public event Action? CommandEnqueued; //For da future!!
+    public bool HasPendingCommands => !_commands.IsEmpty;
+
+    public void EnqueueCommand(ICommand command)
+    {
+        _commands.Enqueue(command);
+        CommandEnqueued?.Invoke();
+    }
 
     public CommandManager(ILogger<CommandManager> logger)
     {

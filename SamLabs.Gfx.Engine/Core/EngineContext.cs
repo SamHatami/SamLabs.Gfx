@@ -22,9 +22,10 @@ public class EngineContext
     public EntityRegistry EntityRegistry { get; }
     public EntityFactory EntityFactory { get; }
     public IRenderer Renderer { get; }
+    public EditorEvents EditorEvents { get; }
 
     public EngineContext(SystemScheduler systemScheduler, EntityRegistry entityRegistry,
-        EntityFactory entityFactory, IRenderer renderer, ShaderService shaderService, IComponentRegistry componentRegistry)
+        EntityFactory entityFactory, IRenderer renderer, ShaderService shaderService, IComponentRegistry componentRegistry, EditorEvents editorEvents)
     {
         _shaderService = shaderService;
         ComponentRegistry = componentRegistry;
@@ -32,6 +33,7 @@ public class EngineContext
         SystemScheduler = systemScheduler;
         EntityRegistry = entityRegistry;
         EntityFactory = entityFactory;
+        EditorEvents = editorEvents;
 
         InitializeCreators();
     }

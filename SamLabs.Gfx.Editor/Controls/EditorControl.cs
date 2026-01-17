@@ -35,7 +35,16 @@ public class EditorControl : OpenTkControlBase
     public CommandManager CommandManager
     {
         get => _commandManager;
-        set => SetAndRaise(CommandManagerProperty, ref _commandManager, value);
+        set
+        {
+            if (_commandManager != null)
+                _commandManager.CommandEnqueued -= NotifyActivity;
+            
+            SetAndRaise(CommandManagerProperty, ref _commandManager, value);
+            
+            if (_commandManager != null)
+                _commandManager.CommandEnqueued += NotifyActivity;
+        }
     }
 
     public static readonly DirectProperty<EditorControl, EngineContext> EngineContextProperty =
@@ -100,13 +109,33 @@ public class EditorControl : OpenTkControlBase
     private bool _leftClickOccured;
     private bool _isDragging;
     private const double MinFrameTimeMs = 16.666667; // ~60 FPS
+    
+    private DateTime _lastActivityTime = DateTime.Now;
+    private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(1.5);
+    private bool _wasIdling = false;
+
+    private void NotifyActivity()
+    {
+        _lastActivityTime = DateTime.Now;
+        RequestNextFrameRendering();
+    }
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        if(Idle()) 
+        {
+            _wasIdling = true;
+            return;
+        }
+
+        if (_wasIdling)
+        {
+            _lastUpdateTime = DateTime.Now;
+            _frameCount = 0;
+            _wasIdling = false;
+        }
         
         CalculateFps();
-        
-        if(Idle()) return;
         CommandManager.ProcessAllCommands();
 
         //Process commands
@@ -139,7 +168,10 @@ public class EditorControl : OpenTkControlBase
 
     private bool Idle()
     {
-        return false;
+        if (CommandManager?.HasPendingCommands == true) return false;
+        if (DateTime.Now - _lastActivityTime < _idleTimeout) return false;
+        
+        return true;
     }
 
     private void CalculateFps()
@@ -148,16 +180,11 @@ public class EditorControl : OpenTkControlBase
         _frameCount++;
         DateTime currentTime = DateTime.Now;
         TimeSpan elapsedTime = currentTime - _lastUpdateTime;
-        // Check if the update interval has passed
         if (elapsedTime.TotalSeconds >= FpsUpdateIntervalSeconds)
         {
-            // Calculate the FPS: frames / elapsed time in seconds
             _currentFps = _frameCount / elapsedTime.TotalSeconds;
 
-            // OPTIONAL: Print the FPS to the console
-            System.Diagnostics.Debug.WriteLine($"FPS: {_currentFps:F2}");
 
-            // Reset the counter and timer for the next interval
             _frameCount = 0;
             _lastUpdateTime = currentTime;
             ViewModel.UpdateFps(_currentFps);
@@ -227,16 +254,29 @@ public class EditorControl : OpenTkControlBase
         CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EngineContext.EntityFactory));
         CommandManager.EnqueueCommand(new CreateManipulatorsCommand(CommandManager, EngineContext.EntityFactory));
         SizeChanged += OnSizeChanged;
+        
+        // Subscribe to EditorEvents
+        EngineContext.EditorEvents.EntityAdded += OnEditorEvent;
+        EngineContext.EditorEvents.EntityRemoved += OnEditorEvent;
+        EngineContext.EditorEvents.EntityUpdated += OnEditorEvent;
+        EngineContext.EditorEvents.EntityDeleted += OnEditorEvent;
+        EngineContext.EditorEvents.SelectedEntityChanged += OnEditorEvent;
+        EngineContext.EditorEvents.SelectedEntityAdded += OnEditorEvent;
+        EngineContext.EditorEvents.TransformUpdating += OnEditorEvent;
     }
+
+    private void OnEditorEvent<T>(object? sender, T e) => NotifyActivity();
 
     protected override void OnKeyDown(KeyEventArgs e)
     {
+        NotifyActivity();
         _keyDown = e.Key;
         base.OnKeyDown(e);
     }
 
     protected override void OnKeyUp(KeyEventArgs e)
     {
+        NotifyActivity();
         if(_keyDown == e.Key)
             _keyDown = Key.None;
         base.OnKeyUp(e);
@@ -244,12 +284,20 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
+        NotifyActivity();
         _mouseWheelDelta = e.Delta.Y;
         base.OnPointerWheelChanged(e);
     }
 
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        NotifyActivity();
+        base.OnPointerPressed(e);
+    }
+
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
+        NotifyActivity();
         _leftClickOccured = e.InitialPressMouseButton ==  MouseButton.Left;
         _isDragging = false; 
         base.OnPointerReleased(e);
@@ -258,6 +306,7 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
+        NotifyActivity();
         _currentMousePosition = e.GetPosition(this);
         var eventDelta = _currentMousePosition - _lastMousePosition;
         
@@ -285,5 +334,30 @@ public class EditorControl : OpenTkControlBase
         _middleMouseButtonPressed = props.IsMiddleButtonPressed;
     }
 
-    private void OnSizeChanged(object? sender, SizeChangedEventArgs e) => _resizeRequested = true;
+    private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        _resizeRequested = true;
+        NotifyActivity();
+    }
+
+    protected override void OpenTkTeardown()
+    {
+        base.OpenTkTeardown();
+        
+        SizeChanged -= OnSizeChanged;
+        
+        if (CommandManager != null)
+            CommandManager.CommandEnqueued -= NotifyActivity;
+
+        if (EngineContext?.EditorEvents != null)
+        {
+            EngineContext.EditorEvents.EntityAdded -= OnEditorEvent;
+            EngineContext.EditorEvents.EntityRemoved -= OnEditorEvent;
+            EngineContext.EditorEvents.EntityUpdated -= OnEditorEvent;
+            EngineContext.EditorEvents.EntityDeleted -= OnEditorEvent;
+            EngineContext.EditorEvents.SelectedEntityChanged -= OnEditorEvent;
+            EngineContext.EditorEvents.SelectedEntityAdded -= OnEditorEvent;
+            EngineContext.EditorEvents.TransformUpdating -= OnEditorEvent;
+        }
+    }
 }
