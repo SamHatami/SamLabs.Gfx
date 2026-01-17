@@ -16,13 +16,13 @@ void main()
         switch(uManipulatorAxis)
         {
             case 0:
-                FragColor = vec4(0.8, 0.1, 0.1, 1.0);
+                FragColor = vec4(1, 0.6, 0.6, 1.0);
                 break;
             case 1:
-                FragColor = vec4(0.1, 1, 0.1, 1.0);
+                FragColor = vec4(0.6, 1, 0.6, 1);
                 break;
             case 2:
-                FragColor = vec4(0.1, 0.1, 1, 1.0);
+                FragColor = vec4(0.4, 0.6, 1, 1.0);
                 break;
             
         }

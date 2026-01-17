@@ -81,6 +81,9 @@ public class GLPickingSystem : RenderSystem
         {
             Span<int> childBuffer = stackalloc int[6]; //Make sure only the active parents children are fetched
             var childManipulators = _componentRegistry.GetChildEntitiesForParent(parentManipulator[0], childBuffer);
+         
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Enable(EnableCap.DepthTest);
             foreach (var childManipulator in childManipulators)
             {
                 var mesh = _componentRegistry.GetComponent<GlMeshDataComponent>(childManipulator);
@@ -89,6 +92,7 @@ public class GLPickingSystem : RenderSystem
                 var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(childManipulator).WorldMatrix;
                 RenderToPickingTexture(mesh, childManipulator, modelMatrix);
             }
+            GL.Disable(EnableCap.DepthTest);
         }
     }
 
@@ -107,7 +111,7 @@ public class GLPickingSystem : RenderSystem
             .SetMatrix4(UniformNames.uModel, ref modelMatrix);
 
         var rendererContext = MeshRenderer.Begin(mesh);
-        rendererContext.Edges().Faces().Vertices();
+        rendererContext.Faces();//.Edges().Vertices();
         rendererContext.Dispose();
     }
 

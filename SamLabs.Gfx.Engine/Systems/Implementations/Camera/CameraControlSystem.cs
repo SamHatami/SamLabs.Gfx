@@ -14,6 +14,7 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 
 public class CameraControlSystem : UpdateSystem
 {
+    private ProjectionType _currentProjectionType = ProjectionType.Perspective;
     public CameraControlSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
@@ -34,6 +35,9 @@ public class CameraControlSystem : UpdateSystem
 
             ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(camera);
 
+            //If camera is auto-moving dont allow user control
+            if (cameraData.IsTransitioning) return;
+            
             if (frameInput.IsMouseMiddleButtonDown && frameInput.KeyDown == Key.LeftShift) //Key settings in config
                 Pan(frameInput, ref cameraData, ref cameraTransform);
 

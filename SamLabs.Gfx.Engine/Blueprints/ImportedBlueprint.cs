@@ -10,10 +10,12 @@ namespace SamLabs.Gfx.Engine.Entities.Blueprints;
 public class ImportedBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public ImportedBlueprint(ShaderService shaderService,IComponentRegistry componentRegistry) : base(componentRegistry)
+    public ImportedBlueprint(ShaderService shaderService,IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.Imported;

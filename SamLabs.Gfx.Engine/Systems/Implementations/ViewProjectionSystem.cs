@@ -3,7 +3,6 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Core;
-using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -42,10 +41,10 @@ public class ViewProjectionSystem : RenderSystem
         var projectionMatrix = Matrix4.Identity;
         switch (cameraData.ProjectionType)
         {
-            case EnumTypes.ProjectionType.Orthographic:
+            case ProjectionType.Orthographic:
                 projectionMatrix = OrthographicProjectionMatrix(cameraData, renderContext);
                 break;
-            case EnumTypes.ProjectionType.Perspective:
+            case ProjectionType.Perspective:
                 projectionMatrix = PerspectiveProjectionMatrix(cameraData);
                 break;
         }
@@ -66,5 +65,5 @@ public class ViewProjectionSystem : RenderSystem
         Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
 
     private Matrix4 OrthographicProjectionMatrix(CameraDataComponent camera, RenderContext renderContext) =>
-        Matrix4.CreateOrthographic(renderContext.ViewWidth, renderContext.ViewHeight, camera.Near, camera.Far);
+        Matrix4.CreateOrthographic(camera.OrthographicSize, renderContext.ViewHeight*camera.OrthographicSize, camera.Near, camera.Far);
 }

@@ -16,7 +16,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
     private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
 
-    public RotateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(componentRegistry)
+    public RotateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
         _entityRegistry = entityRegistry;

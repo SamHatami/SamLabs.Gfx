@@ -15,4 +15,9 @@ public static class EntityNames
     public static string RotateManipulator { get; set; } = "RotateManipulator";
     public static string ScaleManipulator { get; set; } = "ScaleManipulator";
     public static string Imported { get; set; } = "Imported";
+
+    public const string ConstructionPlane = "ConstructionPlane";
+    public const string ConstructionAxis = "ConstructionAxis";
+    public const string ConstructionPoint = "ConstructionPoint";
+    public const string Sketch = "Sketch";
 }

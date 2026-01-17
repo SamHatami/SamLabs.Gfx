@@ -13,10 +13,12 @@ namespace SamLabs.Gfx.Engine.Entities.Primitives;
 public class CubeBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public CubeBlueprint(ShaderService shaderService, IComponentRegistry _componentRegistry) : base(_componentRegistry)
+    public CubeBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.Cube;

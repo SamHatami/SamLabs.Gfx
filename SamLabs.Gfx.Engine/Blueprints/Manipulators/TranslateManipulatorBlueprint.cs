@@ -16,11 +16,13 @@ public class TranslateManipulatorBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public TranslateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(componentRegistry)
+    public TranslateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
         _entityRegistry = entityRegistry;
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.TranslateManipulator;

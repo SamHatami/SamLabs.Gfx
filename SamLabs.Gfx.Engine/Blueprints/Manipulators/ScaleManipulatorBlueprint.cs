@@ -16,11 +16,13 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public ScaleManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(componentRegistry)
+    public ScaleManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
         _entityRegistry = entityRegistry;
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.ScaleManipulator;

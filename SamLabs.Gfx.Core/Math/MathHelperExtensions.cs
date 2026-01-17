@@ -26,4 +26,6 @@ public static class MathExtensions
         else if (value.CompareTo(max) > 0)
             value = max;
     }
+    
+    public static float EaseInOutCubic(float t) => t * t * (3f - 2f * t);
 }

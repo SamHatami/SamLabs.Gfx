@@ -42,15 +42,17 @@ public class GLManipulatorRenderSystem : RenderSystem
         var selectedmanipulators = _query.With<SelectedManipulatorChildComponent>();
         bool isAnymanipulatorDragging = !selectedmanipulators.IsEmpty && frameInput.IsMouseLeftButtonDown;
         
-        Drawmanipulator(activemanipulator[0], subEntities, pickingData, childBuffer, isAnymanipulatorDragging);
+        DrawManipulator(activemanipulator[0], subEntities, pickingData, childBuffer, isAnymanipulatorDragging);
     }
 
-    private void Drawmanipulator(int activemanipulator, ReadOnlySpan<int> manipulatorSubEntities, PickingDataComponent pickingData,
+    private void DrawManipulator(int activemanipulator, ReadOnlySpan<int> manipulatorSubEntities, PickingDataComponent pickingData,
         Span<int> childBuffer, bool isDragging)
     {
         ref var parentTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activemanipulator);
         UpdateChildmanipulators(activemanipulator, manipulatorSubEntities, childBuffer,ref parentTransform); //Special case for the manipulator
 
+        GL.Clear(ClearBufferMask.DepthBufferBit);
+        GL.Enable(EnableCap.DepthTest);
         foreach (var manipulatorSubEntity in manipulatorSubEntities)
         {
             var isSelected = CheckSelection(manipulatorSubEntity, pickingData);
@@ -61,6 +63,7 @@ public class GLManipulatorRenderSystem : RenderSystem
             
             RenderManipualtorSubMesh(mesh, material, isSelected, isDragging, submanipulatorTransform.WorldMatrix, pickingData, manipulatorSubEntity, manipulatorChildComponent);
         }
+        GL.Disable(EnableCap.DepthTest);
     }
 
     private bool CheckSelection(int manipulatorSubEntity, PickingDataComponent pickingData)
@@ -112,16 +115,12 @@ public class GLManipulatorRenderSystem : RenderSystem
             : (pickingData.HoveredEntityId == entityId ? 1 : 0);  // Not dragging: use picking
         var axis = manipulatorChildComponent.Axis.ToInt();
         var selected = isSelected ? 1 : 0;
-
-        // Console.WriteLine($"IsHovered: {isHovered}, IsSelected: {isSelected}");
-        GL.Disable(EnableCap.DepthTest);
+     
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
         shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
             .SetInt(UniformNames.uIsHovered, ref isHovered)
             .SetInt(UniformNames.uIsSelected, ref selected)
             .SetInt(UniformNames.uManipulatorAxis, ref axis);
         MeshRenderer.Draw(mesh);
-
-        GL.Enable(EnableCap.DepthTest);
     }
 }

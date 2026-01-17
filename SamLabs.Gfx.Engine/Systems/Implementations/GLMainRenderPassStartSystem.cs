@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;

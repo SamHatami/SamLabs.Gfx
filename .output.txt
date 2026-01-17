@@ -1,0 +1,337 @@
+﻿
+    Directory: C:\Workspace\SamLabs.Gfx\Tests
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-07-03     22:32                bin
+d-----        2026-01-06     20:46                obj
+-a----        2025-12-06     12:41             60 IamEmpty.cs
+-a----        2025-12-06     12:41            751 Tests.csproj
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-07-03     22:32                Debug
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2026-01-14     21:14                net9.0
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2026-01-14     20:54                cs
+d-----        2026-01-14     20:54                de
+d-----        2026-01-14     20:54                es
+d-----        2026-01-14     20:54                fr
+d-----        2025-12-01     09:11                Geometry
+d-----        2026-01-14     20:54                it
+d-----        2026-01-14     20:54                ja
+d-----        2026-01-14     20:54                ko
+d-----        2026-01-14     20:54                pl
+d-----        2026-01-14     20:54                pt-BR
+d-----        2026-01-14     20:54                ru
+d-----        2025-07-03     22:33                runtimes
+d-----        2026-01-14     20:54                tr
+d-----        2026-01-14     20:54                zh-Hans
+d-----        2026-01-14     20:54                zh-Hant
+-a----        2025-12-01     16:50            864 .msCoverageSourceRootsMapping
+                                                  _Tests
+-a----        2025-12-01     16:50            864 CoverletSourceRootsMapping_Te
+                                                  sts
+-a----        2025-06-25     07:13         746496 FluentAssertions.dll
+-a----        2024-11-16     07:20         137264 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.dll
+-a----        2024-11-16     07:20          97824 Microsoft.TestPlatform.CoreUt
+                                                  ilities.dll
+-a----        2024-11-16     07:21         315416 Microsoft.TestPlatform.CrossP
+                                                  latEngine.dll
+-a----        2024-11-16     07:20          53280 Microsoft.TestPlatform.Platfo
+                                                  rmAbstractions.dll
+-a----        2024-11-16     07:20          67104 Microsoft.TestPlatform.Utilit
+                                                  ies.dll
+-a----        2024-09-30     10:48          17328 Microsoft.VisualStudio.CodeCo
+                                                  verage.Shim.dll
+-a----        2024-11-16     07:20         247856 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.dll
+-a----        2024-11-16     07:20         334888 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.dll
+-a----        2021-03-17     21:03         695336 Newtonsoft.Json.dll
+-a----        2024-11-16     07:21          48672 testhost.dll
+-a----        2024-11-16     07:21         169528 testhost.exe
+-a----        2026-01-14     20:54          17544 Tests.deps.json
+-a----        2026-01-14     21:14           4608 Tests.dll
+-a----        2026-01-14     21:14          12732 Tests.pdb
+-a----        2026-01-14     20:54            268 Tests.runtimeconfig.json
+-a----        2018-08-25     21:54          21928 xunit.abstractions.dll
+-a----        2024-09-27     05:42         185552 xunit.assert.dll
+-a----        2024-09-27     05:43          70352 xunit.core.dll
+-a----        2024-09-27     05:43         279760 xunit.execution.dotnet.dll
+-a----        2024-07-07     21:47          84176 xunit.runner.reporters.netcor
+                                                  eapp10.dll
+-a----        2024-07-07     21:47         255184 xunit.runner.utility.netcorea
+                                                  pp10.dll
+-a----        2024-07-07     22:35         180944 xunit.runner.visualstudio.tes
+                                                  tadapter.dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\cs
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16416 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16944 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21032 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          20552 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          23592 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\de
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16936 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21032 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21024 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24136 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\es
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16952 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21032 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21032 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24096 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\fr
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16936 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21024 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21024 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24096 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\it
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16944 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21024 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21024 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24096 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\ja
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          17440 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          22072 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21576 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24616 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\ko
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16936 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21536 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21024 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24096 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\pl
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16936 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21536 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21056 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24136 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\pt-BR
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16424 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21024 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          21024 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          24136 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\ru
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          17440 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          17440 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          23080 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          23080 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          26152 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\runtimes
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-07-03     22:33                win-arm64
+d-----        2025-07-03     22:33                win-x64
+d-----        2025-07-03     22:33                win-x86
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\runtimes\win-arm
+    64
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-12-01     09:11                native
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\runtimes\win-x64
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-12-01     09:11                native
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\runtimes\win-x86
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-12-01     09:11                native
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\tr
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16920 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16936 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          21040 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          20520 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          23584 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\zh-Hans
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16416 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16928 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          20008 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          20000 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          23112 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\bin\Debug\net9.0\zh-Hant
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2024-11-16     07:20          16416 Microsoft.TestPlatform.Commun
+                                                  icationUtilities.resources.dl
+                                                  l
+-a----        2024-11-16     07:20          16920 Microsoft.TestPlatform.CoreUt
+                                                  ilities.resources.dll
+-a----        2024-11-16     07:21          20520 Microsoft.TestPlatform.CrossP
+                                                  latEngine.resources.dll
+-a----        2024-11-16     07:20          20000 Microsoft.VisualStudio.TestPl
+                                                  atform.Common.resources.dll
+-a----        2024-11-16     07:20          23072 Microsoft.VisualStudio.TestPl
+                                                  atform.ObjectModel.resources.
+                                                  dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\obj
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2025-07-03     22:32                Debug
+-a----        2026-01-06     20:46          51666 project.assets.json
+-a----        2026-01-06     20:46           2027 project.nuget.cache
+-a----        2025-12-13     17:17           1465 project.packagespec.json
+-a----        2026-01-14     21:04             20 rider.project.model.nuget.inf
+                                                  o
+-a----        2026-01-14     21:04             20 rider.project.restore.info
+-a----        2025-12-13     17:17           3076 Tests.csproj.nuget.dgspec.jso
+                                                  n
+-a----        2025-11-17     19:02           2818 Tests.csproj.nuget.g.props
+-a----        2025-07-03     22:32           1157 Tests.csproj.nuget.g.targets
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\obj\Debug
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2026-01-14     20:54                net9.0
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\obj\Debug\net9.0
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----        2026-01-14     20:54                ref
+d-----        2026-01-14     20:54                refint
+-a----        2025-12-13     17:17            198 .NETCoreApp,Version=v9.0.Asse
+                                                  mblyAttributes.cs
+-a----        2026-01-14     21:04            989 Tests.AssemblyInfo.cs
+-a----        2026-01-14     21:04             66 Tests.AssemblyInfoInputs.cach
+                                                  e
+-a----        2026-01-06     20:46          33850 Tests.assets.cache
+-a----        2026-01-14     20:54           8758 Tests.csproj.AssemblyReferenc
+                                                  e.cache
+-a----        2026-01-14     20:54             66 Tests.csproj.CoreCompileInput
+                                                  s.cache
+-a----        2026-01-14     20:54           9830 Tests.csproj.FileListAbsolute
+                                                  .txt
+-a----        2026-01-14     20:54              0 Tests.csproj.Up2Date
+-a----        2026-01-14     21:14           4608 Tests.dll
+-a----        2026-01-14     20:54            769 Tests.GeneratedMSBuildEditorC
+                                                  onfig.editorconfig
+-a----        2026-01-14     20:54             66 Tests.genruntimeconfig.cache
+-a----        2025-11-17     19:02            260 Tests.GlobalUsings.g.cs
+-a----        2026-01-14     21:14          12732 Tests.pdb
+-a----        2026-01-14     21:14            148 Tests.sourcelink.json
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\obj\Debug\net9.0\ref
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2026-01-14     21:14           5632 Tests.dll
+    Directory: C:\Workspace\SamLabs.Gfx\Tests\obj\Debug\net9.0\refint
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        2026-01-14     21:14           5632 Tests.dll

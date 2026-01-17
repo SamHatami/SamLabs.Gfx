@@ -9,8 +9,11 @@ namespace SamLabs.Gfx.Engine.Entities.Blueprints;
 
 public class MainCameraBlueprint : EntityBlueprint
 {
-    public MainCameraBlueprint(IComponentRegistry componentRegistry) : base(componentRegistry)
+    private readonly IComponentRegistry _componentRegistry;
+
+    public MainCameraBlueprint(IComponentRegistry componentRegistry)
     {
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.MainCamera;
@@ -27,7 +30,7 @@ public class MainCameraBlueprint : EntityBlueprint
         var cameraComponent = new CameraComponent();
         var cameraData = new CameraDataComponent();
         {
-            cameraData.ProjectionType = EnumTypes.ProjectionType.Perspective;
+            cameraData.ProjectionType = ProjectionType.Perspective;
             cameraData.Fov = MathHelper.DegreesToRadians(60);
             cameraData.Target = new Vector3(0, 0, 0);
             cameraData.DistanceToTarget = Vector3.Distance(transformComponent.Position, cameraData.Target);

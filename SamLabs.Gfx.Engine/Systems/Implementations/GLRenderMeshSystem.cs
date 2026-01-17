@@ -59,8 +59,7 @@ public class GLRenderMeshSystem : RenderSystem
             MeshRenderer.Draw(mesh);
         else
         {
-            using var renderContext = MeshRenderer.Begin(mesh).Faces().Edges();
-            renderContext.Vertices();
+            using var renderContext = MeshRenderer.Begin(mesh).Faces(); //.Edges().Vertices();
         }
 
 

@@ -12,10 +12,12 @@ namespace SamLabs.Gfx.Engine.Entities.Blueprints;
 public class MainGridBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
+    private readonly IComponentRegistry _componentRegistry;
 
-    public MainGridBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry) : base(componentRegistry)
+    public MainGridBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
+        _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.MainGrid;

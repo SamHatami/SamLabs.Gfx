@@ -101,7 +101,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Sketch\" />
     <Folder Include="Components\Tools\" />
     <Folder Include="Components\VisualAids\" />
   </ItemGroup>

@@ -18,7 +18,14 @@ void main()
         baseColor = vec3(0.4, 0.4, 0.9);
 
     if(uIsHovered == 1)
-    {  baseColor = vec3(0.5, 0.9, 0.5); }
-    
-    FragColor = vec4(baseColor * diff, 1.0);
+    {
+        baseColor = vec3(0.25, 0.25, 1.0);
+
+        vec3 litColor = baseColor * (diff * 0.8 + 0.4);
+        FragColor = vec4(litColor, 1.0);
+    }
+    else
+    {
+        FragColor = vec4(baseColor * diff, 1.0);
+    }
 }

@@ -25,7 +25,20 @@ public struct Plane
         Bitangent = Vector3.Normalize(Vector3.Cross(Normal, Tangent));
     }
 
+    public static Plane From3Points(Vector3 p1, Vector3 p2, Vector3 p3)
+    {
+        var v1 = p2 - p1;
+        var v2 = p3 - p1;
+        var normal = Vector3.Cross(v1, v2);
+        return new Plane(p1, normal);
+    }
 
+    public static Plane From2Lines(Vector3 p1, Vector3 d1, Vector3 p2, Vector3 d2)
+    {
+        var normal = Vector3.Cross(d1, d2);
+        // We use p1 as origin. If lines don't cross, this is still a plane containing first line and parallel to second.
+        return new Plane(p1, normal);
+    }
 }
 
 public static class PlaneExtensions
