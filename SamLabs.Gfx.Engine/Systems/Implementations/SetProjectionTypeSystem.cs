@@ -2,6 +2,7 @@
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -25,7 +26,7 @@ public class SetProjectionTypeSystem : UpdateSystem
 
     public override void Update(FrameInput frameInput)
     {
-        var cameraEntityId = _query.First(_query.With<CameraComponent>());
+        var cameraEntityId = _query.With<CameraComponent>().First();
 
         if (cameraEntityId == -1) return;
 

@@ -2,15 +2,16 @@
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Components.Flags;
+using SamLabs.Gfx.Engine.Components.Flags.GL;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Core.Utility;
+using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 
 // Need this for the flag
 
-namespace SamLabs.Gfx.Engine.Entities.Blueprints.Manipulators;
+namespace SamLabs.Gfx.Engine.Blueprints.Manipulators;
 
 public class TranslateManipulatorBlueprint:EntityBlueprint
 {

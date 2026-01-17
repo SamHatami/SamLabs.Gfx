@@ -21,6 +21,7 @@ public class CreateManipulatorsCommand: InternalCommand //InternalCommand or Hid
             _entityFactory.CreateFromBlueprint(EntityNames.TranslateManipulator);
             _entityFactory.CreateFromBlueprint(EntityNames.RotateManipulator);
             _entityFactory.CreateFromBlueprint(EntityNames.ScaleManipulator);
+            _entityFactory.CreateFromBlueprint(EntityNames.DragManipulator);
         }
         catch (Exception e)
         {

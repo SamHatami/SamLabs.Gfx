@@ -103,6 +103,47 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        
+        CalculateFps();
+        
+        if(Idle()) return;
+        CommandManager.ProcessAllCommands();
+
+        //Process commands
+        _width = width;
+        _height = height;
+
+        var frameInput = CaptureFrameInput();
+        var t1 = _frameTimer.Elapsed.TotalMilliseconds;
+    
+        _systemScheduler.Update(frameInput);
+        var t2 = _frameTimer.Elapsed.TotalMilliseconds;
+    
+        _systemScheduler.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
+        var t3 = _frameTimer.Elapsed.TotalMilliseconds;
+    
+        var totalTime = _frameTimer.Elapsed.TotalMilliseconds;
+        var timeSinceLastFrame = totalTime - _lastFrameTime;
+    
+        // Log when frame time varies significantly
+        if (timeSinceLastFrame > 18.0) 
+        {
+            Debug.WriteLine($"Dropped Frame! Took {timeSinceLastFrame:F2}ms");
+        }
+
+        _lastFrameTime = totalTime;
+        ClearInputData();
+        RequestNextFrameRendering();
+        base.OpenTkRender(mainScreenFrameBuffer, width, height);
+    }
+
+    private bool Idle()
+    {
+        return false;
+    }
+
+    private void CalculateFps()
+    {
         _lastRenderTime = DateTime.Now;
         _frameCount++;
         DateTime currentTime = DateTime.Now;
@@ -123,35 +164,6 @@ public class EditorControl : OpenTkControlBase
         }
 
         _frameTimer.Restart();
-        CommandManager.ProcessAllCommands();
-
-        //Process commands
-        _width = width;
-        _height = height;
-
-        var frameInput = CaptureFrameInput();
-        var t1 = _frameTimer.Elapsed.TotalMilliseconds;
-    
-        _systemScheduler.Update(frameInput);
-        var t2 = _frameTimer.Elapsed.TotalMilliseconds;
-    
-        _systemScheduler.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
-        var t3 = _frameTimer.Elapsed.TotalMilliseconds;
-    
-        ClearInputData();
-    
-        var totalTime = _frameTimer.Elapsed.TotalMilliseconds;
-        var timeSinceLastFrame = totalTime - _lastFrameTime;
-    
-        // Log when frame time varies significantly
-        if (timeSinceLastFrame > 18.0) 
-        {
-            Debug.WriteLine($"Dropped Frame! Took {timeSinceLastFrame:F2}ms");
-        }
-
-        _lastFrameTime = totalTime;
-        ClearInputData();
-        base.OpenTkRender(mainScreenFrameBuffer, width, height);
     }
 
     private RenderContext CaptureRenderContext(int mainScreenFrameBuffer)

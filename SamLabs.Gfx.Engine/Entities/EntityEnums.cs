@@ -4,5 +4,6 @@ public enum ManipulatorType
 {
     Translate,
     Rotate,
-    Scale
+    Scale,
+    Drag
 }

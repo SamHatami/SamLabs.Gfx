@@ -1,5 +1,6 @@
 using System;
 using SamLabs.Gfx.Engine.Components;
+using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Core;
 
 namespace SamLabs.Gfx.Engine.Entities;
@@ -62,7 +63,24 @@ public class EntityQueryService
         }
         return _queryBuffer.AsSpan(0, count);
     }
+    
+    public int GetDragManipulator()
+    {
+        var manipulators = _components.GetEntityIdsForComponentType<ManipulatorComponent>();
+        if(manipulators.IsEmpty) return -1;
 
-    public int First(ReadOnlySpan<int> entities) => entities.IsEmpty ? -1 : entities[0];
+        var dragManipulator = -1;
+        foreach (var manipulator in manipulators)
+        {
+            var manipulatorComponent = _components.GetComponent<ManipulatorComponent>(manipulator);
+            
+            if(manipulatorComponent.Type != ManipulatorType.Drag) continue;
+            
+            dragManipulator = manipulator;
+        }
+        
+        return dragManipulator;
+    }
+
 }
 

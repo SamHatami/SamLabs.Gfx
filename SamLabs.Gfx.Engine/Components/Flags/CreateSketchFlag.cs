@@ -2,4 +2,5 @@
 
 public struct CreateSketchFlag : IComponent
 {
+    
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering.Utility;
@@ -44,34 +44,36 @@ public class TranslateToolStrategy : ITransformToolStrategy
         _lastHitPoint = Vector3.Zero;
     }
 
-    private Vector3 GetTransformDelta(FrameInput frameInput, TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild)
+    private Vector3 GetTransformDelta(FrameInput frameInput, TransformComponent manipulatorTransform,
+        ManipulatorChildComponent manipulatorChild)
     {
-        var cameraId = _query.First(_query.With<CameraComponent>());
+        var cameraId = _query.With<CameraComponent>().First();
         if (cameraId == -1) return Vector3.Zero;
 
         //Get cameraData (still only one camera)
         ref var cameraData = ref _componentRegistry.GetComponent<CameraDataComponent>(cameraId);
         ref var cameraTransform = ref _componentRegistry.GetComponent<TransformComponent>(cameraId);
         var cameraDir = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
-        
+
         //Cast ray from camera to plane perpendicualar to camera foward direction, with origin at manipulator position
         var mouseRay =
             cameraData.ScreenPointToWorldRay(
                 new Vector2((float)frameInput.MousePosition.X, (float)frameInput.MousePosition.Y),
                 frameInput.ViewportSize);
-        
-        var projectionPlane = new Plane(manipulatorTransform.Position,cameraDir);
+
+        var projectionPlane = new Plane(manipulatorTransform.Position, cameraDir);
 
         if (!projectionPlane.RayCast(mouseRay, out var hit))
             return Vector3.Zero;
 
         var currentHitPoint = mouseRay.GetPoint(hit);
-    
+
         if (_lastHitPoint == Vector3.Zero)
         {
             _lastHitPoint = currentHitPoint;
-            return Vector3.Zero; 
+            return Vector3.Zero;
         }
+
         //Filter results and return
         var delta = currentHitPoint - _lastHitPoint;
         var transformDelta = ConstrainedTransform(delta, manipulatorChild.Axis);

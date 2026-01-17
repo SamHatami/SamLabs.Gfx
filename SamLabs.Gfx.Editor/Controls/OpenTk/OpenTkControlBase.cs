@@ -50,7 +50,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         }
 
         //Schedule next UI update with avalonia
-        Dispatcher.UIThread.Post(_nextFrameAction, DispatcherPriority.MaxValue);
+        // Dispatcher.UIThread.Post(_nextFrameAction, DispatcherPriority.MaxValue);
         
     }
     

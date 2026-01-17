@@ -138,6 +138,10 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uManipulatorAxis, typeof(Vector3));
         UniformInfo.Add(UniformNames.uPickingType, typeof(int));
         UniformInfo.Add(UniformNames.uVertexRenderSize, typeof(int));
+        UniformInfo.Add(UniformNames.uGridSize, typeof(int));
+        UniformInfo.Add(UniformNames.uGridColor, typeof(Vector3));
+        UniformInfo.Add(UniformNames.uGridLineSize, typeof(int));
+        UniformInfo.Add(UniformNames.uTextureCoordinate, typeof(Vector2));
         
     }
 }
@@ -147,6 +151,7 @@ public static class UniformNames
     public const string uModel = "uModel";
     public const string uView = "uView";
     public const string uProj = "uProj";
+    public const string uTextureCoordinate = "uTextureCoordinate";
     public const string uColor = "uColor";
     public const string uPickingColor = "uPickingColor";
     public const string uPickingId = "uPickingId";
@@ -161,4 +166,7 @@ public static class UniformNames
     public const string uManipulatorAxis = "uManipulatorAxis";
     public const string uPickingType = "uPickingType";
     public const string uVertexRenderSize = "uVertexRenderSize";
+    public const string uGridSize = "uGridSize";
+    public const string uGridColor = "uGridColor";
+    public const string uGridLineSize = "uGridLineSize";
 }

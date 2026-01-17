@@ -77,6 +77,7 @@
                 <Button Command="{Binding AddBox}"  >
                     <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform"/>
                 </Button>
+                <Button Command="{Binding AddPlane}" Content="P"/>
             </StackPanel>
         </Border>
 

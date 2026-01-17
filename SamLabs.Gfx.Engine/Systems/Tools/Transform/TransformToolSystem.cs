@@ -4,6 +4,7 @@ using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -43,7 +44,7 @@ public class TransformToolSystem : UpdateSystem
 
     public override void Update(FrameInput frameInput)
     {
-        var activeManipulator = _query.First(_query.With<ActiveManipulatorComponent>());
+        var activeManipulator = _query.With<ActiveManipulatorComponent>().First();
         if (activeManipulator == -1) return;
 
         var selectedEntities = _query.AndWith<TransformComponent>(_query.With<SelectedComponent>());

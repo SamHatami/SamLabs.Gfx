@@ -10,7 +10,6 @@ public static class MeshUtils
     //https://every-algorithm.github.io/2024/03/06/newells_algorithm.html#:~:text=Newell%E2%80%99s%20algorithm%20is%20a%20straightforward%20method%20for%20computing,correspond%20to%20the%20components%20of%20the%20desired%20normal.
     public static Vector3 CalculateFaceNormal(List<Vertex> meshVertices, int[] faceIndices)
     {
-        // 1. If it's a simple triangle, the cross product is faster and exact.
         if (faceIndices.Length == 3)
         {
             var p0 = meshVertices[faceIndices[0]].Position;
@@ -19,8 +18,6 @@ public static class MeshUtils
             return Vector3.Normalize(Vector3.Cross(p1 - p0, p2 - p0));
         }
 
-        // 2. For Quads and N-Gons, use Newell's Method.
-        // This handles "bent" faces by averaging the normal across all edges.
         float x = 0;
         float y = 0;
         float z = 0;
@@ -74,18 +71,12 @@ public static class MeshUtils
     
     public static int[] TriangulateFace(int[] polygonIndices)
     {
-        // 1. If it's already a triangle, just return it.
         if (polygonIndices.Length == 3) return polygonIndices;
 
-        // 2. If it's a Quad (4) or N-Gon (5+), split it into triangles.
-        // We use a "Triangle Fan" approach anchored at Index 0.
-        // N-Gon with V vertices = (V-2) Triangles.
-    
         var triangleIndices = new List<int>();
     
-        for (int i = 0; i < polygonIndices.Length - 2; i++)
+        for (var i = 0; i < polygonIndices.Length - 2; i++)
         {
-            // Triangle is: Anchor, Current, Next
             triangleIndices.Add(polygonIndices[0]);
             triangleIndices.Add(polygonIndices[i + 1]);
             triangleIndices.Add(polygonIndices[i + 2]);

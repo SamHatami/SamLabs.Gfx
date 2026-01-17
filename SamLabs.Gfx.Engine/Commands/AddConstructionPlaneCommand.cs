@@ -9,14 +9,12 @@ public class AddConstructionPlaneCommand : Command
 {
     private readonly EntityFactory _entityFactory;
     private readonly IComponentRegistry _componentRegistry;
-    private readonly Plane _plane;
     private int _entityId = -1;
 
-    public AddConstructionPlaneCommand(EntityFactory entityFactory, IComponentRegistry componentRegistry, Plane plane)
+    public AddConstructionPlaneCommand(EntityFactory entityFactory, IComponentRegistry componentRegistry)
     {
         _entityFactory = entityFactory;
         _componentRegistry = componentRegistry;
-        _plane = plane;
     }
 
     public override void Execute()

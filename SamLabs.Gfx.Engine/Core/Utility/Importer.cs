@@ -115,15 +115,14 @@ public static class ModelLoader
                 combinedVertices.Add(new Vertex(position, normal, uv));
             }
 
-
             //Faces
-            for (int i = 0; i < mesh.FaceCount; i++)
+            for (var i = 0; i < mesh.FaceCount; i++)
             {
                 var surface = mesh.Faces[i];
                 var localSurfaceIndices = surface.Indices.ToArray();
 
                 var globalIndices = new int[localSurfaceIndices.Length];
-                for (int j = 0; j < localSurfaceIndices.Length; j++)
+                for (var j = 0; j < localSurfaceIndices.Length; j++)
                 {
                     globalIndices[j] = localSurfaceIndices[j] + vertexOffset;
                 }

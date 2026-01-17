@@ -19,6 +19,7 @@ public class CommandsModule : IServiceModule
     {
         //Creational commands
         services.AddTransient<AddBoxCommand>();
+        services.AddTransient<AddConstructionPlaneCommand>();
         services.AddTransient<AddImportedFileCommand>();
 
         //Modification commands

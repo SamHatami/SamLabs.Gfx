@@ -2,6 +2,7 @@
 
 namespace SamLabs.Gfx.Geometry;
 
+//This is a helper struct for raycasting and creating construction planes
 public struct Plane
 {
     public Vector3 Origin { get; }

@@ -9,6 +9,7 @@ namespace SamLabs.Gfx.Engine.Systems.Abstractions;
 
 public abstract class UpdateSystem
 {
+    //TODO: Remove base class constructor, systemsscheduler handles the construction during registration
     protected readonly EntityRegistry EntityRegistry;
     protected readonly CommandManager CommandManager;
     protected readonly EditorEvents EditorEvents;

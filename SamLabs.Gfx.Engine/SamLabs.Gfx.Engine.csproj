@@ -89,6 +89,12 @@
     <None Remove="Models\Rotate.mtl" />
     <None Remove="Models\ScalePlane.mtl" />
     <None Remove="Models\ScaleArrow.mtl" />
+    <None Update="Rendering\Shaders\construction.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Rendering\Shaders\construction.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

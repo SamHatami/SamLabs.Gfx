@@ -33,6 +33,7 @@ public class ToggleManipulatorCommand : InternalCommand
             ManipulatorType.Translate => _translateManipulatorId,
             ManipulatorType.Rotate => _rotateManipulatorId,
             ManipulatorType.Scale => _scaleManipulatorId,
+            //Drag manipulator is not activated from the UI as a single manipulator, usually activated by another command 
             _ => -1
         };
 
@@ -58,7 +59,7 @@ public class ToggleManipulatorCommand : InternalCommand
 
     private void GetManipulatorIds()
     {
-        if (_translateManipulatorId != -1 && _scaleManipulatorId != -1 && _rotateManipulatorId != -1) return;
+        if (_translateManipulatorId != -1 && _scaleManipulatorId != -1 && _rotateManipulatorId != -1 ) return;
         var manipulators = _componentRegistry.GetEntityIdsForComponentType<ManipulatorComponent>();
 
         foreach (var manipulatorEntity in manipulators)
@@ -75,6 +76,7 @@ public class ToggleManipulatorCommand : InternalCommand
                 case ManipulatorType.Scale:
                     _scaleManipulatorId = manipulatorEntity;
                     break;
+
             }
         }
     }

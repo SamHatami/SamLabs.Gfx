@@ -73,6 +73,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public void ToggleTranslateManipulators() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Translate, _componentRegistry));
     public void ToggleRotateManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Rotate, _componentRegistry));
     public void ToggleScaleManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Scale, _componentRegistry));
+    public void AddPlane() => CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));
 
     public void UndoCommand() => CommandManager.UndoLatestCommand();
     public void RedoCommand() => CommandManager.RedoLatestCommand();

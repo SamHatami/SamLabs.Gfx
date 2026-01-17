@@ -6,7 +6,7 @@ namespace SamLabs.Gfx.Engine.Components.Common;
 /// </summary>
 public struct MeshDataComponent: IComponent
 {
-    public Vertex[] Vertices { get; set; }
+    public Vertex[] Vertices { get; set; } 
     public Edge[] Edges { get; set; }
     public Face[] Faces { get; set; }
     

@@ -3,6 +3,7 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -118,10 +119,9 @@ public class SelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var pickingEntity = _query.With<PickingDataComponent>();
-        var id = _query.First(pickingEntity);
-        if (id == -1) return; //hmm
-        _pickingEntity = id;
+        var pickingEntityId = _query.With<PickingDataComponent>().First();
+        if (pickingEntityId == -1) return; //hmm
+        _pickingEntity = pickingEntityId;
     }
 
     private void SetNewSelection(int[] entityIds)

@@ -37,10 +37,9 @@ public class CreateSketchCommand : Command
     public override void Undo()
     {
         // Unlink plane
-        if (_componentRegistry.HasComponent<ConstructionPlaneDataComponent>(_constructionPlaneEntityId))
+        if (_componentRegistry.HasComponent<PlaneDataComponent>(_constructionPlaneEntityId))
         {
-            ref var planeData = ref _componentRegistry.GetComponent<ConstructionPlaneDataComponent>(_constructionPlaneEntityId);
-            planeData.SketchEntityId = null;
+            ref var planeData = ref _componentRegistry.GetComponent<PlaneDataComponent>(_constructionPlaneEntityId);
         }
         
         _componentRegistry.RemoveEntity(_sketchEntityId);

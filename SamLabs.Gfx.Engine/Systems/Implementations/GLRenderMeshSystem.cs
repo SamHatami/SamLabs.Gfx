@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
+using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
@@ -12,16 +13,21 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations;
 
 public class GLRenderMeshSystem : RenderSystem
 {
+    private readonly EntityQueryService _query;
     public override int SystemPosition => SystemOrders.MainRender;
 
-    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
+    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, componentRegistry)
     {
+        _query = query;
     }
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
         //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
-        var meshEntities = ComponentRegistry.GetEntityIdsForComponentType<GlMeshDataComponent>();
+        var renderableEntities = _query.With<GlMeshDataComponent>();
+        var renderableEntities_2 = _query.Without<ManipulatorComponent>(renderableEntities); 
+        var meshEntities = _query.Without<ManipulatorChildComponent>(renderableEntities_2); 
+        
         if (meshEntities.Length == 0) return;
         
         var pickingEntity = ComponentRegistry.GetEntityIdsForComponentType<PickingDataComponent>();
