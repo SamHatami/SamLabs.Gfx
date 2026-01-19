@@ -14,7 +14,15 @@ public class ShaderProgram : IDisposable
     
     public ShaderProgram Use()
     {
-        GL.UseProgram(_shader.ProgramId);
+        
+        try
+        {
+            GL.UseProgram(_shader.ProgramId);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
         return this;
     }
     
@@ -50,6 +58,14 @@ public class ShaderProgram : IDisposable
     {
         if (_shader.UniformLocations.TryGetValue(name, out var uniform))
             GL.Uniform3f(uniform.Location, 1, ref value);
+        
+        return this;
+    }
+    
+    public ShaderProgram SetVector2(string name, Vector2 value)
+    {
+        if (_shader.UniformLocations.TryGetValue(name, out var uniform))
+            GL.Uniform2f(uniform.Location, 1, ref value);
         
         return this;
     }

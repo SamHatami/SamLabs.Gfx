@@ -19,7 +19,7 @@ public class SelectionSystem : UpdateSystem
     public override int SystemPosition => SystemOrders.SelectionUpdate;
     private PickingDataComponent _pickingData;
     private int _pickingEntity = -1;
-    private int[] _currentSelection;
+    private int[] _currentSelection = System.Array.Empty<int>();
     private bool _isManipulatorDragging;
     
     public SelectionSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
@@ -44,8 +44,17 @@ public class SelectionSystem : UpdateSystem
 
         if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
         {
+            // The click-out cancellation used to clear selection when the user clicked on empty space.
+            // We keep the code here as a commented option so it can be re-enabled by the user in future.
+            /*
             if (_pickingData.NothingHovered()) //Clear if clicked outside any selectable, add esc key to clear
+            {
                 ClearSelection(validEntities);
+                DisableActiveManipulators();
+                EditorEvents.PublishSelectionCleared(new Core.SelectionClearedArgs(validEntities));
+                return;
+            }
+            */
             if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(_pickingData.HoveredEntityId))
                 return;
 
@@ -53,7 +62,11 @@ public class SelectionSystem : UpdateSystem
         }
 
         if (frameInput.Cancellation)
+        {
             ClearSelection(validEntities);
+            DisableActiveManipulators();
+            EditorEvents.PublishSelectionCleared(new Core.SelectionClearedArgs(validEntities));
+        }
 
         //attach manipulators to selected entities if there is an active manipulator
         AttachToManipulator(_pickingData.SelectedEntityIds);
@@ -160,5 +173,16 @@ public class SelectionSystem : UpdateSystem
 
         foreach (var entity in earlierSelection)
             ComponentRegistry.RemoveComponentFromEntity<SelectedComponent>(entity);
+    }
+
+    private void DisableActiveManipulators()
+    {
+        var activeManipulators = _query.With<ActiveManipulatorComponent>();
+        if (activeManipulators.IsEmpty) return;
+
+        foreach (var manipulatorEntity in activeManipulators)
+        {
+            ComponentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(manipulatorEntity);
+        }
     }
 }

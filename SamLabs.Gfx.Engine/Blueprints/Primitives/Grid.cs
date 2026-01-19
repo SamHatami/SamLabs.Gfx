@@ -2,7 +2,7 @@ using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Engine.Rendering.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Entities.Primitives;
+namespace SamLabs.Gfx.Engine.Blueprints.Primitives;
 
 public class Grid : IGrid
 {

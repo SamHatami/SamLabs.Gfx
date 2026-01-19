@@ -1,8 +1,5 @@
 ﻿using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Entities.Blueprints;
-using SamLabs.Gfx.Engine.Entities.Blueprints.Manipulators;
-using SamLabs.Gfx.Engine.Entities.Primitives;
 using SamLabs.Gfx.Engine.Blueprints.Construction;
 using SamLabs.Gfx.Engine.Rendering.Abstractions;
 using SamLabs.Gfx.Engine.Rendering.Engine;

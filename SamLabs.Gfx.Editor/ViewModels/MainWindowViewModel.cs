@@ -2,11 +2,11 @@
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SamLabs.Gfx.Engine.Blueprints.Primitives;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Entities.Primitives;
 using SamLabs.Gfx.Engine.SceneGraph;
 
 namespace SamLabs.Gfx.Editor.ViewModels;

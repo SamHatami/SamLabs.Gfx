@@ -4,11 +4,12 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags;
 using SamLabs.Gfx.Engine.Components.Flags.GL;
+using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Geometry.Mesh;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
-namespace SamLabs.Gfx.Engine.Entities.Blueprints;
+namespace SamLabs.Gfx.Engine.Blueprints;
 
 public class MainGridBlueprint : EntityBlueprint
 {

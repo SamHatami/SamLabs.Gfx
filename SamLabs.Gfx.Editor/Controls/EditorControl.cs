@@ -8,6 +8,7 @@ using OpenTK.Mathematics;
 using SamLabs.Gfx.Editor.Controls.OpenTk;
 using SamLabs.Gfx.Editor.ViewModels;
 using SamLabs.Gfx.Engine.Commands;
+using SamLabs.Gfx.Engine.Commands.Internal;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering.Abstractions;
@@ -239,6 +240,7 @@ public class EditorControl : OpenTkControlBase
         _resizeRequested = false;
         _leftClickOccured  = false;
         _mouseWheelDelta = 0;
+        _keyUp = Key.None; // reset key-up so Cancellation is only true for single frame
     }
 
     protected override void InitializeOpenTk()
@@ -277,6 +279,7 @@ public class EditorControl : OpenTkControlBase
     protected override void OnKeyUp(KeyEventArgs e)
     {
         NotifyActivity();
+        _keyUp = e.Key; // capture key-up so the frame input can detect Escape release
         if(_keyDown == e.Key)
             _keyDown = Key.None;
         base.OnKeyUp(e);
@@ -361,3 +364,4 @@ public class EditorControl : OpenTkControlBase
         }
     }
 }
+

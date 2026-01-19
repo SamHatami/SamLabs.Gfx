@@ -11,7 +11,7 @@ public struct PickingDataComponent :IComponent
         HoveredEntityType = EntityType.Manipulator;
         HoveredType = SelectionType.None;
         SelectedManipulatorId = -1;
-        SelectedEntityIds = [];
+        SelectedEntityIds = System.Array.Empty<int>();
     }
 
     public SelectionType HoveredType { get; set; }
@@ -34,12 +34,8 @@ public struct PickingDataComponent :IComponent
 
 public static class PickingDataComponentExtensions
 {
-    extension(PickingDataComponent pickingData)
-    {
-        public bool IsSelectionEmpty() => pickingData.SelectedEntityIds.Length == 0;
-        public bool NothingHovered() => pickingData.HoveredEntityId == 0;
-        
-        public bool ManipulatorHovered() => pickingData.HoveredEntityType == EntityType.Manipulator;
-        public bool ManipualtorSelected() => pickingData.SelectedManipulatorId >= 0;
-    }
+    public static bool IsSelectionEmpty(this PickingDataComponent pickingData) => pickingData.SelectedEntityIds.Length == 0;
+    public static bool NothingHovered(this PickingDataComponent pickingData) => pickingData.HoveredEntityId < 0;
+    public static bool ManipulatorHovered(this PickingDataComponent pickingData) => pickingData.HoveredEntityType == EntityType.Manipulator;
+    public static bool ManipualtorSelected(this PickingDataComponent pickingData) => pickingData.SelectedManipulatorId >= 0;
 }

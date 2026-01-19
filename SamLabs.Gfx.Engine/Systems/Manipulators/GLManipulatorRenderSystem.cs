@@ -33,6 +33,8 @@ public class GLManipulatorRenderSystem : RenderSystem
         var pickingEntity = ComponentRegistry.GetEntityIdsForComponentType<PickingDataComponent>()[0];
         var pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity);
 
+        if(pickingData.IsSelectionEmpty()) return;
+        
         var activemanipulator = ComponentRegistry.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
         if (activemanipulator.IsEmpty) return;
         if (activemanipulator.Length > 1) return; //Only one manipulator can be active at a time.

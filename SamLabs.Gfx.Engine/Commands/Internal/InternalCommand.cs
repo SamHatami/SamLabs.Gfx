@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Engine.Commands;
+﻿namespace SamLabs.Gfx.Engine.Commands.Internal;
 
 public abstract class InternalCommand : ICommand
 {

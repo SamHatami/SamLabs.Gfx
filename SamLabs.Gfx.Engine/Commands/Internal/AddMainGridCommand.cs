@@ -1,6 +1,6 @@
 ﻿using SamLabs.Gfx.Engine.Entities;
 
-namespace SamLabs.Gfx.Engine.Commands;
+namespace SamLabs.Gfx.Engine.Commands.Internal;
 
 public class AddMainGridCommand: InternalCommand //InternalCommand or HiddenCommand?
 {

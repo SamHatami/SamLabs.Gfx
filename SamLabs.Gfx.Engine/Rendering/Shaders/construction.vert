@@ -1,5 +1,7 @@
 #version 330 core
 layout(location = 0) in vec3 aPos;
+layout(location = 2) in vec2 aTexCoord;
+out vec2 TexCoord;
 uniform mat4 uModel;
 layout(std140) uniform ViewProjection
 {
@@ -7,9 +9,10 @@ layout(std140) uniform ViewProjection
     mat4 projection;
 };
 
+
 void main()
 {
+    TexCoord = aTexCoord;
     vec4 worldPosition = uModel * vec4(aPos, 1.0);
-    gl_Position = projection *view * worldPosition;
+    gl_Position = projection * view * worldPosition;
 }
-

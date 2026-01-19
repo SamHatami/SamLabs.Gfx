@@ -1,6 +1,7 @@
 ﻿using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Construction;
+using SamLabs.Gfx.Engine.Components.Flags;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;

@@ -15,6 +15,9 @@ public class EditorEvents
 
     public event EventHandler<TransformUpdatingArgs>? TransformUpdating;
 
+    // New selection cleared event
+    public event EventHandler<SelectionClearedArgs>? SelectionCleared;
+
     public void OnEntityAdded(Entity e) => EntityAdded?.Invoke(this, e);
 
     protected virtual void OnEntityRemoved(Entity e) => EntityRemoved?.Invoke(this, e);
@@ -28,6 +31,12 @@ public class EditorEvents
     protected virtual void OnSelectedEntityAdded(Entity e) => SelectedEntityAdded?.Invoke(this, e);
 
     protected virtual void OnTransformUpdating(TransformUpdatingArgs e) => TransformUpdating?.Invoke(this, e);
+
+    // Protected invoker - for overrides
+    protected virtual void OnSelectionCleared(SelectionClearedArgs e) => SelectionCleared?.Invoke(this, e);
+
+    // Public publisher so systems and other parts can raise the selection cleared event
+    public void PublishSelectionCleared(SelectionClearedArgs e) => SelectionCleared?.Invoke(this, e);
 }
 
 public class TransformUpdatingArgs : EventArgs
@@ -40,5 +49,15 @@ public class TransformUpdatingArgs : EventArgs
     {
         Transform = transform;
         Entity = entity;
+    }
+}
+
+public class SelectionClearedArgs : EventArgs
+{
+    public int[] ClearedEntityIds { get; }
+
+    public SelectionClearedArgs(int[] clearedEntityIds)
+    {
+        ClearedEntityIds = clearedEntityIds ?? System.Array.Empty<int>();
     }
 }

@@ -19,6 +19,9 @@ public class ManipulatorSelectionSystem : UpdateSystem
         editorEvents, componentRegistry)
     {
         _query = query;
+
+        // Subscribe to selection cleared events so manipulator-specific selection can be cleared
+        editorEvents.SelectionCleared += (s, e) => ClearPreviousSelection();
     }
 
     public override int SystemPosition => SystemOrders.ManipulatorSelectionUpdate;
@@ -35,6 +38,13 @@ public class ManipulatorSelectionSystem : UpdateSystem
         if (frameInput.IsMouseLeftButtonDown) //TODO: ctrl-click to do add to selection
         {
             if (pickingData.NothingHovered()) return;
+
+            if (frameInput.Cancellation)
+            {
+                // Clear manipulator selection on cancel
+                ClearPreviousSelection();
+                return;
+            }
 
             if (pickingData.HoveredEntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
                 ClearPreviousSelection();

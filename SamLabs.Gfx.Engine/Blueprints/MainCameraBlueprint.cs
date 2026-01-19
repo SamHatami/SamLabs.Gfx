@@ -1,11 +1,11 @@
-﻿﻿using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Core.Utility;
+using SamLabs.Gfx.Engine.Entities;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
-namespace SamLabs.Gfx.Engine.Entities.Blueprints;
+namespace SamLabs.Gfx.Engine.Blueprints;
 
 public class MainCameraBlueprint : EntityBlueprint
 {
