@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -8,6 +8,7 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.SceneGraph;
+using SamLabs.Gfx.Engine.Tools;
 
 namespace SamLabs.Gfx.Editor.ViewModels;
 
@@ -19,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public EngineContext EngineContext { get; }
     public CommandManager CommandManager { get; }
     public ISceneManager SceneManager { get; }
+    public ToolStateViewModel ToolStateViewModel { get; }
 
     [ObservableProperty] private int _objectId;
     private readonly EntityFactory _entityFactory;
@@ -26,15 +28,15 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _currentFpsString;
     private readonly IComponentRegistry _componentRegistry;
 
-    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager, EditorService editorService)
+    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager, EditorService editorService, ToolStateViewModel toolStateViewModel)
     {
         _editorService = editorService;
-        //use EditorService to convey the commands rather than directly using the commandmanager, the engineContext is needed for the editorcontrol
         EngineContext = engineContext;
         _entityFactory = engineContext.EntityFactory;
         _componentRegistry = engineContext.ComponentRegistry;
         CommandManager = commandManager;
         SceneManager = sceneManager;
+        ToolStateViewModel = toolStateViewModel;
 
         InitializeMainScene();
         
@@ -70,9 +72,32 @@ public partial class MainWindowViewModel : ViewModelBase
             _entityFactory));
     }
 
-    public void ToggleTranslateManipulators() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Translate, _componentRegistry));
-    public void ToggleRotateManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Rotate, _componentRegistry));
-    public void ToggleScaleManipulator() => CommandManager.EnqueueCommand(new ToggleManipulatorCommand(CommandManager, ManipulatorType.Scale, _componentRegistry));
+    public void ToggleTranslateManipulators()
+    {
+        var toolManager = EngineContext.ToolManager;
+        if (toolManager.ActiveTool?.ToolId == ToolIds.TransformTranslate)
+            toolManager.DeactivateCurrentTool();
+        else
+            toolManager.ActivateTool(ToolIds.TransformTranslate);
+    }
+    
+    public void ToggleRotateManipulator()
+    {
+        var toolManager = EngineContext.ToolManager;
+        if (toolManager.ActiveTool?.ToolId == ToolIds.TransformRotate)
+            toolManager.DeactivateCurrentTool();
+        else
+            toolManager.ActivateTool(ToolIds.TransformRotate);
+    }
+    
+    public void ToggleScaleManipulator()
+    {
+        var toolManager = EngineContext.ToolManager;
+        if (toolManager.ActiveTool?.ToolId == ToolIds.TransformScale)
+            toolManager.DeactivateCurrentTool();
+        else
+            toolManager.ActivateTool(ToolIds.TransformScale);
+    }
     public void AddPlane() => CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));
 
     public void UndoCommand() => CommandManager.UndoLatestCommand();

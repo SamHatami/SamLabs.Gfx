@@ -9,7 +9,7 @@ using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering.Utility;
 using SamLabs.Gfx.Geometry;
 
-namespace SamLabs.Gfx.Engine.Systems.Tools.Transform.Strategies;
+namespace SamLabs.Gfx.Engine.Tools.Transforms.Strategies;
 
 public class ScaleToolStrategy : ITransformToolStrategy
 {

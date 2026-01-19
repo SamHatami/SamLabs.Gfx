@@ -1,4 +1,4 @@
-﻿using SamLabs.Gfx.Engine.Components.Common;
+﻿﻿using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Entities;
 
 namespace SamLabs.Gfx.Engine.Core;
@@ -15,8 +15,11 @@ public class EditorEvents
 
     public event EventHandler<TransformUpdatingArgs>? TransformUpdating;
 
-    // New selection cleared event
     public event EventHandler<SelectionClearedArgs>? SelectionCleared;
+    
+    public event EventHandler<ToolEventArgs>? ToolActivated;
+    public event EventHandler<ToolEventArgs>? ToolDeactivated;
+    public event EventHandler<ToolDataUpdatedArgs>? ToolDataUpdated;
 
     public void OnEntityAdded(Entity e) => EntityAdded?.Invoke(this, e);
 
@@ -32,11 +35,13 @@ public class EditorEvents
 
     protected virtual void OnTransformUpdating(TransformUpdatingArgs e) => TransformUpdating?.Invoke(this, e);
 
-    // Protected invoker - for overrides
     protected virtual void OnSelectionCleared(SelectionClearedArgs e) => SelectionCleared?.Invoke(this, e);
 
-    // Public publisher so systems and other parts can raise the selection cleared event
     public void PublishSelectionCleared(SelectionClearedArgs e) => SelectionCleared?.Invoke(this, e);
+    
+    public void PublishToolActivated(ToolEventArgs e) => ToolActivated?.Invoke(this, e);
+    public void PublishToolDeactivated(ToolEventArgs e) => ToolDeactivated?.Invoke(this, e);
+    public void PublishToolDataUpdated(ToolDataUpdatedArgs e) => ToolDataUpdated?.Invoke(this, e);
 }
 
 public class TransformUpdatingArgs : EventArgs
@@ -61,3 +66,28 @@ public class SelectionClearedArgs : EventArgs
         ClearedEntityIds = clearedEntityIds ?? System.Array.Empty<int>();
     }
 }
+
+public class ToolEventArgs : EventArgs
+{
+    public string ToolId { get; }
+    public string ToolName { get; }
+
+    public ToolEventArgs(string toolId, string toolName)
+    {
+        ToolId = toolId;
+        ToolName = toolName;
+    }
+}
+
+public class ToolDataUpdatedArgs : EventArgs
+{
+    public string ToolId { get; }
+    public Dictionary<string, object> Data { get; }
+
+    public ToolDataUpdatedArgs(string toolId, Dictionary<string, object> data)
+    {
+        ToolId = toolId;
+        Data = data;
+    }
+}
+

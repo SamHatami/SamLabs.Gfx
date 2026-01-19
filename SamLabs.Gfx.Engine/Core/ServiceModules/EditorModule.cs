@@ -1,8 +1,9 @@
-﻿﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SamLabs.Gfx.Core.Framework;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Systems;
 using SamLabs.Gfx.Engine.Components;
+using SamLabs.Gfx.Engine.Tools;
 
 namespace SamLabs.Gfx.Engine.Core.ServiceModules;
 
@@ -26,7 +27,8 @@ public class EditorModule:IServiceModule
         
         services.AddSingleton<EditorEvents>();
         
-        // Component registry as singleton (implementation)
+        services.AddSingleton<ToolManager>();
+        
         services.AddSingleton<IComponentRegistry, ComponentRegistry>();
 
         // Entity query helper

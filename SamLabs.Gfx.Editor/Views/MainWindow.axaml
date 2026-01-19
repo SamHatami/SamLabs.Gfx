@@ -38,6 +38,12 @@
             EngineContext="{Binding EngineContext}"
             Focusable="True"
             SceneManager="{Binding SceneManager}" />
+        
+        <controls:ToolStatePanel 
+            DataContext="{Binding ToolStateViewModel}"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Stretch"/>
+        
         <Border
             BorderBrush="Black"
             BorderThickness="5"
