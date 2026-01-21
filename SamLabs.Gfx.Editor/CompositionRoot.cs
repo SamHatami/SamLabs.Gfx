@@ -35,7 +35,7 @@ public class CompositionRoot
     private void RegisterViewModels()
     {
         Services.AddTransient<MainWindowViewModel>();
-        Services.AddSingleton<ToolStateViewModel>();
+        Services.AddSingleton<TransformStateViewModel>();
     }
 
     private void RegisterLogger()

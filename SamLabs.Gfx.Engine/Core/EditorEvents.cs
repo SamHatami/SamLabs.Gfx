@@ -42,7 +42,10 @@ public class EditorEvents
     public void PublishToolActivated(ToolEventArgs e) => ToolActivated?.Invoke(this, e);
     public void PublishToolDeactivated(ToolEventArgs e) => ToolDeactivated?.Invoke(this, e);
     public void PublishToolDataUpdated(ToolDataUpdatedArgs e) => ToolDataUpdated?.Invoke(this, e);
+    
 }
+
+
 
 public class TransformUpdatingArgs : EventArgs
 {

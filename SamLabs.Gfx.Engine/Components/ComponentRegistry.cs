@@ -25,7 +25,7 @@ public class ComponentRegistry : IComponentRegistry
                 typeof(IComponent).IsAssignableFrom(t))
             .ToArray();
 
-        for (int i = 0; i < componentTypes.Length; i++)
+        for (var i = 0; i < componentTypes.Length; i++)
         {
             var componentType = componentTypes[i];
             try
@@ -103,7 +103,7 @@ public class ComponentRegistry : IComponentRegistry
     public ReadOnlySpan<int> GetChildEntitiesForParent(int parentId, Span<int> results)
     {
         var childrenEntities = _componentMaps[GetId<ParentIdComponent>()].GetUsageIds();
-        int childCount = 0;
+        var childCount = 0;
         foreach (var childId in childrenEntities)
             if (GetComponent<ParentIdComponent>(childId).ParentId == parentId)
                 results[childCount++] = childId;

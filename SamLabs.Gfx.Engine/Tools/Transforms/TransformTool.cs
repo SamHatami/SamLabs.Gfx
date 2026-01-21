@@ -94,6 +94,7 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
 
     public abstract void ProcessInput(FrameInput input);
     public abstract IToolUIDescriptor GetUIDescriptor();
+    public abstract void UpdateValues(double x, double y, double z);
 
     protected void SetState(ToolState newState)
     {

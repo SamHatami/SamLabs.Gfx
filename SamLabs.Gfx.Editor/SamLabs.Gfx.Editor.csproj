@@ -38,6 +38,7 @@
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.1-dev-02315" />
         <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.1" />
         <PackageReference Include="Svg.Skia" Version="3.4.0" />
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.9.3" />
     </ItemGroup>
 
     <ItemGroup>

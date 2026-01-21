@@ -179,8 +179,8 @@ public class EditorControl : OpenTkControlBase
     {
         _lastRenderTime = DateTime.Now;
         _frameCount++;
-        DateTime currentTime = DateTime.Now;
-        TimeSpan elapsedTime = currentTime - _lastUpdateTime;
+        var currentTime = DateTime.Now;
+        var elapsedTime = currentTime - _lastUpdateTime;
         if (elapsedTime.TotalSeconds >= FpsUpdateIntervalSeconds)
         {
             _currentFps = _frameCount / elapsedTime.TotalSeconds;
@@ -209,7 +209,7 @@ public class EditorControl : OpenTkControlBase
 
     private FrameInput CaptureFrameInput()
     {
-        Vector2 totalDelta = Vector2.Zero; // Initialize with OpenTK's zero vector
+        var totalDelta = Vector2.Zero; // Initialize with OpenTK's zero vector
 
         while (_pointerDeltas.TryDequeue(out var delta))
         {
@@ -265,6 +265,10 @@ public class EditorControl : OpenTkControlBase
         EngineContext.EditorEvents.SelectedEntityChanged += OnEditorEvent;
         EngineContext.EditorEvents.SelectedEntityAdded += OnEditorEvent;
         EngineContext.EditorEvents.TransformUpdating += OnEditorEvent;
+        
+        EngineContext.EditorEvents.ToolActivated += OnEditorEvent;
+        EngineContext.EditorEvents.ToolDeactivated += OnEditorEvent;
+        
     }
 
     private void OnEditorEvent<T>(object? sender, T e) => NotifyActivity();
@@ -361,6 +365,8 @@ public class EditorControl : OpenTkControlBase
             EngineContext.EditorEvents.SelectedEntityChanged -= OnEditorEvent;
             EngineContext.EditorEvents.SelectedEntityAdded -= OnEditorEvent;
             EngineContext.EditorEvents.TransformUpdating -= OnEditorEvent;
+            EngineContext.EditorEvents.ToolActivated -= OnEditorEvent;
+            EngineContext.EditorEvents.ToolDeactivated -= OnEditorEvent;
         }
     }
 }

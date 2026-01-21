@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -18,13 +18,33 @@ public class ScaleTool : TransformTool
     private Vector3 _currentScale = Vector3.One;
     private Vector3 _startScale = Vector3.One;
     private Vector3 _deltaScale = Vector3.Zero;
+    private bool _isRelativeMode = true;
     
     public override string ToolId => ToolIds.TransformScale;
     public override string DisplayName => "Scale";
     
-    public double CurrentX => _deltaScale.X;
-    public double CurrentY => _deltaScale.Y;
-    public double CurrentZ => _deltaScale.Z;
+    // Absolute scale
+    public double CurrentX => _currentScale.X;
+    public double CurrentY => _currentScale.Y;
+    public double CurrentZ => _currentScale.Z;
+    
+    // Delta scale
+    public double DeltaX => _deltaScale.X;
+    public double DeltaY => _deltaScale.Y;
+    public double DeltaZ => _deltaScale.Z;
+
+    public bool IsRelativeMode
+    {
+        get => _isRelativeMode;
+        set
+        {
+            if (_isRelativeMode != value)
+            {
+                _isRelativeMode = value;
+                OnPropertyChanged(nameof(IsRelativeMode));
+            }
+        }
+    }
 
     public ScaleTool(
         IComponentRegistry componentRegistry,
@@ -84,6 +104,13 @@ public class ScaleTool : TransformTool
                 
                 _currentScale = entityTransform.Scale;
                 _deltaScale = _currentScale - _startScale;
+                
+                OnPropertyChanged(nameof(CurrentX));
+                OnPropertyChanged(nameof(CurrentY));
+                OnPropertyChanged(nameof(CurrentZ));
+                OnPropertyChanged(nameof(DeltaX));
+                OnPropertyChanged(nameof(DeltaY));
+                OnPropertyChanged(nameof(DeltaZ));
             }
         }
 
@@ -99,6 +126,50 @@ public class ScaleTool : TransformTool
             SetState(ToolState.Active);
             
             _deltaScale = Vector3.Zero;
+            OnPropertyChanged(nameof(DeltaX));
+            OnPropertyChanged(nameof(DeltaY));
+            OnPropertyChanged(nameof(DeltaZ));
+        }
+    }
+
+    public override void UpdateValues(double x, double y, double z)
+    {
+        var selectedEntities = Query.AndWith<TransformComponent>(Query.With<SelectedComponent>());
+        if (selectedEntities.IsEmpty) return;
+
+        var entityId = selectedEntities[0];
+        ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);
+        var preChangeTransform = entityTransform;
+
+        // Always work with absolute scale for manual input
+        var newScale = new Vector3((float)x, (float)y, (float)z);
+
+        if (entityTransform.Scale != newScale)
+        {
+            entityTransform.Scale = newScale;
+            entityTransform.IsDirty = true;
+            entityTransform.WorldMatrix = entityTransform.LocalMatrix;
+            entityTransform.IsDirty = false;
+
+            _currentScale = entityTransform.Scale;
+            if (!_isTransforming)
+            {
+                _startScale = _currentScale;
+                _deltaScale = Vector3.Zero;
+            }
+            else
+            {
+                _deltaScale = _currentScale - _startScale;
+            }
+
+            CommandManager.AddUndoCommand(new TransformCommand(entityId, preChangeTransform, entityTransform, ComponentRegistry));
+
+            OnPropertyChanged(nameof(CurrentX));
+            OnPropertyChanged(nameof(CurrentY));
+            OnPropertyChanged(nameof(CurrentZ));
+            OnPropertyChanged(nameof(DeltaX));
+            OnPropertyChanged(nameof(DeltaY));
+            OnPropertyChanged(nameof(DeltaZ));
         }
     }
 
@@ -111,9 +182,13 @@ public class ScaleTool : TransformTool
             CurrentData = new Dictionary<string, object>
             {
                 ["Mode"] = "Scale",
-                ["X"] = _deltaScale.X,
-                ["Y"] = _deltaScale.Y,
-                ["Z"] = _deltaScale.Z
+                ["X"] = _currentScale.X,
+                ["Y"] = _currentScale.Y,
+                ["Z"] = _currentScale.Z,
+                ["DeltaX"] = _deltaScale.X,
+                ["DeltaY"] = _deltaScale.Y,
+                ["DeltaZ"] = _deltaScale.Z,
+                ["IsRelative"] = _isRelativeMode
             }
         };
     }

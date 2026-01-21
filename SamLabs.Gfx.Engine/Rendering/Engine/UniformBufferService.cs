@@ -27,7 +27,7 @@ public class UniformBufferService : IDisposable
 
     public void RegisterViewProjectionBuffer()
     {
-        for (int i = 0; i < BufferCount; i++)
+        for (var i = 0; i < BufferCount; i++)
         {
             _viewProjectionBuffers[i] = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffers[i]);
@@ -101,7 +101,7 @@ public class UniformBufferService : IDisposable
 
     public void Dispose()
     {
-        for (int i = 0; i < BufferCount; i++)
+        for (var i = 0; i < BufferCount; i++)
         {
             if (_viewProjectionBuffers[i] != 0)
             {

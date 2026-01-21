@@ -16,6 +16,7 @@ public class ToolManager
     public ToolManager(EditorEvents editorEvents, ILogger<ToolManager> logger)
     {
         _editorEvents = editorEvents;
+        _editorEvents.SelectionCleared += (_, _) => DeactivateCurrentTool();
         _logger = logger;
     }
 

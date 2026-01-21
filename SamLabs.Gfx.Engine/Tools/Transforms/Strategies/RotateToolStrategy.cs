@@ -28,11 +28,11 @@ public class RotateToolStrategy:ITransformToolStrategy
     {
 
         // 1. Get the rotation amount (angle) and the axis from input
-        float angle = GetRotateDelta(input, manipulatorTransform,  manipulatorChild, true); 
-        Vector3 axis = manipulatorChild.Axis.ToVector3(); // e.g., Vector3.UnitX
+        var angle = GetRotateDelta(input, manipulatorTransform,  manipulatorChild, true); 
+        var axis = manipulatorChild.Axis.ToVector3(); // e.g., Vector3.UnitX
 
         // 2. Create the Rotation Matrix for this frame's change
-        Matrix4 rotationDelta = Matrix4.CreateFromAxisAngle(axis, angle);
+        var rotationDelta = Matrix4.CreateFromAxisAngle(axis, angle);
 
         if (isGlobalMode)
         {
@@ -41,7 +41,7 @@ public class RotateToolStrategy:ITransformToolStrategy
             // but keep it at the same POSITION.
             
             // A. Extract Position
-            Vector3 pos = target.LocalMatrix.ExtractTranslation();
+            var pos = target.LocalMatrix.ExtractTranslation();
             
             // B. Remove Position (Move to Origin)
             target.LocalMatrix.Row3 = Vector4.UnitW; 

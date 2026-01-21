@@ -42,7 +42,7 @@ public class GLManipulatorRenderSystem : RenderSystem
         Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
         var subEntities = ComponentRegistry.GetChildEntitiesForParent(activemanipulator[0], childBuffer);
         var selectedmanipulators = _query.With<SelectedManipulatorChildComponent>();
-        bool isAnymanipulatorDragging = !selectedmanipulators.IsEmpty && frameInput.IsMouseLeftButtonDown;
+        var isAnymanipulatorDragging = !selectedmanipulators.IsEmpty && frameInput.IsMouseLeftButtonDown;
         
         DrawManipulator(activemanipulator[0], subEntities, pickingData, childBuffer, isAnymanipulatorDragging);
     }

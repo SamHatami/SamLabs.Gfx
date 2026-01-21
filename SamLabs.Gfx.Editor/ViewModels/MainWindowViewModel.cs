@@ -20,23 +20,25 @@ public partial class MainWindowViewModel : ViewModelBase
     public EngineContext EngineContext { get; }
     public CommandManager CommandManager { get; }
     public ISceneManager SceneManager { get; }
-    public ToolStateViewModel ToolStateViewModel { get; }
+    public TransformStateViewModel TransformStateViewModel { get; }
 
     [ObservableProperty] private int _objectId;
     private readonly EntityFactory _entityFactory;
 
     [ObservableProperty] private string _currentFpsString;
     private readonly IComponentRegistry _componentRegistry;
+    private readonly ToolManager _toolManager;
 
-    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager, EditorService editorService, ToolStateViewModel toolStateViewModel)
+    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager, EditorService editorService, TransformStateViewModel transformStateViewModel)
     {
         _editorService = editorService;
         EngineContext = engineContext;
+        _toolManager = engineContext.ToolManager;
         _entityFactory = engineContext.EntityFactory;
         _componentRegistry = engineContext.ComponentRegistry;
         CommandManager = commandManager;
         SceneManager = sceneManager;
-        ToolStateViewModel = toolStateViewModel;
+        TransformStateViewModel = transformStateViewModel; //this should just be the ActiveToolViewModel
 
         InitializeMainScene();
         
@@ -74,29 +76,26 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void ToggleTranslateManipulators()
     {
-        var toolManager = EngineContext.ToolManager;
-        if (toolManager.ActiveTool?.ToolId == ToolIds.TransformTranslate)
-            toolManager.DeactivateCurrentTool();
+        if (_toolManager.ActiveTool?.ToolId == ToolIds.TransformTranslate)
+            _toolManager.DeactivateCurrentTool();
         else
-            toolManager.ActivateTool(ToolIds.TransformTranslate);
+            _toolManager.ActivateTool(ToolIds.TransformTranslate);
     }
     
     public void ToggleRotateManipulator()
     {
-        var toolManager = EngineContext.ToolManager;
-        if (toolManager.ActiveTool?.ToolId == ToolIds.TransformRotate)
-            toolManager.DeactivateCurrentTool();
+        if (_toolManager.ActiveTool?.ToolId == ToolIds.TransformRotate)
+            _toolManager.DeactivateCurrentTool();
         else
-            toolManager.ActivateTool(ToolIds.TransformRotate);
+            _toolManager.ActivateTool(ToolIds.TransformRotate);
     }
     
     public void ToggleScaleManipulator()
     {
-        var toolManager = EngineContext.ToolManager;
-        if (toolManager.ActiveTool?.ToolId == ToolIds.TransformScale)
-            toolManager.DeactivateCurrentTool();
+        if (_toolManager.ActiveTool?.ToolId == ToolIds.TransformScale)
+            _toolManager.DeactivateCurrentTool();
         else
-            toolManager.ActivateTool(ToolIds.TransformScale);
+            _toolManager.ActivateTool(ToolIds.TransformScale);
     }
     public void AddPlane() => CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));
 

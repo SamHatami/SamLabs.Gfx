@@ -1,0 +1,114 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SamLabs.Gfx.Editor.Views.TransformStateView"
+             x:DataType="vm:TransformStateViewModel">
+
+    <Border Background="#2D2D30" 
+            BorderBrush="#3F3F46" 
+            BorderThickness="1"
+            CornerRadius="4"
+            IsVisible="{Binding IsToolActive}">
+        <StackPanel Orientation="Vertical" Spacing="0">
+            <!-- Draggable Title Bar -->
+            <Border x:Name="TitleBar"
+                    Background="#252526" 
+                    Padding="10,6"
+                    CornerRadius="4,4,0,0"
+                    Cursor="Hand">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Grip Icon -->
+                    <TextBlock Grid.Column="0"
+                               Text="⋮⋮" 
+                               Foreground="#888" 
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    
+                    <!-- Title -->
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ToolName}" 
+                               Foreground="White" 
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"/>
+                </Grid>
+            </Border>
+            
+            <!-- Content Area -->
+            <Border Padding="10">
+                <StackPanel Orientation="Vertical" Spacing="8">
+                    <!-- Absolute Values Section -->
+                    <Border BorderBrush="#3F3F46" BorderThickness="1" Padding="8,4" CornerRadius="3">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="X:" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBox Text="{Binding XValue, Mode=TwoWay,StringFormat={}{0:F3}}"
+                                 Width="70"
+                                 IsReadOnly="False"
+                                 Background="#3F3F46"
+                                 Foreground="White"
+                                 Watermark="0.000" />
+
+                        <TextBlock Text="Y:" Foreground="White" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   FontWeight="SemiBold" />
+                        <TextBox Text="{Binding YValue, Mode=TwoWay,StringFormat={}{0:F3}}"
+                                 Width="70"
+                                 IsReadOnly="False"
+                                 Background="#3F3F46"
+                                 Foreground="White"
+                                 Watermark="0.000" />
+
+                        <TextBlock Text="Z:" Foreground="White" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   FontWeight="SemiBold" />
+                        <TextBox Text="{Binding ZValue, Mode=TwoWay,StringFormat={}{0:F3}}"
+                                 Width="70"
+                                 IsReadOnly="False"
+                                 Background="#3F3F46"
+                                 Foreground="White"
+                                 Watermark="0.000" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Delta/Offset Values Section -->
+                <Border BorderBrush="#3F3F46" BorderThickness="1" Padding="8,4" CornerRadius="3">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock Text="ΔX:" Foreground="#888" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        <TextBox Text="{Binding DeltaX, Mode=TwoWay,StringFormat={}{0:F3}}"
+                                 Width="70"
+                                 IsReadOnly="False"
+                                 Background="#2A2A2A"
+                                 Foreground="#888"
+                                 BorderThickness="0" />
+
+                        <TextBlock Text="ΔY:" Foreground="#888" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   FontWeight="SemiBold" />
+                        <TextBox Text="{Binding DeltaY, Mode=TwoWay,StringFormat={}{0:F3}}"
+                                 Width="70"
+                                 IsReadOnly="False"
+                                 Background="#2A2A2A"
+                                 Foreground="#888"
+                                 BorderThickness="0" />
+
+                        <TextBlock Text="ΔZ:" Foreground="#888" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   FontWeight="SemiBold" />
+                        <TextBox Text="{Binding DeltaZ, Mode=TwoWay,StringFormat={}{0:F3}}"
+                                 Width="70"
+                                 IsReadOnly="False"
+                                 Background="#2A2A2A"
+                                 Foreground="#888"
+                                 BorderThickness="0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+        </StackPanel>
+    </Border>
+</UserControl>
+

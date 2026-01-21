@@ -55,7 +55,7 @@ public class ShaderService : IDisposable
     private int CreateAndRegisterShader(string vertPath, string fragPath)
     {
         var vertShader = Path.GetFileNameWithoutExtension(vertPath);
-        int programLocation = 0;
+        var programLocation = 0;
         if (!_shadersProgram.TryGetValue(vertShader, out var shader))
         {
             programLocation = CreateShaderProgram(vertPath, fragPath);

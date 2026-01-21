@@ -4,9 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:SamLabs.Gfx.Editor.ViewModels"
+    xmlns:behaviors="clr-namespace:SamLabs.Gfx.Editor.Behaviors"
     xmlns:viewModels="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
     xmlns:controls="clr-namespace:SamLabs.Gfx.Editor.Controls"
+    xmlns:views="clr-namespace:SamLabs.Gfx.Editor.Views"
     Title="SamLabs.Gfx.Editor"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -38,12 +39,19 @@
             EngineContext="{Binding EngineContext}"
             Focusable="True"
             SceneManager="{Binding SceneManager}" />
-        
-        <controls:ToolStatePanel 
-            DataContext="{Binding ToolStateViewModel}"
-            VerticalAlignment="Bottom"
-            HorizontalAlignment="Stretch"/>
-        
+
+        <Canvas>
+            <views:TransformStateView
+                Canvas.Left="{Binding Position.X}"
+                Canvas.Top="{Binding Position.Y}"
+                DataContext="{Binding TransformStateViewModel}">
+                <Interaction.Behaviors>
+                    <behaviors:DragMoveBehavior />
+                </Interaction.Behaviors>
+            </views:TransformStateView>
+
+        </Canvas>
+
         <Border
             BorderBrush="Black"
             BorderThickness="5"
@@ -57,19 +65,19 @@
             IsHitTestVisible="False">
         </Border>
 
-        
 
-        <Border x:Name="BaseTools" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d" CornerRadius="5"
+        <Border x:Name="BaseTools" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d"
+                CornerRadius="5"
                 VerticalAlignment="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal">
                 <Button Command="{Binding ToggleTranslateManipulators}">
-                    <Image Source="../Assets/expand-arrows.png"/>
+                    <Image Source="../Assets/expand-arrows.png" />
                 </Button>
                 <Button Command="{Binding ToggleRotateManipulator}">
-                    <Image Source="../Assets/rotate.png"/>
+                    <Image Source="../Assets/rotate.png" />
                 </Button>
-                <Button Command="{Binding ToggleScaleManipulator}" >
-                    <Image Source="../Assets/scale.png"/>
+                <Button Command="{Binding ToggleScaleManipulator}">
+                    <Image Source="../Assets/scale.png" />
                 </Button>
             </StackPanel>
 
@@ -80,15 +88,15 @@
             <StackPanel
                 Margin="5"
                 Orientation="Vertical">
-                <Button Command="{Binding AddBox}"  >
-                    <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform"/>
+                <Button Command="{Binding AddBox}">
+                    <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform" />
                 </Button>
-                <Button Command="{Binding AddPlane}" Content="P"/>
+                <Button Command="{Binding AddPlane}" Content="P" />
             </StackPanel>
         </Border>
 
         <Border x:Name="InfoBorder" HorizontalAlignment="Right" Background="#7d7d7d7d"
-                CornerRadius="5" 
+                CornerRadius="5"
                 VerticalAlignment="Bottom" Margin="10">
             <StackPanel
                 Margin="5"

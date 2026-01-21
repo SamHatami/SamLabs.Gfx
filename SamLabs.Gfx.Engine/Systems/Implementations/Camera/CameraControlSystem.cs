@@ -56,9 +56,9 @@ public class CameraControlSystem : UpdateSystem
             Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance)
             return;
         var viewportSize = frameInput.ViewportSize;
-        float worldHeight = 2.0f * cameraData.DistanceToTarget * MathF.Tan(cameraData.Fov / 2.0f);
+        var worldHeight = 2.0f * cameraData.DistanceToTarget * MathF.Tan(cameraData.Fov / 2.0f);
 
-        float pixelsToWorldScale = worldHeight / viewportSize.Y;
+        var pixelsToWorldScale = worldHeight / viewportSize.Y;
 
         cameraData.DistanceToTarget = Vector3.Distance(cameraData.Target, cameraTransform.Position);
         var forward = cameraData.Target - cameraTransform.Position;

@@ -27,7 +27,7 @@ public class FrameBufferService
         int textureId;
         var pbo0 = 0;
         var pbo1 = 0;
-        int renderBufferId = 0;
+        var renderBufferId = 0;
         if (isPickingBuffer)
         {
             textureId = CreatePickingTextureBuffer(width,

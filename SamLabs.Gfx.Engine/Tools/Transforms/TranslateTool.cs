@@ -23,10 +23,28 @@ public class TranslateTool : TransformTool
     public override string ToolId => ToolIds.TransformTranslate;
     public override string DisplayName => "Translate";
     
-    public double CurrentX => _isRelativeMode ? _deltaThisSession.X : _currentPosition.X;
-    public double CurrentY => _isRelativeMode ? _deltaThisSession.Y : _currentPosition.Y;
-    public double CurrentZ => _isRelativeMode ? _deltaThisSession.Z : _currentPosition.Z;
-    public bool IsRelativeMode => _isRelativeMode;
+    // Absolute position
+    public double CurrentX => _currentPosition.X;
+    public double CurrentY => _currentPosition.Y;
+    public double CurrentZ => _currentPosition.Z;
+    
+    // Delta position (offset from start)
+    public double DeltaX => _deltaThisSession.X;
+    public double DeltaY => _deltaThisSession.Y;
+    public double DeltaZ => _deltaThisSession.Z;
+
+    public bool IsRelativeMode
+    {
+        get => _isRelativeMode;
+        set
+        {
+            if (_isRelativeMode != value)
+            {
+                _isRelativeMode = value;
+                OnPropertyChanged(nameof(IsRelativeMode));
+            }
+        }
+    }
 
     public TranslateTool(
         IComponentRegistry componentRegistry,
@@ -90,6 +108,9 @@ public class TranslateTool : TransformTool
                 OnPropertyChanged(nameof(CurrentX));
                 OnPropertyChanged(nameof(CurrentY));
                 OnPropertyChanged(nameof(CurrentZ));
+                OnPropertyChanged(nameof(DeltaX));
+                OnPropertyChanged(nameof(DeltaY));
+                OnPropertyChanged(nameof(DeltaZ));
             }
         }
 
@@ -105,9 +126,50 @@ public class TranslateTool : TransformTool
             SetState(ToolState.Active);
             
             _deltaThisSession = Vector3.Zero;
+            OnPropertyChanged(nameof(DeltaX));
+            OnPropertyChanged(nameof(DeltaY));
+            OnPropertyChanged(nameof(DeltaZ));
+        }
+    }
+
+    public override void UpdateValues(double x, double y, double z)
+    {
+        var selectedEntities = Query.AndWith<TransformComponent>(Query.With<SelectedComponent>());
+        if (selectedEntities.IsEmpty) return;
+
+        var entityId = selectedEntities[0];
+        ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);
+        var preChangeTransform = entityTransform;
+
+        // Always work with absolute position for manual input
+        var newPosition = new Vector3((float)x, (float)y, (float)z);
+
+        if (entityTransform.Position != newPosition)
+        {
+            entityTransform.Position = newPosition;
+            entityTransform.IsDirty = true;
+            entityTransform.WorldMatrix = entityTransform.LocalMatrix;
+            entityTransform.IsDirty = false;
+
+            _currentPosition = entityTransform.Position;
+            if (!_isTransforming)
+            {
+                _startPosition = _currentPosition;
+                _deltaThisSession = Vector3.Zero;
+            }
+            else
+            {
+                _deltaThisSession = _currentPosition - _startPosition;
+            }
+
+            CommandManager.AddUndoCommand(new TransformCommand(entityId, preChangeTransform, entityTransform, ComponentRegistry));
+
             OnPropertyChanged(nameof(CurrentX));
             OnPropertyChanged(nameof(CurrentY));
             OnPropertyChanged(nameof(CurrentZ));
+            OnPropertyChanged(nameof(DeltaX));
+            OnPropertyChanged(nameof(DeltaY));
+            OnPropertyChanged(nameof(DeltaZ));
         }
     }
 
@@ -120,9 +182,12 @@ public class TranslateTool : TransformTool
             CurrentData = new Dictionary<string, object>
             {
                 ["Mode"] = "Translate",
-                ["X"] = _isRelativeMode ? _deltaThisSession.X : _currentPosition.X,
-                ["Y"] = _isRelativeMode ? _deltaThisSession.Y : _currentPosition.Y,
-                ["Z"] = _isRelativeMode ? _deltaThisSession.Z : _currentPosition.Z,
+                ["X"] = _currentPosition.X,
+                ["Y"] = _currentPosition.Y,
+                ["Z"] = _currentPosition.Z,
+                ["DeltaX"] = _deltaThisSession.X,
+                ["DeltaY"] = _deltaThisSession.Y,
+                ["DeltaZ"] = _deltaThisSession.Z,
                 ["IsRelative"] = _isRelativeMode
             }
         };

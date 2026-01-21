@@ -62,9 +62,9 @@ public class Grid : IGrid
         var count = (_linesPerSide + 1) * 4; // each line 2 vertices, but we count all
         var verts = new List<float>();
 
-        for (int i = 0; i <= _linesPerSide; i++)
+        for (var i = 0; i <= _linesPerSide; i++)
         {
-            float x = (i * _spacing) - half;
+            var x = (i * _spacing) - half;
             // line parallel to Z (vary X)
             verts.Add(x);
             verts.Add(0);
@@ -73,7 +73,7 @@ public class Grid : IGrid
             verts.Add(0);
             verts.Add(half);
 
-            float z = (i * _spacing) - half;
+            var z = (i * _spacing) - half;
             // line parallel to X (vary Z)
             verts.Add(-half);
             verts.Add(0);
