@@ -24,7 +24,8 @@ public class SystemScheduler
     private PostRenderSystem[] _postRenderSystems = new PostRenderSystem[EditorSettings.MaxSystems];
     private int _systemsCount;
 
-    public SystemScheduler(EntityRegistry entityRegistry, CommandManager  commandManager, EditorEvents editorEvents, ILogger<SystemScheduler> logger, IServiceProvider serviceProvider)
+    public SystemScheduler(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
+        ILogger<SystemScheduler> logger, IServiceProvider serviceProvider)
     {
         _entityRegistry = entityRegistry;
         _commandManager = commandManager;
@@ -61,7 +62,8 @@ public class SystemScheduler
         {
             try
             {
-                _renderSystems[i] = (RenderSystem)ActivatorUtilities.CreateInstance(_serviceProvider, renderSystems.ElementAt(i));
+                _renderSystems[i] =
+                    (RenderSystem)ActivatorUtilities.CreateInstance(_serviceProvider, renderSystems.ElementAt(i));
             }
             catch (Exception e)
             {
@@ -69,15 +71,15 @@ public class SystemScheduler
                 _logger.LogError(e.Message);
             }
         }
-        
+
         //sort by priority
-        
+
         Array.Sort(_renderSystems, (x, y) =>
         {
             if (x == null && y == null) return 0;
-    
+
             if (x == null) return 1;
-    
+
             if (y == null) return -1;
 
             return x.SystemPosition.CompareTo(y.SystemPosition);
@@ -97,7 +99,8 @@ public class SystemScheduler
         {
             try
             {
-                _updateSystems[i] = (UpdateSystem)ActivatorUtilities.CreateInstance(_serviceProvider, updateSystems.ElementAt(i));
+                _updateSystems[i] =
+                    (UpdateSystem)ActivatorUtilities.CreateInstance(_serviceProvider, updateSystems.ElementAt(i));
             }
             catch (Exception e)
             {
@@ -110,8 +113,6 @@ public class SystemScheduler
 
     public void Update(FrameInput frameInput)
     {
-        //Check if global no update flag is set (?)
-
         foreach (var updateSystem in _updateSystems)
         {
             try
@@ -126,10 +127,9 @@ public class SystemScheduler
         }
     }
 
-    public void Render(FrameInput frameInput,RenderContext renderContext)
+    public void Render(FrameInput frameInput, RenderContext renderContext)
     {
         foreach (var renderSystem in _renderSystems)
             renderSystem?.Update(frameInput, renderContext);
-        
     }
 }

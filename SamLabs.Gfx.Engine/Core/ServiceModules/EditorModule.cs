@@ -21,15 +21,17 @@ public class EditorModule:IServiceModule
         
         services.AddSingleton<EntityRegistry>();
         services.AddSingleton<SystemScheduler>();
+        services.AddSingleton<ToolManager>();
+        services.AddSingleton<IComponentRegistry, ComponentRegistry>();
+        
       
         //Creators
         services.AddSingleton<EntityFactory>();
         
+        //Editor services
         services.AddSingleton<EditorEvents>();
+        services.AddSingleton<EditorWorkState>();
         
-        services.AddSingleton<ToolManager>();
-        
-        services.AddSingleton<IComponentRegistry, ComponentRegistry>();
 
         // Entity query helper
         services.AddSingleton<EntityQueryService>();

@@ -1,28 +1,32 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
+using SamLabs.Gfx.Engine.Core;
 
 namespace SamLabs.Gfx.Engine.Commands;
 
 public class CommandManager
 {
     private readonly ILogger<CommandManager> _logger;
+    private readonly EditorWorkState _workState;
 
     private readonly ConcurrentQueue<ICommand> _commands = new();
     private readonly ConcurrentStack<ICommand> _undoCommands = new();
     private readonly ConcurrentQueue<ICommand> _redoCommands = new();
 
-    public event Action? CommandEnqueued; //For da future!!
+    public event Action? CommandEnqueued;
     public bool HasPendingCommands => !_commands.IsEmpty;
 
     public void EnqueueCommand(ICommand command)
     {
         _commands.Enqueue(command);
         CommandEnqueued?.Invoke();
+        _workState.RequestBurst();
     }
 
-    public CommandManager(ILogger<CommandManager> logger)
+    public CommandManager(ILogger<CommandManager> logger, EditorWorkState workState)
     {
         _logger = logger;
+        _workState = workState;
     }
 
     public void ProcessAllCommands()

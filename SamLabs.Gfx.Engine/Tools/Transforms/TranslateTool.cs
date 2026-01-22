@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -87,6 +87,7 @@ public class TranslateTool : TransformTool
                 _isTransforming = true;
                 _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
                 SetState(ToolState.InputCapture);
+                
             }
         }
 
@@ -141,7 +142,6 @@ public class TranslateTool : TransformTool
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);
         var preChangeTransform = entityTransform;
 
-        // Always work with absolute position for manual input
         var newPosition = new Vector3((float)x, (float)y, (float)z);
 
         if (entityTransform.Position != newPosition)

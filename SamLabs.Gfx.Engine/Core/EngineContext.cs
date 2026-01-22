@@ -1,4 +1,4 @@
-﻿using SamLabs.Gfx.Engine.Components;
+﻿﻿using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Blueprints.Construction;
 using SamLabs.Gfx.Engine.Rendering.Abstractions;
@@ -22,9 +22,10 @@ public class EngineContext
     public IRenderer Renderer { get; }
     public EditorEvents EditorEvents { get; }
     public ToolManager ToolManager { get; }
+    public EditorWorkState WorkState { get; }
 
     public EngineContext(SystemScheduler systemScheduler, EntityRegistry entityRegistry,
-        EntityFactory entityFactory, IRenderer renderer, ShaderService shaderService, IComponentRegistry componentRegistry, EditorEvents editorEvents, ToolManager toolManager)
+        EntityFactory entityFactory, IRenderer renderer, ShaderService shaderService, IComponentRegistry componentRegistry, EditorEvents editorEvents, ToolManager toolManager, EditorWorkState workState)
     {
         _shaderService = shaderService;
         ComponentRegistry = componentRegistry;
@@ -34,6 +35,7 @@ public class EngineContext
         EntityFactory = entityFactory;
         EditorEvents = editorEvents;
         ToolManager = toolManager;
+        WorkState = workState;
 
         InitializeCreators();
     }

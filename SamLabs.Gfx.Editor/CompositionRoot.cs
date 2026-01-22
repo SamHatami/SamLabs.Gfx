@@ -50,13 +50,13 @@ public class CompositionRoot
     
     private void RegisterServiceModules()
     {
-        var modules = new IServiceModule[]
-        {
+        IServiceModule[] modules =
+        [
             new RenderServiceModule(),
             new GeometryServiceModule(),
             new EditorModule(),
             new CommandsModule()
-        };
+        ];
 
         foreach (var serviceModule in modules)
         {
@@ -71,7 +71,9 @@ public class CompositionRoot
         var commandManager = serviceProvider.GetRequiredService<CommandManager>();
         var query = serviceProvider.GetRequiredService<EntityQueryService>();
         var editorEvents = serviceProvider.GetRequiredService<EditorEvents>();
+        var workState = serviceProvider.GetRequiredService<EditorWorkState>();
 
+        //Toolsmanager can register tools instead, this is temporary
         var translateTool = new TranslateTool(componentRegistry, commandManager, query, editorEvents);
         var rotateTool = new RotateTool(componentRegistry, commandManager, query, editorEvents);
         var scaleTool = new ScaleTool(componentRegistry, commandManager, query, editorEvents);

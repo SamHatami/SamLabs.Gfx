@@ -114,6 +114,7 @@ public class EditorControl : OpenTkControlBase
     private DateTime _lastActivityTime = DateTime.Now;
     private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(1.5);
     private bool _wasIdling = false;
+    private EditorWorkState _editorWorkState;
 
     private void NotifyActivity()
     {
@@ -169,7 +170,9 @@ public class EditorControl : OpenTkControlBase
 
     private bool Idle()
     {
+        if(_editorWorkState.ShouldUpdate()) return false;
         if (CommandManager?.HasPendingCommands == true) return false;
+        if(EngineContext.ToolManager.ActiveTool != null) return false; // Don't idle while a tool is active (e.g. transform tool) 
         if (DateTime.Now - _lastActivityTime < _idleTimeout) return false;
         
         return true;
@@ -247,6 +250,7 @@ public class EditorControl : OpenTkControlBase
     {
         _systemScheduler = EngineContext.SystemScheduler;
         _renderer = EngineContext.Renderer;
+        _editorWorkState = EngineContext.WorkState;
 
         _renderer.Initialize();
         _systemScheduler.InitializeRenderSystems(_renderer);

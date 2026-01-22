@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿﻿using System.ComponentModel;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -37,8 +37,6 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
         EntityQueryService query,
         EditorEvents editorEvents)
     {
-        
-        //The active tool decides what manipulator is usages
         ManipulatorType = manipulatorType;
         ComponentRegistry = componentRegistry;
         CommandManager = commandManager;
@@ -48,7 +46,6 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
     public virtual void Activate()
     {
         HideAllManipulators();
-        
         var targetManipulator = FindManipulatorByType(ManipulatorType);
         if (targetManipulator != -1)
         {
