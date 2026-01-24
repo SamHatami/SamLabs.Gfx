@@ -257,6 +257,7 @@ public class EditorControl : OpenTkControlBase
         _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
         SceneManager.GetCurrentScene();
 
+        CommandManager.EnqueueCommand(new CreateMainCameraCommand(CommandManager, EngineContext.EntityFactory));
         CommandManager.EnqueueCommand(new AddMainGridCommand(CommandManager, EngineContext.EntityFactory));
         CommandManager.EnqueueCommand(new CreateManipulatorsCommand(CommandManager, EngineContext.EntityFactory));
         SizeChanged += OnSizeChanged;

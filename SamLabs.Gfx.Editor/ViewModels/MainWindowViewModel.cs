@@ -53,9 +53,6 @@ public partial class MainWindowViewModel : ViewModelBase
         SceneManager.CreateDefaultScene();
         _grid = new Grid();
         SceneManager.AddRenderable(_grid);
-
-        //this can be created here due no gl context needed, I goto think around this architecture a bit later on.
-        _entityFactory.CreateFromBlueprint(EntityNames.MainCamera); 
     }
 
     public void SetObjectId(int id) => ObjectId = id;
@@ -64,13 +61,6 @@ public partial class MainWindowViewModel : ViewModelBase
     public void AddBox()
     {
         CommandManager.EnqueueCommand(new AddBoxCommand(CommandManager, SceneManager.GetCurrentScene(),
-            _entityFactory));
-    }
-
-    public void AddImportedFile()
-    { 
-        var modelPath = Path.Combine(AppContext.BaseDirectory, "Models", "TestModel_1.obj");
-        CommandManager.EnqueueCommand(new ImportObjAsyncCommand(modelPath,CommandManager, SceneManager.GetCurrentScene(),
             _entityFactory));
     }
 
