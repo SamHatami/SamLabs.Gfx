@@ -1,4 +1,4 @@
-﻿﻿using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
@@ -11,11 +11,12 @@ using SamLabs.Gfx.Engine.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Engine.Systems.Implementations.Camera;
 
-public class ScaleToScreenSystem:UpdateSystem
+public class ScaleToScreenSystem : UpdateSystem
 {
     override public int SystemPosition => SystemOrders.PreRenderUpdate;
-    
-    public ScaleToScreenSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents, IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
+
+    public ScaleToScreenSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
+        IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
     }
 
@@ -31,35 +32,54 @@ public class ScaleToScreenSystem:UpdateSystem
 
             var cameraEntities = ComponentRegistry.GetEntityIdsForComponentType<CameraComponent>();
             if (cameraEntities.IsEmpty) continue;
-            
+
             //one active camera assumption
             var cameraEntity = cameraEntities[0];
             ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(cameraEntity);
             ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(cameraEntity);
 
             var toCamera = cameraTransform.Position - entityTransform.Position;
-            var distance = toCamera.Length;
-            var frustumHeightAtUnitDistance = 2f * MathF.Tan(cameraData.Fov / 2f);
+            var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
+            var depth = MathF.Abs(Vector3.Dot(toCamera, forward));
+            if (depth < 0.1f) depth = 0.1f;
+
+            var frustumHeight = 2.0f * cameraData.OrthographicSize;
 
             switch (cameraData.ProjectionType)
             {
                 case ProjectionType.Orthographic:
-                    // entityTransform.Scale = new Vector3(screenScale.Size*cameraData.OrthographicSize);
+
+                    var viewportHeightOrtho = frameInput.ViewportSize.Y;
+                    var worldYOrtho = (screenScale.Size.Y / viewportHeightOrtho) * frustumHeight;
+                    var worldXOrtho = (screenScale.Size.X / viewportHeightOrtho) * frustumHeight;
+                    var worldZOrtho = (screenScale.Size.Z / viewportHeightOrtho) * frustumHeight;
+
+                    entityTransform.Scale = new Vector3(
+                        screenScale.LockX ? entityTransform.Scale.X : worldXOrtho,
+                        screenScale.LockY ? entityTransform.Scale.Y : worldYOrtho,
+                        screenScale.LockZ ? entityTransform.Scale.Z : worldZOrtho
+                    );
                     break;
                 case ProjectionType.Perspective:
                 {
-                    var fovScale = 2.0f * distance * MathF.Tan(cameraData.Fov * 0.5f);
+                    var fovScale = 2.0f * depth * MathF.Tan(cameraData.Fov * 0.5f);
+                    var viewportHeight = frameInput.ViewportSize.Y;
+                    var viewportWidth = frameInput.ViewportSize.X;
 
-                    var scaleX = screenScale.LockX ? entityTransform.Scale.X : screenScale.Size.X * fovScale;
-                    var scaleY = screenScale.LockY ? entityTransform.Scale.Y : screenScale.Size.Y * fovScale;
-                    var scaleZ = screenScale.LockZ ? entityTransform.Scale.Z : screenScale.Size.Z * fovScale;
+                    var worldY = (screenScale.Size.Y / viewportHeight) * fovScale;
+                    var worldX = (screenScale.Size.X / viewportWidth) * fovScale * (viewportWidth / viewportHeight);
+                    var worldZ = (screenScale.Size.Z / viewportHeight) * fovScale;
+
+                    var scaleX = screenScale.LockX ? entityTransform.Scale.X : worldX;
+                    var scaleY = screenScale.LockY ? entityTransform.Scale.Y : worldY;
+                    var scaleZ = screenScale.LockZ ? entityTransform.Scale.Z : worldZ;
 
                     entityTransform.Scale = new Vector3(scaleX, scaleY, scaleZ);
                     break;
                 }
             }
-            
-            
+
+
             entityTransform.WorldMatrix = entityTransform.LocalMatrix;
             entityTransform.IsDirty = false;
         }

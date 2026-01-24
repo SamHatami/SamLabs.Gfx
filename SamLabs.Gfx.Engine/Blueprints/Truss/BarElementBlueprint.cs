@@ -4,6 +4,7 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.GL;
 using SamLabs.Gfx.Engine.Components.Selection;
+using SamLabs.Gfx.Engine.Components.Structural;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Rendering.Engine;
@@ -15,7 +16,7 @@ public class BarElementBlueprint : EntityBlueprint
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
-    private const float ScreenSize = 0.1f;
+    private const float ScreenSize = 300f;
 
     public BarElementBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
@@ -85,7 +86,7 @@ public class BarElementBlueprint : EntityBlueprint
             IndexCount = bodyMesh.TriangleIndices.Length
         };
 
-        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenSize, ScreenSize, 1)};
+        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenSize, ScreenSize, 1), IsPixelSize = true, LockZ = true};
         _componentRegistry.SetComponentToEntity(new TransformComponent(), entity.Id);
         _componentRegistry.SetComponentToEntity(bodyMesh, entity.Id);
         _componentRegistry.SetComponentToEntity(bodyMaterial, entity.Id);
@@ -95,11 +96,13 @@ public class BarElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(screenScale, entity.Id);
 
         var parentIdComponent = new ParentIdComponent(entity.Id);
-        CreateEndNode(nodeMesh, parentIdComponent, endA, shader, pickingShader);
-        CreateEndNode(nodeMesh, parentIdComponent, endB, shader, pickingShader);
+        var endNodeId =CreateEndNode(nodeMesh, parentIdComponent, endA, shader, pickingShader);
+        var startNodeId= CreateEndNode(nodeMesh, parentIdComponent, endB, shader, pickingShader);
+        
+        _componentRegistry.SetComponentToEntity(new TrussBarComponent() {StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId}, entity.Id);
     }
 
-    private void CreateEndNode(MeshDataComponent nodeMesh, ParentIdComponent parentIdComponent, Vector3 position,
+    private int CreateEndNode(MeshDataComponent nodeMesh, ParentIdComponent parentIdComponent, Vector3 position,
         GLShader? shader, GLShader? pickingShader)
     {
         var nodeEntity = _entityRegistry.CreateEntity();
@@ -126,7 +129,7 @@ public class BarElementBlueprint : EntityBlueprint
             IndexCount = nodeMesh.TriangleIndices.Length
         };
 
-        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenSize)};
+        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenSize), IsPixelSize = true};
         _componentRegistry.SetComponentToEntity(parentIdComponent, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(transform, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(nodeMesh, nodeEntity.Id);
@@ -135,5 +138,7 @@ public class BarElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, nodeEntity.Id);
+        
+        return nodeEntity.Id;
     }
 }
