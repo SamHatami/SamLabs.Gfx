@@ -22,4 +22,5 @@ public static class EntityNames
     public const string ConstructionAxis = "ConstructionAxis";
     public const string ConstructionPoint = "ConstructionPoint";
     public const string Sketch = "Sketch";
+    public static string BarElement = "BarElement";
 }

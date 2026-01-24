@@ -82,13 +82,19 @@ public class GLManipulatorRenderSystem : RenderSystem
         ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(cameraEntities[0]);
         ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(cameraEntities[0]);
         
-        //Todo create a utility class for this
+        //Todo create a utility class for this => Move to ScaleToScreenSystem when adding ScaleToScreenComponent
         var toManipulator = parentTransform.Position - cameraTransform.Position;
         var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         var depth = Vector3.Dot(toManipulator, forward);
         if (depth < 0.1f) depth = 0.1f;
-        var scale = manipulatorBaseSize * depth;
     
+        var fovScale = 2.0f * depth * MathF.Tan(cameraData.Fov * 0.5f);
+        
+        var scale = manipulatorBaseSize * fovScale;
+        
+
+
+        
         var parentRot = parentTransform.LocalMatrix.ExtractRotation();
         var parentPos = parentTransform.LocalMatrix.ExtractTranslation();
 

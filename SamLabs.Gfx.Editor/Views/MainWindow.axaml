@@ -87,11 +87,12 @@
                 VerticalAlignment="Top" Margin="10">
             <StackPanel
                 Margin="5"
-                Orientation="Vertical">
+                Orientation="Horizontal">
                 <Button Command="{Binding AddBox}">
                     <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform" />
                 </Button>
-                <Button Command="{Binding AddPlane}" Content="P" />
+                <Button Command="{Binding AddPlane}" Content="Plane" />
+                <Button Command="{Binding AddBarElement}" Content="Bar" />
             </StackPanel>
         </Border>
 

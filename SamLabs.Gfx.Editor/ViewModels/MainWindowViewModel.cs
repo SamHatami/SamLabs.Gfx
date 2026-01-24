@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,7 +29,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IComponentRegistry _componentRegistry;
     private readonly ToolManager _toolManager;
 
-    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager, EditorService editorService, TransformStateViewModel transformStateViewModel)
+    public MainWindowViewModel(ISceneManager sceneManager, EngineContext engineContext, CommandManager commandManager,
+        EditorService editorService, TransformStateViewModel transformStateViewModel)
     {
         _editorService = editorService;
         EngineContext = engineContext;
@@ -41,7 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
         TransformStateViewModel = transformStateViewModel; //this should just be the ActiveToolViewModel
 
         InitializeMainScene();
-        
+
         //we also need sub-viewmodels that subscribe to whatever events they need
         //SceneViewModel
         //TransformViewModel
@@ -58,11 +59,16 @@ public partial class MainWindowViewModel : ViewModelBase
     public void SetObjectId(int id) => ObjectId = id;
 
     [RelayCommand]
-    public void AddBox()
-    {
+    public void AddBox() =>
         CommandManager.EnqueueCommand(new AddBoxCommand(CommandManager, SceneManager.GetCurrentScene(),
             _entityFactory));
-    }
+
+    public void AddBarElement() =>
+        CommandManager.EnqueueCommand(new AddBarElementCommand(CommandManager, _entityFactory));
+    
+    public void AddPlane() =>
+        CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));
+
 
     public void ToggleTranslateManipulators()
     {
@@ -71,7 +77,7 @@ public partial class MainWindowViewModel : ViewModelBase
         else
             _toolManager.ActivateTool(ToolIds.TransformTranslate);
     }
-    
+
     public void ToggleRotateManipulator()
     {
         if (_toolManager.ActiveTool?.ToolId == ToolIds.TransformRotate)
@@ -79,7 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
         else
             _toolManager.ActivateTool(ToolIds.TransformRotate);
     }
-    
+
     public void ToggleScaleManipulator()
     {
         if (_toolManager.ActiveTool?.ToolId == ToolIds.TransformScale)
@@ -87,7 +93,8 @@ public partial class MainWindowViewModel : ViewModelBase
         else
             _toolManager.ActivateTool(ToolIds.TransformScale);
     }
-    public void AddPlane() => CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));
+
+
 
     public void UndoCommand() => CommandManager.UndoLatestCommand();
     public void RedoCommand() => CommandManager.RedoLatestCommand();
