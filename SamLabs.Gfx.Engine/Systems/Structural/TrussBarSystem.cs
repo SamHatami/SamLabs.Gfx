@@ -16,6 +16,8 @@ public class TrussBarSystem:UpdateSystem
 {
     public override int SystemPosition { get; } = SystemOrders.TransformUpdate;
 
+    private readonly Dictionary<int, Quaternion> _previousRotations = new();
+
     public TrussBarSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents, IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
     }
@@ -41,40 +43,62 @@ public class TrussBarSystem:UpdateSystem
             if (length > 0.0001f)
                 direction = Vector3.Normalize(direction);
             
-
             barTransform.Position = startTransform.Position;
-            barTransform.Rotation = CalculateRotationFromDirection(direction);
+            barTransform.Rotation = CalculateRotationFromDirection(direction, barId);
             barTransform.Scale = new Vector3(barTransform.Scale.X, barTransform.Scale.Y, length);
             barTransform.IsDirty = true;
 
-            // Nodes look at each other
-            startTransform.Rotation = CalculateRotationFromDirection(direction);
-            startTransform.IsDirty = true;
-
-            endTransform.Rotation = CalculateRotationFromDirection(-direction);
-            endTransform.IsDirty = true;
+            // // Nodes look at each other
+            // startTransform.Rotation = CalculateRotationFromDirection(direction, bar.StartNodeEntityId);
+            // startTransform.IsDirty = true;
+            //
+            // endTransform.Rotation = CalculateRotationFromDirection(-direction, bar.EndNodeEntityId);
+            // endTransform.IsDirty = true;
         }
     }
     
-    private Quaternion CalculateRotationFromDirection(Vector3 direction)
+    private Quaternion CalculateRotationFromDirection(Vector3 direction, int entityId)
     {
-        // Bar length axis is always Z
         var dot = Vector3.Dot(direction, Vector3.UnitZ);
-        
-        if (dot > 0.9999999f)
-            return Quaternion.Identity;
-        
-        if (dot < -0.9999999f)
-            return Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI);
-        
-        var axis = Vector3.Cross(Vector3.UnitZ, direction);
-        
-        // if (axis.LengthSquared < 0.0001f)
-        //     return Quaternion.Identity;
-        
-        axis = Vector3.Normalize(axis);
-        var angle = MathF.Acos(MathExtensions.Clamp(dot, -1.0f, 1.0f));
 
-        return Quaternion.FromAxisAngle(axis, angle);
+        Quaternion newRotation;
+
+        if (dot > 0.9999999f)
+        {
+            newRotation = Quaternion.Identity;
+        }
+        else if (dot < -0.9999999f)
+        {
+            newRotation = Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI);
+        }
+        else
+        {
+            var axis = Vector3.Cross(Vector3.UnitZ, direction);
+            axis = Vector3.Normalize(axis);
+            var angle = MathF.Acos(MathExtensions.Clamp(dot, -1.0f, 1.0f));
+            newRotation = Quaternion.FromAxisAngle(axis, angle);
+        }
+
+        if (_previousRotations.TryGetValue(entityId, out var previousRotation))
+        {
+            // Choose the rotation that has the shortest path from the previous rotation
+            // Quaternion dot product: q1.X * q2.X + q1.Y * q2.Y + q1.Z * q2.Z + q1.W * q2.W
+            var dotProduct = previousRotation.X * newRotation.X +
+                           previousRotation.Y * newRotation.Y +
+                           previousRotation.Z * newRotation.Z +
+                           previousRotation.W * newRotation.W;
+
+            // If the dot product is negative, the quaternions represent rotations more than 180 degrees apart
+            // In this case, negate the new rotation to take the shorter path
+            if (dotProduct < 0)
+            {
+                newRotation = new Quaternion(-newRotation.X, -newRotation.Y, -newRotation.Z, -newRotation.W);
+            }
+        }
+
+        // Store this rotation for next frame
+        _previousRotations[entityId] = newRotation;
+
+        return newRotation;
     }
 }

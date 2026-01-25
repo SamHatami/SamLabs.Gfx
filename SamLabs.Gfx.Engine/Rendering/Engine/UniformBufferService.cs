@@ -124,7 +124,7 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uModel, typeof(Matrix4));
         UniformInfo.Add(UniformNames.uView, typeof(Matrix4));
         UniformInfo.Add(UniformNames.uProj, typeof(Matrix4));
-        UniformInfo.Add(UniformNames.uColor, typeof(Vector4));
+        UniformInfo.Add(UniformNames.uBaseColor, typeof(Vector4));
         UniformInfo.Add(UniformNames.uPickingColor, typeof(Vector4));
         UniformInfo.Add(UniformNames.uPickingId, typeof(int));
         UniformInfo.Add(UniformNames.uTime, typeof(float));
@@ -152,7 +152,7 @@ public static class UniformNames
     public const string uView = "uView";
     public const string uProj = "uProj";
     public const string uTextureCoordinate = "uTextureCoordinate";
-    public const string uColor = "uColor";
+    public const string uBaseColor = "uBaseColor";
     public const string uPickingColor = "uPickingColor";
     public const string uPickingId = "uPickingId";
     public const string uEntityId = "uEntityId";

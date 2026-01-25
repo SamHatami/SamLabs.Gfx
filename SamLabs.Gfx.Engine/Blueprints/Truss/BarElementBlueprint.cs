@@ -16,7 +16,7 @@ public class BarElementBlueprint : EntityBlueprint
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
-    private const float ScreenSize = 300f;
+    private const float ScreenPixelSize = 250f;
 
     public BarElementBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
@@ -69,7 +69,7 @@ public class BarElementBlueprint : EntityBlueprint
             endB.Z = max.Z;
         }
 
-        var shader = _shaderService.GetShader("flat");
+        var shader = _shaderService.GetShader("unlit");
         var pickingShader = _shaderService.GetShader("picking");
 
 
@@ -86,7 +86,7 @@ public class BarElementBlueprint : EntityBlueprint
             IndexCount = bodyMesh.TriangleIndices.Length
         };
 
-        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenSize, ScreenSize, 1), IsPixelSize = true, LockZ = true};
+        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenPixelSize, ScreenPixelSize, 1), IsPixelSize = true, LockZ = true};
         _componentRegistry.SetComponentToEntity(new TransformComponent(), entity.Id);
         _componentRegistry.SetComponentToEntity(bodyMesh, entity.Id);
         _componentRegistry.SetComponentToEntity(bodyMaterial, entity.Id);
@@ -129,7 +129,7 @@ public class BarElementBlueprint : EntityBlueprint
             IndexCount = nodeMesh.TriangleIndices.Length
         };
 
-        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenSize), IsPixelSize = true};
+        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenPixelSize), IsPixelSize = true};
         _componentRegistry.SetComponentToEntity(parentIdComponent, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(transform, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(nodeMesh, nodeEntity.Id);
