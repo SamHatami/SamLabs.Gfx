@@ -8,7 +8,7 @@ namespace SamLabs.Gfx.Engine.Rendering.Engine;
 
 public class UniformBufferService : IDisposable
 {
-    private const int BufferCount = 3; // Triple buffering
+    private const int BufferCount = 1; // Triple buffering
     private int[] _viewProjectionBuffers = new int[BufferCount];
     private int _currentBufferIndex = 0;
     
@@ -39,6 +39,17 @@ public class UniformBufferService : IDisposable
         
         UniformBindingPoints.Add(ViewProjectionName, ViewProjectionBindingPoint);
     }
+    
+    // public void RegisterGridBuffer()
+    // {
+    //     var buffer = GL.GenBuffer();
+    //     GL.BindBuffer(BufferTarget.UniformBuffer, buffer);
+    //     GL.BufferData(BufferTarget.UniformBuffer, SizeOf.Int * 3 + SizeOf.Vector3, IntPtr.Zero, BufferUsage.DynamicDraw);
+    //     GL.BindBufferBase(BufferTarget.UniformBuffer, 2, buffer);
+    //     GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+    //     
+    //     UniformBindingPoints.Add("GridUniforms", 2);
+    // }
 
     public void UpdateViewProjectionBuffer(Matrix4 view, Matrix4 projection)
     {

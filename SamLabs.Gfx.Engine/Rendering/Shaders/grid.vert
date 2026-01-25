@@ -7,7 +7,9 @@ layout(std140) uniform ViewProjection
 };
 
 out vec3 fragWorldPosition;
-
+out float spacing;
+out float cellSize;
+out float gridSize;
 void main()
 {
     vec4 worldPos = vec4(aPos, 1.0);

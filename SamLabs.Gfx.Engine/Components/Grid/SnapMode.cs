@@ -1,6 +1,6 @@
 namespace SamLabs.Gfx.Engine.Components.Grid;
 
-public enum GridSnapMode
+public enum SnapMode
 {
     None,
     Point,

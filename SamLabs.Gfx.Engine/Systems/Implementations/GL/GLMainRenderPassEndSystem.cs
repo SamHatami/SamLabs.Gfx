@@ -10,20 +10,21 @@ using SamLabs.Gfx.Engine.Systems.Abstractions;
 namespace SamLabs.Gfx.Engine.Systems.Implementations;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.MainEnd)]
-public class GLMainRenderPassEndSystem: RenderSystem
+public class GLMainRenderPassEndSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.MainEnd;
-    public GLMainRenderPassEndSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
+
+    public GLMainRenderPassEndSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(
+        entityRegistry, componentRegistry)
     {
     }
 
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.Disable(EnableCap.Blend);
         GL.Disable(EnableCap.LineSmooth);
-        GL.Disable(EnableCap.DepthTest); 
+        GL.Disable(EnableCap.DepthTest);
         GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
     }
 }

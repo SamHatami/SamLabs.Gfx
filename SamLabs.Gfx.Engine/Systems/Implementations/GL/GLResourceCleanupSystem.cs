@@ -12,23 +12,24 @@ using SamLabs.Gfx.Engine.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Engine.Systems.Implementations;
 
-
 [RenderPassAttributes.RenderOrder(SystemOrders.CleanUp)]
-public class GLResourceCleanupSystem: RenderSystem
+public class GLResourceCleanupSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.CleanUp;
     private readonly IComponentRegistry _componentRegistry;
-    public GLResourceCleanupSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
+
+    public GLResourceCleanupSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(
+        entityRegistry, componentRegistry)
     {
         _componentRegistry = componentRegistry;
     }
 
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
         var entityIds = _componentRegistry.GetEntityIdsForComponentType<GlMeshRemoved>();
         if (entityIds.Length == 0) return;
-        
-        
+
+
         foreach (var entityId in entityIds)
         {
             ref var glData = ref _componentRegistry.GetComponent<GlMeshDataComponent>(entityId);
@@ -43,5 +44,4 @@ public class GLResourceCleanupSystem: RenderSystem
         GL.DeleteBuffer(glMeshData.Vbo);
         if (glMeshData.Ebo != 0) GL.DeleteBuffer(glMeshData.Ebo);
     }
- 
 }

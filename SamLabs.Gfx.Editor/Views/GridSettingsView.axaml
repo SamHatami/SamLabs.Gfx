@@ -57,15 +57,15 @@
                     <!-- Snap Mode -->
                     <StackPanel Orientation="Vertical" Spacing="4">
                         <TextBlock Text="Snap Mode" Foreground="#CCC" FontSize="12"/>
-                        <ComboBox SelectedItem="{Binding GridSnapMode, Mode=TwoWay}"
+                        <ComboBox SelectedItem="{Binding SnapMode, Mode=TwoWay}"
                                   Background="#3F3F46"
                                   Foreground="White"
                                   Width="200"
                                   HorizontalAlignment="Left">
-                            <grid:GridSnapMode>None</grid:GridSnapMode>
-                            <grid:GridSnapMode>Point</grid:GridSnapMode>
-                            <grid:GridSnapMode>Edge</grid:GridSnapMode>
-                            <grid:GridSnapMode>Grid</grid:GridSnapMode>
+                            <grid:SnapMode>None</grid:SnapMode>
+                            <grid:SnapMode>Point</grid:SnapMode>
+                            <grid:SnapMode>Edge</grid:SnapMode>
+                            <grid:SnapMode>Grid</grid:SnapMode>
                         </ComboBox>
                     </StackPanel>
 

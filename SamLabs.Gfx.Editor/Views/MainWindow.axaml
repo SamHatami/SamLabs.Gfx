@@ -11,6 +11,7 @@
     Title="SamLabs.Gfx.Editor"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    x:Name="EditorWindow"
     x:DataType="viewModels:MainWindowViewModel"
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
@@ -54,7 +55,8 @@
             <views:GridSettingsView
                 Canvas.Left="10"
                 Canvas.Top="60"
-                DataContext="{Binding GridSettingsViewModel}">
+                DataContext="{Binding GridSettingsViewModel}"
+                IsVisible="{Binding DataContext.IsGridSettingsVisible, ElementName=EditorWindow}">
                 <Interaction.Behaviors>
                     <behaviors:DragMoveBehavior />
                 </Interaction.Behaviors>
@@ -89,6 +91,7 @@
                 <Button Command="{Binding ToggleScaleManipulator}">
                     <Image Source="../Assets/scale.png" />
                 </Button>
+                <Button Command="{Binding ToggleGridSettingsCommand}" Content="Grid" />
             </StackPanel>
 
         </Border>

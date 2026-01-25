@@ -15,20 +15,22 @@ using SamLabs.Gfx.Geometry.Mesh;
 namespace SamLabs.Gfx.Engine.Systems.Implementations;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.PreRenderUpdate)]
-public class GlUpdateVertexPositionSystem: RenderSystem
+public class GlUpdateVertexPositionSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.PreRenderUpdate;
     private readonly IComponentRegistry _componentRegistry;
-    public GlUpdateVertexPositionSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
+
+    public GlUpdateVertexPositionSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(
+        entityRegistry, componentRegistry)
     {
         _componentRegistry = componentRegistry;
     }
 
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
         var entityIds = _componentRegistry.GetEntityIdsForComponentType<GlMeshDataChangedComponent>();
         if (entityIds.IsEmpty) return;
-        
+
         foreach (var entityId in entityIds)
         {
             var glMeshData = _componentRegistry.GetComponent<GlMeshDataComponent>(entityId);
@@ -39,17 +41,17 @@ public class GlUpdateVertexPositionSystem: RenderSystem
             var sliceLength = endIndex - startIndex + 1;
             //get a slice of the vertices
             ReadOnlySpan<Vertex> vertices = meshData.Vertices.AsSpan(startIndex, sliceLength);
-            
+
             UpdatePositions(vertices, glMeshData, startIndex);
-            
+
             _componentRegistry.RemoveComponentFromEntity<GlMeshDataChangedComponent>(entityId);
         }
     }
 
     private void UpdatePositions(ReadOnlySpan<Vertex> vertices, GlMeshDataComponent glMeshData, int startIndex)
     {
-        IntPtr byteOffset = (startIndex * SizeOf.Vertex);
-        
+        IntPtr byteOffset = startIndex * SizeOf.Vertex;
+
         GL.BindVertexArray(glMeshData.Vao);
         GL.BindBuffer(BufferTarget.ArrayBuffer, glMeshData.Vbo);
         GL.BufferSubData(BufferTarget.ArrayBuffer, byteOffset, vertices.Length * SizeOf.Vertex, vertices);

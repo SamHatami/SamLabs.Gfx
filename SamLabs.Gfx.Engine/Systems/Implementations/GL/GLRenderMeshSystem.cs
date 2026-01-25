@@ -16,7 +16,8 @@ public class GLRenderMeshSystem : RenderSystem
     private readonly EntityQueryService _query;
     public override int SystemPosition => SystemOrders.MainRender;
 
-    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, componentRegistry)
+    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry,
+        EntityQueryService query) : base(entityRegistry, componentRegistry)
     {
         _query = query;
     }
@@ -25,11 +26,11 @@ public class GLRenderMeshSystem : RenderSystem
     {
         //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
         var renderableEntities = _query.With<GlMeshDataComponent>();
-        var renderableEntities_2 = _query.Without<ManipulatorComponent>(renderableEntities); 
-        var meshEntities = _query.Without<ManipulatorChildComponent>(renderableEntities_2); 
-        
+        var renderableEntities_2 = _query.Without<ManipulatorComponent>(renderableEntities);
+        var meshEntities = _query.Without<ManipulatorChildComponent>(renderableEntities_2);
+
         if (meshEntities.Length == 0) return;
-        
+
         var pickingEntity = ComponentRegistry.GetEntityIdsForComponentType<PickingDataComponent>();
         var pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity[0]);
 
@@ -38,16 +39,16 @@ public class GLRenderMeshSystem : RenderSystem
             var transform = ComponentRegistry.GetComponent<TransformComponent>(meshEntity);
             var modelMatrix = transform.WorldMatrix;
             var mesh = ComponentRegistry.GetComponent<GlMeshDataComponent>(meshEntity);
-            
+
             //Manipulators are rendered in the ManipulatorRenderSystem
             if (mesh.IsManipulator) continue;
-            
+
             var materials = ComponentRegistry.GetComponent<MaterialComponent>(meshEntity);
-            
+
             var isSelected = pickingData.SelectedEntityIds.Contains(meshEntity);
-            var isHovered = (!isSelected && pickingData.HoveredEntityId == meshEntity) ? 1 : 0;
+            var isHovered = !isSelected && pickingData.HoveredEntityId == meshEntity ? 1 : 0;
             var isSelectedInt = isSelected ? 1 : 0;
-            
+
             RenderMesh(mesh, materials, modelMatrix, isHovered, isSelectedInt);
         }
     }
@@ -56,18 +57,17 @@ public class GLRenderMeshSystem : RenderSystem
         Matrix4 modelMatrix, int isHovered, int isSelected)
     {
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
-        shader.SetMatrix4(UniformNames.uModel,ref modelMatrix).
-            SetInt(UniformNames.uIsHovered, ref isHovered)
+        shader.SetMatrix4(UniformNames.uModel, ref modelMatrix).SetInt(UniformNames.uIsHovered, ref isHovered)
             .SetInt(UniformNames.uIsSelected, ref isSelected);
         materialComponent.Shader.UniformLocations.TryGetValue(UniformNames.uIsHovered, out var materialLocation);
-        
-        if(mesh.IsGrid)
+
+        if (mesh.IsGrid)
+        {
             MeshRenderer.Draw(mesh);
+        }
         else
         {
             using var renderContext = MeshRenderer.Begin(mesh).Faces(); //.Edges().Vertices();
         }
-
-
     }
 }

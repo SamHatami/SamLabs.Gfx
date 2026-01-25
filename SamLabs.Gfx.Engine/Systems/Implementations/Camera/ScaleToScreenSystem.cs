@@ -13,7 +13,7 @@ namespace SamLabs.Gfx.Engine.Systems.Implementations.Camera;
 
 public class ScaleToScreenSystem : UpdateSystem
 {
-    override public int SystemPosition => SystemOrders.PreRenderUpdate;
+    public override int SystemPosition => SystemOrders.PreRenderUpdate;
 
     public ScaleToScreenSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
@@ -50,9 +50,9 @@ public class ScaleToScreenSystem : UpdateSystem
                 case ProjectionType.Orthographic:
 
                     var viewportHeightOrtho = frameInput.ViewportSize.Y;
-                    var worldYOrtho = (screenScale.Size.Y / viewportHeightOrtho) * frustumHeight;
-                    var worldXOrtho = (screenScale.Size.X / viewportHeightOrtho) * frustumHeight;
-                    var worldZOrtho = (screenScale.Size.Z / viewportHeightOrtho) * frustumHeight;
+                    var worldYOrtho = screenScale.Size.Y / viewportHeightOrtho * frustumHeight;
+                    var worldXOrtho = screenScale.Size.X / viewportHeightOrtho * frustumHeight;
+                    var worldZOrtho = screenScale.Size.Z / viewportHeightOrtho * frustumHeight;
 
                     entityTransform.Scale = new Vector3(
                         screenScale.LockX ? entityTransform.Scale.X : worldXOrtho,
@@ -66,9 +66,9 @@ public class ScaleToScreenSystem : UpdateSystem
                     var viewportHeight = frameInput.ViewportSize.Y;
                     var viewportWidth = frameInput.ViewportSize.X;
 
-                    var worldY = (screenScale.Size.Y / viewportHeight) * fovScale;
-                    var worldX = (screenScale.Size.X / viewportWidth) * fovScale * (viewportWidth / viewportHeight);
-                    var worldZ = (screenScale.Size.Z / viewportHeight) * fovScale;
+                    var worldY = screenScale.Size.Y / viewportHeight * fovScale;
+                    var worldX = screenScale.Size.X / viewportWidth * fovScale * (viewportWidth / viewportHeight);
+                    var worldZ = screenScale.Size.Z / viewportHeight * fovScale;
 
                     var scaleX = screenScale.LockX ? entityTransform.Scale.X : worldX;
                     var scaleY = screenScale.LockY ? entityTransform.Scale.Y : worldY;

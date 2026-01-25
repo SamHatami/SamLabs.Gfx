@@ -2,10 +2,13 @@ namespace SamLabs.Gfx.Engine.Components.Grid;
 
 public struct GridComponent:IComponent
 {
-    public int LinesPerSide { get;}
-    public float Spacing { get;}
+    public bool Visible { get; set; } = true;
+    public int LinesPerSide { get; set; }
+    public float Spacing { get; set; }
     
-    public GridSnapMode GridSnapMode { get; set; }
+    public SnapMode SnapMode { get; set; }
+
+    public bool UpdateRequested { get; set; } = true; //To signal the system to update the grid mesh when created
 
     public GridComponent(int linesPerSide, float spacing)
     {

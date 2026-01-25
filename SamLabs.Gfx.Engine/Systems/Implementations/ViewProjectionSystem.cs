@@ -58,11 +58,15 @@ public class ViewProjectionSystem : RenderSystem
         renderContext.ResizeRequested = false;
     }
 
-    private Matrix4 ViewMatrix(CameraDataComponent camera, TransformComponent cameraTransform) =>
-        Matrix4.LookAt(cameraTransform.Position, camera.Target, camera.Up);
+    private Matrix4 ViewMatrix(CameraDataComponent camera, TransformComponent cameraTransform)
+    {
+        return Matrix4.LookAt(cameraTransform.Position, camera.Target, camera.Up);
+    }
 
-    private Matrix4 PerspectiveProjectionMatrix(CameraDataComponent camera) =>
-        Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
+    private Matrix4 PerspectiveProjectionMatrix(CameraDataComponent camera)
+    {
+        return Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
+    }
 
     private Matrix4 OrthographicProjectionMatrix(CameraDataComponent camera, RenderContext renderContext)
     {

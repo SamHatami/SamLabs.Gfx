@@ -14,7 +14,8 @@ public class CameraTransitionSystem : UpdateSystem
 {
     private readonly EntityQueryService _entityQuery;
 
-    public CameraTransitionSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
+    public CameraTransitionSystem(EntityRegistry entityRegistry, CommandManager commandManager,
+        EditorEvents editorEvents,
         IComponentRegistry componentRegistry, EntityQueryService entityQuery) : base(entityRegistry, commandManager,
         editorEvents, componentRegistry)
     {
@@ -24,12 +25,10 @@ public class CameraTransitionSystem : UpdateSystem
     public override void Update(FrameInput frameInput)
     {
         var flagIsActive = _entityQuery.With<TransitionCameraFlag>();
-        
-        if(flagIsActive.IsEmpty) return;
+
+        if (flagIsActive.IsEmpty) return;
 
         var transitionData = _entityQuery.With<CameraTransitionDataComponent>();
         var cameraData = _entityQuery.With<CameraDataComponent>();
-        
-        
     }
 }

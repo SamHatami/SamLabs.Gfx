@@ -13,7 +13,7 @@ public partial class GridSettingsViewModel : ViewModelBase
 
     [ObservableProperty] private int _linesPerSide = 20;
     [ObservableProperty] private float _spacing = 1.0f;
-    [ObservableProperty] private GridSnapMode _gridSnapMode = GridSnapMode.None;
+    [ObservableProperty] private SnapMode _snapMode = SnapMode.None;
     [ObservableProperty] private bool _gridVisible = true;
 
     private int _gridEntityId = -1;
@@ -35,35 +35,37 @@ public partial class GridSettingsViewModel : ViewModelBase
             var gridComponent = _componentRegistry.GetComponent<GridComponent>(_gridEntityId);
             LinesPerSide = gridComponent.LinesPerSide;
             Spacing = gridComponent.Spacing;
-            GridSnapMode = gridComponent.GridSnapMode;
+            SnapMode = gridComponent.SnapMode;
         }
     }
 
-    partial void OnLinesPerSideChanged(int value)
+    partial void OnLinesPerSideChanging(int value)
     {
         UpdateGridComponent();
     }
 
-    partial void OnSpacingChanged(float value)
+    partial void OnSpacingChanging(float value)
     {
         UpdateGridComponent();
     }
 
-    partial void OnSnapModeChanged(GridSnapMode value)
+    partial void OnSnapModeChanging(SnapMode value)
     {
         UpdateGridComponent();
     }
 
     private void UpdateGridComponent()
     {
-        if (_gridEntityId == -1) return;
+        if (_gridEntityId == -1)
+        {
+            LoadGridSettings();
+            return;
+        }
 
         ref var gridComponent = ref _componentRegistry.GetComponent<GridComponent>(_gridEntityId);
-        // GridComponent is readonly struct, so we need to recreate it
-        var newGridComponent = new GridComponent(LinesPerSide, Spacing)
-        {
-            GridSnapMode = GridSnapMode
-        };
-        _componentRegistry.SetComponentToEntity(newGridComponent, _gridEntityId);
+        gridComponent.LinesPerSide = LinesPerSide;
+        gridComponent.Spacing = Spacing;
+        gridComponent.SnapMode = SnapMode;
+        gridComponent.UpdateRequested = true;
     }
 }

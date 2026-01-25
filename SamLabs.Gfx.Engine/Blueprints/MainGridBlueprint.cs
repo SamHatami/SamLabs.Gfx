@@ -48,7 +48,10 @@ public class MainGridBlueprint : EntityBlueprint
             PrimitiveType = PrimitiveType.Lines,
             VertexCount = vertices.Length
         };
-
+         //TODO: Create the shader version of the grid -> only needs a quad.
+         
+         var quadVertices = MeshUtils.CreateQuad(1.0f);
+         
         _componentRegistry.SetComponentToEntity(material, entity.Id);
         _componentRegistry.SetComponentToEntity(meshData, entity.Id);
         _componentRegistry.SetComponentToEntity(gridData, entity.Id);

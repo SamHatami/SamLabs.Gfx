@@ -84,4 +84,16 @@ public static class MeshUtils
 
         return triangleIndices.ToArray();
     }
+
+    public static Vertex[] CreateQuad(float size)
+    {
+        var halfSize = size / 2f;
+        return
+        [
+            new Vertex(new Vector3(-halfSize, -halfSize, 0), Vector3.UnitZ, new Vector2(0, 0)),
+                new Vertex(new Vector3(halfSize, -halfSize, 0), Vector3.UnitZ, new Vector2(1, 0)),
+                new Vertex(new Vector3(halfSize, halfSize, 0), Vector3.UnitZ, new Vector2(1, 1)),
+                new Vertex(new Vector3(-halfSize, halfSize, 0), Vector3.UnitZ, new Vector2(0, 1))
+        ];
+    }
 }

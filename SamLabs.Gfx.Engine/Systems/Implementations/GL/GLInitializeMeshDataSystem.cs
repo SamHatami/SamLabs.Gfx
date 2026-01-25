@@ -18,12 +18,14 @@ public class GLInitializeMeshDataSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.Init;
     private readonly IComponentRegistry _componentRegistry;
-    public GLInitializeMeshDataSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry,componentRegistry)
+
+    public GLInitializeMeshDataSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(
+        entityRegistry, componentRegistry)
     {
         _componentRegistry = componentRegistry;
     }
 
-    public override void Update(FrameInput frameInput,RenderContext renderContext)
+    public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
         var glMeshDataEntities = _componentRegistry.GetEntityIdsForComponentType<CreateGlMeshDataFlag>();
         if (glMeshDataEntities.IsEmpty) return;
@@ -34,7 +36,7 @@ public class GLInitializeMeshDataSystem : RenderSystem
             ref var meshData = ref _componentRegistry.GetComponent<MeshDataComponent>(glMeshDataEntities[i]);
 
             CreateGlMeshData(ref glMeshData, ref meshData);
-            
+
             _componentRegistry.RemoveComponentFromEntity<CreateGlMeshDataFlag>(glMeshDataEntities[i]);
         }
     }
@@ -51,14 +53,14 @@ public class GLInitializeMeshDataSystem : RenderSystem
             BufferUsage.StaticDraw);
 
         SetupVertexAttributes();
-        
-        if( meshData.TriangleIndices.Length > 0)
+
+        if (meshData.TriangleIndices.Length > 0)
             IndexVertices(ref glMeshData, ref meshData);
         if (meshData.EdgeIndices != null && meshData.EdgeIndices.Length > 0)
             IndexEdges(ref glMeshData, meshData.EdgeIndices);
         else
             glMeshData.Ebo = 0;
-        
+
         GL.BindVertexArray(0);
     }
 
@@ -69,7 +71,7 @@ public class GLInitializeMeshDataSystem : RenderSystem
         GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.TriangleIndices.Length * sizeof(uint),
             meshData.TriangleIndices, BufferUsage.StaticDraw);
     }
-    
+
     private void IndexEdges(ref GlMeshDataComponent glMeshData, int[] edgeIndices)
     {
         glMeshData.EdgeEbo = GL.GenBuffer();

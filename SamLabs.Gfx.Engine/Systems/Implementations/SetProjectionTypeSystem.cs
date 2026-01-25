@@ -17,7 +17,8 @@ public class SetProjectionTypeSystem : UpdateSystem
     private readonly EntityQueryService _query;
 
     public SetProjectionTypeSystem(EntityRegistry entityRegistry, CommandManager commandManager,
-        EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, commandManager,
+        EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(
+        entityRegistry, commandManager,
         editorEvents, componentRegistry)
     {
         _componentRegistry = componentRegistry;

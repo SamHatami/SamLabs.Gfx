@@ -19,7 +19,8 @@ public class GLManipulatorRenderSystem : RenderSystem
     private const float manipulatorBaseSize = 0.015f;
     private readonly EntityQueryService _query;
 
-    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, componentRegistry)
+    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry,
+        EntityQueryService query) : base(entityRegistry, componentRegistry)
     {
         _query = query;
     }
@@ -29,12 +30,12 @@ public class GLManipulatorRenderSystem : RenderSystem
     {
         var manipulatorEntities = ComponentRegistry.GetEntityIdsForComponentType<ManipulatorComponent>();
         if (manipulatorEntities.IsEmpty) return;
-        
+
         var pickingEntity = ComponentRegistry.GetEntityIdsForComponentType<PickingDataComponent>()[0];
         var pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity);
 
-        if(pickingData.IsSelectionEmpty()) return;
-        
+        if (pickingData.IsSelectionEmpty()) return;
+
         var activemanipulator = ComponentRegistry.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
         if (activemanipulator.IsEmpty) return;
         if (activemanipulator.Length > 1) return; //Only one manipulator can be active at a time.
@@ -43,15 +44,17 @@ public class GLManipulatorRenderSystem : RenderSystem
         var subEntities = ComponentRegistry.GetChildEntitiesForParent(activemanipulator[0], childBuffer);
         var selectedmanipulators = _query.With<SelectedManipulatorChildComponent>();
         var isAnymanipulatorDragging = !selectedmanipulators.IsEmpty && frameInput.IsMouseLeftButtonDown;
-        
+
         DrawManipulator(activemanipulator[0], subEntities, pickingData, childBuffer, isAnymanipulatorDragging);
     }
 
-    private void DrawManipulator(int activemanipulator, ReadOnlySpan<int> manipulatorSubEntities, PickingDataComponent pickingData,
+    private void DrawManipulator(int activemanipulator, ReadOnlySpan<int> manipulatorSubEntities,
+        PickingDataComponent pickingData,
         Span<int> childBuffer, bool isDragging)
     {
         ref var parentTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activemanipulator);
-        UpdateChildmanipulators(activemanipulator, manipulatorSubEntities, childBuffer,ref parentTransform); //Special case for the manipulator
+        UpdateChildmanipulators(activemanipulator, manipulatorSubEntities, childBuffer,
+            ref parentTransform); //Special case for the manipulator
 
         GL.Clear(ClearBufferMask.DepthBufferBit);
         GL.Enable(EnableCap.DepthTest);
@@ -61,19 +64,24 @@ public class GLManipulatorRenderSystem : RenderSystem
             var mesh = ComponentRegistry.GetComponent<GlMeshDataComponent>(manipulatorSubEntity);
             var material = ComponentRegistry.GetComponent<MaterialComponent>(manipulatorSubEntity);
             var submanipulatorTransform = ComponentRegistry.GetComponent<TransformComponent>(manipulatorSubEntity);
-            var manipulatorChildComponent = ComponentRegistry.GetComponent<ManipulatorChildComponent>(manipulatorSubEntity);
-            
-            RenderManipualtorSubMesh(mesh, material, isSelected, isDragging, submanipulatorTransform.WorldMatrix, pickingData, manipulatorSubEntity, manipulatorChildComponent);
+            var manipulatorChildComponent =
+                ComponentRegistry.GetComponent<ManipulatorChildComponent>(manipulatorSubEntity);
+
+            RenderManipualtorSubMesh(mesh, material, isSelected, isDragging, submanipulatorTransform.WorldMatrix,
+                pickingData, manipulatorSubEntity, manipulatorChildComponent);
         }
+
         GL.Disable(EnableCap.DepthTest);
     }
 
     private bool CheckSelection(int manipulatorSubEntity, PickingDataComponent pickingData)
     {
-        return !pickingData.IsSelectionEmpty() && ComponentRegistry.HasComponent<SelectedManipulatorChildComponent>(manipulatorSubEntity);
+        return !pickingData.IsSelectionEmpty() &&
+               ComponentRegistry.HasComponent<SelectedManipulatorChildComponent>(manipulatorSubEntity);
     }
 
-    private void UpdateChildmanipulators(int activeManipulator, ReadOnlySpan<int> manipulatorSubEntities, Span<int> childBuffer,
+    private void UpdateChildmanipulators(int activeManipulator, ReadOnlySpan<int> manipulatorSubEntities,
+        Span<int> childBuffer,
         ref TransformComponent parentTransform)
     {
         var cameraEntities = ComponentRegistry.GetEntityIdsForComponentType<CameraComponent>();
@@ -81,27 +89,25 @@ public class GLManipulatorRenderSystem : RenderSystem
 
         ref var cameraData = ref ComponentRegistry.GetComponent<CameraDataComponent>(cameraEntities[0]);
         ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(cameraEntities[0]);
-        
+
         //Todo create a utility class for this => Move to ScaleToScreenSystem when adding ScaleToScreenComponent
         var toManipulator = parentTransform.Position - cameraTransform.Position;
         var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         var depth = Vector3.Dot(toManipulator, forward);
         if (depth < 0.1f) depth = 0.1f;
-    
+
         var fovScale = 2.0f * depth * MathF.Tan(cameraData.Fov * 0.5f);
-        
+
         var scale = manipulatorBaseSize * fovScale;
-        
 
 
-        
         var parentRot = parentTransform.LocalMatrix.ExtractRotation();
         var parentPos = parentTransform.LocalMatrix.ExtractTranslation();
 
-        var parentMatrix = Matrix4.CreateScale(scale) 
-                                * Matrix4.CreateFromQuaternion(parentRot) 
-                                * Matrix4.CreateTranslation(parentPos);
-        
+        var parentMatrix = Matrix4.CreateScale(scale)
+                           * Matrix4.CreateFromQuaternion(parentRot)
+                           * Matrix4.CreateTranslation(parentPos);
+
         foreach (var subEntity in manipulatorSubEntities)
         {
             ref var subTransform = ref ComponentRegistry.GetComponent<TransformComponent>(subEntity);
@@ -112,18 +118,17 @@ public class GLManipulatorRenderSystem : RenderSystem
     }
 
 
-
-    private void RenderManipualtorSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, bool isSelected, bool isDragging,
+    private void RenderManipualtorSubMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
+        bool isSelected, bool isDragging,
         Matrix4 modelMatrix, PickingDataComponent pickingData, int entityId,
         ManipulatorChildComponent manipulatorChildComponent)
     {
-        
-        var isHovered = isDragging 
-            ? (isSelected ? 1 : 0)  // During drag: only selected is highlighted
-            : (pickingData.HoveredEntityId == entityId ? 1 : 0);  // Not dragging: use picking
+        var isHovered = isDragging
+            ? (isSelected ? 1 : 0) // During drag: only selected is highlighted
+            : (pickingData.HoveredEntityId == entityId ? 1 : 0); // Not dragging: use picking
         var axis = manipulatorChildComponent.Axis.ToInt();
         var selected = isSelected ? 1 : 0;
-     
+
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
         shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
             .SetInt(UniformNames.uIsHovered, ref isHovered)
