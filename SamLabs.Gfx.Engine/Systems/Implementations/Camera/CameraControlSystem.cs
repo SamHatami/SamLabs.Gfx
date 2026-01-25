@@ -56,9 +56,21 @@ public class CameraControlSystem : UpdateSystem
             Math.Abs(delta.Y - 0.0001f) < MathExtensions.Tolerance)
             return;
         var viewportSize = frameInput.ViewportSize;
-        var worldHeight = 2.0f * cameraData.DistanceToTarget * MathF.Tan(cameraData.Fov / 2.0f);
 
-        var pixelsToWorldScale = worldHeight / viewportSize.Y;
+        float pixelsToWorldScale;
+        switch (cameraData.ProjectionType)
+        {
+            case ProjectionType.Orthographic:
+                var frustumHeight = 2.0f * cameraData.OrthographicSize;
+                pixelsToWorldScale = frustumHeight / viewportSize.Y;
+                break;
+            case ProjectionType.Perspective:
+                var worldHeight = 2.0f * cameraData.DistanceToTarget * MathF.Tan(cameraData.Fov / 2.0f);
+                pixelsToWorldScale = worldHeight / viewportSize.Y;
+                break;
+            default:
+                return;
+        }
 
         cameraData.DistanceToTarget = Vector3.Distance(cameraData.Target, cameraTransform.Position);
         var forward = cameraData.Target - cameraTransform.Position;
@@ -87,8 +99,16 @@ public class CameraControlSystem : UpdateSystem
 
     private void Zoom(float delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
     {
-        cameraData.DistanceToTarget = MathF.Max(0.1f, cameraData.DistanceToTarget - delta);
-        UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
+        switch (cameraData.ProjectionType)
+        {
+            case ProjectionType.Orthographic:
+                cameraData.OrthographicSize = MathF.Max(0.1f, cameraData.OrthographicSize - delta * 0.1f);
+                break;
+            case ProjectionType.Perspective:
+                cameraData.DistanceToTarget = MathF.Max(0.1f, cameraData.DistanceToTarget - delta);
+                UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
+                break;
+        }
     }
 
     private void UpdatePositionFromSpherical(ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)

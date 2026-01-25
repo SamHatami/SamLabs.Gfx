@@ -31,6 +31,7 @@ public class MainCameraBlueprint : EntityBlueprint
         var cameraData = new CameraDataComponent();
         {
             cameraData.ProjectionType = ProjectionType.Perspective;
+            cameraData.OrthographicSize = 10;
             cameraData.Fov = MathHelper.DegreesToRadians(60);
             cameraData.Target = new Vector3(0, 0, 0);
             cameraData.DistanceToTarget = Vector3.Distance(transformComponent.Position, cameraData.Target);

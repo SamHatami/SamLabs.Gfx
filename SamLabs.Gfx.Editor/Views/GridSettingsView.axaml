@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
+             xmlns:grid="clr-namespace:SamLabs.Gfx.Engine.Components.Grid;assembly=SamLabs.Gfx.Engine"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="250"
+             x:Class="SamLabs.Gfx.Editor.Views.GridSettingsView"
+             x:DataType="vm:GridSettingsViewModel">
+
+    <Border Background="#2D2D30"
+            BorderBrush="#3F3F46"
+            BorderThickness="1"
+            CornerRadius="4">
+        <StackPanel Orientation="Vertical" Spacing="0">
+            <!-- Title Bar -->
+            <Border Background="#252526"
+                    Padding="10,6"
+                    CornerRadius="4,4,0,0">
+                <TextBlock Text="Grid Settings"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           FontWeight="Bold"/>
+            </Border>
+
+            <!-- Content Area -->
+            <Border Padding="10">
+                <StackPanel Orientation="Vertical" Spacing="10">
+
+                    <!-- Grid Size -->
+                    <StackPanel Orientation="Vertical" Spacing="4">
+                        <TextBlock Text="Lines Per Side" Foreground="#CCC" FontSize="12"/>
+                        <NumericUpDown Value="{Binding LinesPerSide, Mode=TwoWay}"
+                                       Minimum="5"
+                                       Maximum="100"
+                                       Increment="5"
+                                       Background="#3F3F46"
+                                       Foreground="White"
+                                       Width="200"
+                                       HorizontalAlignment="Left"/>
+                    </StackPanel>
+
+                    <!-- Grid Spacing -->
+                    <StackPanel Orientation="Vertical" Spacing="4">
+                        <TextBlock Text="Spacing" Foreground="#CCC" FontSize="12"/>
+                        <NumericUpDown Value="{Binding Spacing, Mode=TwoWay}"
+                                       Minimum="0.1"
+                                       Maximum="10.0"
+                                       Increment="0.5"
+                                       FormatString="F2"
+                                       Background="#3F3F46"
+                                       Foreground="White"
+                                       Width="200"
+                                       HorizontalAlignment="Left"/>
+                    </StackPanel>
+
+                    <!-- Snap Mode -->
+                    <StackPanel Orientation="Vertical" Spacing="4">
+                        <TextBlock Text="Snap Mode" Foreground="#CCC" FontSize="12"/>
+                        <ComboBox SelectedItem="{Binding GridSnapMode, Mode=TwoWay}"
+                                  Background="#3F3F46"
+                                  Foreground="White"
+                                  Width="200"
+                                  HorizontalAlignment="Left">
+                            <grid:GridSnapMode>None</grid:GridSnapMode>
+                            <grid:GridSnapMode>Point</grid:GridSnapMode>
+                            <grid:GridSnapMode>Edge</grid:GridSnapMode>
+                            <grid:GridSnapMode>Grid</grid:GridSnapMode>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Grid Visibility Toggle -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <CheckBox IsChecked="{Binding GridVisible, Mode=TwoWay}"
+                                  Foreground="White"/>
+                        <TextBlock Text="Show Grid"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -124,7 +124,7 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
-        if(Idle()) 
+        if(Idle())
         {
             _wasIdling = true;
             return;

@@ -64,6 +64,10 @@ public class ViewProjectionSystem : RenderSystem
     private Matrix4 PerspectiveProjectionMatrix(CameraDataComponent camera) =>
         Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
 
-    private Matrix4 OrthographicProjectionMatrix(CameraDataComponent camera, RenderContext renderContext) =>
-        Matrix4.CreateOrthographic(camera.OrthographicSize, renderContext.ViewHeight*camera.OrthographicSize, camera.Near, camera.Far);
+    private Matrix4 OrthographicProjectionMatrix(CameraDataComponent camera, RenderContext renderContext)
+    {
+        var height = camera.OrthographicSize * 2.0f;
+        var width = height * camera.AspectRatio;
+        return Matrix4.CreateOrthographic(width, height, camera.Near, camera.Far);
+    }
 }

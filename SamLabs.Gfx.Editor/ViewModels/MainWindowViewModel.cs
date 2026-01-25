@@ -21,6 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public CommandManager CommandManager { get; }
     public ISceneManager SceneManager { get; }
     public TransformStateViewModel TransformStateViewModel { get; }
+    public GridSettingsViewModel GridSettingsViewModel { get; set; }
 
     [ObservableProperty] private int _objectId;
     private readonly EntityFactory _entityFactory;
@@ -40,7 +41,7 @@ public partial class MainWindowViewModel : ViewModelBase
         CommandManager = commandManager;
         SceneManager = sceneManager;
         TransformStateViewModel = transformStateViewModel; //this should just be the ActiveToolViewModel
-
+        GridSettingsViewModel = new GridSettingsViewModel(_componentRegistry, engineContext.EntityRegistry);
         InitializeMainScene();
 
         //we also need sub-viewmodels that subscribe to whatever events they need
@@ -48,6 +49,7 @@ public partial class MainWindowViewModel : ViewModelBase
         //TransformViewModel
         //PropertiesViewmodel (perhaps includes the transform?)
     }
+
 
     private void InitializeMainScene()
     {
@@ -94,7 +96,8 @@ public partial class MainWindowViewModel : ViewModelBase
             _toolManager.ActivateTool(ToolIds.TransformScale);
     }
 
-
+    public void ToggleCameraProjection() =>
+        CommandManager.EnqueueCommand(new ToggleCameraProjectionCommand(_componentRegistry));
 
     public void UndoCommand() => CommandManager.UndoLatestCommand();
     public void RedoCommand() => CommandManager.RedoLatestCommand();

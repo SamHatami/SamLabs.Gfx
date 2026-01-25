@@ -29,6 +29,7 @@
         <KeyBinding Gesture="Q" Command="{Binding ToggleTranslateManipulators}" />
         <KeyBinding Gesture="W" Command="{Binding ToggleRotateManipulator}" />
         <KeyBinding Gesture="E" Command="{Binding ToggleScaleManipulator}" />
+        <KeyBinding Gesture="C" Command="{Binding ToggleCameraProjection}" />
     </Window.KeyBindings>
 
     <Grid>
@@ -49,6 +50,15 @@
                     <behaviors:DragMoveBehavior />
                 </Interaction.Behaviors>
             </views:TransformStateView>
+
+            <views:GridSettingsView
+                Canvas.Left="10"
+                Canvas.Top="60"
+                DataContext="{Binding GridSettingsViewModel}">
+                <Interaction.Behaviors>
+                    <behaviors:DragMoveBehavior />
+                </Interaction.Behaviors>
+            </views:GridSettingsView>
 
         </Canvas>
 
