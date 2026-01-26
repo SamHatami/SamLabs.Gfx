@@ -7,7 +7,7 @@ using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations.Camera;
+namespace SamLabs.Gfx.Engine.Systems.Camera;
 
 //System to transition camera between two positions and targets.
 public class CameraTransitionSystem : UpdateSystem

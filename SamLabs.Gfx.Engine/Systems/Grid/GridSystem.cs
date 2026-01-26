@@ -13,7 +13,7 @@ using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 using SamLabs.Gfx.Geometry.Mesh;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations;
+namespace SamLabs.Gfx.Engine.Systems.Grid;
 
 public class GridSystem : UpdateSystem
 {
@@ -36,7 +36,7 @@ public class GridSystem : UpdateSystem
         ref var gridComponent = ref ComponentRegistry.GetComponent<GridComponent>(_gridEntity);
         if (!gridComponent.UpdateRequested) return;
 
-        var vertices = GetVertices(gridComponent.LinesPerSide, gridComponent.Spacing);
+        var vertices = GetVertices(gridComponent.LinesPerSide, gridComponent.GridLineSpacing);
 
         var meshData = new MeshDataComponent()
         {

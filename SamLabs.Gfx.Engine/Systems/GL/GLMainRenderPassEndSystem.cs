@@ -7,7 +7,7 @@ using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations;
+namespace SamLabs.Gfx.Engine.Systems.GL;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.MainEnd)]
 public class GLMainRenderPassEndSystem : RenderSystem
@@ -21,10 +21,10 @@ public class GLMainRenderPassEndSystem : RenderSystem
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-        GL.Disable(EnableCap.Blend);
-        GL.Disable(EnableCap.LineSmooth);
-        GL.Disable(EnableCap.DepthTest);
-        GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
+        OpenTK.Graphics.OpenGL.GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        OpenTK.Graphics.OpenGL.GL.Disable(EnableCap.Blend);
+        OpenTK.Graphics.OpenGL.GL.Disable(EnableCap.LineSmooth);
+        OpenTK.Graphics.OpenGL.GL.Disable(EnableCap.DepthTest);
+        OpenTK.Graphics.OpenGL.GL.BlendFunc(BlendingFactor.One, BlendingFactor.Zero);
     }
 }

@@ -9,7 +9,7 @@ using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations.Camera;
+namespace SamLabs.Gfx.Engine.Systems.Camera;
 
 public class ScaleToScreenSystem : UpdateSystem
 {

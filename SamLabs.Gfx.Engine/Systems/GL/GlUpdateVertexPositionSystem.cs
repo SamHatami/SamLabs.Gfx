@@ -1,7 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Components.Flags;
 using SamLabs.Gfx.Engine.Components.Flags.GL;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Core.Utility;
@@ -12,7 +11,7 @@ using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 using SamLabs.Gfx.Geometry.Mesh;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations;
+namespace SamLabs.Gfx.Engine.Systems.GL;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.PreRenderUpdate)]
 public class GlUpdateVertexPositionSystem : RenderSystem
@@ -52,9 +51,9 @@ public class GlUpdateVertexPositionSystem : RenderSystem
     {
         IntPtr byteOffset = startIndex * SizeOf.Vertex;
 
-        GL.BindVertexArray(glMeshData.Vao);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, glMeshData.Vbo);
-        GL.BufferSubData(BufferTarget.ArrayBuffer, byteOffset, vertices.Length * SizeOf.Vertex, vertices);
-        GL.BindVertexArray(0);
+        OpenTK.Graphics.OpenGL.GL.BindVertexArray(glMeshData.Vao);
+        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTarget.ArrayBuffer, glMeshData.Vbo);
+        OpenTK.Graphics.OpenGL.GL.BufferSubData(BufferTarget.ArrayBuffer, byteOffset, vertices.Length * SizeOf.Vertex, vertices);
+        OpenTK.Graphics.OpenGL.GL.BindVertexArray(0);
     }
 }

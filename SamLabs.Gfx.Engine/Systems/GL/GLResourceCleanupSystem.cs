@@ -1,7 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
-using SamLabs.Gfx.Engine.Components;
+﻿using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Components.Flags;
 using SamLabs.Gfx.Engine.Components.Flags.GL;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
@@ -10,7 +8,7 @@ using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations;
+namespace SamLabs.Gfx.Engine.Systems.GL;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.CleanUp)]
 public class GLResourceCleanupSystem : RenderSystem
@@ -40,8 +38,8 @@ public class GLResourceCleanupSystem : RenderSystem
 
     private void DisposeGLResources(ref GlMeshDataComponent glMeshData)
     {
-        GL.DeleteVertexArray(glMeshData.Vao);
-        GL.DeleteBuffer(glMeshData.Vbo);
-        if (glMeshData.Ebo != 0) GL.DeleteBuffer(glMeshData.Ebo);
+        OpenTK.Graphics.OpenGL.GL.DeleteVertexArray(glMeshData.Vao);
+        OpenTK.Graphics.OpenGL.GL.DeleteBuffer(glMeshData.Vbo);
+        if (glMeshData.Ebo != 0) OpenTK.Graphics.OpenGL.GL.DeleteBuffer(glMeshData.Ebo);
     }
 }

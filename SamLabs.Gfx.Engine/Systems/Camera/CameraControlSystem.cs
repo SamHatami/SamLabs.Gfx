@@ -10,7 +10,7 @@ using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.Implementations.Camera;
+namespace SamLabs.Gfx.Engine.Systems.Camera;
 
 public class CameraControlSystem : UpdateSystem
 {

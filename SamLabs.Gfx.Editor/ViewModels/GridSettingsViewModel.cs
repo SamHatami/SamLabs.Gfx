@@ -34,7 +34,7 @@ public partial class GridSettingsViewModel : ViewModelBase
             _gridEntityId = gridEntities[0];
             var gridComponent = _componentRegistry.GetComponent<GridComponent>(_gridEntityId);
             LinesPerSide = gridComponent.LinesPerSide;
-            Spacing = gridComponent.Spacing;
+            Spacing = gridComponent.GridLineSpacing;
             SnapMode = gridComponent.SnapMode;
         }
     }
@@ -64,7 +64,7 @@ public partial class GridSettingsViewModel : ViewModelBase
 
         ref var gridComponent = ref _componentRegistry.GetComponent<GridComponent>(_gridEntityId);
         gridComponent.LinesPerSide = LinesPerSide;
-        gridComponent.Spacing = Spacing;
+        gridComponent.GridLineSpacing = Spacing;
         gridComponent.SnapMode = SnapMode;
         gridComponent.UpdateRequested = true;
     }
