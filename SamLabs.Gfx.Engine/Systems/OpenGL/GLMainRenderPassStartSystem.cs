@@ -7,7 +7,7 @@ using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.GL;
+namespace SamLabs.Gfx.Engine.Systems.OpenGL;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.MainStart)]
 public class GLMainRenderPassStartSystem : RenderSystem

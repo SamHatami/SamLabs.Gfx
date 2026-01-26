@@ -2,7 +2,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Components.Flags.GL;
+using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Structural;
 using SamLabs.Gfx.Engine.Core.Utility;
@@ -135,6 +135,7 @@ public class BarElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(nodeMesh, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(material, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(glMesh, nodeEntity.Id);
+        _componentRegistry.SetComponentToEntity(new TrussNodeComponent(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, nodeEntity.Id);

@@ -9,7 +9,7 @@ using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.GL;
+namespace SamLabs.Gfx.Engine.Systems.OpenGL;
 
 public class GLRenderMeshSystem : RenderSystem
 {

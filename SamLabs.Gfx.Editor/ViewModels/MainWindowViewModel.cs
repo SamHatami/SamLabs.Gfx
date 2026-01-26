@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamLabs.Gfx.Engine.Blueprints.Primitives;
 using SamLabs.Gfx.Engine.Commands;
+using SamLabs.Gfx.Engine.Commands.Construction;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;

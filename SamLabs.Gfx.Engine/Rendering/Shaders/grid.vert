@@ -17,4 +17,6 @@ void main()
     fragWorldPosition = worldPos.xyz;
 
     gl_Position = projection * view * worldPos;
+
+    //Implement this: https://dev.to/javiersalcedopuyo/simple-infinite-grid-shader-5fah
 }

@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Components.Flags.GL;
+using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
@@ -10,7 +10,7 @@ using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
-namespace SamLabs.Gfx.Engine.Systems.GL;
+namespace SamLabs.Gfx.Engine.Systems.OpenGL;
 
 [RenderPassAttributes.RenderOrder(SystemOrders.Init)]
 public class GLInitializeMeshDataSystem : RenderSystem

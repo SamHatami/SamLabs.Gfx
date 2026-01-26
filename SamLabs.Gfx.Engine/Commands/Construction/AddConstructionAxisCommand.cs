@@ -1,9 +1,8 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
-using SamLabs.Gfx.Engine.Components.Construction;
 using SamLabs.Gfx.Engine.Entities;
 
-namespace SamLabs.Gfx.Engine.Commands;
+namespace SamLabs.Gfx.Engine.Commands.Construction;
 
 public class AddConstructionAxisCommand : Command
 {
