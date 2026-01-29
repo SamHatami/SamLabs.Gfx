@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Logging;
 using OpenTK.Graphics.OpenGL;
+using SamLabs.Gfx.Engine.Rendering.Utility;
 
 namespace SamLabs.Gfx.Engine.Rendering.Engine;
 
@@ -8,12 +9,16 @@ public class ShaderService : IDisposable
 {
     private readonly ILogger<ShaderService> _logger;
     private static Dictionary<string, GLShader> _shadersProgram = new();
+    
+    public Dictionary<string, GLShader> ShadersProgram => _shadersProgram;
 
+    public bool Started { get; private set; } = false;
     public ShaderService(ILogger<ShaderService> logger)
     {
         _logger = logger;
     }
 
+    //we will load as resources later on, i'll keep this for debugging and hotreloading purposes for now.
     public void RegisterShaders()
     {
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -42,7 +47,7 @@ public class ShaderService : IDisposable
             //Maybe expand into its own shader record later on
         }
 
-
+        Started = true;
         Console.WriteLine($"Registered {vertPaths.Length} shaders");
     }
 
@@ -94,8 +99,8 @@ public class ShaderService : IDisposable
 
     private int CreateShaderProgram(string vertPath, string fragPath)
     {
-        var vert = LoadTextResource(vertPath);
-        var frag = LoadTextResource(fragPath);
+        var vert = ShaderUtility.LoadFromTextureSource(vertPath);
+        var frag = ShaderUtility.LoadFromTextureSource(fragPath);
 
         var v = GL.CreateShader(ShaderType.VertexShader);
         GL.ShaderSource(v, vert);
@@ -133,14 +138,6 @@ public class ShaderService : IDisposable
         GL.DeleteShader(v);
         GL.DeleteShader(f);
         return program;
-    }
-
-    private string LoadTextResource(string path)
-    {
-        var baseDir = AppContext.BaseDirectory;
-        var full = Path.Combine(baseDir, path.Replace('/', Path.DirectorySeparatorChar));
-        if (!File.Exists(full)) full = Path.Combine(Environment.CurrentDirectory, path);
-        return File.ReadAllText(full);
     }
 
     public void WatchForChanges(string path)

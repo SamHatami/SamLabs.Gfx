@@ -12,6 +12,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
     private ShaderService _shaderService;
     private readonly UniformBufferService _uniformBufferService;
     private readonly FrameBufferService _frameBufferService;
+    private readonly MaterialLibrary _materialLibrary;
     private readonly ILogger<OpenGLRenderer> _logger;
     private int _mvpLocation = -1;
     private int _vbo = 0;
@@ -23,10 +24,11 @@ public class OpenGLRenderer : IDisposable, IRenderer
     private List<IRenderPass> _renderPasses = []; //Sorted renderpasses 
 
     public OpenGLRenderer(ShaderService shaderService, UniformBufferService uniformBufferService,
-        FrameBufferService frameBufferService, ILogger<OpenGLRenderer> logger)
+        FrameBufferService frameBufferService, MaterialLibrary materialLibrary, ILogger<OpenGLRenderer> logger)
     {
         _uniformBufferService = uniformBufferService;
         _frameBufferService = frameBufferService;
+        _materialLibrary = materialLibrary;
         _shaderService = shaderService;
         _logger = logger;
     }
@@ -36,6 +38,7 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _uniformBufferService.RegisterViewProjectionBuffer();
         _uniformBufferService.CreateSingleIntUniform("objectId");
         _shaderService.RegisterShaders();
+        _materialLibrary.InitializeLibrary();
 
 
         //bind View-Projection uniform to all the shader programs

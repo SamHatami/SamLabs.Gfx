@@ -10,6 +10,7 @@ public class RenderServiceModule : IServiceModule
 {
     public IServiceCollection RegisterServices(IServiceCollection services)
     {
+        services.AddSingleton<MaterialLibrary>();
         services.AddSingleton<ShaderService>();
         services.AddSingleton<UniformBufferService>();
         services.AddSingleton<FrameBufferService>();

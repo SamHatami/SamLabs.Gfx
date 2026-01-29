@@ -14,12 +14,12 @@ namespace SamLabs.Gfx.Engine.Blueprints;
 
 public class MainGridBlueprint : EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
+    private readonly MaterialLibrary _materialLibrary;
     private readonly IComponentRegistry _componentRegistry;
 
-    public MainGridBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry)
+    public MainGridBlueprint(MaterialLibrary materialLibrary, IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
+        _materialLibrary = materialLibrary;
         _componentRegistry = componentRegistry;
     }
 
@@ -39,8 +39,7 @@ public class MainGridBlueprint : EntityBlueprint
             Name = "Main Grid"
         };
         
-        var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("grid");
+        var material = _materialLibrary.GetDefaultMaterialForShader("grid");
         
         var glMeshData = new GlMeshDataComponent()
         {

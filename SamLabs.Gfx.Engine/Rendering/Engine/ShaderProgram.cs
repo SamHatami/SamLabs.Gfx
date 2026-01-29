@@ -14,7 +14,6 @@ public class ShaderProgram : IDisposable
     
     public ShaderProgram Use()
     {
-        
         try
         {
             GL.UseProgram(_shader.ProgramId);
