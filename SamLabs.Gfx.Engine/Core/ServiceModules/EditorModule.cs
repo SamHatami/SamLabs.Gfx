@@ -31,10 +31,7 @@ public class EditorModule:IServiceModule
         //Editor services
         services.AddSingleton<EditorEvents>();
         services.AddSingleton<EditorWorkState>();
-        
 
-        // Entity query helper
-        services.AddSingleton<EntityQueryService>();
         
         return services;
     }

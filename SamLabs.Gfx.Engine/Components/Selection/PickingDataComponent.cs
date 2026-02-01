@@ -1,4 +1,5 @@
 using SamLabs.Gfx.Engine.Entities;
+using SamLabs.Gfx.Engine.Core.Utility;
 
 namespace SamLabs.Gfx.Engine.Components.Selection;
 
@@ -34,7 +35,7 @@ public struct PickingDataComponent :IComponent
 
 public static class PickingDataComponentExtensions
 {
-    public static bool IsSelectionEmpty(this PickingDataComponent pickingData) => pickingData.SelectedEntityIds.Length == 0;
+    public static bool IsSelectionEmpty(this PickingDataComponent pickingData) => pickingData.SelectedEntityIds.IsEmpty();
     public static bool NothingHovered(this PickingDataComponent pickingData) => pickingData.HoveredEntityId < 0;
     public static bool ManipulatorHovered(this PickingDataComponent pickingData) => pickingData.HoveredEntityType == EntityType.Manipulator;
     public static bool ManipualtorSelected(this PickingDataComponent pickingData) => pickingData.SelectedManipulatorId >= 0;

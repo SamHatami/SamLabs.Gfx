@@ -51,21 +51,21 @@ public class RotateTool : TransformTool
     public RotateTool(
         IComponentRegistry componentRegistry,
         CommandManager commandManager,
-        EntityQueryService query,
+        EntityRegistry entityRegistry,
         EditorEvents editorEvents)
-        : base(ManipulatorType.Rotate, componentRegistry, commandManager, query, editorEvents)
+        : base(ManipulatorType.Rotate, componentRegistry, commandManager, entityRegistry, editorEvents)
     {
-        _strategy = new RotateToolStrategy(componentRegistry, query);
+        _strategy = new RotateToolStrategy(componentRegistry, entityRegistry);
     }
 
     public override void ProcessInput(FrameInput input)
     {
         if (_state == ToolState.Inactive) return;
 
-        var selectedEntities = Query.AndWith<TransformComponent>(Query.With<SelectedComponent>());
-        if (selectedEntities.IsEmpty) return;
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
+        if (selectedEntities.Length == 0) return;
 
-        var activeManipulator = Query.With<ActiveManipulatorComponent>().First();
+        var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
         if (activeManipulator == -1) return;
 
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
@@ -73,8 +73,8 @@ public class RotateTool : TransformTool
         
         manipulatorTransform.Position = entityTransform.Position;
         
-        var pickingEntities = Query.With<PickingDataComponent>();
-        if (pickingEntities.IsEmpty) return;
+        var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().Get();
+        if (pickingEntities.Length == 0) return;
         
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
 
@@ -148,8 +148,8 @@ public class RotateTool : TransformTool
 
     public override void UpdateValues(double x, double y, double z)
     {
-        var selectedEntities = Query.AndWith<TransformComponent>(Query.With<SelectedComponent>());
-        if (selectedEntities.IsEmpty) return;
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
+        if (selectedEntities.Length == 0) return;
 
         var entityId = selectedEntities[0];
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);
@@ -206,4 +206,3 @@ public class RotateTool : TransformTool
         };
     }
 }
-

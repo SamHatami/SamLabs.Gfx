@@ -14,20 +14,20 @@ public class SetProjectionTypeSystem : UpdateSystem
 {
     public override int SystemPosition { get; } = SystemOrders.PreRenderUpdate;
     private readonly IComponentRegistry _componentRegistry;
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
 
     public SetProjectionTypeSystem(EntityRegistry entityRegistry, CommandManager commandManager,
-        EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(
+        EditorEvents editorEvents, IComponentRegistry componentRegistry) : base(
         entityRegistry, commandManager,
         editorEvents, componentRegistry)
     {
         _componentRegistry = componentRegistry;
-        _query = query;
+        _entityRegistry = entityRegistry;
     }
 
     public override void Update(FrameInput frameInput)
     {
-        var cameraEntityId = _query.With<CameraComponent>().First();
+        var cameraEntityId = _entityRegistry.Query.With<CameraComponent>().First();
 
         if (cameraEntityId == -1) return;
 

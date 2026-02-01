@@ -3,6 +3,7 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -13,23 +14,20 @@ namespace SamLabs.Gfx.Engine.Systems.OpenGL;
 
 public class GLRenderMeshSystem : RenderSystem
 {
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
     public override int SystemPosition => SystemOrders.MainRender;
 
-    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry,
-        EntityQueryService query) : base(entityRegistry, componentRegistry)
+    public GLRenderMeshSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
     {
-        _query = query;
+        _entityRegistry = entityRegistry;
     }
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-        //Get all glmeshes and render them, in the future we will allow to hide meshes aswell
-        var renderableEntities = _query.With<GlMeshDataComponent>();
-        var renderableEntities_2 = _query.Without<ManipulatorComponent>(renderableEntities);
-        var meshEntities = _query.Without<ManipulatorChildComponent>(renderableEntities_2);
+        //Get all glmeshes and render them, in the future we will allow to hide meshes aswell and  have a better render component
+        var meshEntities = _entityRegistry.Query.With<GlMeshDataComponent>().Without<ManipulatorChildComponent>().Get();
 
-        if (meshEntities.Length == 0) return;
+        if (meshEntities.IsEmpty()) return;
 
         var pickingEntity = ComponentRegistry.GetEntityIdsForComponentType<PickingDataComponent>();
         var pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity[0]);
@@ -56,6 +54,7 @@ public class GLRenderMeshSystem : RenderSystem
     private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
         Matrix4 modelMatrix, int isHovered, int isSelected)
     {
+        //TODO: Move this to a new ShaderUniformUploadSystem where the materials handles are necessary uniforms are set for specific shaders
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
         shader.SetMatrix4(UniformNames.uModel, ref modelMatrix).SetInt(UniformNames.uIsHovered, ref isHovered)
             .SetInt(UniformNames.uIsSelected, ref isSelected);

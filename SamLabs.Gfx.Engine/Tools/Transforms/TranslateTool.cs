@@ -1,9 +1,10 @@
-﻿﻿using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
+using SamLabs.Gfx.Engine.Components.Transform.Flags;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
@@ -49,30 +50,31 @@ public class TranslateTool : TransformTool
     public TranslateTool(
         IComponentRegistry componentRegistry,
         CommandManager commandManager,
-        EntityQueryService query,
+        EntityRegistry entityRegistry,
         EditorEvents editorEvents)
-        : base(ManipulatorType.Translate, componentRegistry, commandManager, query, editorEvents)
+        : base(ManipulatorType.Translate, componentRegistry, commandManager, entityRegistry, editorEvents)
     {
-        _strategy = new TranslateToolStrategy(componentRegistry, query);
+        _strategy = new TranslateToolStrategy(componentRegistry, entityRegistry);
     }
 
     public override void ProcessInput(FrameInput input)
     {
         if (_state == ToolState.Inactive) return;
 
-        var selectedEntities = Query.AndWith<TransformComponent>(Query.With<SelectedComponent>());
-        if (selectedEntities.IsEmpty) return;
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
+        if (selectedEntities.IsEmpty()) return;
 
-        var activeManipulator = Query.With<ActiveManipulatorComponent>().First();
+        var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
         if (activeManipulator == -1) return;
 
+        //TODO: Support multi-select translation
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
         ref var manipulatorTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activeManipulator);
         
         manipulatorTransform.Position = entityTransform.Position;
         
-        var pickingEntities = Query.With<PickingDataComponent>();
-        if (pickingEntities.IsEmpty) return;
+        var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().Get();
+        if (pickingEntities.IsEmpty()) return;
         
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
 
@@ -112,6 +114,11 @@ public class TranslateTool : TransformTool
                 OnPropertyChanged(nameof(DeltaX));
                 OnPropertyChanged(nameof(DeltaY));
                 OnPropertyChanged(nameof(DeltaZ));
+                
+                //Set flag for other systems that transform has changed, e.g. structural system node system or barsystem
+                //TODO: I might have to check if this entity requires this flag, but for now we just set it for all
+                if(!ComponentRegistry.HasComponent<TranslateChangedFlag>(_selectedManipulatorSubEntity))
+                    ComponentRegistry.SetComponentToEntity(new TranslateChangedFlag(), selectedEntities[0]);
             }
         }
 
@@ -135,8 +142,8 @@ public class TranslateTool : TransformTool
 
     public override void UpdateValues(double x, double y, double z)
     {
-        var selectedEntities = Query.AndWith<TransformComponent>(Query.With<SelectedComponent>());
-        if (selectedEntities.IsEmpty) return;
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
+        if (selectedEntities.IsEmpty()) return;
 
         var entityId = selectedEntities[0];
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);
@@ -210,4 +217,3 @@ public class TransformToolUIDescriptor : IToolUIDescriptor
         }
     }
 }
-

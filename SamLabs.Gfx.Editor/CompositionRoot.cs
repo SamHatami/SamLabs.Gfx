@@ -69,14 +69,14 @@ public class CompositionRoot
         var toolManager = serviceProvider.GetRequiredService<ToolManager>();
         var componentRegistry = serviceProvider.GetRequiredService<IComponentRegistry>();
         var commandManager = serviceProvider.GetRequiredService<CommandManager>();
-        var query = serviceProvider.GetRequiredService<EntityQueryService>();
         var editorEvents = serviceProvider.GetRequiredService<EditorEvents>();
+        var entityRegistry = serviceProvider.GetRequiredService<EntityRegistry>();
         var workState = serviceProvider.GetRequiredService<EditorWorkState>();
 
         //Toolsmanager can register tools instead, this is temporary
-        var translateTool = new TranslateTool(componentRegistry, commandManager, query, editorEvents);
-        var rotateTool = new RotateTool(componentRegistry, commandManager, query, editorEvents);
-        var scaleTool = new ScaleTool(componentRegistry, commandManager, query, editorEvents);
+        var translateTool = new TranslateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
+        var rotateTool = new RotateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
+        var scaleTool = new ScaleTool(componentRegistry, commandManager, entityRegistry, editorEvents);
         
         toolManager.RegisterTool(translateTool);
         toolManager.RegisterTool(rotateTool);

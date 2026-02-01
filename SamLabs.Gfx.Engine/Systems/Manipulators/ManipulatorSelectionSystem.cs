@@ -1,8 +1,9 @@
-﻿using SamLabs.Gfx.Engine.Commands;
+﻿﻿using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -12,13 +13,13 @@ namespace SamLabs.Gfx.Engine.Systems.Manipulators;
 
 public class ManipulatorSelectionSystem : UpdateSystem
 {
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
 
     public ManipulatorSelectionSystem(EntityRegistry entityRegistry, CommandManager commandManager,
-        EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, commandManager,
+        EditorEvents editorEvents, IComponentRegistry componentRegistry) : base(entityRegistry, commandManager,
         editorEvents, componentRegistry)
     {
-        _query = query;
+        _entityRegistry = entityRegistry;
 
         // Subscribe to selection cleared events so manipulator-specific selection can be cleared
         editorEvents.SelectionCleared += (s, e) => ClearPreviousSelection();
@@ -69,15 +70,15 @@ public class ManipulatorSelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var entities = _query.With<PickingDataComponent>();
-        if (entities.IsEmpty) return; //hmm
+        var entities = _entityRegistry.Query.With<PickingDataComponent>().Get();
+        if (entities.IsEmpty()) return; //hmm
         _pickingEntity = entities[0];
     }
 
     private void SetNewManipulatorSelection(int manpulatorEntityId)
     {
-        var activeManipulator = _query.With<ActiveManipulatorComponent>();
-        if (activeManipulator.IsEmpty) return;
+        var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().Get();
+        if (activeManipulator.IsEmpty()) return;
 
         ClearPreviousSelection();
 
@@ -86,7 +87,7 @@ public class ManipulatorSelectionSystem : UpdateSystem
 
     private int[] GetManipulatorsFromSelection(int[] entityIds)
     {
-        if (entityIds.Length == 0) return entityIds;
+        if (entityIds.IsEmpty()) return entityIds;
 
         return entityIds
             .Where(id => ComponentRegistry.HasComponent<ManipulatorComponent>(id))
@@ -97,8 +98,8 @@ public class ManipulatorSelectionSystem : UpdateSystem
 
     private void ClearPreviousSelection()
     {
-        var previousSelection = _query.With<SelectedManipulatorChildComponent>();
-        if (previousSelection.IsEmpty) return;
+        var previousSelection = _entityRegistry.Query.With<SelectedManipulatorChildComponent>().Get();
+        if (previousSelection.IsEmpty()) return;
 
         foreach (var entity in previousSelection)
             ComponentRegistry.RemoveComponentFromEntity<SelectedManipulatorChildComponent>(entity);

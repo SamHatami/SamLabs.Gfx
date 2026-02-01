@@ -4,18 +4,20 @@ using SamLabs.Gfx.Engine.Core;
 
 namespace SamLabs.Gfx.Engine.Components;
 
+//TODO: Optimize ComponentRegistry by using bit arrays for ComponentMaps
 public class ComponentRegistry : IComponentRegistry
 {
+    private readonly ComponentMap[]
+        _componentMaps =
+            new ComponentMap[EditorSettings.MaxComponents]; //for quick tracking which entities have which components
 
-    private readonly ComponentMap[] _componentMaps = new ComponentMap[EditorSettings.MaxComponents]; //for quick tracking which entities have which components
-
-    private readonly Dictionary<Type, int> _componentTypeRegistry = new(EditorSettings.MaxComponents); //only used for building up the ComponentTypeCache
+    private readonly Dictionary<Type, int>
+        _componentTypeRegistry = new(EditorSettings.MaxComponents); //only used for building up the ComponentTypeCache
 
     private readonly IComponentStorage[] _componentStorages = new IComponentStorage[EditorSettings.MaxComponents];
 
     public ComponentRegistry()
     {
-
         var componentTypes = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t =>
                 t.IsValueType &&
@@ -120,4 +122,3 @@ public class ComponentRegistry : IComponentRegistry
         return _componentMaps[componentId].Has(entityId);
     }
 }
-

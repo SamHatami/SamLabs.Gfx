@@ -11,7 +11,7 @@ public class EntityRegistry
     private readonly ILogger<EntityRegistry> _logger;
     private readonly IComponentRegistry _componentRegistry;
     private readonly Entity?[] _entities  = new Entity?[EditorSettings.MaxEntities];
-    
+    public EntityQuery Query => new EntityQuery(this, _componentRegistry);
     public event EventHandler<EntityEventArgs>? OnEntityCreated;
 
     public EntityRegistry(ILogger<EntityRegistry> logger, IComponentRegistry componentRegistry)
@@ -27,7 +27,6 @@ public class EntityRegistry
         _entities[id] = entity;
         
         OnEntityCreated?.Invoke(this, new EntityEventArgs(entity));
-        
         return entity;
     }
 

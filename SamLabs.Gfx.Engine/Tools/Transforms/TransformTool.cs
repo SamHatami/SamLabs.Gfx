@@ -13,7 +13,7 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
 {
     protected readonly IComponentRegistry ComponentRegistry;
     protected readonly CommandManager CommandManager;
-    protected readonly EntityQueryService Query;
+    protected readonly EntityRegistry _entityRegistry;
     
     protected int? ActiveManipulatorId { get; private set; }
     protected ManipulatorType ManipulatorType { get; }
@@ -34,13 +34,13 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
         ManipulatorType manipulatorType,
         IComponentRegistry componentRegistry,
         CommandManager commandManager,
-        EntityQueryService query,
+        EntityRegistry entityRegistry,
         EditorEvents editorEvents)
     {
         ManipulatorType = manipulatorType;
         ComponentRegistry = componentRegistry;
         CommandManager = commandManager;
-        Query = query;
+        _entityRegistry = entityRegistry;
     }
 
     public virtual void Activate()

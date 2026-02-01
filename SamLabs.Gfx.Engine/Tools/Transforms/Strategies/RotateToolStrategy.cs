@@ -15,12 +15,12 @@ public class RotateToolStrategy:ITransformToolStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
     private readonly IComponentRegistry _componentRegistry;
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
 
-    public RotateToolStrategy(IComponentRegistry componentRegistry, EntityQueryService query)
+    public RotateToolStrategy(IComponentRegistry componentRegistry, EntityRegistry entityRegistry)
     {
         _componentRegistry = componentRegistry;
-        _query = query;
+        _entityRegistry = entityRegistry;
     }
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent manipulatorTransform,
@@ -72,7 +72,7 @@ public class RotateToolStrategy:ITransformToolStrategy
 
     private float GetRotateDelta(FrameInput input, TransformComponent manipulatorTransform, ManipulatorChildComponent manipulatorChild, bool constrainDelta = false)
     {
-        var cameraId = _query.With<CameraComponent>().First();
+        var cameraId = _entityRegistry.Query.With<CameraComponent>().First();
         if (cameraId == -1) return 0;
 
         //Get cameraData (still only one camera)

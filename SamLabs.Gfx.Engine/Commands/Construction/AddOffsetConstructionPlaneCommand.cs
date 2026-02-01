@@ -9,17 +9,17 @@ public class AddOffsetConstructionPlaneCommand : Command
 {
     private readonly EntityFactory _entityFactory;
     private readonly IComponentRegistry _componentRegistry;
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
     private readonly ILogger<AddOffsetConstructionPlaneCommand> _logger;
     private readonly int _basePlaneEntityId;
     private readonly float _offset;
     private int _entityId = -1;
 
-    public AddOffsetConstructionPlaneCommand(EntityFactory entityFactory, IComponentRegistry componentRegistry, EntityQueryService query, ILogger<AddOffsetConstructionPlaneCommand> logger)
+    public AddOffsetConstructionPlaneCommand(EntityFactory entityFactory, IComponentRegistry componentRegistry, EntityRegistry entityRegistry, ILogger<AddOffsetConstructionPlaneCommand> logger)
     {
         _entityFactory = entityFactory;
         _componentRegistry = componentRegistry;
-        _query = query;
+        _entityRegistry = entityRegistry;
         _logger = logger;
     }
 
@@ -38,7 +38,7 @@ public class AddOffsetConstructionPlaneCommand : Command
         }
 
         //Get the manipulators
-        var dragManipulator = _query.GetDragManipulator();
+        var dragManipulator = _entityRegistry.Query.With<DragComponent>().First();
 
         if (dragManipulator == -1)
         {

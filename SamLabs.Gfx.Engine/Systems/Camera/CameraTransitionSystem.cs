@@ -12,23 +12,22 @@ namespace SamLabs.Gfx.Engine.Systems.Camera;
 //System to transition camera between two positions and targets.
 public class CameraTransitionSystem : UpdateSystem
 {
-    private readonly EntityQueryService _entityQuery;
+    private readonly EntityRegistry _entityRegistry;
 
     public CameraTransitionSystem(EntityRegistry entityRegistry, CommandManager commandManager,
         EditorEvents editorEvents,
-        IComponentRegistry componentRegistry, EntityQueryService entityQuery) : base(entityRegistry, commandManager,
+        IComponentRegistry componentRegistry) : base(entityRegistry, commandManager,
         editorEvents, componentRegistry)
     {
-        _entityQuery = entityQuery;
+        _entityRegistry = entityRegistry;
     }
 
     public override void Update(FrameInput frameInput)
     {
-        var flagIsActive = _entityQuery.With<TransitionCameraFlag>();
+        var flagIsActive = _entityRegistry.Query.With<TransitionCameraFlag>().Get();
+        if (flagIsActive.Length == 0) return;
 
-        if (flagIsActive.IsEmpty) return;
-
-        var transitionData = _entityQuery.With<CameraTransitionDataComponent>();
-        var cameraData = _entityQuery.With<CameraDataComponent>();
+        var transitionData = _entityRegistry.Query.With<CameraTransitionDataComponent>().Get();
+        var cameraData = _entityRegistry.Query.With<CameraDataComponent>().Get();
     }
 }

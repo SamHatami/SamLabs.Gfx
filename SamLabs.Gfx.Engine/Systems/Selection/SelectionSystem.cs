@@ -14,7 +14,6 @@ namespace SamLabs.Gfx.Engine.Systems.Selection;
 public class SelectionSystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
-    private readonly EntityQueryService _query;
 
     public override int SystemPosition => SystemOrders.SelectionUpdate;
     private PickingDataComponent _pickingData;
@@ -22,10 +21,9 @@ public class SelectionSystem : UpdateSystem
     private int[] _currentSelection = System.Array.Empty<int>();
     private bool _isManipulatorDragging;
     
-    public SelectionSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents, IComponentRegistry componentRegistry, EntityQueryService query) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
+    public SelectionSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents, IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
         _entityRegistry = entityRegistry;
-        _query = query;
     }
 
     public override void Update(FrameInput frameInput)
@@ -35,8 +33,8 @@ public class SelectionSystem : UpdateSystem
         if (_pickingEntity == -1) return;
         _pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(_pickingEntity);
         
-        var selectedManipulators = _query.With<SelectedManipulatorChildComponent>();
-        _isManipulatorDragging = !selectedManipulators.IsEmpty && frameInput.IsDragging;
+        var selectedManipulators = _entityRegistry.Query.With<SelectedManipulatorChildComponent>().Get();
+        _isManipulatorDragging = !selectedManipulators.IsEmpty() && frameInput.IsDragging;
 
         if(_isManipulatorDragging) return; 
         
@@ -44,17 +42,6 @@ public class SelectionSystem : UpdateSystem
 
         if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
         {
-            // The click-out cancellation used to clear selection when the user clicked on empty space.
-            // We keep the code here as a commented option so it can be re-enabled by the user in future.
-            /*
-            if (_pickingData.NothingHovered()) //Clear if clicked outside any selectable, add esc key to clear
-            {
-                ClearSelection(validEntities);
-                DisableActiveManipulators();
-                EditorEvents.PublishSelectionCleared(new Core.SelectionClearedArgs(validEntities));
-                return;
-            }
-            */
             if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(_pickingData.HoveredEntityId))
                 return;
 
@@ -76,11 +63,11 @@ public class SelectionSystem : UpdateSystem
 
     private void SetNewManipulatorSelection(int manipulatorEntityId)
     {
-        var activeManipulator = _query.With<ActiveManipulatorComponent>();
-        if (activeManipulator.IsEmpty) return;
+        var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().Get();
+        if (activeManipulator.IsEmpty()) return;
 
-        var previousSelection = _query.With<SelectedManipulatorChildComponent>();
-        if (!previousSelection.IsEmpty)
+        var previousSelection = _entityRegistry.Query.With<SelectedManipulatorChildComponent>().Get();
+        if (!previousSelection.IsEmpty())
             ComponentRegistry.RemoveComponentFromEntities<SelectedManipulatorChildComponent>(previousSelection);
 
         ComponentRegistry.SetComponentToEntity(new SelectedManipulatorChildComponent(), manipulatorEntityId);
@@ -99,13 +86,13 @@ public class SelectionSystem : UpdateSystem
 
     private void AttachToManipulator(int[] entityIds)
     {
-        var activeManipulator = _query.With<ActiveManipulatorComponent>();
+        var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().Get();
 
         // If no active manipulator, clear all attachments
-        if (activeManipulator.IsEmpty)
+        if (activeManipulator.Length == 0)
         {
-            var attachedEntities = _query.With<ManipulatorAttachedComponent>();
-            if (!attachedEntities.IsEmpty)
+            var attachedEntities = _entityRegistry.Query.With<ManipulatorAttachedComponent>().Get();
+            if (attachedEntities.Length != 0)
             {
                 foreach (var entityId in attachedEntities)
                     ComponentRegistry.RemoveComponentFromEntity<ManipulatorAttachedComponent>(entityId);
@@ -115,7 +102,7 @@ public class SelectionSystem : UpdateSystem
         }
 
         // Clear existing attachments first to ensure only current selection is attached
-        var currentAttachments = _query.With<ManipulatorAttachedComponent>();
+        var currentAttachments = _entityRegistry.Query.With<ManipulatorAttachedComponent>().Get();
         foreach (var entityId in currentAttachments)
         {
             ComponentRegistry.RemoveComponentFromEntity<ManipulatorAttachedComponent>(entityId);
@@ -132,7 +119,7 @@ public class SelectionSystem : UpdateSystem
     {
         if (_pickingEntity != -1) return;
 
-        var pickingEntityId = _query.With<PickingDataComponent>().First();
+        var pickingEntityId = _entityRegistry.Query.With<PickingDataComponent>().First();
         if (pickingEntityId == -1) return; //hmm
         _pickingEntity = pickingEntityId;
     }
@@ -168,8 +155,8 @@ public class SelectionSystem : UpdateSystem
 
     private void ClearSelectionComponent()
     {
-        var earlierSelection = _query.With<SelectedComponent>();
-        if (earlierSelection.IsEmpty) return;
+        var earlierSelection = _entityRegistry.Query.With<SelectedComponent>().Get();
+        if (earlierSelection.Length == 0) return;
 
         foreach (var entity in earlierSelection)
             ComponentRegistry.RemoveComponentFromEntity<SelectedComponent>(entity);
@@ -177,8 +164,8 @@ public class SelectionSystem : UpdateSystem
 
     private void DisableActiveManipulators()
     {
-        var activeManipulators = _query.With<ActiveManipulatorComponent>();
-        if (activeManipulators.IsEmpty) return;
+        var activeManipulators = _entityRegistry.Query.With<ActiveManipulatorComponent>().Get();
+        if (activeManipulators.Length == 0) return;
 
         foreach (var manipulatorEntity in activeManipulators)
         {

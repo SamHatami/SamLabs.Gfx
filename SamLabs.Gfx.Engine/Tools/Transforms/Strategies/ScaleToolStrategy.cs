@@ -15,12 +15,12 @@ public class ScaleToolStrategy : ITransformToolStrategy
 {
     private Vector3 _lastHitPoint = Vector3.Zero;
     private readonly IComponentRegistry _componentRegistry;
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
 
-    public ScaleToolStrategy(IComponentRegistry componentRegistry, EntityQueryService query)
+    public ScaleToolStrategy(IComponentRegistry componentRegistry, EntityRegistry entityRegistry)
     {
         _componentRegistry = componentRegistry;
-        _query = query;
+        _entityRegistry = entityRegistry;
     }
 
     public void Apply(FrameInput input, ref TransformComponent target, ref TransformComponent manipulatorTransform,
@@ -70,7 +70,7 @@ public class ScaleToolStrategy : ITransformToolStrategy
     private Vector3 GetTransformDelta(FrameInput input, TransformComponent manipulatorTransform,
         ManipulatorChildComponent manipulatorChild)
     {
-        var cameraId = _query.With<CameraComponent>().First();
+        var cameraId = _entityRegistry.Query.With<CameraComponent>().First();
         if (cameraId == -1) return Vector3.Zero;
 
         //Get cameraData (still only one camera)

@@ -1,4 +1,4 @@
-﻿using Avalonia;
+﻿﻿using Avalonia;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
@@ -44,10 +44,10 @@ public class GLPickingSystem : RenderSystem
         _viewport = renderContext.ViewPort;
 
         var selectableEntities = _componentRegistry.GetEntityIdsForComponentType<SelectableDataComponent>();
-        if (selectableEntities.Length == 0) return;
+        if (selectableEntities.IsEmpty) return;
 
         var meshEntities = _componentRegistry.GetEntityIdsForComponentType<GlMeshDataComponent>();
-        if (meshEntities.Length == 0) return;
+        if (meshEntities.IsEmpty) return;
 
         (var x, var y) = GetPixelPosition(frameInput.MousePosition, renderContext);
 

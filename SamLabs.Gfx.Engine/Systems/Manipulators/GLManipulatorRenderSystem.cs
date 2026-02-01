@@ -5,6 +5,7 @@ using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -17,12 +18,11 @@ public class GLManipulatorRenderSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.ManipulatorRender;
     private const float manipulatorBaseSize = 0.015f;
-    private readonly EntityQueryService _query;
+    private readonly EntityRegistry _entityRegistry;
 
-    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry,
-        EntityQueryService query) : base(entityRegistry, componentRegistry)
+    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
     {
-        _query = query;
+        _entityRegistry = entityRegistry;
     }
 
 
@@ -42,8 +42,8 @@ public class GLManipulatorRenderSystem : RenderSystem
 
         Span<int> childBuffer = stackalloc int[12]; //Make sure only the active parents children are fetched
         var subEntities = ComponentRegistry.GetChildEntitiesForParent(activemanipulator[0], childBuffer);
-        var selectedmanipulators = _query.With<SelectedManipulatorChildComponent>();
-        var isAnymanipulatorDragging = !selectedmanipulators.IsEmpty && frameInput.IsMouseLeftButtonDown;
+        var selectedmanipulators = _entityRegistry.Query.With<SelectedManipulatorChildComponent>().Get();
+        var isAnymanipulatorDragging = !selectedmanipulators.IsEmpty() && frameInput.IsMouseLeftButtonDown;
 
         DrawManipulator(activemanipulator[0], subEntities, pickingData, childBuffer, isAnymanipulatorDragging);
     }
