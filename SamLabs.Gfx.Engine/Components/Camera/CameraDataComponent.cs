@@ -1,5 +1,4 @@
 using OpenTK.Mathematics;
-using SamLabs.Gfx.Engine.Core.Utility;
 
 namespace SamLabs.Gfx.Engine.Components.Camera;
 

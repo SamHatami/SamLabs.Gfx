@@ -69,7 +69,9 @@ public class ComponentRegistry : IComponentRegistry
     {
         if (entityId == -1) return;
 
-        foreach (var componentMap in _componentMaps) componentMap.RemoveUsage(entityId);
+        foreach (var componentMap in _componentMaps) 
+            if (componentMap != null)
+                componentMap.RemoveUsage(entityId);
 
         foreach (var storage in _componentStorages) storage?.Clear(entityId);
     }
@@ -120,5 +122,14 @@ public class ComponentRegistry : IComponentRegistry
         if (componentId == -1) return false;
 
         return _componentMaps[componentId].Has(entityId);
+    }
+
+    public void RemoveAllComponentsFromEntity(int nodeEntity)
+    {
+        if(nodeEntity == -1) return;
+        
+        foreach (var componentMap in _componentMaps)
+            if (componentMap != null && componentMap.Has(nodeEntity))
+                componentMap.RemoveUsage(nodeEntity);
     }
 }

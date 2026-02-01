@@ -1,7 +1,6 @@
-﻿using SamLabs.Gfx.Engine.Components;
+﻿using System.Buffers;
+using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
-using System.Collections;
-using System.Runtime.InteropServices;
 
 namespace SamLabs.Gfx.Engine.Entities;
 
@@ -11,24 +10,43 @@ public class EntityQuery
 {
     private readonly EntityRegistry _registry;
     private readonly IComponentRegistry _componentRegistry;
-    private BitArray _mask;
+
+    private List<int>? _candidates;
+
+    private int[]? _rented;
+    private int _rentedCount;
 
     public EntityQuery(EntityRegistry registry, IComponentRegistry componentRegistry)
     {
         _registry = registry;
         _componentRegistry = componentRegistry;
-        _mask = GetActiveMask();
     }
 
-    private BitArray GetActiveMask()
+    public EntityQuery Reset()
     {
-        var mask = new BitArray(EditorSettings.MaxEntities, false);
-        for (int id = 0; id < EditorSettings.MaxEntities; id++)
+        _candidates?.Clear();
+        _candidates = null;
+
+        if (_rented != null)
+        {
+            ArrayPool<int>.Shared.Return(_rented);
+            _rented = null;
+            _rentedCount = 0;
+        }
+
+        return this;
+    }
+
+    private void EnsureSeededFromActiveEntities()
+    {
+        if (_candidates != null) return;
+
+        _candidates = new List<int>();
+        for (var id = 0; id < EditorSettings.MaxEntities; id++)
         {
             if (_registry.GetEntity(id) != null)
-                mask[id] = true;
+                _candidates.Add(id);
         }
-        return mask;
     }
 
     /// <summary>
@@ -39,11 +57,25 @@ public class EntityQuery
     /// <returns></returns>
     public EntityQuery With<T>() where T : IComponent
     {
-        for (int id = 0; id < _mask.Length; id++)
+        if (_candidates == null)
         {
-            if (_mask[id] && !_componentRegistry.HasComponent<T>(id))
-                _mask[id] = false;
+            var usage = _componentRegistry.GetEntityIdsForComponentType<T>();
+            _candidates = new List<int>(usage.Length);
+            foreach (var id in usage)
+            {
+                if (_registry.GetEntity(id) != null)
+                    _candidates.Add(id);
+            }
+            return this;
         }
+
+        for (var i = _candidates.Count - 1; i >= 0; i--)
+        {
+            var id = _candidates[i];
+            if (!_componentRegistry.HasComponent<T>(id))
+                _candidates.RemoveAt(i);
+        }
+
         return this;
     }
 
@@ -55,14 +87,41 @@ public class EntityQuery
     /// <returns></returns>
     public EntityQuery Without<T>() where T : IComponent
     {
-        for (int id = 0; id < _mask.Length; id++)
+        EnsureSeededFromActiveEntities();
+
+        for (var i = _candidates!.Count - 1; i >= 0; i--)
         {
-            if (_mask[id] && _componentRegistry.HasComponent<T>(id))
-                _mask[id] = false;
+            var id = _candidates[i];
+            if (_componentRegistry.HasComponent<T>(id))
+                _candidates.RemoveAt(i);
         }
+
         return this;
     }
-    
+
+    /// <summary>
+    /// Returns the entity IDs in the query result as a ReadOnlySpan.
+    /// If no entities match the query, an empty ReadOnlySpan<int> is returned.
+    /// </summary>
+    /// <returns></returns>
+    public ReadOnlySpan<int> GetSpan()
+    {
+        if (_candidates == null || _candidates.Count == 0)
+            return ReadOnlySpan<int>.Empty;
+
+        if (_rented != null)
+        {
+            ArrayPool<int>.Shared.Return(_rented);
+            _rented = null;
+            _rentedCount = 0;
+        }
+
+        _rented = ArrayPool<int>.Shared.Rent(_candidates.Count);
+        _rentedCount = _candidates.Count;
+        _candidates.CopyTo(_rented, 0);
+        return _rented.AsSpan(0, _rentedCount);
+    }
+
     /// <summary>
     /// Returns the entity IDs in the query result as an owned int array.
     /// If no entities match the query, an empty int[] is returned.
@@ -70,13 +129,10 @@ public class EntityQuery
     /// <returns></returns>
     public int[] Get()
     {
-        var ids = new List<int>();
-        for (int id = 0; id < _mask.Length; id++)
-        {
-            if (_mask[id])
-                ids.Add(id);
-        }
-        return ids.ToArray();
+        if (_candidates == null || _candidates.Count == 0)
+            return Array.Empty<int>();
+
+        return _candidates.ToArray();
     }
 
     /// <summary>
@@ -84,11 +140,7 @@ public class EntityQuery
     /// </summary>
     public int First()
     {
-        for (int id = 0; id < _mask.Length; id++)
-        {
-            if (_mask[id])
-                return id;
-        }
-        return -1;
+        if (_candidates == null || _candidates.Count == 0) return -1;
+        return _candidates[0];
     }
 }

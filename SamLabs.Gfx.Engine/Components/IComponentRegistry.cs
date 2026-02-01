@@ -1,6 +1,3 @@
-using System;
-using SamLabs.Gfx.Engine.Components.Common;
-
 namespace SamLabs.Gfx.Engine.Components;
 
 public interface IComponentRegistry
@@ -15,5 +12,6 @@ public interface IComponentRegistry
     ReadOnlySpan<int> GetEntityIdsForComponentType<T>() where T : IComponent;
     ReadOnlySpan<int> GetChildEntitiesForParent(int parentId, Span<int> results);
     bool HasComponent<T>(int entityId) where T : IComponent;
+    void RemoveAllComponentsFromEntity(int nodeEntity);
 }
 

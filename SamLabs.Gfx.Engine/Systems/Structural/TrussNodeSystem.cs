@@ -1,25 +1,32 @@
 ﻿using OpenTK.Mathematics;
-using SamLabs.Gfx.Core.Math;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
+using SamLabs.Gfx.Engine.Components.Flags;
+using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Structural;
+using SamLabs.Gfx.Engine.Components.Structural.Flags;
 using SamLabs.Gfx.Engine.Components.Transform.Flags;
 using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
+using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Engine.Systems.Structural;
 
 /// <summary>
-/// Controls the moving behavior of truss nodes, including merging and splitting nodes based on proximity and connection status.
-/// Updates connected bars when nodes are moved.
+/// Tracks a map over where the nodes are for merging.
+/// Updates connected bars when nodes are moved => no... not really, the translatetool calls this, which is not good.
 /// </summary>
 public class TrussNodeSystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
     private readonly Dictionary<int, Quaternion> _previousRotations = new();
+    public override int SystemPosition { get; } = SystemOrders.PreRenderUpdate - 1; // Run before ScaleToScreenSystem
+
+    private Dictionary<int, Vector3> _nodePositionMap = new();
 
     //Responsible for merging truss nodes that are within a certain threshold distance or splitting them
     //FLags required for this
@@ -31,129 +38,100 @@ public class TrussNodeSystem : UpdateSystem
 
     public override void Update(FrameInput frameInput)
     {
-        //We should get the selected nodes only, if we dont have any selected nodes we are not doing anything
-        //Get nodes flagged with EntityTranslated
-        var nodeEntities = _entityRegistry.Query.With<TrussNodeComponent>().With<TranslateChangedFlag>().Get();
-        
-        if(nodeEntities.IsEmpty()) return;         
+        var nodeQuery = _entityRegistry.Query;
+        var nodeEntities = nodeQuery.With<TrussNodeComponent>().With<TranslateChangedFlag>().GetSpan();
+        UpdateNodePositionMap(nodeEntities); //Wonder if this is doing it in the correct order?
+        if (nodeEntities.IsEmpty())
+        {
+            _entityRegistry.ReturnQuery(nodeQuery);
+            return;
+        }
 
         foreach (var nodeEntity in nodeEntities)
-        {
-            var nodeComponent = ComponentRegistry.GetComponent<TrussNodeComponent>(nodeEntity);
-            UpdateConnectedBars()
-        }
-        //Split into two arrays, those that can be merged and those that cannot. Nodes that are connected to the same bar cannot be merged.  
+            ComponentRegistry.RemoveComponentFromEntity<TranslateChangedFlag>(nodeEntity);
+
+        MergeNodes(nodeEntities);
+        _entityRegistry.ReturnQuery(nodeQuery);
+        
     }
 
-    private void UpdateConnectedBars(TrussNodeComponent nodeComponent, int nodeEntityId)
+    private void MergeNodes(ReadOnlySpan<int> sourceNodeEntities)
     {
-        var transformComponent = ComponentRegistry.GetComponent<TransformComponent>(nodeEntityId);
-        var nodePosition = transformComponent.Position;
-
-        foreach (var barEntityId in nodeComponent.ConnectedBarIds)
+        foreach (var sourceNodeId in sourceNodeEntities)
         {
-            var barComponent = ComponentRegistry.GetComponent<TrussBarComponent>(barEntityId);
-            int otherNodeEntityId = barComponent.StartNodeEntityId == nodeEntityId
-                ? barComponent.EndNodeEntityId
-                : barComponent.StartNodeEntityId;
+            var nearestNodeId = FindNearestNodeId(sourceNodeId, 0.1f);
+            if (nearestNodeId == -1) continue;
 
-            var otherNodeTransform = ComponentRegistry.GetComponent<TransformComponent>(otherNodeEntityId);
-            var otherNodePosition = otherNodeTransform.Position;
+            ref var nearestNodeComponent = ref ComponentRegistry.GetComponent<TrussNodeComponent>(nearestNodeId);
+            var sourceNodeComponent = ComponentRegistry.GetComponent<TrussNodeComponent>(sourceNodeId);
+            if (!TrussNodeUtility.CanMergeNodes(nearestNodeComponent, sourceNodeComponent)) continue;
 
-            var direction = Vector3.Normalize(otherNodePosition - nodePosition);
-            var length = Vector3.Distance(nodePosition, otherNodePosition);
-
-            // Update bar transform
-            var barTransform = ComponentRegistry.GetComponent<TransformComponent>(barEntityId);
-            barTransform.Position = nodePosition + direction * (length / 2.0f);
-            barTransform.Rotation = CalculateRotationFromDirection(direction, barEntityId);
-            barTransform.Scale = new Vector3(barTransform.Scale.X, barTransform.Scale.Y, length);
-
-            ComponentRegistry.SetComponentToEntity(barTransform, barEntityId);
-
-            // Update bar component length
-            barComponent.Length = length;
-            ComponentRegistry.SetComponentToEntity(barComponent, barEntityId);
-        }
-    }
-
-    private Quaternion CalculateRotationFromDirection(Vector3 direction, int entityId)
-    {
-        var dot = Vector3.Dot(direction, Vector3.UnitZ);
-
-        Quaternion newRotation;
-
-        switch (dot)
-        {
-            case > 0.9999999f:
-                newRotation = Quaternion.Identity;
-                break;
-            case < -0.9999999f:
-                newRotation = Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI);
-                break;
-            default:
+            //Merge nodes
+            foreach (var barId in sourceNodeComponent.ConnectedBarIds)
             {
-                var axis = Vector3.Cross(Vector3.UnitZ, direction);
-                axis = Vector3.Normalize(axis);
-                var angle = MathF.Acos(MathExtensions.Clamp(dot, -1.0f, 1.0f));
-                newRotation = Quaternion.FromAxisAngle(axis, angle);
-                break;
+                nearestNodeComponent.ConnectedBarIds.Add(barId);
+                ref var barComponent = ref ComponentRegistry.GetComponent<TrussBarComponent>(barId);
+                if (barComponent.StartNodeEntityId == sourceNodeId)
+                    barComponent.StartNodeEntityId = nearestNodeId;
+                else
+                    barComponent.EndNodeEntityId = nearestNodeId;
+            }
+
+            //PRobably should be a event of some sort?
+            var pickingEntity = _entityRegistry.Query.With<PickingDataComponent>().First();
+            ref var picking = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity);
+            picking.SelectedEntityIds = [nearestNodeId];
+            
+            TrussNodeUtility.UpdateConnectedBars(ComponentRegistry, nearestNodeComponent, nearestNodeId);
+
+            // Flag that nodes were merged - TrussBarSystem will check for duplicate bars
+            ComponentRegistry.SetComponentToEntity(new NodesMergedFlag(), nearestNodeId);
+
+            //Mark the old node for removal (deferred to cleanup system)
+            ComponentRegistry.SetComponentToEntity(new PendingRemovalFlag(), sourceNodeId);
+            _nodePositionMap.Remove(sourceNodeId);
+            
+            var transformComponent = ComponentRegistry.GetComponent<TransformComponent>(nearestNodeId);
+            _nodePositionMap[nearestNodeId] = transformComponent.Position;
+            
+        }
+    }
+
+    private void UpdateNodePositionMap(ReadOnlySpan<int> updatedNodeEntities)
+    {
+        if (_nodePositionMap.Count == 0) //initial population
+        {
+            var allNodeEntities = ComponentRegistry.GetEntityIdsForComponentType<TrussNodeComponent>();
+            foreach (var nodeEntity in allNodeEntities)
+            {
+                var transformComponent = ComponentRegistry.GetComponent<TransformComponent>(nodeEntity);
+                _nodePositionMap[nodeEntity] = transformComponent.Position;
             }
         }
 
-        if (_previousRotations.TryGetValue(entityId, out var previousRotation))
-        {
-            // Choose the rotation that has the shortest path from the previous rotation
-            // Quaternion dot product: q1.X * q2.X + q1.Y * q2.Y + q1.Z * q2.Z + q1.W * q2.W
-            var dotProduct = previousRotation.X * newRotation.X +
-                             previousRotation.Y * newRotation.Y +
-                             previousRotation.Z * newRotation.Z +
-                             previousRotation.W * newRotation.W;
+        if (updatedNodeEntities.Length == 0) return;
 
-            // If the dot product is negative, the quaternions represent rotations more than 180 degrees apart
-            // In this case, negate the new rotation to take the shorter path
-            if (dotProduct < 0)
-            {
-                newRotation = new Quaternion(-newRotation.X, -newRotation.Y, -newRotation.Z, -newRotation.W);
-            }
+        foreach (var nodeEntity in updatedNodeEntities)
+        {
+            var transformComponent = ComponentRegistry.GetComponent<TransformComponent>(nodeEntity);
+            _nodePositionMap[nodeEntity] = transformComponent.Position;
+        }
+    }
+
+    private int FindNearestNodeId(int sourceNodeId, float searchDistance)
+    {
+        int nearestNodeId = -1;
+        var minDistance = -1f;
+        var sourceNodePosition = _nodePositionMap[sourceNodeId];
+        foreach (var nextNodeId in _nodePositionMap.Keys)
+        {
+            if (nextNodeId == sourceNodeId) continue;
+            var distance = Vector3.Distance(_nodePositionMap[nextNodeId], sourceNodePosition);
+            if (!(distance < searchDistance)) continue;
+            minDistance = distance;
+            nearestNodeId = nextNodeId;
         }
 
-        // Store this rotation for next frame
-        _previousRotations[entityId] = newRotation;
-
-        return newRotation;
+        return nearestNodeId;
     }
-
-    //Move to NodeUtility
-    private bool CanMergeNodes(TrussNodeComponent targetNode, TrussNodeComponent nodeToMerge)
-    {
-        foreach (var elementId in targetNode.ConnectedBarIds)
-            if (nodeToMerge.ConnectedBarIds.Contains(elementId))
-                return false;
-
-        return true;
-    }
-
-    // private TrussNodeComponent FindNearestNode(TrussNodeComponent node, Vector3 proposedPosition, float tolerance)
-    // {
-    //     TrussNodeComponent nearestNode = default;
-    //     var minDistance = tolerance;
-    //
-    //     var allNodes = ComponentRegistry.GetEntityIdsForComponentType<TrussNodeComponent>();
-    //
-    //     foreach (var otherNodeEntity in allNodes)
-    //     {
-    //         var otherNode = ComponentRegistry.GetComponent<TrussNodeComponent>(otherNodeEntity);
-    //         if (otherNodeEntity == node) continue;
-    //
-    //         var otherTransform = ComponentRegistry.GetComponent<TransformComponent>(otherNodeEntity);
-    //         var distance = Vector3.Distance(otherTransform.Position, proposedPosition);
-    //         if (!(distance < minDistance)) continue;
-    //
-    //         minDistance = distance;
-    //         nearestNode = otherNode;
-    //     }
-    //
-    //     return nearestNode;
-    // }
 }

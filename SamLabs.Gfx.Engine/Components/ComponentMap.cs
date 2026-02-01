@@ -32,9 +32,10 @@ public class ComponentMap
         
         //swap with last
         var positionToRemove = _entityIds[entityId];
-        var lastInDense = _entityIds[_entityCount - 1];
+        var lastInDense = _lookUpSpanSet[_entityCount - 1];
         
         _lookUpSpanSet[positionToRemove] = lastInDense;
+        _entityIds[lastInDense] = positionToRemove;
         _entityIds[entityId] = -1;
 
         _entityCount--;

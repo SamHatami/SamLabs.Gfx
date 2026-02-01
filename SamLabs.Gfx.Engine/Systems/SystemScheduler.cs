@@ -108,6 +108,15 @@ public class SystemScheduler
                 _logger.LogError(e.Message);
             }
         }
+
+        //sort by SystemPosition
+        Array.Sort(_updateSystems, (x, y) =>
+        {
+            if (x == null && y == null) return 0;
+            if (x == null) return 1;
+            if (y == null) return -1;
+            return x.SystemPosition.CompareTo(y.SystemPosition);
+        });
     }
 
 
@@ -130,6 +139,8 @@ public class SystemScheduler
     public void Render(FrameInput frameInput, RenderContext renderContext)
     {
         foreach (var renderSystem in _renderSystems)
+        {
             renderSystem?.Update(frameInput, renderContext);
+        }
     }
 }

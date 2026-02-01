@@ -96,13 +96,13 @@ public class BarElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(screenScale, entity.Id);
 
         var parentIdComponent = new ParentIdComponent(entity.Id);
-        var endNodeId =CreateEndNode(nodeMesh, parentIdComponent, endA, shader, pickingShader);
-        var startNodeId= CreateEndNode(nodeMesh, parentIdComponent, endB, shader, pickingShader);
+        var endNodeId =CreateEndNode(nodeMesh, entity.Id, endA, shader, pickingShader);
+        var startNodeId= CreateEndNode(nodeMesh, entity.Id, endB, shader, pickingShader);
         
         _componentRegistry.SetComponentToEntity(new TrussBarComponent() {StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId}, entity.Id);
     }
 
-    private int CreateEndNode(MeshDataComponent nodeMesh, ParentIdComponent parentIdComponent, Vector3 position,
+    private int CreateEndNode(MeshDataComponent nodeMesh, int connectBarId, Vector3 position,
         GLShader? shader, GLShader? pickingShader)
     {
         var nodeEntity = _entityRegistry.CreateEntity();
@@ -110,7 +110,6 @@ public class BarElementBlueprint : EntityBlueprint
 
         var transform = new TransformComponent
         {
-            ParentId = parentIdComponent.ParentId,
             Position = position,
             Scale = Vector3.One,
             Rotation = Quaternion.Identity
@@ -130,12 +129,12 @@ public class BarElementBlueprint : EntityBlueprint
         };
 
         var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenPixelSize), IsPixelSize = true};
-        _componentRegistry.SetComponentToEntity(parentIdComponent, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(transform, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(nodeMesh, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(material, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(glMesh, nodeEntity.Id);
-        _componentRegistry.SetComponentToEntity(new TrussNodeComponent(), nodeEntity.Id);
+        _componentRegistry.SetComponentToEntity(new TrussNodeComponent(){ConnectedBarIds = [connectBarId] }, nodeEntity.Id);
+        _componentRegistry.SetComponentToEntity(new DependencyComponent { UpdateType = DependencyUpdateType.TrussNodeBars }, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, nodeEntity.Id);

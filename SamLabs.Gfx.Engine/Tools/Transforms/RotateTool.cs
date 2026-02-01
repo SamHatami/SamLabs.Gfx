@@ -1,4 +1,4 @@
-﻿﻿using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Math;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
@@ -62,8 +62,8 @@ public class RotateTool : TransformTool
     {
         if (_state == ToolState.Inactive) return;
 
-        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
-        if (selectedEntities.Length == 0) return;
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().GetSpan();
+        if (selectedEntities.IsEmpty()) return;
 
         var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
         if (activeManipulator == -1) return;
@@ -73,8 +73,8 @@ public class RotateTool : TransformTool
         
         manipulatorTransform.Position = entityTransform.Position;
         
-        var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().Get();
-        if (pickingEntities.Length == 0) return;
+        var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().GetSpan();
+        if (pickingEntities.IsEmpty()) return;
         
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
 
@@ -148,8 +148,8 @@ public class RotateTool : TransformTool
 
     public override void UpdateValues(double x, double y, double z)
     {
-        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
-        if (selectedEntities.Length == 0) return;
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().GetSpan();
+        if (selectedEntities.IsEmpty()) return;
 
         var entityId = selectedEntities[0];
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);

@@ -1,5 +1,4 @@
 ﻿using SamLabs.Gfx.Engine.Components;
-using SamLabs.Gfx.Engine.Components.Construction;
 using SamLabs.Gfx.Engine.Components.Sketch;
 using SamLabs.Gfx.Engine.Entities;
 

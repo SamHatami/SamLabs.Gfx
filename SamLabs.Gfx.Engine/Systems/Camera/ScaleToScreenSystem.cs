@@ -3,7 +3,9 @@ using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
+using SamLabs.Gfx.Engine.Components.Flags;
 using SamLabs.Gfx.Engine.Core;
+using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
@@ -23,10 +25,15 @@ public class ScaleToScreenSystem : UpdateSystem
     public override void Update(FrameInput frameInput)
     {
         var scalableEntities = ComponentRegistry.GetEntityIdsForComponentType<ScaleToScreenComponent>();
-        if (scalableEntities.IsEmpty) return;
+        if (scalableEntities.IsEmpty()) return;
 
         foreach (var entityId in scalableEntities)
         {
+            // Skip invalid entities or entities pending removal
+            if (entityId < 0 || entityId >= EditorSettings.MaxEntities) continue;
+            if (ComponentRegistry.HasComponent<PendingRemovalFlag>(entityId)) continue;
+            if (!ComponentRegistry.HasComponent<TransformComponent>(entityId)) continue;
+            
             var screenScale = ComponentRegistry.GetComponent<ScaleToScreenComponent>(entityId);
             ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(entityId);
 

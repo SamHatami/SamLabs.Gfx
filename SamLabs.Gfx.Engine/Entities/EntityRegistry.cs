@@ -11,7 +11,27 @@ public class EntityRegistry
     private readonly ILogger<EntityRegistry> _logger;
     private readonly IComponentRegistry _componentRegistry;
     private readonly Entity?[] _entities  = new Entity?[EditorSettings.MaxEntities];
-    public EntityQuery Query => new EntityQuery(this, _componentRegistry);
+    private readonly Stack<EntityQuery> _queryPool = new();
+
+    public EntityQuery Query
+    {
+        get
+        {
+            if (_queryPool.Count > 0)
+            {
+                var query = _queryPool.Pop();
+                query.Reset();
+                return query;
+            }
+            return new EntityQuery(this, _componentRegistry);
+        }
+    }
+
+    public void ReturnQuery(EntityQuery query)
+    {
+        _queryPool.Push(query);
+    }
+
     public event EventHandler<EntityEventArgs>? OnEntityCreated;
 
     public EntityRegistry(ILogger<EntityRegistry> logger, IComponentRegistry componentRegistry)

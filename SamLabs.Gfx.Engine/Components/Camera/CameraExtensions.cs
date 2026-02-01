@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Math;
 using SamLabs.Gfx.Engine.Components.Common;
 

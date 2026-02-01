@@ -60,7 +60,7 @@ public class ScaleTool : TransformTool
     {
         if (_state == ToolState.Inactive) return;
 
-        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().GetSpan();
         if (selectedEntities.IsEmpty()) return;
 
         var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
@@ -71,7 +71,7 @@ public class ScaleTool : TransformTool
         
         manipulatorTransform.Position = entityTransform.Position;
         
-        var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().Get();
+        var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().GetSpan();
         if (pickingEntities.IsEmpty()) return;
         
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
@@ -134,7 +134,7 @@ public class ScaleTool : TransformTool
 
     public override void UpdateValues(double x, double y, double z)
     {
-        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().Get();
+        var selectedEntities = _entityRegistry.Query.With<TransformComponent>().With<SelectedComponent>().GetSpan();
         if (selectedEntities.IsEmpty()) return;
 
         var entityId = selectedEntities[0];

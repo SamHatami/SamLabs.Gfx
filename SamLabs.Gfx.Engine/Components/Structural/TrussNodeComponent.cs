@@ -2,6 +2,10 @@
 
 public struct TrussNodeComponent:IComponent
 {
-    public int[] ConnectedBarIds;
-    public int ConnectedBarCount => ConnectedBarIds.Length;
+    public TrussNodeComponent()
+    {
+    }
+
+    public List<int> ConnectedBarIds { get; set; }= [];
+    public int ConnectedBarCount => ConnectedBarIds.Count;
 }
