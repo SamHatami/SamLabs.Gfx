@@ -62,6 +62,16 @@
                 </Interaction.Behaviors>
             </views:GridSettingsView>
 
+            <views:ViewPresetView
+                Canvas.Left="10"
+                Canvas.Top="360"
+                DataContext="{Binding ViewPresetViewModel}"
+                IsVisible="{Binding DataContext.IsViewPresetVisible, ElementName=EditorWindow}">
+                <Interaction.Behaviors>
+                    <behaviors:DragMoveBehavior />
+                </Interaction.Behaviors>
+            </views:ViewPresetView>
+
         </Canvas>
 
         <Border
@@ -92,6 +102,7 @@
                     <Image Source="../Assets/scale.png" />
                 </Button>
                 <Button Command="{Binding ToggleGridSettingsCommand}" Content="Grid" />
+                <Button Command="{Binding ToggleViewPresetCommand}" Content="View" />
             </StackPanel>
 
         </Border>

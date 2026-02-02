@@ -14,7 +14,8 @@ namespace SamLabs.Gfx.Engine.Systems.Camera;
 
 public class CameraControlSystem : UpdateSystem
 {
-
+    private const float Epsilon = 0.001f;
+    
     public CameraControlSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
     {
@@ -35,6 +36,9 @@ public class CameraControlSystem : UpdateSystem
 
             ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(camera);
 
+            var viewPreset = ComponentRegistry.GetComponent<CameraViewPresetComponent>(camera);
+            if (viewPreset.Preset != ViewPreset.FreeLook)
+                SetViewPreset(ref cameraData, ref cameraTransform, viewPreset);
             //If camera is auto-moving dont allow user control
             if (cameraData.IsTransitioning) return;
 
@@ -42,11 +46,60 @@ public class CameraControlSystem : UpdateSystem
                 Pan(frameInput, ref cameraData, ref cameraTransform);
 
             else if (frameInput.IsMouseMiddleButtonDown)
+            {
                 Orbit(frameInput.DeltaMouseMove, ref cameraData, ref cameraTransform);
+                viewPreset.Preset = ViewPreset.FreeLook;
+            }
 
             else if (frameInput.MouseWheelDelta != 0.0f)
                 Zoom(frameInput.MouseWheelDelta, ref cameraData, ref cameraTransform);
         }
+    }
+
+    private void SetViewPreset(ref CameraDataComponent cameraData, ref TransformComponent cameraTransform, CameraViewPresetComponent viewPreset)
+    {
+        switch (viewPreset.Preset)
+        {
+            case ViewPreset.Top:
+                cameraData.Target = Vector3.Zero;
+                cameraData.DistanceToTarget = 10.0f; //Replace with a zoom extent calculation later
+                cameraData.Pitch = -MathHelper.PiOver2;
+                cameraData.Yaw = 0.0f;
+                break;
+            case ViewPreset.Bottom:
+                cameraData.Target = Vector3.Zero;
+                cameraData.DistanceToTarget = 10.0f;
+                cameraData.Pitch = MathHelper.PiOver2;
+                cameraData.Yaw = 0.0f;
+                break;
+            case ViewPreset.Left:
+                cameraData.Target = Vector3.Zero;
+                cameraData.DistanceToTarget = 10.0f;
+                cameraData.Pitch = 0.0f;
+                cameraData.Yaw = -MathHelper.PiOver2;
+                break;
+            case ViewPreset.Right:
+                cameraData.Target = Vector3.Zero;
+                cameraData.DistanceToTarget = 10.0f;
+                cameraData.Pitch = 0.0f;
+                cameraData.Yaw = MathHelper.PiOver2;
+                break;
+            case ViewPreset.Front:
+                cameraData.Target = Vector3.Zero;
+                cameraData.DistanceToTarget = 10.0f;
+                cameraData.Pitch = 0.0f;
+                cameraData.Yaw = 0.0f;
+                break;
+            case ViewPreset.Back:
+                cameraData.Target = Vector3.Zero;
+                cameraData.DistanceToTarget = 10.0f;
+                cameraData.Pitch = 0.0f;
+                cameraData.Yaw = MathHelper.Pi;
+                break;
+        }
+
+        UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
+        cameraTransform.Rotation = new Quaternion(cameraData.Pitch, cameraData.Yaw, 0);
     }
 
     private void Pan(FrameInput frameInput, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
@@ -90,29 +143,12 @@ public class CameraControlSystem : UpdateSystem
 
         cameraData.Yaw += MathHelper.DegreesToRadians(yawDeltaDegrees);
         cameraData.Pitch += MathHelper.DegreesToRadians(pitchDeltaDegrees);
-        const float epsilon = 0.01f;
-        cameraData.Pitch = Math.Clamp(cameraData.Pitch, -MathHelper.PiOver2 + epsilon, MathHelper.PiOver2 - epsilon);
-
+        cameraData.Pitch = Math.Clamp(cameraData.Pitch, -MathHelper.PiOver2 + Epsilon, MathHelper.PiOver2 - Epsilon);
+        
         UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
 
-        var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
+        cameraTransform.Rotation = new Quaternion(cameraData.Pitch, cameraData.Yaw, 0);
         
-        cameraTransform.Rotation = QuaternionFromForward(forward, cameraData.Up);
-    }
-    
-    private Quaternion QuaternionFromForward(Vector3 forward, Vector3 up)
-    {
-        // Create rotation matrix from forward and up vectors
-        var right = Vector3.Normalize(Vector3.Cross(up, forward));
-        var recalculatedUp = Vector3.Cross(forward, right);
-        
-        var rotationMatrix = new Matrix3(
-            right.X, right.Y, right.Z,
-            recalculatedUp.X, recalculatedUp.Y, recalculatedUp.Z,
-            -forward.X, -forward.Y, -forward.Z
-        );
-        
-        return rotationMatrix.ExtractRotation();
     }
 
     private void Zoom(float delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)

@@ -1,0 +1,122 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="300"
+             x:Class="SamLabs.Gfx.Editor.Views.ViewPresetView"
+             x:DataType="vm:ViewPresetViewModel">
+
+    <Border Background="#2D2D30"
+            BorderBrush="#3F3F46"
+            BorderThickness="1"
+            CornerRadius="4">
+        <StackPanel Orientation="Vertical" Spacing="0">
+            <!-- Title Bar -->
+            <Border Background="#252526"
+                    Padding="10,6"
+                    CornerRadius="4,4,0,0">
+                <TextBlock Text="View Presets"
+                           Foreground="White"
+                           VerticalAlignment="Center"
+                           FontWeight="Bold"/>
+            </Border>
+
+            <!-- Content Area -->
+            <Border Padding="8">
+                <StackPanel Orientation="Vertical" Spacing="6">
+
+                    <!-- Front View -->
+                    <Button Command="{Binding SetViewPresetCommand}"
+                            CommandParameter="Front"
+                            Content="Front"
+                            Background="#3F3F46"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Padding="8,4"/>
+
+                    <!-- Back View -->
+                    <Button Command="{Binding SetViewPresetCommand}"
+                            CommandParameter="Back"
+                            Content="Back"
+                            Background="#3F3F46"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Padding="8,4"/>
+
+                    <!-- Left View -->
+                    <Button Command="{Binding SetViewPresetCommand}"
+                            CommandParameter="Left"
+                            Content="Left"
+                            Background="#3F3F46"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Padding="8,4"/>
+
+                    <!-- Right View -->
+                    <Button Command="{Binding SetViewPresetCommand}"
+                            CommandParameter="Right"
+                            Content="Right"
+                            Background="#3F3F46"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Padding="8,4"/>
+
+                    <!-- Top View -->
+                    <Button Command="{Binding SetViewPresetCommand}"
+                            CommandParameter="Top"
+                            Content="Top"
+                            Background="#3F3F46"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Padding="8,4"/>
+
+                    <!-- Bottom View -->
+                    <Button Command="{Binding SetViewPresetCommand}"
+                            CommandParameter="Bottom"
+                            Content="Bottom"
+                            Background="#3F3F46"
+                            Foreground="White"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Padding="8,4"/>
+
+                    <!-- Free Look -->
+                    <Border BorderBrush="#3F3F46" BorderThickness="0,1,0,0" Padding="0,6,0,0">
+                        <Button Command="{Binding SetViewPresetCommand}"
+                                CommandParameter="FreeLook"
+                                Content="Free Look"
+                                Background="#3F3F46"
+                                Foreground="White"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Padding="8,4"/>
+                    </Border>
+
+                    <!-- Projection Mode -->
+                    <Border BorderBrush="#3F3F46" BorderThickness="0,1,0,0" Padding="0,6,0,0">
+                        <StackPanel Orientation="Vertical" Spacing="4">
+                            <TextBlock Text="Projection Mode" 
+                                       Foreground="#CCC" 
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"/>
+                            <Button Command="{Binding ToggleProjectionCommand}"
+                                    Content="Toggle P /O"
+                                    Background="#3F3F46"
+                                    Foreground="White"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    Padding="8,4"/>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Border>
+</UserControl>

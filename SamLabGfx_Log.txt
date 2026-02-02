@@ -1,0 +1,4 @@
+2026-02-02 08:22:22.615 +01:00 [INF] Registered tool: Translate (tool.transform.translate)
+2026-02-02 08:22:22.625 +01:00 [INF] Registered tool: Rotate (tool.transform.rotate)
+2026-02-02 08:22:22.625 +01:00 [INF] Registered tool: Scale (tool.transform.scale)
+2026-02-02 08:22:55.714 +01:00 [INF] Activated tool: Translate

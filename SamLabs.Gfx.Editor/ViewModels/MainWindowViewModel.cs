@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,8 +23,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public ISceneManager SceneManager { get; }
     public TransformStateViewModel TransformStateViewModel { get; }
     public GridSettingsViewModel GridSettingsViewModel { get; set; }
+    public ViewPresetViewModel ViewPresetViewModel { get; set; }
 
     [ObservableProperty] private bool _isGridSettingsVisible;
+    [ObservableProperty] private bool _isViewPresetVisible;
 
     [ObservableProperty] private int _objectId;
     private readonly EntityFactory _entityFactory;
@@ -45,6 +47,7 @@ public partial class MainWindowViewModel : ViewModelBase
         SceneManager = sceneManager;
         TransformStateViewModel = transformStateViewModel; //this should just be the ActiveToolViewModel
         GridSettingsViewModel = new GridSettingsViewModel(_componentRegistry, engineContext.EntityRegistry);
+        ViewPresetViewModel = new ViewPresetViewModel(commandManager, _componentRegistry);
         InitializeMainScene();
 
         //we also need sub-viewmodels that subscribe to whatever events they need
@@ -103,6 +106,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ToggleGridSettings()
     {
         IsGridSettingsVisible = !IsGridSettingsVisible;
+    }
+
+    [RelayCommand]
+    private void ToggleViewPreset()
+    {
+        IsViewPresetVisible = !IsViewPresetVisible;
     }
 
     public void ToggleCameraProjection() =>
