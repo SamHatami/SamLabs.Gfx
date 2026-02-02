@@ -35,7 +35,7 @@ public static class TrussNodeUtility
             var barPosition = nodePosition + direction * (length / 2.0f);
 
             // Update bar transform
-            var barTransform = componentRegistry.GetComponent<TransformComponent>(barEntityId);
+            ref var barTransform = ref componentRegistry.GetComponent<TransformComponent>(barEntityId);
             barTransform.Position = barPosition;
             barTransform.Rotation = CalculateRotationFromDirection(direction);
             barTransform.Scale = new Vector3(barTransform.Scale.X, barTransform.Scale.Y, length);

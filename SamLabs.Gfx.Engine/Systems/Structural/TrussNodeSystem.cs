@@ -66,7 +66,6 @@ public class TrussNodeSystem : UpdateSystem
             var sourceNodeComponent = ComponentRegistry.GetComponent<TrussNodeComponent>(sourceNodeId);
             if (!TrussNodeUtility.CanMergeNodes(nearestNodeComponent, sourceNodeComponent)) continue;
 
-            //Merge nodes
             foreach (var barId in sourceNodeComponent.ConnectedBarIds)
             {
                 nearestNodeComponent.ConnectedBarIds.Add(barId);
@@ -84,16 +83,12 @@ public class TrussNodeSystem : UpdateSystem
             
             TrussNodeUtility.UpdateConnectedBars(ComponentRegistry, nearestNodeComponent, nearestNodeId);
 
-            // Flag that nodes were merged - TrussBarSystem will check for duplicate bars
             ComponentRegistry.SetComponentToEntity(new NodesMergedFlag(), nearestNodeId);
-
-            //Mark the old node for removal (deferred to cleanup system)
             ComponentRegistry.SetComponentToEntity(new PendingRemovalFlag(), sourceNodeId);
             _nodePositionMap.Remove(sourceNodeId);
             
             var transformComponent = ComponentRegistry.GetComponent<TransformComponent>(nearestNodeId);
             _nodePositionMap[nearestNodeId] = transformComponent.Position;
-            
         }
     }
 

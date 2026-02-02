@@ -90,11 +90,29 @@ public class CameraControlSystem : UpdateSystem
 
         cameraData.Yaw += MathHelper.DegreesToRadians(yawDeltaDegrees);
         cameraData.Pitch += MathHelper.DegreesToRadians(pitchDeltaDegrees);
-        cameraData.Pitch = Math.Clamp(cameraData.Pitch, -MathHelper.PiOver2, MathHelper.PiOver2);
+        const float epsilon = 0.01f;
+        cameraData.Pitch = Math.Clamp(cameraData.Pitch, -MathHelper.PiOver2 + epsilon, MathHelper.PiOver2 - epsilon);
 
         UpdatePositionFromSpherical(ref cameraData, ref cameraTransform);
 
-        cameraTransform.Rotation = new Quaternion(cameraData.Pitch, cameraData.Yaw, 0);
+        var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
+        
+        cameraTransform.Rotation = QuaternionFromForward(forward, cameraData.Up);
+    }
+    
+    private Quaternion QuaternionFromForward(Vector3 forward, Vector3 up)
+    {
+        // Create rotation matrix from forward and up vectors
+        var right = Vector3.Normalize(Vector3.Cross(up, forward));
+        var recalculatedUp = Vector3.Cross(forward, right);
+        
+        var rotationMatrix = new Matrix3(
+            right.X, right.Y, right.Z,
+            recalculatedUp.X, recalculatedUp.Y, recalculatedUp.Z,
+            -forward.X, -forward.Y, -forward.Z
+        );
+        
+        return rotationMatrix.ExtractRotation();
     }
 
     private void Zoom(float delta, ref CameraDataComponent cameraData, ref TransformComponent cameraTransform)
