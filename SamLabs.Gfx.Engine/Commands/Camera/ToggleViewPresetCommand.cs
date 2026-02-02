@@ -26,7 +26,6 @@ public class ToggleViewPresetCommand : InternalCommand
 
         _previousPreset = viewPresetComponent.Preset;
         viewPresetComponent.Preset = _targetPreset;
-        viewPresetComponent.IsPresetApplied = false;
     }
 
     public override void Undo()
@@ -38,6 +37,5 @@ public class ToggleViewPresetCommand : InternalCommand
         ref var viewPresetComponent = ref _componentRegistry.GetComponent<CameraViewPresetComponent>(cameraEntityId);
 
         viewPresetComponent.Preset = _previousPreset;
-        viewPresetComponent.IsPresetApplied = false;
     }
 }

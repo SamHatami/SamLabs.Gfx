@@ -49,7 +49,7 @@ public class ViewProjectionSystem : RenderSystem
                 break;
         }
 
-        Renderer.SetViewProjection(viewMatrix, projectionMatrix);
+        Renderer.SetViewProjection(viewMatrix, projectionMatrix, cameraTransform.Position);
 
         cameraData.ProjectionMatrix = projectionMatrix;
         cameraData.ViewMatrix = viewMatrix;
@@ -65,6 +65,7 @@ public class ViewProjectionSystem : RenderSystem
 
     private Matrix4 PerspectiveProjectionMatrix(CameraDataComponent camera)
     {
+        camera.Near = 0.1f;
         return Matrix4.CreatePerspectiveFieldOfView(camera.Fov, camera.AspectRatio, camera.Near, camera.Far);
     }
 
@@ -72,6 +73,7 @@ public class ViewProjectionSystem : RenderSystem
     {
         var height = camera.OrthographicSize * 2.0f;
         var width = height * camera.AspectRatio;
+        camera.Near = -1000f;
         return Matrix4.CreateOrthographic(width, height, camera.Near, camera.Far);
     }
 }

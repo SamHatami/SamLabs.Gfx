@@ -1,5 +1,4 @@
-﻿
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 
 namespace SamLabs.Gfx.Core.Math;
 
@@ -39,6 +38,8 @@ public static class MathExtensions
     }
     
     public static float EaseInOutCubic(float t) => t * t * (3f - 2f * t);
+    
+    public static float Lerp(float start, float end, float t) => start + (end - start) * t;
     
     public static Vector3 ExtractEulerAngles(Quaternion q)
     {

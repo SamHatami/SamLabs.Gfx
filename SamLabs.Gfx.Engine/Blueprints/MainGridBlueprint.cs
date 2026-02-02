@@ -26,54 +26,60 @@ public class MainGridBlueprint : EntityBlueprint
 
     public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
-        var spacing = 1.0f;
-        var linesPerSide = 20;
-        
-        var vertices = GetVertices(linesPerSide, spacing);
-        var gridData = new GridComponent(linesPerSide, spacing);
+        var spacing = 2.5f; // Grid line spacing
+        var gridSize = 100.0f; // Large quad size
+
+        // Create a single quad that covers a large area
+        var quadVertices = CreateGridQuad(gridSize);
+
+        var gridData = new GridComponent(gridSize, spacing, 10);
+
         meshData = new MeshDataComponent()
         {
-            TriangleIndices = Array.Empty<int>(),
-            Vertices = vertices,
+            TriangleIndices = new int[] { 0, 1, 2, 2, 3, 0 }, // Two triangles
+            Vertices = quadVertices,
             Name = "Main Grid"
         };
-        
+
+        var transformComponent = new TransformComponent
+        {
+            Position = Vector3.Zero,
+            Scale = Vector3.One,
+            Rotation = Quaternion.Identity
+        };
+
         var material = _materialLibrary.GetDefaultMaterialForShader("grid");
-        
+        material.UniformValues["uGridSize"] = gridSize;
+        material.UniformValues["uGridSpacing"] = spacing;
+        material.UniformValues["uGridColor"] = new Vector3(0.6f, 0.6f, 0.6f);
+        material.UniformValues["uMajorLineFrequency"] = 10f;
+
+
         var glMeshData = new GlMeshDataComponent()
         {
-            IsGrid =  true,
-            PrimitiveType = PrimitiveType.Lines,
-            VertexCount = vertices.Length
+            IsGrid = true,
+            PrimitiveType = PrimitiveType.Triangles,
+            VertexCount = 6
         };
-         //TODO: Create the shader version of the grid -> only needs a quad.
-         
-         var quadVertices = MeshUtils.CreateQuad(1.0f);
-         
+
+        _componentRegistry.SetComponentToEntity(transformComponent, entity.Id);
         _componentRegistry.SetComponentToEntity(material, entity.Id);
         _componentRegistry.SetComponentToEntity(meshData, entity.Id);
         _componentRegistry.SetComponentToEntity(gridData, entity.Id);
-        _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);        
-        //add the creational flag to the entity
+        _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
     }
-    
-    public Vertex[] GetVertices(int linesPerSide, float spacing)
+
+    private Vertex[] CreateGridQuad(float size) //Move to a MeshUtility class?
     {
-        var half = linesPerSide * spacing * 0.5f;
-        var vertices = new List<Vertex>();
+        var half = size * 0.5f;
 
-        for (var i = 0; i <= linesPerSide; i++)
-        {
-            var x = (i * spacing) - half;
-            var z = (i * spacing) - half;
-
-            vertices.Add(new Vertex(new Vector3(x, 0, -half), Vector3.UnitY, Vector2.Zero));
-            vertices.Add(new Vertex(new Vector3(x, 0, half), Vector3.UnitY, Vector2.Zero));
-            vertices.Add(new Vertex(new Vector3(-half, 0, z), Vector3.UnitY, Vector2.Zero));
-            vertices.Add(new Vertex(new Vector3(half, 0, z), Vector3.UnitY, Vector2.Zero));
-        }
-
-        return vertices.ToArray();
+        return
+        [
+            new Vertex(new Vector3(-half, 0, -half), Vector3.UnitY, Vector2.Zero), // Bottom-left
+            new Vertex(new Vector3(half, 0, -half), Vector3.UnitY, Vector2.Zero), // Bottom-right
+            new Vertex(new Vector3(half, 0, half), Vector3.UnitY, Vector2.Zero), // Top-right
+            new Vertex(new Vector3(-half, 0, half), Vector3.UnitY, Vector2.Zero) // Top-left
+        ];
     }
 }

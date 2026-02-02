@@ -54,19 +54,30 @@ public class GLRenderMeshSystem : RenderSystem
     private void RenderMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent,
         Matrix4 modelMatrix, int isHovered, int isSelected)
     {
-        //TODO: Move this to a new ShaderUniformUploadSystem where the materials handles are necessary uniforms are set for specific shaders
         using var shader = new ShaderProgram(materialComponent.Shader).Use();
-        shader.SetMatrix4(UniformNames.uModel, ref modelMatrix).SetInt(UniformNames.uIsHovered, ref isHovered)
-            .SetInt(UniformNames.uIsSelected, ref isSelected);
-        materialComponent.Shader.UniformLocations.TryGetValue(UniformNames.uIsHovered, out var materialLocation);
-
+        
         if (mesh.IsGrid)
         {
+            materialComponent.UniformValues.TryGetValue(UniformNames.uGridSize, out var gridSize);
+            materialComponent.UniformValues.TryGetValue(UniformNames.uMajorLineFrequency, out var majorGridLines);
+            materialComponent.UniformValues.TryGetValue(UniformNames.uGridSpacing, out var gridSpacing);
+            
+            shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
+                .SetFloat(UniformNames.uGridSize, (float)gridSize)
+                .SetFloat(UniformNames.uMajorLineFrequency, (float)majorGridLines)
+                .SetFloat(UniformNames.uGridSpacing, (float)gridSpacing);
+                
             MeshRenderer.Draw(mesh);
         }
         else
         {
-            using var renderContext = MeshRenderer.Begin(mesh).Faces(); //.Edges().Vertices();
+            shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
+                .SetInt(UniformNames.uIsHovered, ref isHovered)
+                .SetInt(UniformNames.uIsSelected, ref isSelected);
+                
+            using var renderContext = MeshRenderer.Begin(mesh).Faces();
         }
     }
+        
+        
 }

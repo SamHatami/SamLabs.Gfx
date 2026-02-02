@@ -27,11 +27,14 @@ public class UniformBufferService : IDisposable
 
     public void RegisterViewProjectionBuffer()
     {
+        
+        var bufferSize = SizeOf.FMatrix4 * 2 + 16; // vec3 aligned as vec4 in std140
+        
         for (var i = 0; i < BufferCount; i++)
         {
             _viewProjectionBuffers[i] = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffers[i]);
-            GL.BufferData(BufferTarget.UniformBuffer, SizeOf.FMatrix4 * 2, IntPtr.Zero, BufferUsage.DynamicDraw);
+            GL.BufferData(BufferTarget.UniformBuffer, bufferSize, IntPtr.Zero, BufferUsage.DynamicDraw);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
 
@@ -51,7 +54,7 @@ public class UniformBufferService : IDisposable
     //     UniformBindingPoints.Add("GridUniforms", 2);
     // }
 
-    public void UpdateViewProjectionBuffer(Matrix4 view, Matrix4 projection)
+    public void UpdateViewProjectionBuffer(Matrix4 view, Matrix4 projection, Vector3 cameraPosition)
     {
         if (_viewProjectionBuffers[0] == 0) 
             RegisterViewProjectionBuffer();
@@ -64,6 +67,7 @@ public class UniformBufferService : IDisposable
         GL.BindBuffer(BufferTarget.UniformBuffer, currentBuffer);
         GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, SizeOf.FMatrix4, ref view);
         GL.BufferSubData(BufferTarget.UniformBuffer, SizeOf.FMatrix4, SizeOf.FMatrix4, ref projection);
+        GL.BufferSubData(BufferTarget.UniformBuffer, SizeOf.FMatrix4 * 2, SizeOf.FVector3, ref cameraPosition);
         
         // Bind this buffer to the binding point
         GL.BindBufferBase(BufferTarget.UniformBuffer, ViewProjectionBindingPoint, currentBuffer);
@@ -151,8 +155,9 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uVertexRenderSize, typeof(int));
         UniformInfo.Add(UniformNames.uGridSize, typeof(int));
         UniformInfo.Add(UniformNames.uGridColor, typeof(Vector3));
-        UniformInfo.Add(UniformNames.uGridLineSize, typeof(int));
+        UniformInfo.Add(UniformNames.uMajorLineFrequency, typeof(int));
         UniformInfo.Add(UniformNames.uTextureCoordinate, typeof(Vector2));
+        UniformInfo.Add(UniformNames.uGridSpacing, typeof(float));
         
     }
 }
@@ -179,5 +184,6 @@ public static class UniformNames
     public const string uVertexRenderSize = "uVertexRenderSize";
     public const string uGridSize = "uGridSize";
     public const string uGridColor = "uGridColor";
-    public const string uGridLineSize = "uGridLineSize";
+    public const string uGridSpacing = "uGridSpacing";
+    public const string uMajorLineFrequency = "uMajorLineFrequency";
 }

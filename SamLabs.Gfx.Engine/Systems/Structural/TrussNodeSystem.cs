@@ -76,21 +76,19 @@ public class TrussNodeSystem : UpdateSystem
                     barComponent.EndNodeEntityId = nearestNodeId;
             }
 
-            //PRobably should be a event of some sort?
+            foreach (var barId in nearestNodeComponent.ConnectedBarIds)
+                TrussNodeUtility.UpdateBarTransform(ComponentRegistry, barId);
+
             var pickingEntity = _entityRegistry.Query.With<PickingDataComponent>().First();
             ref var picking = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity);
             picking.SelectedEntityIds = [nearestNodeId];
             
-            TrussNodeUtility.UpdateConnectedBars(ComponentRegistry, nearestNodeComponent, nearestNodeId);
-
             ComponentRegistry.SetComponentToEntity(new NodesMergedFlag(), nearestNodeId);
             ComponentRegistry.SetComponentToEntity(new PendingRemovalFlag(), sourceNodeId);
             _nodePositionMap.Remove(sourceNodeId);
-            
-            var transformComponent = ComponentRegistry.GetComponent<TransformComponent>(nearestNodeId);
-            _nodePositionMap[nearestNodeId] = transformComponent.Position;
         }
     }
+
 
     private void UpdateNodePositionMap(ReadOnlySpan<int> updatedNodeEntities)
     {

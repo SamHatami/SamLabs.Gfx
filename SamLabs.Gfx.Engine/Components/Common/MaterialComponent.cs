@@ -4,7 +4,13 @@ namespace SamLabs.Gfx.Engine.Components.Common;
 
 public struct MaterialComponent:IComponent
 {
-    public string Name { get; set; } 
+    public MaterialComponent()
+    {
+        UniformValues = new Dictionary<string, object>();
+    }
+
+    public string Name { get; set; }
+
     public Dictionary<string, object> UniformValues { get; set; } //A direct map to shader uniforms, but only those that the shader needs
     //Material library with different shaders fordifferent purposes created directly? we only take copies and place them on
     //each entity that needs them.

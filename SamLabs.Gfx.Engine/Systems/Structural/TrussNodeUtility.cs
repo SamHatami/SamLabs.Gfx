@@ -17,38 +17,34 @@ public static class TrussNodeUtility
     
     public static void UpdateConnectedBars(IComponentRegistry componentRegistry, TrussNodeComponent nodeComponent, int nodeEntityId)
     {
-        var transformComponent = componentRegistry.GetComponent<TransformComponent>(nodeEntityId);
-        var nodePosition = transformComponent.Position;
-
         foreach (var barEntityId in nodeComponent.ConnectedBarIds)
         {
-            var barComponent = componentRegistry.GetComponent<TrussBarComponent>(barEntityId);
-            int otherNodeEntityId = barComponent.StartNodeEntityId == nodeEntityId
-                ? barComponent.EndNodeEntityId
-                : barComponent.StartNodeEntityId;
-
-            var otherNodeTransform = componentRegistry.GetComponent<TransformComponent>(otherNodeEntityId);
-            var otherNodePosition = otherNodeTransform.Position;
-
-            var direction = Vector3.Normalize(otherNodePosition - nodePosition);
-            var length = Vector3.Distance(nodePosition, otherNodePosition);
-            var barPosition = nodePosition + direction * (length / 2.0f);
-
-            // Update bar transform
-            ref var barTransform = ref componentRegistry.GetComponent<TransformComponent>(barEntityId);
-            barTransform.Position = barPosition;
-            barTransform.Rotation = CalculateRotationFromDirection(direction);
-            barTransform.Scale = new Vector3(barTransform.Scale.X, barTransform.Scale.Y, length);
-            barTransform.WorldMatrix = barTransform.LocalMatrix;
-            componentRegistry.SetComponentToEntity(barTransform, barEntityId);
-
-            // Update bar component length
-            barComponent.Length = length;
-            componentRegistry.SetComponentToEntity(barComponent, barEntityId);
+            UpdateBarTransform(componentRegistry, barEntityId);
         }
     }
 
-    private static Quaternion CalculateRotationFromDirection(Vector3 direction)
+    public static void UpdateBarTransform(IComponentRegistry componentRegistry, int barId)
+    {
+        ref var barComponent = ref componentRegistry.GetComponent<TrussBarComponent>(barId);
+        var startNodeId = barComponent.StartNodeEntityId;
+        var endNodeId = barComponent.EndNodeEntityId;
+        
+        var startTransform = componentRegistry.GetComponent<TransformComponent>(startNodeId);
+        var endTransform = componentRegistry.GetComponent<TransformComponent>(endNodeId);
+        
+        var direction = Vector3.Normalize(endTransform.Position - startTransform.Position);
+        var length = Vector3.Distance(startTransform.Position, endTransform.Position);
+        var barPosition = startTransform.Position + direction * (length / 2.0f);
+
+        ref var barTransform = ref componentRegistry.GetComponent<TransformComponent>(barId);
+        barTransform.Position = barPosition;
+        barTransform.Rotation = CalculateRotationFromDirection(direction);
+        barTransform.Scale = new Vector3(barTransform.Scale.X, barTransform.Scale.Y, length);
+        barTransform.WorldMatrix = barTransform.LocalMatrix;
+        barComponent.Length = length;
+    }
+
+    public static Quaternion CalculateRotationFromDirection(Vector3 direction)
     {
         var dot = Vector3.Dot(direction, Vector3.UnitZ);
         switch (dot)

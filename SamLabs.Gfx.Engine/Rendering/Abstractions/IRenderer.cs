@@ -7,7 +7,7 @@ namespace SamLabs.Gfx.Engine.Rendering.Abstractions;
 public interface IRenderer
 {
     public void Initialize();
-    public void SetViewProjection(Matrix4 view, Matrix4 proj);
+    public void SetViewProjection(Matrix4 view, Matrix4 proj, Vector3 cameraPosition);
     public IViewPort CreateViewportBuffers(string name, int width, int height);
     public void RenderToPickingBuffer(IViewPort mainViewport);
     public void RenderToViewportBuffer(IViewPort viewport);

@@ -3,7 +3,6 @@
 public struct CameraViewPresetComponent:IComponent
 {
     public ViewPreset Preset { get; set; }
-    public bool IsPresetApplied { get; set; }
 }
 
 public enum ViewPreset

@@ -17,7 +17,7 @@ namespace SamLabs.Gfx.Engine.Systems.Manipulators;
 public class GLManipulatorRenderSystem : RenderSystem
 {
     public override int SystemPosition => SystemOrders.ManipulatorRender;
-    private const float manipulatorBaseSize = 0.015f;
+    private const float manipulatorBaseSize = 0.01f;
     private readonly EntityRegistry _entityRegistry;
 
     public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
@@ -91,14 +91,34 @@ public class GLManipulatorRenderSystem : RenderSystem
         ref var cameraTransform = ref ComponentRegistry.GetComponent<TransformComponent>(cameraEntities[0]);
 
         //Todo create a utility class for this => Move to ScaleToScreenSystem when adding ScaleToScreenComponent
+        
+        var scaledMatrix = ScaleToView(parentTransform, cameraTransform, cameraData);
+
+        foreach (var subEntity in manipulatorSubEntities)
+        {
+            ref var subTransform = ref ComponentRegistry.GetComponent<TransformComponent>(subEntity);
+
+            subTransform.WorldMatrix = subTransform.LocalMatrix * scaledMatrix;
+            subTransform.IsDirty = false;
+        }
+    }
+
+    private Matrix4 ScaleToView(TransformComponent parentTransform, TransformComponent cameraTransform,
+        CameraDataComponent cameraData)
+    {
         var toManipulator = parentTransform.Position - cameraTransform.Position;
         var forward = Vector3.Normalize(cameraData.Target - cameraTransform.Position);
         var depth = Vector3.Dot(toManipulator, forward);
         if (depth < 0.1f) depth = 0.1f;
 
-        var fovScale = 2.0f * depth * MathF.Tan(cameraData.Fov * 0.5f);
+        var fovScale = 2.0f;
 
+        if(cameraData.ProjectionType == ProjectionType.Perspective)
+            fovScale = 2.0f * depth * MathF.Tan(cameraData.Fov * 0.5f);
+        else
+            fovScale = cameraData.OrthographicSize * 1.5f;
         var scale = manipulatorBaseSize * fovScale;
+        
 
 
         var parentRot = parentTransform.LocalMatrix.ExtractRotation();
@@ -107,14 +127,7 @@ public class GLManipulatorRenderSystem : RenderSystem
         var parentMatrix = Matrix4.CreateScale(scale)
                            * Matrix4.CreateFromQuaternion(parentRot)
                            * Matrix4.CreateTranslation(parentPos);
-
-        foreach (var subEntity in manipulatorSubEntities)
-        {
-            ref var subTransform = ref ComponentRegistry.GetComponent<TransformComponent>(subEntity);
-
-            subTransform.WorldMatrix = subTransform.LocalMatrix * parentMatrix;
-            subTransform.IsDirty = false;
-        }
+        return parentMatrix;
     }
 
 

@@ -57,11 +57,11 @@ public class OpenGLRenderer : IDisposable, IRenderer
             GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
     }
 
-    public void SetViewProjection(Matrix4 view, Matrix4 proj)
+    public void SetViewProjection(Matrix4 view, Matrix4 proj, Vector3 cameraPosition)
     {
         _view = view;
         _proj = proj;
-        _uniformBufferService.UpdateViewProjectionBuffer(view, proj);
+        _uniformBufferService.UpdateViewProjectionBuffer(view, proj, cameraPosition);
     }
 
     public IViewPort CreateViewportBuffers(string name, int width, int height)
