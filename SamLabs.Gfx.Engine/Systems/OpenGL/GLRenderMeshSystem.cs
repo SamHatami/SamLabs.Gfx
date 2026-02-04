@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
@@ -61,12 +62,9 @@ public class GLRenderMeshSystem : RenderSystem
             materialComponent.UniformValues.TryGetValue(UniformNames.uGridSize, out var gridSize);
             materialComponent.UniformValues.TryGetValue(UniformNames.uMajorLineFrequency, out var majorGridLines);
             materialComponent.UniformValues.TryGetValue(UniformNames.uGridSpacing, out var gridSpacing);
-            
-            shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
-                .SetFloat(UniformNames.uGridSize, (float)gridSize)
-                .SetFloat(UniformNames.uMajorLineFrequency, (float)majorGridLines)
-                .SetFloat(UniformNames.uGridSpacing, (float)gridSpacing);
-                
+
+            shader.SetMatrix4(UniformNames.uModel, ref modelMatrix);
+
             MeshRenderer.Draw(mesh);
         }
         else
@@ -75,7 +73,7 @@ public class GLRenderMeshSystem : RenderSystem
                 .SetInt(UniformNames.uIsHovered, ref isHovered)
                 .SetInt(UniformNames.uIsSelected, ref isSelected);
                 
-            using var renderContext = MeshRenderer.Begin(mesh).Faces();
+            MeshRenderer.Draw(mesh);
         }
     }
         

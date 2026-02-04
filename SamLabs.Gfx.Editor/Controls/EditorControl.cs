@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -115,6 +116,9 @@ public class EditorControl : OpenTkControlBase
     private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(1.5);
     private bool _wasIdling = false;
     private EditorWorkState _editorWorkState;
+    
+    private FileSystemWatcher? _shaderWatcher;
+    private ConcurrentQueue<string> _pendingShaderReloads = new();
 
     private void NotifyActivity()
     {
@@ -124,6 +128,9 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
+        if(!_pendingShaderReloads.IsEmpty)
+            NotifyActivity();
+        
         if(Idle())
         {
             _wasIdling = true;
@@ -139,6 +146,7 @@ public class EditorControl : OpenTkControlBase
         
         CalculateFps();
         CommandManager.ProcessAllCommands();
+        ProcessPendingShaderReloads();
 
         //Process commands
         _width = width;
@@ -262,7 +270,15 @@ public class EditorControl : OpenTkControlBase
         CommandManager.EnqueueCommand(new CreateManipulatorsCommand(CommandManager, EngineContext.EntityFactory));
         SizeChanged += OnSizeChanged;
         
-        // Subscribe to EditorEvents
+        SubscribeToEditorEvents();
+        
+        #if DEBUG
+        InitializeShaderWatcher();
+        #endif 
+    }
+
+    private void SubscribeToEditorEvents()
+    {
         EngineContext.EditorEvents.EntityAdded += OnEditorEvent;
         EngineContext.EditorEvents.EntityRemoved += OnEditorEvent;
         EngineContext.EditorEvents.EntityUpdated += OnEditorEvent;
@@ -273,7 +289,59 @@ public class EditorControl : OpenTkControlBase
         
         EngineContext.EditorEvents.ToolActivated += OnEditorEvent;
         EngineContext.EditorEvents.ToolDeactivated += OnEditorEvent;
-        
+    }
+
+    private void InitializeShaderWatcher()
+    {
+        try
+        {
+            // Use the hardcoded source shader folder for development
+            var shaderFolder = @"C:\\Users\\samhat\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Engine\\Rendering\\Shaders";
+            
+            if (!Directory.Exists(shaderFolder))
+            {
+                Debug.WriteLine($"Shader folder not found: {shaderFolder}");
+                return;
+            }
+            
+            _shaderWatcher = new FileSystemWatcher(shaderFolder, "*.*");
+            _shaderWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size;
+            _shaderWatcher.Changed += OnShaderFileChanged;
+            _shaderWatcher.Created += OnShaderFileChanged;
+            _shaderWatcher.Renamed += OnShaderFileChanged;
+            _shaderWatcher.EnableRaisingEvents = true;
+            
+            Debug.WriteLine($"Watching for shader changes in: {shaderFolder}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to setup shader file watcher: {ex.Message}");
+        }
+    }
+    
+    private void OnShaderFileChanged(object sender, FileSystemEventArgs e)
+    {
+        var ext = Path.GetExtension(e.FullPath);
+        if (ext.Equals(".vert", StringComparison.OrdinalIgnoreCase) || 
+            ext.Equals(".frag", StringComparison.OrdinalIgnoreCase))
+        {
+            _pendingShaderReloads.Enqueue(e.FullPath);
+        }
+    }
+    
+    private void ProcessPendingShaderReloads()
+    {
+        while (_pendingShaderReloads.TryDequeue(out var shaderPath))
+        {
+            try
+            {
+                _renderer.ReloadShader(shaderPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to reload shader: {ex.Message}");
+            }
+        }
     }
 
     private void OnEditorEvent<T>(object? sender, T e) => NotifyActivity();
@@ -358,8 +426,17 @@ public class EditorControl : OpenTkControlBase
         
         SizeChanged -= OnSizeChanged;
         
+        if (_shaderWatcher != null)
+        {
+            _shaderWatcher.EnableRaisingEvents = false;
+            _shaderWatcher.Changed -= OnShaderFileChanged;
+            _shaderWatcher.Created -= OnShaderFileChanged;
+            _shaderWatcher.Renamed -= OnShaderFileChanged;
+            _shaderWatcher.Dispose();
+            _shaderWatcher = null;
+        }
+        
         if (CommandManager != null)
-            CommandManager.CommandEnqueued -= NotifyActivity;
 
         if (EngineContext?.EditorEvents != null)
         {

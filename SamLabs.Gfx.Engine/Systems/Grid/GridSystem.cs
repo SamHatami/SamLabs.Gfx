@@ -29,6 +29,7 @@ public class GridSystem : UpdateSystem
     {
         //TODO: Grid should be a shader based grid, not a mesh based grid.
 
+        return;
         //get the gridcomponent, if it is dirty, regenerate the mesh
         if (_gridEntity == -1)
             _gridEntity = ComponentRegistry.GetEntityIdsForComponentType<GridComponent>().First();
@@ -48,7 +49,7 @@ public class GridSystem : UpdateSystem
         var glMeshData = new GlMeshDataComponent()
         {
             IsGrid = true,
-            PrimitiveType = PrimitiveType.Lines,
+            PrimitiveType = PrimitiveType.Triangles,
             VertexCount = vertices.Length
         };
 

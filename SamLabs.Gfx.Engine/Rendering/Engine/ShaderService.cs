@@ -9,33 +9,31 @@ public class ShaderService : IDisposable
 {
     private readonly ILogger<ShaderService> _logger;
     private static Dictionary<string, GLShader> _shadersProgram = new();
-    
+
     public Dictionary<string, GLShader> ShadersProgram => _shadersProgram;
 
     public bool Started { get; private set; } = false;
+
     public ShaderService(ILogger<ShaderService> logger)
     {
         _logger = logger;
     }
 
-    //we will load as resources later on, i'll keep this for debugging and hotreloading purposes for now.
     public void RegisterShaders()
     {
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var shaderFolder = Path.Combine(assemblyPath, "Rendering\\Shaders");
-        var vertPaths = Directory.GetFiles(shaderFolder, "*.vert", SearchOption.AllDirectories);
 
+        var vertPaths = Directory.GetFiles(shaderFolder, "*.vert", SearchOption.AllDirectories);
         foreach (var vertPath in vertPaths)
         {
             var fragPath = vertPath.Replace(".vert", ".frag");
-
             if (!File.Exists(fragPath))
                 continue;
 
             try
             {
-                var vertShader = Path.GetFileNameWithoutExtension(vertPath);
-                var program = CreateAndRegisterShader(vertPath, fragPath);
+                CreateAndRegisterShader(vertPath, fragPath);
             }
             catch (Exception e)
             {
@@ -61,15 +59,21 @@ public class ShaderService : IDisposable
     {
         var vertShader = Path.GetFileNameWithoutExtension(vertPath);
         var programLocation = 0;
-        if (!_shadersProgram.TryGetValue(vertShader, out var shader))
+
+        programLocation = CreateShaderProgram(vertPath, fragPath);
+        if (programLocation == -1)
+            return -1;
+        var uniformLocations = RegisterUniformLocations(programLocation);
+
+        var shader = new GLShader(vertShader, programLocation, uniformLocations);
+        _shadersProgram.TryGetValue(vertShader, out var existingShader);
+        
+        if (existingShader != null)
         {
-            programLocation = CreateShaderProgram(vertPath, fragPath);
-
-            var uniformLocations = RegisterUniformLocations(programLocation);
-
-            shader = new GLShader(vertShader, programLocation, uniformLocations);
-            _shadersProgram.Add(vertShader, shader);
-        }
+            _shadersProgram.Remove(vertShader);
+            GL.DeleteProgram(existingShader.ProgramId);
+        }   
+        _shadersProgram.Add(vertShader, shader);
 
         return programLocation;
     }
@@ -110,7 +114,8 @@ public class ShaderService : IDisposable
         if (ok == 0)
         {
             GL.GetShaderInfoLog(v, out var info);
-            throw new Exception($"Vertex shader compile error: {info}");
+            _logger.LogError($"Shader compile error: {info}");
+            return -1;
         }
 
         var f = GL.CreateShader(ShaderType.FragmentShader);
@@ -120,7 +125,8 @@ public class ShaderService : IDisposable
         if (ok == 0)
         {
             GL.GetShaderInfoLog(f, out var info);
-            throw new Exception($"Fragment shader compile error: {info}");
+            _logger.LogError($"Fragment shader compile error: {info}");
+            return -1;
         }
 
         var program = GL.CreateProgram();
@@ -132,7 +138,8 @@ public class ShaderService : IDisposable
         if (ok == 0)
         {
             GL.GetProgramInfoLog(program, out var info);
-            throw new Exception($"Program link error: {info}");
+            _logger.LogError($"Could not compile shader. Program link error: {info}");
+            return -1;
         }
 
         GL.DeleteShader(v);
@@ -140,15 +147,38 @@ public class ShaderService : IDisposable
         return program;
     }
 
-    public void WatchForChanges(string path)
+    public void ReloadShader(string fullShaderPath)
     {
-        var watcher = new FileSystemWatcher(path, "*.vert;*.frag");
-        watcher.Changed += (s, e) => ReloadShader(e.FullPath); //the renderer should know about this
-        watcher.EnableRaisingEvents = true;
-    }
+            var ext = Path.GetExtension(fullShaderPath);
+            if (!ext.Equals(".vert", StringComparison.OrdinalIgnoreCase) &&
+                !ext.Equals(".frag", StringComparison.OrdinalIgnoreCase))
+                return;
 
-    private void ReloadShader(string eFullPath)
-    {
+            var shaderName = Path.GetFileNameWithoutExtension(fullShaderPath);
+            if (!_shadersProgram.TryGetValue(shaderName, out var shaderProgram))
+            {
+                _logger.LogWarning($"Shader '{shaderName}' not found in registry");
+                return;
+            }
+
+            var oldShaderProgram = shaderProgram.ProgramId;
+
+            var vertPath = fullShaderPath.EndsWith(".vert")
+                ? fullShaderPath
+                : fullShaderPath.Replace(".frag", ".vert");
+            var fragPath = fullShaderPath.EndsWith(".frag")
+                ? fullShaderPath
+                : fullShaderPath.Replace(".vert", ".frag");
+
+
+            if (CreateAndRegisterShader(vertPath, fragPath) == -1)
+            {
+                _logger.LogWarning($"Failed to reload shader: {shaderName}, keeping old shader");
+            }
+            else
+            {
+                _logger.LogInformation($"Reloaded shader: {shaderName}");
+            }
     }
 
     public void Dispose()

@@ -124,6 +124,11 @@ public class OpenGLRenderer : IDisposable, IRenderer
         GL.BindVertexArray(0);
     }
     
+    public void ReloadShader(string fullShaderPath)
+    {
+        _shaderService.ReloadShader(fullShaderPath);
+    }
+    
     public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
 
 }

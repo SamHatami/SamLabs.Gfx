@@ -57,10 +57,11 @@ public class GLInitializeMeshDataSystem : RenderSystem
             IndexVertices(ref glMeshData, ref meshData);
         if (meshData.EdgeIndices != null && meshData.EdgeIndices.Length > 0)
             IndexEdges(ref glMeshData, meshData.EdgeIndices);
-        else
-            glMeshData.Ebo = 0;
+        // else
+        //     glMeshData.Ebo = 0;
 
         OpenTK.Graphics.OpenGL.GL.BindVertexArray(0);
+
     }
 
     private void IndexVertices(ref GlMeshDataComponent glMeshData, ref MeshDataComponent meshData)

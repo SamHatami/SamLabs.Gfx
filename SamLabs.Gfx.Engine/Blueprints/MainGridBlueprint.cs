@@ -27,7 +27,7 @@ public class MainGridBlueprint : EntityBlueprint
     public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
         var spacing = 2.5f; // Grid line spacing
-        var gridSize = 100.0f; // Large quad size
+        var gridSize = 5f; // Large quad size
 
         // Create a single quad that covers a large area
         var quadVertices = CreateGridQuad(gridSize);
@@ -36,7 +36,7 @@ public class MainGridBlueprint : EntityBlueprint
 
         meshData = new MeshDataComponent()
         {
-            TriangleIndices = new int[] { 0, 1, 2, 2, 3, 0 }, // Two triangles
+            TriangleIndices = new int[]{0, 1, 2, 2, 3, 0}, // Two triangles
             Vertices = quadVertices,
             Name = "Main Grid"
         };
@@ -59,7 +59,9 @@ public class MainGridBlueprint : EntityBlueprint
         {
             IsGrid = true,
             PrimitiveType = PrimitiveType.Triangles,
-            VertexCount = 6
+            VertexCount = 4,
+            IndexCount = 6
+            
         };
 
         _componentRegistry.SetComponentToEntity(transformComponent, entity.Id);
@@ -76,10 +78,10 @@ public class MainGridBlueprint : EntityBlueprint
 
         return
         [
-            new Vertex(new Vector3(-half, 0, -half), Vector3.UnitY, Vector2.Zero), // Bottom-left
-            new Vertex(new Vector3(half, 0, -half), Vector3.UnitY, Vector2.Zero), // Bottom-right
-            new Vertex(new Vector3(half, 0, half), Vector3.UnitY, Vector2.Zero), // Top-right
-            new Vertex(new Vector3(-half, 0, half), Vector3.UnitY, Vector2.Zero) // Top-left
+            new Vertex(new Vector3(-half, 0, -half), Vector3.UnitY, new Vector2(0,0)), // Bottom-left
+            new Vertex(new Vector3(half, 0, -half), Vector3.UnitY, new Vector2(1,0)), // Bottom-right
+            new Vertex(new Vector3(half, 0, half), Vector3.UnitY, new Vector2(1,1)), // Top-right
+            new Vertex(new Vector3(-half, 0, half), Vector3.UnitY, new Vector2(0,1)) // Top-left
         ];
     }
 }

@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.SceneGraph;
 
@@ -17,4 +17,5 @@ public interface IRenderer
     public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
 
     GLShader? GetShader(string shaderName);
+    void ReloadShader(string fullShaderPath);
 }
