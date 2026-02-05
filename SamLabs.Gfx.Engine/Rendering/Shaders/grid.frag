@@ -9,18 +9,36 @@ layout(std140) uniform ViewProjection
     vec3 cameraPosition;
 };
 
-uniform float uGridSize = 1.0;
-uniform float uGridSpacing = 1.0;
-uniform float uMajorLineFrequency =20.0;
+uniform float uGridSize = 100.0; 
+uniform float uGridSpacing = 0.1;
+uniform float uMajorLineFrequency =2.0;
 
+vec3 subLineColor = vec3(0.1, 0.1, 0.1);
+vec3 mainLineColor = vec3(0.5, 0.5, 0.5);
+ 
 out vec4 FragColor;
+float majorCellHalfSize = uMajorLineFrequency * 0.5;
+float minorCellHalfSize = uGridSpacing;
+void main() 
+{ //Tes
+    vec2 majorGridCellCoords = mod(TexCoord + majorCellHalfSize, uMajorLineFrequency);
+    vec2 minorGridCellCoords = mod(TexCoord + uGridSpacing, uGridSpacing);
 
-void main()
-{
-    vec2 majorGridCellCoords = mod(TexCoord + 0.5*uMajorLineFrequency, uMajorLineFrequency);
-    vec2 minorGridCellCoords = floor(fragWorldPosition.xz / (uGridSize * uGridSpacing));
+    vec2 majorGridLineDist = min(majorGridCellCoords, uMajorLineFrequency - majorGridCellCoords);
+    vec2 minorGridLineDist = min(minorGridCellCoords, uGridSpacing - minorGridCellCoords);
 
-    vec2 majorGridLineDist = abs(fract(fragWorldPosition.xz / (uGridSize * uGridSpacing * uMajorLineFrequency)) - 0.5);
-    vec2 minorGridLineDist = abs(fract(fragWorldPosition.xz / (uGridSize * uGridSpacing)) - 0.5);
-    FragColor = vec4(majorGridCellCoords,0,1);
+    float majorLineWidth = 0.01; 
+    float minorLineWidth = 0.001;
+
+    float cellLineT    = 0.5 * (majorLineWidth + fwidth(min(majorGridLineDist.x, majorGridLineDist.y)));
+    float subCellLineT = 0.5 * (minorLineWidth + fwidth(min(minorGridLineDist.x, minorGridLineDist.y)));
+
+
+    vec3 gridColor = vec3(0.0);
+    if (any(lessThan(majorGridLineDist, vec2(cellLineT)))) { gridColor = mainLineColor; }
+    if (any(lessThan(minorGridLineDist, vec2(subCellLineT)))) { gridColor = subLineColor; }
+
+
+
+    FragColor = vec4(gridColor, 1.0);
 }

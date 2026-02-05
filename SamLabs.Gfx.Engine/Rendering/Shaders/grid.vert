@@ -13,11 +13,12 @@ layout(std140) uniform ViewProjection
 
 out vec3 fragWorldPosition;
 out vec2 TexCoord;
+uniform float uGridSize = 100.0;
 
 void main()
 {
-    TexCoord = aTexCoord*2;
-    vec4 worldPos = uModel * vec4(aPos, 1);
+    TexCoord = aTexCoord * (uGridSize*0.5);
+    vec4 worldPos = uModel * vec4(aPos*uGridSize*0.5, 1);
     fragWorldPosition = worldPos.xyz;
 
     gl_Position = projection * view * worldPos;

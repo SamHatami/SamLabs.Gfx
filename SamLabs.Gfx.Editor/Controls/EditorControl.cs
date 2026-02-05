@@ -272,9 +272,7 @@ public class EditorControl : OpenTkControlBase
         
         SubscribeToEditorEvents();
         
-        #if DEBUG
         InitializeShaderWatcher();
-        #endif 
     }
 
     private void SubscribeToEditorEvents()
@@ -296,7 +294,7 @@ public class EditorControl : OpenTkControlBase
         try
         {
             // Use the hardcoded source shader folder for development
-            var shaderFolder = @"C:\\Users\\samhat\\Workspace\\SamLabs.Gfx\\SamLabs.Gfx.Engine\\Rendering\\Shaders";
+            var shaderFolder = @"C:\Workspace\SamLabs.Gfx\SamLabs.Gfx.Engine\Rendering\Shaders";
             
             if (!Directory.Exists(shaderFolder))
             {
@@ -319,14 +317,22 @@ public class EditorControl : OpenTkControlBase
         }
     }
     
+    private int _fileCallback = 0;
     private void OnShaderFileChanged(object sender, FileSystemEventArgs e)
     {
         var ext = Path.GetExtension(e.FullPath);
+        if(_fileCallback < 1)
+        {
+            _fileCallback++;
+            return;
+        }
         if (ext.Equals(".vert", StringComparison.OrdinalIgnoreCase) || 
             ext.Equals(".frag", StringComparison.OrdinalIgnoreCase))
         {
+            _fileCallback = 0;
             _pendingShaderReloads.Enqueue(e.FullPath);
         }
+        
     }
     
     private void ProcessPendingShaderReloads()
