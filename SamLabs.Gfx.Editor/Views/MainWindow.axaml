@@ -115,6 +115,7 @@
                 <Button Command="{Binding AddBox}">
                     <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform" />
                 </Button>
+                <Button Command="{Binding AddDebugCubesCommand}" Content="1000" />
                 <Button Command="{Binding AddPlane}" Content="Plane" />
                 <Button Command="{Binding AddBarElement}" Content="Bar" />
             </StackPanel>
@@ -130,6 +131,12 @@
                     IsHitTestVisible="False"
                     Text="{Binding CurrentFpsString}" />
             </StackPanel>
+        </Border>
+
+        <Border x:Name="GeoPalette" HorizontalAlignment="Right" Background="#7d7d7d7d"
+                CornerRadius="5"
+                VerticalAlignment="Top" Margin="10,60,10,10">
+            <views:ProceduralGeometryView DataContext="{Binding ProceduralGeometryViewModel}" />
         </Border>
 
 

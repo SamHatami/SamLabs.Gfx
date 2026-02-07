@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -24,6 +24,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public TransformStateViewModel TransformStateViewModel { get; }
     public GridSettingsViewModel GridSettingsViewModel { get; set; }
     public ViewPresetViewModel ViewPresetViewModel { get; set; }
+    public ProceduralGeometryViewModel ProceduralGeometryViewModel { get; set; }
 
     [ObservableProperty] private bool _isGridSettingsVisible;
     [ObservableProperty] private bool _isViewPresetVisible;
@@ -45,9 +46,10 @@ public partial class MainWindowViewModel : ViewModelBase
         _componentRegistry = engineContext.ComponentRegistry;
         CommandManager = commandManager;
         SceneManager = sceneManager;
-        TransformStateViewModel = transformStateViewModel; //this should just be the ActiveToolViewModel
+        TransformStateViewModel = transformStateViewModel;
         GridSettingsViewModel = new GridSettingsViewModel(_componentRegistry, engineContext.EntityRegistry);
         ViewPresetViewModel = new ViewPresetViewModel(commandManager, _componentRegistry);
+        ProceduralGeometryViewModel = new ProceduralGeometryViewModel(commandManager, _entityFactory);
         InitializeMainScene();
 
         //we also need sub-viewmodels that subscribe to whatever events they need
@@ -70,6 +72,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public void AddBox() =>
         CommandManager.EnqueueCommand(new AddBoxCommand(CommandManager, SceneManager.GetCurrentScene(),
             _entityFactory));
+
+    [RelayCommand]
+    public void AddDebugCubes() =>
+        CommandManager.EnqueueCommand(new AddCubeBatchCommand(_entityFactory, _componentRegistry, 1000, 100f));
 
     public void AddBarElement() =>
         CommandManager.EnqueueCommand(new AddBarElementCommand(CommandManager, _entityFactory));

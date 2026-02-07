@@ -26,8 +26,8 @@ public class MainGridBlueprint : EntityBlueprint
 
     public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
-        var spacing = 2.5f; // Grid line spacing
-        var gridSize = 5f; // Large quad size
+        var spacing = 1f; // Grid line spacing
+        var gridSize = 100f; // Large quad size
 
         // Create a single quad that covers a large area
         var quadVertices = CreateGridQuad(gridSize);

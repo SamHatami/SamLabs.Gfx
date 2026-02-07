@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Math;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
@@ -66,16 +66,15 @@ public class RotateTool : TransformTool
         if (selectedEntities.IsEmpty()) return;
 
         var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
-        if (activeManipulator == -1) return;
+        if (activeManipulator == -1 || !TryGetManipulatorTransform(activeManipulator, out var manipulatorTransform)) return;
 
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
-        ref var manipulatorTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activeManipulator);
-        
         manipulatorTransform.Position = entityTransform.Position;
-        
+        ComponentRegistry.SetComponentToEntity(manipulatorTransform, activeManipulator);
+
         var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().GetSpan();
         if (pickingEntities.IsEmpty()) return;
-        
+
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
 
         if (input.IsMouseLeftButtonDown && !_isTransforming)
@@ -83,11 +82,9 @@ public class RotateTool : TransformTool
             if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
             {
                 _preChangeTransform = entityTransform;
-                
                 _startEulerAngles = MathExtensions.ExtractEulerAngles(entityTransform.Rotation);
                 _currentEulerAngles = _startEulerAngles;
                 _deltaAngles = Vector3.Zero;
-                
                 _isTransforming = true;
                 _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
                 SetState(ToolState.InputCapture);
@@ -96,9 +93,10 @@ public class RotateTool : TransformTool
 
         if (_isTransforming && input.IsMouseLeftButtonDown)
         {
+            if (!TryGetManipulatorTransform(activeManipulator, out manipulatorTransform)) return;
+            
             ref var manipulatorChild =
                 ref ComponentRegistry.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
-            
             _activeAxis = manipulatorChild.Axis.ToVector3();
             _strategy.Apply(input, ref entityTransform, ref manipulatorTransform, manipulatorChild, true);
 
@@ -106,10 +104,8 @@ public class RotateTool : TransformTool
             {
                 entityTransform.WorldMatrix = entityTransform.LocalMatrix;
                 entityTransform.IsDirty = false;
-                
                 // Update absolute euler angles
                 _currentEulerAngles = MathExtensions.ExtractEulerAngles(entityTransform.Rotation);
-                
                 // Calculate delta only for the active axis
                 var fullDelta = _currentEulerAngles - _startEulerAngles;
                 if (Math.Abs(_activeAxis.X) > 0.9f)
@@ -118,7 +114,6 @@ public class RotateTool : TransformTool
                     _deltaAngles = new Vector3(0, fullDelta.Y, 0);
                 else if (Math.Abs(_activeAxis.Z) > 0.9f)
                     _deltaAngles = new Vector3(0, 0, fullDelta.Z);
-                
                 OnPropertyChanged(nameof(CurrentX));
                 OnPropertyChanged(nameof(CurrentY));
                 OnPropertyChanged(nameof(CurrentZ));
@@ -133,12 +128,10 @@ public class RotateTool : TransformTool
             var postChangeTransform = ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
             CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform,
                 postChangeTransform, ComponentRegistry));
-            
             _isTransforming = false;
             _selectedManipulatorSubEntity = -1;
             _strategy.Reset();
             SetState(ToolState.Active);
-            
             _deltaAngles = Vector3.Zero;
             OnPropertyChanged(nameof(DeltaX));
             OnPropertyChanged(nameof(DeltaY));

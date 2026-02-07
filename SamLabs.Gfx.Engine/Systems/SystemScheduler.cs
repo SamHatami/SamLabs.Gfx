@@ -122,11 +122,20 @@ public class SystemScheduler
 
     public void Update(FrameInput frameInput)
     {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         foreach (var updateSystem in _updateSystems)
         {
             try
             {
-                updateSystem?.Update(frameInput);
+                if (updateSystem == null) continue;
+                var systemStart = stopwatch.Elapsed.TotalMilliseconds;
+                updateSystem.Update(frameInput);
+                var systemDuration = stopwatch.Elapsed.TotalMilliseconds - systemStart;
+                
+                if (systemDuration > 1.0)
+                {
+                    Console.WriteLine($"[SystemScheduler] {updateSystem.GetType().Name} took {systemDuration:F2} ms");
+                }
             }
             catch (Exception e)
             {
@@ -138,9 +147,26 @@ public class SystemScheduler
 
     public void Render(FrameInput frameInput, RenderContext renderContext)
     {
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         foreach (var renderSystem in _renderSystems)
         {
-            renderSystem?.Update(frameInput, renderContext);
+            try
+            {
+                if (renderSystem == null) continue;
+                var systemStart = stopwatch.Elapsed.TotalMilliseconds;
+                renderSystem.Update(frameInput, renderContext);
+                var systemDuration = stopwatch.Elapsed.TotalMilliseconds - systemStart;
+                
+                if (systemDuration > 1.0)
+                {
+                    Console.WriteLine($"[SystemScheduler] {renderSystem.GetType().Name} (Render) took {systemDuration:F2} ms");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _logger.LogError(e.Message);
+            }
         }
     }
 }

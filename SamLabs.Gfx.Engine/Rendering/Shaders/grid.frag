@@ -1,6 +1,5 @@
 #version 330 core
 in vec3 fragWorldPosition;
-in vec2 TexCoord;
 
 layout(std140) uniform ViewProjection
 {
@@ -9,36 +8,62 @@ layout(std140) uniform ViewProjection
     vec3 cameraPosition;
 };
 
-uniform float uGridSize = 100.0; 
-uniform float uGridSpacing = 0.1;
-uniform float uMajorLineFrequency =2.0;
+uniform float uGridSize = 100.0;
+uniform float uGridSpacing = 1.0;
+uniform float uMajorLineFrequency = 5.0;
 
-vec3 subLineColor = vec3(0.1, 0.1, 0.1);
-vec3 mainLineColor = vec3(0.5, 0.5, 0.5);
- 
 out vec4 FragColor;
-float majorCellHalfSize = uMajorLineFrequency * 0.5;
-float minorCellHalfSize = uGridSpacing;
-void main() 
-{ //Tes
-    vec2 majorGridCellCoords = mod(TexCoord + majorCellHalfSize, uMajorLineFrequency);
-    vec2 minorGridCellCoords = mod(TexCoord + uGridSpacing, uGridSpacing);
 
-    vec2 majorGridLineDist = min(majorGridCellCoords, uMajorLineFrequency - majorGridCellCoords);
-    vec2 minorGridLineDist = min(minorGridCellCoords, uGridSpacing - minorGridCellCoords);
+float gridLine(vec2 coord, float spacing, float lineWidth)
+{
+    vec2 grid = abs(fract(coord / spacing - 0.5) - 0.5) / fwidth(coord / spacing);
+    float line = min(grid.x, grid.y);
+    return 1.0 - min(line / lineWidth, 1.0);
+}
 
-    float majorLineWidth = 0.01; 
-    float minorLineWidth = 0.001;
+void main()
+{
+    vec2 coord = fragWorldPosition.xz;
 
-    float cellLineT    = 0.5 * (majorLineWidth + fwidth(min(majorGridLineDist.x, majorGridLineDist.y)));
-    float subCellLineT = 0.5 * (minorLineWidth + fwidth(min(minorGridLineDist.x, minorGridLineDist.y)));
+    vec3 viewDir = normalize(cameraPosition - fragWorldPosition);
+    float viewAngle = abs(viewDir.y); // 0 = edge-on, 1 = top-down
 
+    // Adjust line width based on view angle - thicker when looking straight down
+    float angleAdjustment = mix(1.0, 3.0, viewAngle);
+    // Minor grid lines
+    float minorLineWidth = 1.0 * angleAdjustment;
+    float minorGrid = gridLine(coord, uGridSpacing, minorLineWidth);
 
-    vec3 gridColor = vec3(0.0);
-    if (any(lessThan(majorGridLineDist, vec2(cellLineT)))) { gridColor = mainLineColor; }
-    if (any(lessThan(minorGridLineDist, vec2(subCellLineT)))) { gridColor = subLineColor; }
+    // Major grid lines (every N minor lines)
+    float majorLineWidth = 1.5 * angleAdjustment;
+    float majorGrid = gridLine(coord, uGridSpacing * uMajorLineFrequency, majorLineWidth);
 
+    // Axis lines (X and Z)
+    vec2 axisCoord = coord / fwidth(coord);
+    float axisWidth = 2.0;
+    float xAxis = 1.0 - min(abs(axisCoord.y) / axisWidth, 1.0);
+    float zAxis = 1.0 - min(abs(axisCoord.x) / axisWidth, 1.0);
 
+    // Distance fade
+    float distToCamera = length(cameraPosition - fragWorldPosition);
+    float fadeStart = 90.0;
+    float fadeEnd = 150.0;
+    float distanceFade = 1.0 - smoothstep(fadeStart, fadeEnd, distToCamera);
 
-    FragColor = vec4(gridColor, 1.0);
+    // Colors
+    vec3 minorColor = vec3(0.2, 0.2, 0.2);
+    vec3 majorColor = vec3(0.4, 0.4, 0.4);
+    vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
+    vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
+
+    // Blend: axes > major > minor
+    vec3 color = minorColor * minorGrid;
+    color = mix(color, majorColor, majorGrid);
+    color = mix(color, xAxisColor, xAxis);
+    color = mix(color, zAxisColor, zAxis);
+
+    // Alpha: show any line that's visible
+    float alpha = max(max(minorGrid, majorGrid), max(xAxis, zAxis)) * distanceFade;
+
+    FragColor = vec4(color, alpha);
 }

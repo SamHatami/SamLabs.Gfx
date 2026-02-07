@@ -1,4 +1,4 @@
-﻿using OpenTK.Mathematics;
+﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -64,16 +64,15 @@ public class ScaleTool : TransformTool
         if (selectedEntities.IsEmpty()) return;
 
         var activeManipulator = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
-        if (activeManipulator == -1) return;
+        if (activeManipulator == -1 || !TryGetManipulatorTransform(activeManipulator, out var manipulatorTransform)) return;
 
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
-        ref var manipulatorTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activeManipulator);
-        
         manipulatorTransform.Position = entityTransform.Position;
-        
+        ComponentRegistry.SetComponentToEntity(manipulatorTransform, activeManipulator);
+
         var pickingEntities = _entityRegistry.Query.With<PickingDataComponent>().GetSpan();
         if (pickingEntities.IsEmpty()) return;
-        
+
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntities[0]);
 
         if (input.IsMouseLeftButtonDown && !_isTransforming)
@@ -92,19 +91,18 @@ public class ScaleTool : TransformTool
 
         if (_isTransforming && input.IsMouseLeftButtonDown)
         {
+            if (!TryGetManipulatorTransform(activeManipulator, out manipulatorTransform)) return;
+            
             ref var manipulatorChild =
                 ref ComponentRegistry.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
-            
             _strategy.Apply(input, ref entityTransform, ref manipulatorTransform, manipulatorChild, true);
 
             if (entityTransform.IsDirty)
             {
                 entityTransform.WorldMatrix = entityTransform.LocalMatrix;
                 entityTransform.IsDirty = false;
-                
                 _currentScale = entityTransform.Scale;
                 _deltaScale = _currentScale - _startScale;
-                
                 OnPropertyChanged(nameof(CurrentX));
                 OnPropertyChanged(nameof(CurrentY));
                 OnPropertyChanged(nameof(CurrentZ));
@@ -119,12 +117,10 @@ public class ScaleTool : TransformTool
             var postChangeTransform = ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
             CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform,
                 postChangeTransform, ComponentRegistry));
-            
             _isTransforming = false;
             _selectedManipulatorSubEntity = -1;
             _strategy.Reset();
             SetState(ToolState.Active);
-            
             _deltaScale = Vector3.Zero;
             OnPropertyChanged(nameof(DeltaX));
             OnPropertyChanged(nameof(DeltaY));

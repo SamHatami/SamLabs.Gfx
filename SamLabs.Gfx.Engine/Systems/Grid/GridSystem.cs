@@ -29,7 +29,6 @@ public class GridSystem : UpdateSystem
     {
         //TODO: Grid should be a shader based grid, not a mesh based grid.
 
-        return;
         //get the gridcomponent, if it is dirty, regenerate the mesh
         if (_gridEntity == -1)
             _gridEntity = ComponentRegistry.GetEntityIdsForComponentType<GridComponent>().First();
@@ -37,49 +36,13 @@ public class GridSystem : UpdateSystem
         ref var gridComponent = ref ComponentRegistry.GetComponent<GridComponent>(_gridEntity);
         if (!gridComponent.UpdateRequested) return;
 
-        var vertices = GetVertices(gridComponent.LinesPerSide, gridComponent.GridLineSpacing);
-
-        var meshData = new MeshDataComponent()
-        {
-            TriangleIndices = [],
-            Vertices = vertices,
-            Name = "Main Grid"
-        };
-
-        var glMeshData = new GlMeshDataComponent()
-        {
-            IsGrid = true,
-            PrimitiveType = PrimitiveType.Triangles,
-            VertexCount = vertices.Length
-        };
-
-        ComponentRegistry.SetComponentToEntity(meshData, _gridEntity);
-        ComponentRegistry.SetComponentToEntity(glMeshData, _gridEntity);
-
-        gridComponent.UpdateRequested = false;
-        ComponentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), _gridEntity);
-
+        ref var material = ref ComponentRegistry.GetComponent<MaterialComponent>(_gridEntity);
         //When we have shader we get the shader and set its uniforms
-        // var material = new MaterialComponent();
-        // material.Shader = _shaderService.GetShader("grid");
+        material.UniformValues["uGridSize"] = gridComponent.GridSize;
+        material.UniformValues["uGridSpacing"] = gridComponent.GridLineSpacing;
+        material.UniformValues["uGridColor"] = new Vector3(0.6f, 0.6f, 0.6f);
+        material.UniformValues["uMajorLineFrequency"] = gridComponent.MajorLineFrequency;
+        
     }
 
-    private Vertex[] GetVertices(int linesPerSide, float spacing)
-    {
-        var half = linesPerSide * spacing * 0.5f;
-        var vertices = new List<Vertex>();
-
-        for (var i = 0; i <= linesPerSide; i++)
-        {
-            var x = (i * spacing) - half;
-            var z = (i * spacing) - half;
-
-            vertices.Add(new Vertex(new Vector3(x, 0, -half), Vector3.UnitY, Vector2.Zero));
-            vertices.Add(new Vertex(new Vector3(x, 0, half), Vector3.UnitY, Vector2.Zero));
-            vertices.Add(new Vertex(new Vector3(-half, 0, z), Vector3.UnitY, Vector2.Zero));
-            vertices.Add(new Vertex(new Vector3(half, 0, z), Vector3.UnitY, Vector2.Zero));
-        }
-
-        return vertices.ToArray();
-    }
 }

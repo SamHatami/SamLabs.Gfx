@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SamLabs.Gfx.Engine.Tools;
 
-public class ToolManager
+public class  ToolManager
 {
     private readonly Dictionary<string, ITool> _registeredTools = new();
     private ITool? _activeTool;

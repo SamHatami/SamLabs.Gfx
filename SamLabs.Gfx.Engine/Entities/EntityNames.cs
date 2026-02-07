@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Engine.Entities;
+﻿﻿namespace SamLabs.Gfx.Engine.Entities;
 
 public static class EntityNames
 {
@@ -23,4 +23,9 @@ public static class EntityNames
     public const string ConstructionPoint = "ConstructionPoint";
     public const string Sketch = "Sketch";
     public static string BarElement = "BarElement";
+
+    public const string Icosphere = "Icosphere";
+    public const string Tetrahedron = "Tetrahedron";
+    public const string Octahedron = "Octahedron";
+    public const string Dodecahedron = "Dodecahedron";
 }

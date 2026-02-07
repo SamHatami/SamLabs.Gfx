@@ -45,24 +45,14 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
 
     public virtual void Activate()
     {
-        HideAllManipulators();
         var targetManipulator = FindManipulatorByType(ManipulatorType);
         if (targetManipulator != -1)
         {
-            ComponentRegistry.SetComponentToEntity(new ActiveManipulatorComponent(), targetManipulator);
+            CommandManager.EnqueueCommand(new ActivateManipulatorCommand(ComponentRegistry, targetManipulator, hideOthers: true));
             ActiveManipulatorId = targetManipulator;
         }
         
         SetState(ToolState.Active);
-    }
-    
-    private void HideAllManipulators()
-    {
-        var activeManipulators = ComponentRegistry.GetEntityIdsForComponentType<ActiveManipulatorComponent>();
-        foreach (var manipId in activeManipulators)
-        {
-            ComponentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(manipId);
-        }
     }
     
     private int FindManipulatorByType(ManipulatorType type)
@@ -79,14 +69,40 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
 
     public virtual void Deactivate()
     {
-        if (ActiveManipulatorId.HasValue && ComponentRegistry.HasComponent<ActiveManipulatorComponent>(ActiveManipulatorId.Value))
+        if (ActiveManipulatorId.HasValue)
         {
-            ComponentRegistry.RemoveComponentFromEntity<ActiveManipulatorComponent>(ActiveManipulatorId.Value);
+            CommandManager.EnqueueCommand(new DeactivateManipulatorCommand(ComponentRegistry, ActiveManipulatorId.Value));
         }
         
         SetState(ToolState.Inactive);
         ActiveManipulatorId = null;
         _isTransforming = false;
+    }
+
+    protected bool IsManipulatorReady(int manipulatorId)
+    {
+
+        return ComponentRegistry.HasComponent<ActiveManipulatorComponent>(manipulatorId) &&
+               ComponentRegistry.HasComponent<TransformComponent>(manipulatorId);
+    }
+    
+    protected bool TryGetManipulatorTransform(int manipulatorId, out TransformComponent transform)
+    {
+        transform = default;
+        
+        if (!IsManipulatorReady(manipulatorId))
+            return false;
+        
+        try
+        {
+            transform = ComponentRegistry.GetComponent<TransformComponent>(manipulatorId);
+            return true;
+        }
+        catch
+        {
+            // Handles rare race condition during rapid tool switching
+            return false;
+        }
     }
 
     public abstract void ProcessInput(FrameInput input);
@@ -108,4 +124,3 @@ public abstract class TransformTool : ITool, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
-

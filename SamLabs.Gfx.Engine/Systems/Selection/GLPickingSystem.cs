@@ -1,4 +1,4 @@
-﻿﻿using Avalonia;
+﻿﻿﻿using Avalonia;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
@@ -22,6 +22,8 @@ public class GLPickingSystem : RenderSystem
     private IViewPort _viewport;
     private GLShader? _pickingShader = null;
     private int _pickingEntity = -1;
+    private (int x, int y) _lastMousePos = (-1, -1);
+    private bool _mouseMovedThisFrame;
 
     public GLPickingSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry,
         componentRegistry)
@@ -29,6 +31,8 @@ public class GLPickingSystem : RenderSystem
         _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
     }
+
+    private ShaderProgram? _activeShaderProgram;
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
@@ -46,30 +50,40 @@ public class GLPickingSystem : RenderSystem
         var selectableEntities = _componentRegistry.GetEntityIdsForComponentType<SelectableDataComponent>();
         if (selectableEntities.IsEmpty) return;
 
-        var meshEntities = _componentRegistry.GetEntityIdsForComponentType<GlMeshDataComponent>();
-        if (meshEntities.IsEmpty) return;
-
         (var x, var y) = GetPixelPosition(frameInput.MousePosition, renderContext);
+        
+        // Only update picking when mouse moves
+        _mouseMovedThisFrame = (_lastMousePos.x != x || _lastMousePos.y != y);
+        _lastMousePos = (x, y);
+
+        if (!_mouseMovedThisFrame) 
+            return;
 
         //Clear and render to picking buffer
         Renderer.RenderToPickingBuffer(renderContext.ViewPort);
 
-        //Pass 1,render full object
-        //we only render full objects here. I need a way to render everything and then selectionmode will disable or filter out.
-        foreach (var selectableEntity in selectableEntities)
+        // Use shader program once for all entities
+        _activeShaderProgram = new ShaderProgram(_pickingShader).Use();
         {
-            var mesh = _componentRegistry.GetComponent<GlMeshDataComponent>(selectableEntity);
-            if (mesh.IsManipulator)
-                continue;
+            //Pass 1,render full object
+            //we only render full objects here. I need a way to render everything and then selectionmode will disable or filter out.
+            foreach (var selectableEntity in selectableEntities)
+            {
+                var mesh = _componentRegistry.GetComponent<GlMeshDataComponent>(selectableEntity);
+                if (mesh.IsManipulator)
+                    continue;
 
-            var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
-            RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
+                var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(selectableEntity).WorldMatrix;
+                RenderToPickingTexture(mesh, selectableEntity, modelMatrix);
+            }
+
+            //if in subselection mode
+            //Pass 2
+            RenderActiveManipulatorToPickingBuffer();
+            
+            _activeShaderProgram.Dispose();
+            _activeShaderProgram = null;
         }
-
-        //if in subselection mode
-        //Pass 2
-
-        RenderActiveManipulatorToPickingBuffer();
 
         HandlePickingIdReadBack(x, y, ref pickingData);
     }
@@ -103,9 +117,10 @@ public class GLPickingSystem : RenderSystem
         //ONLY RENDER THE ONES THAT ARE VISIBLE- SAM!!!!
         //set uPickingType to be able to id what we are rendering to the picking buffer
         //set uEntityId to be able to read which entity these belong to 
-        //set u
         var selectionEnumInt = (int)selectionType;
-        using var shader = new ShaderProgram(_pickingShader).Use()
+        
+        // Shader is already in use from parent context, just set uniforms
+        _activeShaderProgram?
             .SetInt(UniformNames.uEntityId, ref entityId)
             .SetInt(UniformNames.uPickingType, ref selectionEnumInt)
             .SetMatrix4(UniformNames.uModel, ref modelMatrix);

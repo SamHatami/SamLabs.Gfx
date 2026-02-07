@@ -1,0 +1,23 @@
+﻿<UserControl
+    x:Class="SamLabs.Gfx.Editor.Views.ProceduralGeometryView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
+    d:DesignHeight="200"
+    d:DesignWidth="80"
+    x:DataType="viewModels:ProceduralGeometryViewModel"
+    mc:Ignorable="d">
+
+    <Border Background="#7d7d7d7d" CornerRadius="5" Padding="5">
+        <StackPanel Orientation="Vertical" Spacing="5">
+            <TextBlock Text="Geo" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" />
+            <Button Command="{Binding AddIcoSphereCommand }" Content="Ico" />
+            <Button Command="{Binding AddTetrahedronCommand}" Content="Tet" />
+            <Button Command="{Binding AddOctahedronCommand}" Content="Oct" />
+            <Button Command="{Binding AddDodecahedronCommand}" Content="Dod" />
+        </StackPanel>
+    </Border>
+
+</UserControl>

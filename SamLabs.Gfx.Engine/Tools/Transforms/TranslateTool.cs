@@ -14,7 +14,7 @@ using SamLabs.Gfx.Engine.Tools.Transforms.Strategies;
 
 namespace SamLabs.Gfx.Engine.Tools.Transforms;
 
-public class TranslateTool : TransformTool
+public class TranslateTool : TransformTool //SubUpdateSystem
 {
     private readonly TranslateToolStrategy _strategy;
     private Vector3 _currentPosition = Vector3.Zero;
@@ -69,11 +69,11 @@ public class TranslateTool : TransformTool
         var manipQuery = _entityRegistry.Query;
         var activeManipulator = manipQuery.With<ActiveManipulatorComponent>().First();
         _entityRegistry.ReturnQuery(manipQuery);
-        if (activeManipulator == -1) { _entityRegistry.ReturnQuery(selectedQuery); return; }
+        if (activeManipulator == -1 || !TryGetManipulatorTransform(activeManipulator, out var manipulatorTransform)) { _entityRegistry.ReturnQuery(selectedQuery); return; }
 
         ref var entityTransform = ref ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
-        ref var manipulatorTransform = ref ComponentRegistry.GetComponent<TransformComponent>(activeManipulator);
         manipulatorTransform.Position = entityTransform.Position;
+        ComponentRegistry.SetComponentToEntity(manipulatorTransform, activeManipulator);
 
         var pickingQuery = _entityRegistry.Query;
         var pickingEntities = pickingQuery.With<PickingDataComponent>().GetSpan();
@@ -92,43 +92,35 @@ public class TranslateTool : TransformTool
                 _isTransforming = true;
                 _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
                 SetState(ToolState.InputCapture);
-                
             }
         }
 
         if (_isTransforming && input.IsMouseLeftButtonDown)
         {
-            ref var manipulatorChild =
-                ref ComponentRegistry.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
+            if (!TryGetManipulatorTransform(activeManipulator, out manipulatorTransform)) return;
             
+            ref var manipulatorChild = ref ComponentRegistry.GetComponent<ManipulatorChildComponent>(_selectedManipulatorSubEntity);
             _strategy.Apply(input, ref entityTransform, ref manipulatorTransform, manipulatorChild, true);
 
             if (entityTransform.IsDirty)
             {
                 entityTransform.WorldMatrix = entityTransform.LocalMatrix;
                 entityTransform.IsDirty = false;
-                
                 _currentPosition = entityTransform.Position;
                 _deltaThisSession = _currentPosition - _startPosition;
-                
                 OnPropertyChanged(nameof(CurrentX));
                 OnPropertyChanged(nameof(CurrentY));
                 OnPropertyChanged(nameof(CurrentZ));
                 OnPropertyChanged(nameof(DeltaX));
                 OnPropertyChanged(nameof(DeltaY));
                 OnPropertyChanged(nameof(DeltaZ));
-                
-                //Set flag for other systems that transform has changed, e.g. structural system node system or barsystem
                 if(!ComponentRegistry.HasComponent<TranslateChangedFlag>(_selectedManipulatorSubEntity))
                     ComponentRegistry.SetComponentToEntity(new TranslateChangedFlag(), selectedEntities[0]);
-
-                // Update dependencies directly in the same frame.
                 if (ComponentRegistry.HasComponent<DependencyComponent>(selectedEntities[0]))
                 {
                     var dep = ComponentRegistry.GetComponent<DependencyComponent>(selectedEntities[0]);
                     DependencyUpdateDispatcher.UpdateDependencies(ComponentRegistry, selectedEntities[0], dep.UpdateType);
                 }
-
             }
         }
 
@@ -137,12 +129,10 @@ public class TranslateTool : TransformTool
             var postChangeTransform = ComponentRegistry.GetComponent<TransformComponent>(selectedEntities[0]);
             CommandManager.AddUndoCommand(new TransformCommand(selectedEntities[0], _preChangeTransform,
                 postChangeTransform, ComponentRegistry));
-            
             _isTransforming = false;
             _selectedManipulatorSubEntity = -1;
             _strategy.Reset();
             SetState(ToolState.Active);
-            
             _deltaThisSession = Vector3.Zero;
             OnPropertyChanged(nameof(DeltaX));
             OnPropertyChanged(nameof(DeltaY));
