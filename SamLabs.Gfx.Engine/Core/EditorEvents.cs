@@ -1,5 +1,6 @@
 ﻿﻿using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Entities;
+ using SamLabs.Gfx.Engine.Components.Transform;
+ using SamLabs.Gfx.Engine.Entities;
 
 namespace SamLabs.Gfx.Engine.Core;
 

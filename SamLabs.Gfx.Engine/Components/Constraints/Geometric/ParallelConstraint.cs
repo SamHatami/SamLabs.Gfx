@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Engine.Systems.Constraints.Geometric;
+﻿namespace SamLabs.Gfx.Engine.Components.Constraints.Geometric;
 
 public struct ParallelConstraint:IConstraintComponent
 {

@@ -1,6 +1,4 @@
-﻿using SamLabs.Gfx.Engine.Components;
-
-namespace SamLabs.Gfx.Engine.Systems.Constraints;
+﻿namespace SamLabs.Gfx.Engine.Components.Constraints;
 
 public interface IConstraintComponent:IComponent
 {

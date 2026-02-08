@@ -3,6 +3,7 @@ using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
+using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 

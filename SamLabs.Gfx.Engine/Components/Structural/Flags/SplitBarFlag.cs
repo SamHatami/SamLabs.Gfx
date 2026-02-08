@@ -1,6 +1,4 @@
-﻿using SamLabs.Gfx.Engine.Components;
-
-namespace SamLabs.Gfx.Engine.Systems.Structural.Flags;
+﻿namespace SamLabs.Gfx.Engine.Components.Structural.Flags;
 
 public struct SplitBarFlag: IComponent
 {

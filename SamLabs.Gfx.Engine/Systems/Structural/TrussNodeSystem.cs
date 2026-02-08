@@ -6,6 +6,7 @@ using SamLabs.Gfx.Engine.Components.Flags;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Structural;
 using SamLabs.Gfx.Engine.Components.Structural.Flags;
+using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Components.Transform.Flags;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Core.Utility;

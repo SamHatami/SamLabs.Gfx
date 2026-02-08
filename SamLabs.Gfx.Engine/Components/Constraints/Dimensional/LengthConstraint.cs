@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Engine.Systems.Constraints.Dimensional;
+﻿namespace SamLabs.Gfx.Engine.Components.Constraints.Dimensional;
 
 public struct LengthConstraint:IConstraintComponent
 {

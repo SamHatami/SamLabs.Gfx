@@ -1,6 +1,6 @@
 using OpenTK.Mathematics;
 
-namespace SamLabs.Gfx.Engine.Components.Common;
+namespace SamLabs.Gfx.Engine.Components.Transform;
 
 public struct TransformComponent : IComponent
 {

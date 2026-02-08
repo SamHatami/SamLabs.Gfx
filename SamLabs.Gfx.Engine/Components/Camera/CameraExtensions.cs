@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Core.Math;
 using SamLabs.Gfx.Engine.Components.Common;
+using SamLabs.Gfx.Engine.Components.Transform;
 
 namespace SamLabs.Gfx.Engine.Components.Camera;
 
