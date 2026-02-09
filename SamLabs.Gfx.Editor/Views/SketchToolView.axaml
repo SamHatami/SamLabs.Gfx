@@ -1,0 +1,119 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SamLabs.Gfx.Editor.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="60"
+             x:Class="SamLabs.Gfx.Editor.Views.SketchToolView"
+             x:DataType="vm:SketchToolViewModel">
+
+    <Border Background="#7d7d7d7d" CornerRadius="5" Padding="8,5">
+        <StackPanel Orientation="Horizontal" Spacing="15">
+            
+            <!-- Drawing Tools Section -->
+            <Border BorderBrush="#555" BorderThickness="0,0,1,0" Padding="0,0,15,0">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <TextBlock Text="Draw:" 
+                               Foreground="White" 
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               FontSize="11"/>
+                    <ToggleButton IsChecked="{Binding IsLineToolActive}"
+                                  Command="{Binding ToggleLineToolCommand}"
+                                  Width="50" Height="35"
+                                  ToolTip.Tip="Line Tool (L)">
+                        <StackPanel>
+                            <TextBlock Text="Line" FontSize="10" HorizontalAlignment="Center"/>
+                            <TextBlock Text="L" FontSize="8" Foreground="#AAA" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsFilletActive}"
+                                  Command="{Binding ToggleFilletCommand}"
+                                  Width="50" Height="35"
+                                  ToolTip.Tip="Fillet">
+                        <TextBlock Text="Fillet" FontSize="10"/>
+                    </ToggleButton>
+                </StackPanel>
+            </Border>
+
+            <!-- Constraints Section -->
+            <Border BorderBrush="#555" BorderThickness="0,0,1,0" Padding="0,0,15,0">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <TextBlock Text="Constraints:" 
+                               Foreground="White" 
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               FontSize="11"/>
+                    <ToggleButton IsChecked="{Binding IsPerpendicularActive}"
+                                  Command="{Binding TogglePerpendicularCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Perpendicular">
+                        <TextBlock Text="⊥" FontSize="16"/>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsAngularActive}"
+                                  Command="{Binding ToggleAngularCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Angular">
+                        <TextBlock Text="∠" FontSize="16"/>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsParallelActive}"
+                                  Command="{Binding ToggleParallelCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Parallel">
+                        <TextBlock Text="∥" FontSize="16"/>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsEqualityActive}"
+                                  Command="{Binding ToggleEqualityCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Equality">
+                        <TextBlock Text="=" FontSize="16"/>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsVerticalActive}"
+                                  Command="{Binding ToggleVerticalCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Vertical">
+                        <TextBlock Text="│" FontSize="16"/>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsHorizontalActive}"
+                                  Command="{Binding ToggleHorizontalCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Horizontal">
+                        <TextBlock Text="─" FontSize="16"/>
+                    </ToggleButton>
+                    <ToggleButton IsChecked="{Binding IsFullLockActive}"
+                                  Command="{Binding ToggleFullLockCommand}"
+                                  Width="35" Height="35"
+                                  ToolTip.Tip="Full Lock">
+                        <TextBlock Text="🔒" FontSize="12"/>
+                    </ToggleButton>
+                </StackPanel>
+            </Border>
+
+            <!-- Dimensioning Section -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Dimension:" 
+                           Foreground="White" 
+                           VerticalAlignment="Center"
+                           FontWeight="Bold"
+                           FontSize="11"/>
+                <Button Command="{Binding AddLinearDimensionCommand}"
+                        Width="50" Height="35"
+                        ToolTip.Tip="Linear Dimension">
+                    <TextBlock Text="Linear" FontSize="9"/>
+                </Button>
+                <Button Command="{Binding AddAngularDimensionCommand}"
+                        Width="50" Height="35"
+                        ToolTip.Tip="Angular Dimension">
+                    <TextBlock Text="Angle" FontSize="9"/>
+                </Button>
+                <Button Command="{Binding AddRadialDimensionCommand}"
+                        Width="50" Height="35"
+                        ToolTip.Tip="Radial Dimension">
+                    <TextBlock Text="Radial" FontSize="9"/>
+                </Button>
+            </StackPanel>
+
+        </StackPanel>
+    </Border>
+</UserControl>
+

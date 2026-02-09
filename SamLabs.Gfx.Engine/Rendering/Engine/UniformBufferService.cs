@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Core.Utility;
 using Vector3 = OpenTK.Mathematics.Vector3;
@@ -158,7 +158,9 @@ public static class UniformNameTypeDictionary
         UniformInfo.Add(UniformNames.uMajorLineFrequency, typeof(int));
         UniformInfo.Add(UniformNames.uTextureCoordinate, typeof(Vector2));
         UniformInfo.Add(UniformNames.uGridSpacing, typeof(float));
-        
+        UniformInfo.Add(UniformNames.uIsPickingPass, typeof(int));
+        UniformInfo.Add(UniformNames.uViewportSize, typeof(Vector2));
+        UniformInfo.Add(UniformNames.uLineThickness, typeof(float));
     }
 }
 
@@ -186,4 +188,7 @@ public static class UniformNames
     public const string uGridColor = "uGridColor";
     public const string uGridSpacing = "uGridSpacing";
     public const string uMajorLineFrequency = "uMajorLineFrequency";
+    public const string uIsPickingPass = "uIsPickingPass";
+    public const string uViewportSize = "uViewportSize";
+    public const string uLineThickness = "uLineThickness";
 }

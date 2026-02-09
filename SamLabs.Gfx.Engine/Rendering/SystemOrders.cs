@@ -1,4 +1,4 @@
-﻿namespace SamLabs.Gfx.Engine.Rendering;
+﻿﻿namespace SamLabs.Gfx.Engine.Rendering;
 
 public static class SystemOrders
 {
@@ -13,6 +13,7 @@ public static class SystemOrders
     
     public const int MainStart = 200;
     public const int MainRender = 201;
+    public const int SketchRender = 202;
 
     public const int ManipulatorRender = 301;
     public const int HighlightSelectionRender = 302;

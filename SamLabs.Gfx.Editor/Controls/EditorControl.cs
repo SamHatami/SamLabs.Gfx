@@ -249,7 +249,17 @@ public class EditorControl : OpenTkControlBase
     private void ClearInputData()
     {
         _resizeRequested = false;
-        _leftClickOccured  = false;
+        
+        // Keep click flag true for 2 frames so tools can see it
+        if (_leftClickFrameCounter > 0)
+        {
+            _leftClickFrameCounter--;
+        }
+        else
+        {
+            _leftClickOccured = false;
+        }
+        
         _mouseWheelDelta = 0;
         _keyUp = Key.None; // reset key-up so Cancellation is only true for single frame
     }
@@ -318,6 +328,8 @@ public class EditorControl : OpenTkControlBase
     }
     
     private int _fileCallback = 0;
+    private int _leftClickFrameCounter;
+
     private void OnShaderFileChanged(object sender, FileSystemEventArgs e)
     {
         var ext = Path.GetExtension(e.FullPath);
@@ -384,7 +396,11 @@ public class EditorControl : OpenTkControlBase
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         NotifyActivity();
-        _leftClickOccured = e.InitialPressMouseButton ==  MouseButton.Left;
+        if (e.InitialPressMouseButton == MouseButton.Left)
+        {
+            _leftClickOccured = true;
+            _leftClickFrameCounter = 2; // Keep click true for 2 frames
+        }
         _isDragging = false; 
         base.OnPointerReleased(e);
         e.Pointer.Capture(null); // Release the mouse

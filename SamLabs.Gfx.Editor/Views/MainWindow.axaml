@@ -31,6 +31,8 @@
         <KeyBinding Gesture="W" Command="{Binding ToggleRotateManipulator}" />
         <KeyBinding Gesture="E" Command="{Binding ToggleScaleManipulator}" />
         <KeyBinding Gesture="C" Command="{Binding ToggleCameraProjection}" />
+        <KeyBinding Gesture="L" Command="{Binding ToggleSketchLineToolCommand}" />
+        <KeyBinding Gesture="Shift+S" Command="{Binding CreateSketchCommand}" />
     </Window.KeyBindings>
 
     <Grid>
@@ -88,6 +90,14 @@
         </Border>
 
 
+        <Border x:Name="SketchTools" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Bottom" 
+                Margin="10,0,10,50"
+                IsVisible="{Binding IsSketchToolPanelVisible}">
+            <views:SketchToolView DataContext="{Binding SketchToolViewModel}" />
+        </Border>
+
         <Border x:Name="BaseTools" HorizontalAlignment="Center" Width="400" Height="30" Background="#7d7d7d7d"
                 CornerRadius="5"
                 VerticalAlignment="Bottom" Margin="10">
@@ -118,6 +128,8 @@
                 <Button Command="{Binding AddDebugCubesCommand}" Content="1000" />
                 <Button Command="{Binding AddPlane}" Content="Plane" />
                 <Button Command="{Binding AddBarElement}" Content="Bar" />
+                <Button Command="{Binding CreateSketchCommand}" Content="New Sketch" 
+                        ToolTip.Tip="Create a new sketch on default/selected plane (Shift+S)" />
             </StackPanel>
         </Border>
 

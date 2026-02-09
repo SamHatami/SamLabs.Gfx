@@ -1,5 +1,6 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SamLabs.Gfx.Core.Framework;
 using SamLabs.Gfx.Editor.ViewModels;
 using SamLabs.Gfx.Engine.Core.ServiceModules;
@@ -11,6 +12,8 @@ using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Tools.Transforms;
+using SamLabs.Gfx.Engine.Tools.Sketch;
+using ILogger = Serilog.ILogger;
 
 namespace SamLabs.Gfx.Editor;
 
@@ -77,9 +80,13 @@ public class CompositionRoot
         var translateTool = new TranslateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
         var rotateTool = new RotateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
         var scaleTool = new ScaleTool(componentRegistry, commandManager, entityRegistry, editorEvents);
+        var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+        var sketchLineToolLogger = loggerFactory.CreateLogger<CreateSketchLineTool>();
+        var createSketchLineTool = new CreateSketchLineTool(entityRegistry, componentRegistry, commandManager, sketchLineToolLogger);
         
         toolManager.RegisterTool(translateTool);
         toolManager.RegisterTool(rotateTool);
         toolManager.RegisterTool(scaleTool);
+        toolManager.RegisterTool(createSketchLineTool);
     }
 }

@@ -1,7 +1,22 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Sketch;
+﻿﻿namespace SamLabs.Gfx.Engine.Components.Sketch;
 
 public struct SketchComponent : IComponent
 {
-    //Activated during sketch mode, if this exists then the entity is a sketchable object
     public int ConstructionPlaneEntityId { get; set; }
+    
+    /// <summary>
+    /// Entity IDs of line segments belonging to this sketch
+    /// </summary>
+    public List<int> LineSegmentEntityIds { get; set; }
+    
+    /// <summary>
+    /// Entity IDs of arc segments belonging to this sketch
+    /// </summary>
+    public List<int> ArcSegmentEntityIds { get; set; }
+    
+    public SketchComponent()
+    {
+        LineSegmentEntityIds = new List<int>();
+        ArcSegmentEntityIds = new List<int>();
+    }
 }

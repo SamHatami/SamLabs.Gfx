@@ -1,11 +1,14 @@
-﻿using System;
+﻿﻿﻿using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SamLabs.Gfx.Engine.Blueprints.Primitives;
 using SamLabs.Gfx.Engine.Commands;
+using SamLabs.Gfx.Engine.Commands.Camera;
 using SamLabs.Gfx.Engine.Commands.Construction;
 using SamLabs.Gfx.Engine.Components;
+using SamLabs.Gfx.Engine.Components.Camera;
+using SamLabs.Gfx.Engine.Components.Sketch;
 using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.SceneGraph;
@@ -25,9 +28,11 @@ public partial class MainWindowViewModel : ViewModelBase
     public GridSettingsViewModel GridSettingsViewModel { get; set; }
     public ViewPresetViewModel ViewPresetViewModel { get; set; }
     public ProceduralGeometryViewModel ProceduralGeometryViewModel { get; set; }
+    public SketchToolViewModel SketchToolViewModel { get; set; }
 
     [ObservableProperty] private bool _isGridSettingsVisible;
     [ObservableProperty] private bool _isViewPresetVisible;
+    [ObservableProperty] private bool _isSketchToolPanelVisible;
 
     [ObservableProperty] private int _objectId;
     private readonly EntityFactory _entityFactory;
@@ -50,6 +55,7 @@ public partial class MainWindowViewModel : ViewModelBase
         GridSettingsViewModel = new GridSettingsViewModel(_componentRegistry, engineContext.EntityRegistry);
         ViewPresetViewModel = new ViewPresetViewModel(commandManager, _componentRegistry);
         ProceduralGeometryViewModel = new ProceduralGeometryViewModel(commandManager, _entityFactory);
+        SketchToolViewModel = new SketchToolViewModel(_toolManager, engineContext.EditorEvents);
         InitializeMainScene();
 
         //we also need sub-viewmodels that subscribe to whatever events they need
@@ -83,6 +89,31 @@ public partial class MainWindowViewModel : ViewModelBase
     public void AddPlane() =>
         CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));
 
+    [RelayCommand]
+    public void CreateSketch()
+    {
+        // For now, create a sketch on the first available construction plane
+        // TODO: In future, this should be based on selected plane or show plane picker
+        var planeEntities = _componentRegistry.GetEntityIdsForComponentType<PlaneDataComponent>();
+        
+        if (planeEntities.Length == 0)
+        {
+            // Create a default construction plane first
+            var planeCommand = new AddConstructionPlaneCommand(_entityFactory, _componentRegistry);
+            CommandManager.EnqueueCommand(planeCommand);
+            planeCommand.Execute(); // Execute immediately to get the plane entity
+            
+            // Get the newly created plane
+            planeEntities = _componentRegistry.GetEntityIdsForComponentType<PlaneDataComponent>();
+        }
+
+        if (planeEntities.Length > 0)
+        {
+            var planeEntityId = planeEntities[0];
+            CommandManager.EnqueueCommand(new CreateSketchCommand(_entityFactory, _componentRegistry, planeEntityId));
+        }
+    }
+
 
     public void ToggleTranslateManipulators()
     {
@@ -106,6 +137,40 @@ public partial class MainWindowViewModel : ViewModelBase
             _toolManager.DeactivateCurrentTool();
         else
             _toolManager.ActivateTool(ToolIds.TransformScale);
+    }
+
+    [RelayCommand]
+    public void ToggleSketchLineTool()
+    {
+        if (_toolManager.ActiveTool?.ToolId == ToolIds.SketchLine)
+        {
+            _toolManager.DeactivateCurrentTool();
+            IsSketchToolPanelVisible = false;
+        }
+        else
+        {
+            // Before activating the tool, transition camera to sketch view
+            TransitionCameraToSketchView();
+            
+            _toolManager.ActivateTool(ToolIds.SketchLine);
+            IsSketchToolPanelVisible = true;
+        }
+    }
+
+    private void TransitionCameraToSketchView()
+    {
+        // Get sketch entity to get plane data
+        var sketchEntities = _componentRegistry.GetEntityIdsForComponentType<SketchComponent>();
+        if (sketchEntities.Length == 0) return;
+
+        var sketchEntityId = sketchEntities[0];
+        if (!_componentRegistry.HasComponent<PlaneDataComponent>(sketchEntityId))
+            return;
+
+        var planeData = _componentRegistry.GetComponent<PlaneDataComponent>(sketchEntityId);
+
+        // Set camera to look at the plane with orthographic projection
+        CommandManager.EnqueueCommand(new SetCameraToPlaneCommand(_componentRegistry, planeData.Origin, planeData.Normal));
     }
 
     [RelayCommand]

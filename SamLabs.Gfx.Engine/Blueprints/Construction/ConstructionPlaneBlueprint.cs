@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -45,8 +45,18 @@ public class ConstructionPlaneBlueprint : EntityBlueprint
             Scale = new Vector3(1, 1, 1),
             Rotation = new Quaternion(0, 0, 0), //This should be quaternion instead.
         };
-        _componentRegistry.SetComponentToEntity(new PlaneDataComponent(), entity.Id);
+        
+        // Initialize plane data for default XY plane (Z-up)
+        var planeData = new PlaneDataComponent
+        {
+            Origin = Vector3.Zero,
+            Normal = Vector3.UnitZ, // Z-up (looking down from +Z)
+            IsConstruction = true
+        };
+        
+        _componentRegistry.SetComponentToEntity(planeData, entity.Id);
         _componentRegistry.SetComponentToEntity(transformComponent, entity.Id);
+        _componentRegistry.SetComponentToEntity(new VisibilityComponent { IsVisible = true }, entity.Id);
 
         _componentRegistry.SetComponentToEntity(meshData, entity.Id);
         _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);

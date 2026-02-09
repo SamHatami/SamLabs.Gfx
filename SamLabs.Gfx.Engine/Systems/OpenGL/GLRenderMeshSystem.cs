@@ -1,4 +1,5 @@
-﻿﻿using OpenTK.Graphics.OpenGL;
+﻿﻿﻿using System.Collections.Generic;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -36,6 +37,21 @@ public class GLRenderMeshSystem : RenderSystem
         var meshEntities = _entityRegistry.Query.With<GlMeshDataComponent>().Without<ManipulatorChildComponent>().Get();
 
         if (meshEntities.IsEmpty()) return;
+        
+        // Filter out invisible entities
+        var visibleEntities = new List<int>();
+        foreach (var entityId in meshEntities)
+        {
+            if (ComponentRegistry.HasComponent<VisibilityComponent>(entityId))
+            {
+                var visibility = ComponentRegistry.GetComponent<VisibilityComponent>(entityId);
+                if (!visibility.IsVisible) continue;
+            }
+            visibleEntities.Add(entityId);
+        }
+        
+        if (visibleEntities.Count == 0) return;
+        meshEntities = visibleEntities.ToArray();
         
         var queryTime = stopwatch.Elapsed.TotalMilliseconds;
 
