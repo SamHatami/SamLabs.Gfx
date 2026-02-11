@@ -79,6 +79,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void AddBarElement() =>
         CommandManager.EnqueueCommand(new AddBarElementCommand(CommandManager, _entityFactory));
+
+    public void ToggleDrawBarTool()
+    {
+        if (_toolManager.ActiveTool?.ToolId == ToolIds.DrawBar)
+            _toolManager.DeactivateCurrentTool();
+        else
+            _toolManager.ActivateTool(ToolIds.DrawBar);
+    }
     
     public void AddPlane() =>
         CommandManager.EnqueueCommand(new AddConstructionPlaneCommand(_entityFactory, _componentRegistry));

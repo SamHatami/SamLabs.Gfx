@@ -70,6 +70,22 @@ public class BarElementBlueprint : EntityBlueprint
             endB.Z = max.Z;
         }
 
+        BuildBar(entity, bodyMesh, nodeMesh, endA, endB);
+    }
+
+    public async void BuildAtPositions(Entity entity, Vector3 startPosition, Vector3 endPosition)
+    {
+        entity.Type = EntityType.SceneObject;
+
+        var bodyMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
+        var nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
+
+        BuildBar(entity, bodyMesh, nodeMesh, startPosition, endPosition);
+    }
+
+    private void BuildBar(Entity entity, MeshDataComponent bodyMesh, MeshDataComponent nodeMesh,
+        Vector3 endA, Vector3 endB)
+    {
         var shader = _shaderService.GetShader("unlit");
         var pickingShader = _shaderService.GetShader("picking");
 
