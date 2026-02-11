@@ -36,6 +36,7 @@ public class AddBarAtPositionsCommand : ICommand
 
     public void Undo()
     {
+        //TODO: Implement entity removal including child node entities
     }
 
     public void Redo()
