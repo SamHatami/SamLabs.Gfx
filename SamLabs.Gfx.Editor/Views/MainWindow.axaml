@@ -31,6 +31,7 @@
         <KeyBinding Gesture="W" Command="{Binding ToggleRotateManipulator}" />
         <KeyBinding Gesture="E" Command="{Binding ToggleScaleManipulator}" />
         <KeyBinding Gesture="C" Command="{Binding ToggleCameraProjection}" />
+        <KeyBinding Gesture="B" Command="{Binding ToggleDrawBarTool}" />
     </Window.KeyBindings>
 
     <Grid>
@@ -118,6 +119,7 @@
                 <Button Command="{Binding AddDebugCubesCommand}" Content="1000" />
                 <Button Command="{Binding AddPlane}" Content="Plane" />
                 <Button Command="{Binding AddBarElement}" Content="Bar" />
+                <Button Command="{Binding ToggleDrawBarTool}" Content="Draw" ToolTip.Tip="Draw Bar Tool (click start → click end)" />
             </StackPanel>
         </Border>
 
