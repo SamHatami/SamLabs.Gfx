@@ -20,11 +20,43 @@ using SamLabs.Gfx.Engine.Systems;
 namespace SamLabs.Gfx.Editor.Controls;
 
 /// <summary>
-/// The main WPF control that renders the scene. This control can't be injected into the DI container,
-/// Properties are passed via Avalonias DirectProperties, from the main view model.
-/// This control is the main hub for the entity-component-system, all rendering calls must originate from the OpenTKRender method, since we are using the Avalonia OpenGlContext.
-/// The render context and frame input are updated inside this class.
+/// The main rendering control that integrates the ECS engine with the MVVM UI layer.
+/// This control serves as the integration hub between Avalonia UI and the Entity-Component-System.
 /// </summary>
+/// <remarks>
+/// <para><strong>Architectural Role:</strong></para>
+/// <para>This class bridges two architectural patterns:</para>
+/// <list type="bullet">
+///   <item><description><strong>MVVM (View Layer):</strong> Receives properties from MainWindowViewModel via Avalonia DirectProperties</description></item>
+///   <item><description><strong>ECS (Integration Point):</strong> Orchestrates the render loop and system execution</description></item>
+/// </list>
+/// 
+/// <para><strong>Key Responsibilities:</strong></para>
+/// <list type="number">
+///   <item><description>Manage the OpenGL render loop using Avalonia's OpenGL context</description></item>
+///   <item><description>Capture and aggregate input events (keyboard, mouse, pointer) into FrameInput</description></item>
+///   <item><description>Build RenderContext for each frame with viewport and scaling information</description></item>
+///   <item><description>Coordinate SystemScheduler execution (Update and Render phases)</description></item>
+///   <item><description>Handle idle detection to reduce CPU usage when editor is inactive</description></item>
+///   <item><description>Support hot-reload of shaders during development (via file watcher)</description></item>
+/// </list>
+/// 
+/// <para><strong>Design Constraints:</strong></para>
+/// <para>This control cannot be registered in the DI container because it's instantiated by Avalonia's XAML loader.
+/// Dependencies are injected via DirectProperties from the parent ViewModel.</para>
+/// 
+/// <para><strong>Thread Safety:</strong></para>
+/// <para>All rendering must occur on the Avalonia UI thread within the OpenTkRender method.
+/// Input events are captured on the UI thread and aggregated into thread-safe concurrent queues.</para>
+/// 
+/// <para><strong>Known Architectural Concerns:</strong></para>
+/// <list type="bullet">
+///   <item><description>This class has multiple responsibilities that could be extracted (input aggregation, idle detection)</description></item>
+///   <item><description>Direct coupling to MainWindowViewModel violates strict MVVM separation</description></item>
+///   <item><description>Directly subscribes to 9+ EditorEvents, creating implicit dependencies</description></item>
+///   <item><description>Creates ECS commands in InitializeOpenTk (consider moving to ViewModel)</description></item>
+/// </list>
+/// </remarks>
 public class EditorControl : OpenTkControlBase
 {
     public static readonly DirectProperty<EditorControl, CommandManager> CommandManagerProperty =
@@ -100,23 +132,29 @@ public class EditorControl : OpenTkControlBase
 
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
+    // Performance monitoring constants
+    private const double FpsUpdateIntervalSeconds = 1.0;
+    private const double MinFrameTimeMs = 16.666667; // ~60 FPS
+    private const double IdleTimeoutSeconds = 1.5;
+    private const int LeftClickFramePersistence = 2; // Frames to keep click flag active
+    
     private DateTime _lastUpdateTime = DateTime.Now;
     private int _frameCount = 0;
-    private double _currentFps = 0.0; // The calculated FPS value
+    private double _currentFps = 0.0;
     private Stopwatch _frameTimer = new();
     private double _lastFrameTime;
-    private const double FpsUpdateIntervalSeconds = 1.0; // Update FPS every second
     
     private DateTime _lastRenderTime = DateTime.Now;
     private bool _leftClickOccured;
     private bool _isDragging;
-    private const double MinFrameTimeMs = 16.666667; // ~60 FPS
     
+    // Idle detection state
     private DateTime _lastActivityTime = DateTime.Now;
-    private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(1.5);
+    private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(IdleTimeoutSeconds);
     private bool _wasIdling = false;
     private EditorWorkState _editorWorkState;
     
+    // Hot-reload support for shader development
     private FileSystemWatcher? _shaderWatcher;
     private ConcurrentQueue<string> _pendingShaderReloads = new();
 
@@ -176,6 +214,20 @@ public class EditorControl : OpenTkControlBase
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
     }
 
+    /// <summary>
+    /// Determines if the editor should enter idle state to reduce CPU usage.
+    /// </summary>
+    /// <remarks>
+    /// The editor enters idle mode when all of the following conditions are met:
+    /// <list type="bullet">
+    ///   <item><description>No engine work pending (WorkState.ShouldUpdate() returns false)</description></item>
+    ///   <item><description>No pending commands in the CommandManager queue</description></item>
+    ///   <item><description>No active tool (e.g., transform manipulator)</description></item>
+    ///   <item><description>No user activity for the configured idle timeout period</description></item>
+    /// </list>
+    /// When idle, the render loop skips frame processing to conserve resources.
+    /// </remarks>
+    /// <returns>True if the editor should be in idle state; otherwise, false.</returns>
     private bool Idle()
     {
         if(_editorWorkState.ShouldUpdate()) return false;
@@ -205,6 +257,15 @@ public class EditorControl : OpenTkControlBase
         _frameTimer.Restart();
     }
 
+    /// <summary>
+    /// Captures the current render context state for the ECS render systems.
+    /// </summary>
+    /// <param name="mainScreenFrameBuffer">The OpenGL framebuffer handle from Avalonia.</param>
+    /// <returns>A RenderContext containing viewport dimensions, scaling, and framebuffer information.</returns>
+    /// <remarks>
+    /// This method bridges the UI layer (Avalonia) with the ECS rendering layer by packaging
+    /// UI-specific information (viewport size, DPI scaling) into a format the ECS systems can consume.
+    /// </remarks>
     private RenderContext CaptureRenderContext(int mainScreenFrameBuffer)
     {
         return new RenderContext()
@@ -218,6 +279,22 @@ public class EditorControl : OpenTkControlBase
         };
     }
 
+    /// <summary>
+    /// Captures and aggregates all input events that occurred since the last frame into a FrameInput structure.
+    /// </summary>
+    /// <returns>A FrameInput containing the current frame's input state.</returns>
+    /// <remarks>
+    /// <para>This method consolidates input from multiple sources:</para>
+    /// <list type="bullet">
+    ///   <item><description>Mouse button states (left, right, middle)</description></item>
+    ///   <item><description>Mouse position and movement deltas (aggregated from all pointer events)</description></item>
+    ///   <item><description>Keyboard state (key down/up events)</description></item>
+    ///   <item><description>Mouse wheel delta</description></item>
+    ///   <item><description>Interaction state (dragging, clicking)</description></item>
+    /// </list>
+    /// <para>Input events are queued in thread-safe collections (_pointerDeltas) and consumed here
+    /// to ensure all input within a frame is captured, even if multiple events fired between frames.</para>
+    /// </remarks>
     private FrameInput CaptureFrameInput()
     {
         var totalDelta = Vector2.Zero; // Initialize with OpenTK's zero vector
@@ -303,12 +380,15 @@ public class EditorControl : OpenTkControlBase
     {
         try
         {
-            // Use the hardcoded source shader folder for development
-            var shaderFolder = @"C:\Workspace\SamLabs.Gfx\SamLabs.Gfx.Engine\Rendering\Shaders";
+            // Try to get shader folder from environment variable first, fallback to relative path
+            var shaderFolder = Environment.GetEnvironmentVariable("SAMLABS_GFX_SHADER_PATH") 
+                               ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "SamLabs.Gfx.Engine", "Rendering", "Shaders");
+            
+            shaderFolder = Path.GetFullPath(shaderFolder);
             
             if (!Directory.Exists(shaderFolder))
             {
-                Debug.WriteLine($"Shader folder not found: {shaderFolder}");
+                Debug.WriteLine($"Shader folder not found: {shaderFolder}. Set SAMLABS_GFX_SHADER_PATH environment variable for hot-reload support.");
                 return;
             }
             
@@ -399,7 +479,7 @@ public class EditorControl : OpenTkControlBase
         if (e.InitialPressMouseButton == MouseButton.Left)
         {
             _leftClickOccured = true;
-            _leftClickFrameCounter = 2; // Keep click true for 2 frames
+            _leftClickFrameCounter = LeftClickFramePersistence;
         }
         _isDragging = false; 
         base.OnPointerReleased(e);
@@ -459,6 +539,7 @@ public class EditorControl : OpenTkControlBase
         }
         
         if (CommandManager != null)
+            CommandManager.CommandEnqueued -= NotifyActivity;
 
         if (EngineContext?.EditorEvents != null)
         {
