@@ -117,7 +117,7 @@ public class DrawBarTool : ITool, INotifyPropertyChanged
                 var end = _currentPoint;
 
                 _commandManager.EnqueueCommand(
-                    new AddBarAtPositionsCommand(_commandManager, _entityFactory, start, end));
+                    new AddBarAtPositionsCommand(_componentRegistry,_commandManager, _entityFactory, start, end));
 
                 // Chain: end becomes new start
                 _startPoint = end;
