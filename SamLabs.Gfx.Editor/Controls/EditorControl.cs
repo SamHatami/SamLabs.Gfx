@@ -380,15 +380,20 @@ public class EditorControl : OpenTkControlBase
     {
         try
         {
-            // Try to get shader folder from environment variable first, fallback to relative path
-            var shaderFolder = Environment.GetEnvironmentVariable("SAMLABS_GFX_SHADER_PATH") 
-                               ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "SamLabs.Gfx.Engine", "Rendering", "Shaders");
+            // Try to get shader folder from environment variable first, otherwise skip hot-reload
+            var shaderFolder = Environment.GetEnvironmentVariable("SAMLABS_GFX_SHADER_PATH");
+            
+            if (string.IsNullOrEmpty(shaderFolder))
+            {
+                Debug.WriteLine("Shader hot-reload disabled. Set SAMLABS_GFX_SHADER_PATH environment variable to enable.");
+                return;
+            }
             
             shaderFolder = Path.GetFullPath(shaderFolder);
             
             if (!Directory.Exists(shaderFolder))
             {
-                Debug.WriteLine($"Shader folder not found: {shaderFolder}. Set SAMLABS_GFX_SHADER_PATH environment variable for hot-reload support.");
+                Debug.WriteLine($"Shader folder not found: {shaderFolder}. Shader hot-reload disabled.");
                 return;
             }
             
@@ -539,7 +544,9 @@ public class EditorControl : OpenTkControlBase
         }
         
         if (CommandManager != null)
+        {
             CommandManager.CommandEnqueued -= NotifyActivity;
+        }
 
         if (EngineContext?.EditorEvents != null)
         {
