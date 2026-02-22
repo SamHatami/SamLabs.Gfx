@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Blueprints.Truss;
@@ -50,34 +50,34 @@ public class EntityFactory
     {
         if (!_blueprintRegistry.TryGetValue(name, out var blueprint))
             return null;
-        
+
         var entity = _entityRegistry.CreateEntity();
         blueprint.Build(entity);
-        
+
         return entity;
     }
-    
+
     public Entity? CreateFromImport(string name, MeshDataComponent meshData)
     {
         if (!_blueprintRegistry.TryGetValue(name, out var blueprint))
             return null;
-        
+
         var entity = _entityRegistry.CreateEntity();
         blueprint.Build(entity, meshData);
-        
+
         return entity;
     }
 
-    public Entity? CreateBarAtPositions(string name, Vector3 startPosition, Vector3 endPosition)
+    public Entity? CreateMemberAtPositions(string name, Vector3 startPosition, Vector3 endPosition)
     {
         if (!_blueprintRegistry.TryGetValue(name, out var blueprint))
             return null;
 
-        if (blueprint is not BarElementBlueprint barBlueprint)
+        if (blueprint is not MemberElementBlueprint memberBlueprint)
             return null;
 
         var entity = _entityRegistry.CreateEntity();
-        barBlueprint.BuildAtPositions(entity, startPosition, endPosition);
+        memberBlueprint.BuildAtPositions(entity, startPosition, endPosition);
 
         return entity;
     }

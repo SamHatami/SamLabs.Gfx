@@ -77,15 +77,15 @@ public partial class MainWindowViewModel : ViewModelBase
     public void AddDebugCubes() =>
         CommandManager.EnqueueCommand(new AddCubeBatchCommand(_entityFactory, _componentRegistry, 1000, 100f));
 
-    public void AddBarElement() =>
-        CommandManager.EnqueueCommand(new AddBarElementCommand(CommandManager, _entityFactory));
+    public void AddMemberElement() =>
+        CommandManager.EnqueueCommand(new AddMemberElementCommand(CommandManager, _entityFactory));
 
-    public void ToggleDrawBarTool()
+    public void ToggleDrawMemberTool()
     {
-        if (_toolManager.ActiveTool?.ToolId == ToolIds.DrawBar)
+        if (_toolManager.ActiveTool?.ToolId == ToolIds.DrawMember)
             _toolManager.DeactivateCurrentTool();
         else
-            _toolManager.ActivateTool(ToolIds.DrawBar);
+            _toolManager.ActivateTool(ToolIds.DrawMember);
     }
     
     public void AddPlane() =>

@@ -80,11 +80,11 @@ public class CompositionRoot
         var scaleTool = new ScaleTool(componentRegistry, commandManager, entityRegistry, editorEvents);
 
         var entityFactory = serviceProvider.GetRequiredService<EntityFactory>();
-        var drawBarTool = new DrawBarTool(componentRegistry, commandManager, entityRegistry, entityFactory, workState);
+        var drawMemberTool = new DrawMemberTool(componentRegistry, commandManager, entityRegistry, entityFactory, workState);
         
         toolManager.RegisterTool(translateTool);
         toolManager.RegisterTool(rotateTool);
         toolManager.RegisterTool(scaleTool);
-        toolManager.RegisterTool(drawBarTool);
+        toolManager.RegisterTool(drawMemberTool);
     }
 }

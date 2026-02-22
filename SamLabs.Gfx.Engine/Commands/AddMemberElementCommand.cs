@@ -2,24 +2,23 @@
 
 namespace SamLabs.Gfx.Engine.Commands;
 
-public class AddBarElementCommand:ICommand
+public class AddMemberElementCommand : ICommand
 {
     private readonly CommandManager _commandManager;
     private readonly EntityFactory _entityFactory;
-    private int _barId;
+    private int _memberId;
 
-
-    public AddBarElementCommand(CommandManager commandManager, EntityFactory entityFactory)
+    public AddMemberElementCommand(CommandManager commandManager, EntityFactory entityFactory)
     {
         _commandManager = commandManager;
         _entityFactory = entityFactory;
     }
-    
+
     public void Execute()
     {
-        var barEntity = _entityFactory.CreateFromBlueprint(EntityNames.BarElement);
-        if (barEntity.HasValue)
-            _barId = barEntity.Value.Id;
+        var memberEntity = _entityFactory.CreateFromBlueprint(EntityNames.MemberElement);
+        if (memberEntity.HasValue)
+            _memberId = memberEntity.Value.Id;
     }
 
     public void Undo()

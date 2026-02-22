@@ -13,11 +13,11 @@ using SamLabs.Gfx.Geometry;
 namespace SamLabs.Gfx.Engine.Tools.Drawing;
 
 /// <summary>
-/// CAD-like line drawing tool for truss bar elements.
+/// CAD-like line drawing tool for truss member elements.
 /// Workflow: Activate → click to set start point → line follows cursor → click to place end point
-/// (creating a bar) → end point becomes start of next segment → Escape/right-click to finish.
+/// (creating a member) → end point becomes start of next segment → Escape/right-click to finish.
 /// </summary>
-public class DrawBarTool : ITool, INotifyPropertyChanged
+public class DrawMemberTool : ITool, INotifyPropertyChanged
 {
     private readonly IComponentRegistry _componentRegistry;
     private readonly CommandManager _commandManager;
@@ -30,8 +30,8 @@ public class DrawBarTool : ITool, INotifyPropertyChanged
     private Vector3 _currentPoint;
     private bool _hasStartPoint;
 
-    public string ToolId => ToolIds.DrawBar;
-    public string DisplayName => "Draw Bar";
+    public string ToolId => ToolIds.DrawMember;
+    public string DisplayName => "Draw Member";
     public ToolCategory Category => ToolCategory.Sketch;
     public ToolState State => _state;
 
@@ -42,7 +42,7 @@ public class DrawBarTool : ITool, INotifyPropertyChanged
     public event EventHandler<ToolStateChangedArgs>? StateChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public DrawBarTool(
+    public DrawMemberTool(
         IComponentRegistry componentRegistry,
         CommandManager commandManager,
         EntityRegistry entityRegistry,
@@ -112,12 +112,12 @@ public class DrawBarTool : ITool, INotifyPropertyChanged
             }
             else
             {
-                // Second click: create bar between start and current, then chain
+                // Second click: create member between start and current, then chain
                 var start = _startPoint;
                 var end = _currentPoint;
 
                 _commandManager.EnqueueCommand(
-                    new AddBarAtPositionsCommand(_commandManager, _entityFactory, start, end));
+                    new AddMemberAtPositionsCommand(_commandManager, _entityFactory, start, end));
 
                 // Chain: end becomes new start
                 _startPoint = end;
@@ -147,7 +147,7 @@ public class DrawBarTool : ITool, INotifyPropertyChanged
         return mouseRay.GetPoint(hit);
     }
 
-    public IToolUIDescriptor GetUIDescriptor() => new DrawBarToolUIDescriptor(this);
+    public IToolUIDescriptor GetUIDescriptor() => new DrawMemberToolUIDescriptor(this);
 
     private void SetState(ToolState newState)
     {
@@ -165,11 +165,11 @@ public class DrawBarTool : ITool, INotifyPropertyChanged
     }
 }
 
-public class DrawBarToolUIDescriptor : IToolUIDescriptor
+public class DrawMemberToolUIDescriptor : IToolUIDescriptor
 {
-    private readonly DrawBarTool _tool;
+    private readonly DrawMemberTool _tool;
 
-    public DrawBarToolUIDescriptor(DrawBarTool tool) => _tool = tool;
+    public DrawMemberToolUIDescriptor(DrawMemberTool tool) => _tool = tool;
 
     public ToolUIType UIType => ToolUIType.None;
     public string ViewModelTypeName => string.Empty;
