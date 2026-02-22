@@ -117,6 +117,7 @@
                     <Image Source="{SvgImage ../Assets/cube.svg}" Width="30" Height="30" Stretch="Uniform" />
                 </Button>
                 <Button Command="{Binding AddDebugCubesCommand}" Content="1000" />
+                <Button Command="{Binding AddFrameTowerCommand}" Content="Tower" ToolTip.Tip="Add a large framed tower test structure" />
                 <Button Command="{Binding AddPlane}" Content="Plane" />
                 <Button Command="{Binding AddMemberElement}" Content="Member" />
                 <Button Command="{Binding ToggleDrawMemberTool}" Content="Draw" ToolTip.Tip="Draw Member Tool (click start → click end)" />
