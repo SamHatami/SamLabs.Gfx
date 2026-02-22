@@ -11,11 +11,11 @@ public static class DependencyUpdateDispatcher
     {
         switch (type)
         {
-            case DependencyUpdateType.TrussNodeBars:
+            case DependencyUpdateType.TrussNodeMembers:
                 if (registry.HasComponent<TrussNodeComponent>(entityId))
                 {
                     var node = registry.GetComponent<TrussNodeComponent>(entityId);
-                    Systems.Structural.TrussNodeUtility.UpdateConnectedBars(registry, node, entityId);
+                    Systems.Structural.TrussNodeUtility.UpdateConnectedMembers(registry, node);
                 }
                 break;
                 

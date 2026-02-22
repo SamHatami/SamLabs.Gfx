@@ -1,4 +1,4 @@
-﻿﻿namespace SamLabs.Gfx.Engine.Entities;
+namespace SamLabs.Gfx.Engine.Entities;
 
 public static class EntityNames
 {
@@ -15,14 +15,14 @@ public static class EntityNames
     public static string RotateManipulator { get; set; } = "RotateManipulator";
     public static string ScaleManipulator { get; set; } = "ScaleManipulator";
     public static string DragManipulator { get; set; } = "DragManipulator";
-    
+
     public static string Imported { get; set; } = "Imported";
 
     public const string ConstructionPlane = "ConstructionPlane";
     public const string ConstructionAxis = "ConstructionAxis";
     public const string ConstructionPoint = "ConstructionPoint";
     public const string Sketch = "Sketch";
-    public static string BarElement = "BarElement";
+    public const string MemberElement = "MemberElement";
 
     public const string Icosphere = "Icosphere";
     public const string Tetrahedron = "Tetrahedron";

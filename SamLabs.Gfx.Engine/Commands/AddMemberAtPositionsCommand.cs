@@ -4,18 +4,18 @@ using SamLabs.Gfx.Engine.Entities;
 namespace SamLabs.Gfx.Engine.Commands;
 
 /// <summary>
-/// Creates a bar element between two specified world positions.
-/// Uses the BarElement blueprint and then repositions the nodes to the given start/end points.
+/// Creates a member element between two specified world positions.
+/// Uses the MemberElement blueprint and then repositions the nodes to the given start/end points.
 /// </summary>
-public class AddBarAtPositionsCommand : ICommand
+public class AddMemberAtPositionsCommand : ICommand
 {
     private readonly CommandManager _commandManager;
     private readonly EntityFactory _entityFactory;
     private readonly Vector3 _startPosition;
     private readonly Vector3 _endPosition;
-    private int _barId;
+    private int _memberId;
 
-    public AddBarAtPositionsCommand(
+    public AddMemberAtPositionsCommand(
         CommandManager commandManager,
         EntityFactory entityFactory,
         Vector3 startPosition,
@@ -29,9 +29,9 @@ public class AddBarAtPositionsCommand : ICommand
 
     public void Execute()
     {
-        var barEntity = _entityFactory.CreateBarAtPositions(EntityNames.BarElement, _startPosition, _endPosition);
-        if (barEntity.HasValue)
-            _barId = barEntity.Value.Id;
+        var memberEntity = _entityFactory.CreateMemberAtPositions(EntityNames.MemberElement, _startPosition, _endPosition);
+        if (memberEntity.HasValue)
+            _memberId = memberEntity.Value.Id;
     }
 
     public void Undo()

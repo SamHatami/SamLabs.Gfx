@@ -12,32 +12,32 @@ using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Truss;
 
-public class BarElementBlueprint : EntityBlueprint
+public class MemberElementBlueprint : EntityBlueprint
 {
     private readonly ShaderService _shaderService;
     private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
     private const float ScreenPixelSize = 250f;
 
-    public BarElementBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
+    public MemberElementBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
         _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
     }
 
-    public override string Name { get; } = EntityNames.BarElement;
+    public override string Name { get; } = EntityNames.MemberElement;
 
     public override async void Build(Entity entity, MeshDataComponent meshData = default)
     {
         entity.Type = EntityType.SceneObject;
 
-        var bodyMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
+        var memberMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
         var nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
 
         var min = new Vector3(float.MaxValue);
         var max = new Vector3(float.MinValue);
-        foreach (var vertex in bodyMesh.Vertices)
+        foreach (var vertex in memberMesh.Vertices)
         {
             var pos = vertex.Position;
             min.X = MathF.Min(min.X, pos.X);
@@ -48,7 +48,6 @@ public class BarElementBlueprint : EntityBlueprint
             max.Z = MathF.Max(max.Z, pos.Z);
         }
 
-        // Place end nodes at the body's min/max along its longest axis.
         var size = max - min;
         var center = (min + max) * 0.5f;
         var endA = center;
@@ -70,74 +69,54 @@ public class BarElementBlueprint : EntityBlueprint
             endB.Z = max.Z;
         }
 
-        BuildBar(entity, bodyMesh, nodeMesh, endA, endB);
+        BuildMember(entity, memberMesh, nodeMesh, endA, endB);
     }
 
     public async void BuildAtPositions(Entity entity, Vector3 startPosition, Vector3 endPosition)
     {
         entity.Type = EntityType.SceneObject;
 
-        var bodyMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
+        var memberMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
         var nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
 
-        BuildBar(entity, bodyMesh, nodeMesh, startPosition, endPosition);
+        BuildMember(entity, memberMesh, nodeMesh, startPosition, endPosition);
     }
 
-    private void BuildBar(Entity entity, MeshDataComponent bodyMesh, MeshDataComponent nodeMesh,
-        Vector3 endA, Vector3 endB)
+    private void BuildMember(Entity entity, MeshDataComponent memberMesh, MeshDataComponent nodeMesh, Vector3 endA, Vector3 endB)
     {
         var shader = _shaderService.GetShader("unlit");
         var pickingShader = _shaderService.GetShader("picking");
 
-
-        var bodyMaterial = new MaterialComponent
-        {
-            Shader = shader,
-            PickingShader = pickingShader
-        };
-
-        var bodyGlMesh = new GlMeshDataComponent
+        var memberMaterial = new MaterialComponent { Shader = shader, PickingShader = pickingShader };
+        var memberGlMesh = new GlMeshDataComponent
         {
             PrimitiveType = PrimitiveType.Triangles,
-            VertexCount = bodyMesh.Vertices.Length,
-            IndexCount = bodyMesh.TriangleIndices.Length
+            VertexCount = memberMesh.Vertices.Length,
+            IndexCount = memberMesh.TriangleIndices.Length
         };
 
-        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenPixelSize, ScreenPixelSize, 1), IsPixelSize = true, LockZ = true};
+        var screenScale = new ScaleToScreenComponent { Size = new Vector3(ScreenPixelSize, ScreenPixelSize, 1), IsPixelSize = true, LockZ = true };
         _componentRegistry.SetComponentToEntity(new TransformComponent(), entity.Id);
-        _componentRegistry.SetComponentToEntity(bodyMesh, entity.Id);
-        _componentRegistry.SetComponentToEntity(bodyMaterial, entity.Id);
-        _componentRegistry.SetComponentToEntity(bodyGlMesh, entity.Id);
+        _componentRegistry.SetComponentToEntity(memberMesh, entity.Id);
+        _componentRegistry.SetComponentToEntity(memberMaterial, entity.Id);
+        _componentRegistry.SetComponentToEntity(memberGlMesh, entity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, entity.Id);
 
-        var parentIdComponent = new ParentIdComponent(entity.Id);
-        var endNodeId =CreateEndNode(nodeMesh, entity.Id, endA, shader, pickingShader);
-        var startNodeId= CreateEndNode(nodeMesh, entity.Id, endB, shader, pickingShader);
-        
-        _componentRegistry.SetComponentToEntity(new TrussBarComponent() {StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId}, entity.Id);
+        var endNodeId = CreateEndNode(nodeMesh, entity.Id, endA, shader, pickingShader);
+        var startNodeId = CreateEndNode(nodeMesh, entity.Id, endB, shader, pickingShader);
+
+        _componentRegistry.SetComponentToEntity(new TrussMemberComponent { StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId }, entity.Id);
     }
 
-    private int CreateEndNode(MeshDataComponent nodeMesh, int connectBarId, Vector3 position,
-        GLShader? shader, GLShader? pickingShader)
+    private int CreateEndNode(MeshDataComponent nodeMesh, int connectedMemberId, Vector3 position, GLShader? shader, GLShader? pickingShader)
     {
         var nodeEntity = _entityRegistry.CreateEntity();
         nodeEntity.Type = EntityType.SceneObject;
 
-        var transform = new TransformComponent
-        {
-            Position = position,
-            Scale = Vector3.One,
-            Rotation = Quaternion.Identity
-        };
-
-        var material = new MaterialComponent
-        {
-            Shader = shader,
-            PickingShader = pickingShader
-        };
-
+        var transform = new TransformComponent { Position = position, Scale = Vector3.One, Rotation = Quaternion.Identity };
+        var material = new MaterialComponent { Shader = shader, PickingShader = pickingShader };
         var glMesh = new GlMeshDataComponent
         {
             PrimitiveType = PrimitiveType.Triangles,
@@ -145,17 +124,17 @@ public class BarElementBlueprint : EntityBlueprint
             IndexCount = nodeMesh.TriangleIndices.Length
         };
 
-        var screenScale = new ScaleToScreenComponent {Size = new Vector3(ScreenPixelSize), IsPixelSize = true};
+        var screenScale = new ScaleToScreenComponent { Size = new Vector3(ScreenPixelSize), IsPixelSize = true };
         _componentRegistry.SetComponentToEntity(transform, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(nodeMesh, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(material, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(glMesh, nodeEntity.Id);
-        _componentRegistry.SetComponentToEntity(new TrussNodeComponent(){ConnectedBarIds = [connectBarId] }, nodeEntity.Id);
-        _componentRegistry.SetComponentToEntity(new DependencyComponent { UpdateType = DependencyUpdateType.TrussNodeBars }, nodeEntity.Id);
+        _componentRegistry.SetComponentToEntity(new TrussNodeComponent { ConnectedMemberIds = [connectedMemberId] }, nodeEntity.Id);
+        _componentRegistry.SetComponentToEntity(new DependencyComponent { UpdateType = DependencyUpdateType.TrussNodeMembers }, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, nodeEntity.Id);
-        
+
         return nodeEntity.Id;
     }
 }

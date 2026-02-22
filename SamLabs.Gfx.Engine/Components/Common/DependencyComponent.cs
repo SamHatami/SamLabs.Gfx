@@ -8,6 +8,5 @@ public struct DependencyComponent:IComponent
 public enum DependencyUpdateType
 {
     None,
-    TrussNodeBars
-    // Add more types as you need them
+    TrussNodeMembers
 }
