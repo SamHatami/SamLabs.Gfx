@@ -77,6 +77,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public void AddDebugCubes() =>
         CommandManager.EnqueueCommand(new AddCubeBatchCommand(_entityFactory, _componentRegistry, 1000, 100f));
 
+    [RelayCommand]
+    public void AddFrameTower() =>
+        CommandManager.EnqueueCommand(new AddProceduralGeometryCommand(CommandManager, _entityFactory, EntityNames.FrameTower));
+
     public void AddMemberElement() =>
         CommandManager.EnqueueCommand(new AddMemberElementCommand(CommandManager, _entityFactory));
 
