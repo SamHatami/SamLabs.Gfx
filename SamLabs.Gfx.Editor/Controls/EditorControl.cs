@@ -100,19 +100,18 @@ public class EditorControl : OpenTkControlBase
 
     private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
-    private DateTime _lastUpdateTime = DateTime.Now;
+    private DateTime _lastUpdateTime = DateTime.UtcNow;
     private int _frameCount = 0;
     private double _currentFps = 0.0; // The calculated FPS value
     private Stopwatch _frameTimer = new();
     private double _lastFrameTime;
     private const double FpsUpdateIntervalSeconds = 1.0; // Update FPS every second
     
-    private DateTime _lastRenderTime = DateTime.Now;
     private bool _leftClickOccured;
     private bool _isDragging;
-    private const double MinFrameTimeMs = 16.666667; // ~60 FPS
+    private const bool IdleOptimizationEnabled = false;
     
-    private DateTime _lastActivityTime = DateTime.Now;
+    private DateTime _lastActivityTime = DateTime.UtcNow;
     private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(1.5);
     private bool _wasIdling = false;
     private EditorWorkState _editorWorkState;
@@ -122,7 +121,7 @@ public class EditorControl : OpenTkControlBase
 
     private void NotifyActivity()
     {
-        _lastActivityTime = DateTime.Now;
+        _lastActivityTime = DateTime.UtcNow;
         RequestNextFrameRendering();
     }
 
@@ -139,7 +138,7 @@ public class EditorControl : OpenTkControlBase
 
         if (_wasIdling)
         {
-            _lastUpdateTime = DateTime.Now;
+            _lastUpdateTime = DateTime.UtcNow;
             _frameCount = 0;
             _wasIdling = false;
         }
@@ -153,24 +152,12 @@ public class EditorControl : OpenTkControlBase
         _height = height;
 
         var frameInput = CaptureFrameInput();
-        var t1 = _frameTimer.Elapsed.TotalMilliseconds;
-    
-        _systemScheduler.Update(frameInput);
-        var t2 = _frameTimer.Elapsed.TotalMilliseconds;
-    
-        _systemScheduler.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
-        var t3 = _frameTimer.Elapsed.TotalMilliseconds;
-    
-        var totalTime = _frameTimer.Elapsed.TotalMilliseconds;
-        var timeSinceLastFrame = totalTime - _lastFrameTime;
-    
-        // Log when frame time varies significantly
-        if (timeSinceLastFrame > 18.0) 
-        {
-            Debug.WriteLine($"Dropped Frame! Took {timeSinceLastFrame:F2}ms");
-        }
 
-        _lastFrameTime = totalTime;
+        _systemScheduler.Update(frameInput);
+
+        _systemScheduler.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
+
+        _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
         ClearInputData();
         RequestNextFrameRendering();
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
@@ -178,19 +165,19 @@ public class EditorControl : OpenTkControlBase
 
     private bool Idle()
     {
+        if (!IdleOptimizationEnabled) return false;
         if(_editorWorkState.ShouldUpdate()) return false;
         if (CommandManager?.HasPendingCommands == true) return false;
         if(EngineContext.ToolManager.ActiveTool != null) return false; // Don't idle while a tool is active (e.g. transform tool) 
-        if (DateTime.Now - _lastActivityTime < _idleTimeout) return false;
+        if (DateTime.UtcNow - _lastActivityTime < _idleTimeout) return false;
         
         return true;
     }
 
     private void CalculateFps()
     {
-        _lastRenderTime = DateTime.Now;
         _frameCount++;
-        var currentTime = DateTime.Now;
+        var currentTime = DateTime.UtcNow;
         var elapsedTime = currentTime - _lastUpdateTime;
         if (elapsedTime.TotalSeconds >= FpsUpdateIntervalSeconds)
         {
@@ -458,4 +445,3 @@ public class EditorControl : OpenTkControlBase
         }
     }
 }
-
