@@ -24,14 +24,42 @@ public class EntityFactory
 
     private void RegisterBlueprints()
     {
-        var blueprintTypes = Assembly.GetExecutingAssembly().GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && typeof(EntityBlueprint).IsAssignableFrom(t));
+        IEnumerable<Type> blueprintTypes;
+        try
+        {
+            blueprintTypes = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(EntityBlueprint).IsAssignableFrom(t));
+        }
+        catch (ReflectionTypeLoadException e)
+        {
+            blueprintTypes = e.Types
+                .Where(t => t is not null)
+                .Cast<Type>()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(EntityBlueprint).IsAssignableFrom(t));
+
+            foreach (var loaderException in e.LoaderExceptions)
+            {
+                Console.WriteLine($"Blueprint type load error: {loaderException?.Message}");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Blueprint discovery failed: {e.Message}");
+            return;
+        }
 
         foreach (var type in blueprintTypes)
         {
             try
             {
-                var blueprint = (EntityBlueprint)ActivatorUtilities.CreateInstance(_serviceProvider, type);
+                var needsEntityFactory = type.GetConstructors()
+                    .SelectMany(ctor => ctor.GetParameters())
+                    .Any(param => param.ParameterType == typeof(EntityFactory));
+
+                var blueprint = needsEntityFactory
+                    ? (EntityBlueprint)ActivatorUtilities.CreateInstance(_serviceProvider, type, this)
+                    : (EntityBlueprint)ActivatorUtilities.CreateInstance(_serviceProvider, type);
+
                 RegisterBlueprint(blueprint);
             }
             catch (Exception e)

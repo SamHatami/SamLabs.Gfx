@@ -67,24 +67,33 @@ public class CompositionRoot
     
     private void RegisterTools(IServiceProvider serviceProvider)
     {
-        var toolManager = serviceProvider.GetRequiredService<ToolManager>();
-        var componentRegistry = serviceProvider.GetRequiredService<IComponentRegistry>();
-        var commandManager = serviceProvider.GetRequiredService<CommandManager>();
-        var editorEvents = serviceProvider.GetRequiredService<EditorEvents>();
-        var entityRegistry = serviceProvider.GetRequiredService<EntityRegistry>();
-        var workState = serviceProvider.GetRequiredService<EditorWorkState>();
+        try
+        {
+            var toolManager = serviceProvider.GetRequiredService<ToolManager>();
+            var componentRegistry = serviceProvider.GetRequiredService<IComponentRegistry>();
+            var commandManager = serviceProvider.GetRequiredService<CommandManager>();
+            var editorEvents = serviceProvider.GetRequiredService<EditorEvents>();
+            var entityRegistry = serviceProvider.GetRequiredService<EntityRegistry>();
+            var workState = serviceProvider.GetRequiredService<EditorWorkState>();
 
-        //Toolsmanager can register tools instead, this is temporary
-        var translateTool = new TranslateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
-        var rotateTool = new RotateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
-        var scaleTool = new ScaleTool(componentRegistry, commandManager, entityRegistry, editorEvents);
+            //Toolsmanager can register tools instead, this is temporary
+            var translateTool = new TranslateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
+            var rotateTool = new RotateTool(componentRegistry, commandManager, entityRegistry, editorEvents);
+            var scaleTool = new ScaleTool(componentRegistry, commandManager, entityRegistry, editorEvents);
 
-        var entityFactory = serviceProvider.GetRequiredService<EntityFactory>();
-        var drawMemberTool = new DrawMemberTool(componentRegistry, commandManager, entityRegistry, entityFactory, workState);
-        
-        toolManager.RegisterTool(translateTool);
-        toolManager.RegisterTool(rotateTool);
-        toolManager.RegisterTool(scaleTool);
-        toolManager.RegisterTool(drawMemberTool);
+            var entityFactory = serviceProvider.GetRequiredService<EntityFactory>();
+            var drawMemberTool = new DrawMemberTool(componentRegistry, commandManager, entityRegistry, entityFactory,
+                workState);
+
+            toolManager.RegisterTool(translateTool);
+            toolManager.RegisterTool(rotateTool);
+            toolManager.RegisterTool(scaleTool);
+            toolManager.RegisterTool(drawMemberTool);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }
