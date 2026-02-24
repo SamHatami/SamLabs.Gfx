@@ -1,6 +1,7 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Core.Utility;
+using Silk.NET.OpenGL;
 using Vector3 = OpenTK.Mathematics.Vector3;
 using Vector4 = OpenTK.Mathematics.Vector4;
 
@@ -8,110 +9,83 @@ namespace SamLabs.Gfx.Engine.Rendering.Engine;
 
 public class UniformBufferService : IDisposable
 {
-    private const int BufferCount = 1; // Triple buffering
+    private const int BufferCount = 1;
     private int[] _viewProjectionBuffers = new int[BufferCount];
     private int _currentBufferIndex = 0;
     
-    private const int ViewProjectionBindingPoint = 0;
-    private const int ObjectIdBindingPoint = 1;
+    private const uint ViewProjectionBindingPoint = 0;
+    private const uint ObjectIdBindingPoint = 1;
     public const string ViewProjectionName = "ViewProjection";
     private readonly Dictionary<string, uint> UniformBindingPoints = new();
     private readonly Dictionary<string, int> _uniformLocations = new();
 
-    public uint GetUniformBindingPoint(string name)
-    {
-        return UniformBindingPoints.TryGetValue(name, out var bindingPoint) ? bindingPoint : 0;
-    }
+    private static GL Gl => SilkGlContextProvider.GetGl();
 
-    public int RegisterModelMatrixToShader(int program) => GL.GetUniformLocation(program, "uModel");
+    public uint GetUniformBindingPoint(string name) =>
+        UniformBindingPoints.TryGetValue(name, out var bp) ? bp : 0;
+
+    public int RegisterModelMatrixToShader(int program) =>
+        (int)Gl.GetUniformLocation((uint)program, "uModel");
 
     public void RegisterViewProjectionBuffer()
     {
-        
-        var bufferSize = SizeOf.FMatrix4 * 2 + 16; // vec3 aligned as vec4 in std140
-        
+        var bufferSize = (nuint)(SizeOf.FMatrix4 * 2 + 16);
         for (var i = 0; i < BufferCount; i++)
         {
-            _viewProjectionBuffers[i] = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.UniformBuffer, _viewProjectionBuffers[i]);
-            GL.BufferData(BufferTarget.UniformBuffer, bufferSize, IntPtr.Zero, BufferUsage.DynamicDraw);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+            var buffer = Gl.GenBuffer();
+            _viewProjectionBuffers[i] = (int)buffer;
+            Gl.BindBuffer(BufferTargetARB.UniformBuffer, buffer);
+            Gl.BufferData(BufferTargetARB.UniformBuffer, bufferSize, ReadOnlySpan<byte>.Empty, BufferUsageARB.DynamicDraw);
+            Gl.BindBuffer(BufferTargetARB.UniformBuffer, 0);
         }
-
-        GL.BindBufferBase(BufferTarget.UniformBuffer, ViewProjectionBindingPoint, _viewProjectionBuffers[0]);
-        
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, ViewProjectionBindingPoint, (uint)_viewProjectionBuffers[0]);
         UniformBindingPoints.Add(ViewProjectionName, ViewProjectionBindingPoint);
     }
-    
-    // public void RegisterGridBuffer()
-    // {
-    //     var buffer = GL.GenBuffer();
-    //     GL.BindBuffer(BufferTarget.UniformBuffer, buffer);
-    //     GL.BufferData(BufferTarget.UniformBuffer, SizeOf.Int * 3 + SizeOf.Vector3, IntPtr.Zero, BufferUsage.DynamicDraw);
-    //     GL.BindBufferBase(BufferTarget.UniformBuffer, 2, buffer);
-    //     GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-    //     
-    //     UniformBindingPoints.Add("GridUniforms", 2);
-    // }
 
     public void UpdateViewProjectionBuffer(Matrix4 view, Matrix4 projection, Vector3 cameraPosition)
     {
-        if (_viewProjectionBuffers[0] == 0) 
+        if (_viewProjectionBuffers[0] == 0)
             RegisterViewProjectionBuffer();
 
-        // Rotate to next buffer to avoid GPU stalls
         _currentBufferIndex = (_currentBufferIndex + 1) % BufferCount;
-        var currentBuffer = _viewProjectionBuffers[_currentBufferIndex];
+        var currentBuffer = (uint)_viewProjectionBuffers[_currentBufferIndex];
 
-        // Update the current buffer
-        GL.BindBuffer(BufferTarget.UniformBuffer, currentBuffer);
-        GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, SizeOf.FMatrix4, ref view);
-        GL.BufferSubData(BufferTarget.UniformBuffer, SizeOf.FMatrix4, SizeOf.FMatrix4, ref projection);
-        GL.BufferSubData(BufferTarget.UniformBuffer, SizeOf.FMatrix4 * 2, SizeOf.FVector3, ref cameraPosition);
-        
-        // Bind this buffer to the binding point
-        GL.BindBufferBase(BufferTarget.UniformBuffer, ViewProjectionBindingPoint, currentBuffer);
-        
-        GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+        Gl.BindBuffer(BufferTargetARB.UniformBuffer, currentBuffer);
+        Gl.BufferSubData(BufferTargetARB.UniformBuffer, 0, (nuint)SizeOf.FMatrix4, MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref view, 1)));
+        Gl.BufferSubData(BufferTargetARB.UniformBuffer, SizeOf.FMatrix4, (nuint)SizeOf.FMatrix4, MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref projection, 1)));
+        Gl.BufferSubData(BufferTargetARB.UniformBuffer, SizeOf.FMatrix4 * 2, (nuint)SizeOf.FVector3, MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref cameraPosition, 1)));
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, ViewProjectionBindingPoint, currentBuffer);
+        Gl.BindBuffer(BufferTargetARB.UniformBuffer, 0);
     }
 
     public void RegisterAndBindUniform(int sizeInBytes, string uniqueName)
     {
-        if (UniformBindingPoints.ContainsKey(uniqueName))
-            return; 
+        if (UniformBindingPoints.ContainsKey(uniqueName)) return;
 
-        var buffer = GL.GenBuffer();
-        var bindingPoint = UniformBindingPoints.Count > 0
-            ? UniformBindingPoints.Values.Max() + 1
-            : 1; 
-
-        GL.BindBuffer(BufferTarget.UniformBuffer, buffer);
-        GL.BufferData(BufferTarget.UniformBuffer, sizeInBytes, IntPtr.Zero, BufferUsage.DynamicDraw);
-        GL.BindBufferBase(BufferTarget.UniformBuffer, bindingPoint, buffer);
-        GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
+        var buffer = Gl.GenBuffer();
+        var bindingPoint = UniformBindingPoints.Count > 0 ? UniformBindingPoints.Values.Max() + 1 : 1;
+        Gl.BindBuffer(BufferTargetARB.UniformBuffer, buffer);
+        Gl.BufferData(BufferTargetARB.UniformBuffer, (nuint)sizeInBytes, ReadOnlySpan<byte>.Empty, BufferUsageARB.DynamicDraw);
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, bindingPoint, buffer);
+        Gl.BindBuffer(BufferTargetARB.UniformBuffer, 0);
         UniformBindingPoints.Add(uniqueName, bindingPoint);
     }
-    
+
     public void CreateSingleIntUniform(string name)
     {
-        var bufferId = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.UniformBuffer, bufferId);
-        GL.BufferData(BufferTarget.UniformBuffer, SizeOf.Int, IntPtr.Zero, BufferUsage.DynamicDraw);
-        GL.BindBufferBase(BufferTarget.UniformBuffer, ObjectIdBindingPoint, bufferId);
-
-        GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
+        var buffer = Gl.GenBuffer();
+        Gl.BindBuffer(BufferTargetARB.UniformBuffer, buffer);
+        Gl.BufferData(BufferTargetARB.UniformBuffer, (nuint)SizeOf.Int, ReadOnlySpan<byte>.Empty, BufferUsageARB.DynamicDraw);
+        Gl.BindBufferBase(BufferTargetARB.UniformBuffer, ObjectIdBindingPoint, buffer);
+        Gl.BindBuffer(BufferTargetARB.UniformBuffer, 0);
         UniformBindingPoints.Add(name, ObjectIdBindingPoint);
     }
 
     public void BindUniformToProgram(int program, string name)
     {
-        if (!UniformBindingPoints.TryGetValue(name, out var bindingPoint))
-            return;
-
-        var blockIndex = GL.GetUniformBlockIndex(program, name);
-        GL.UniformBlockBinding(program, blockIndex, bindingPoint);
+        if (!UniformBindingPoints.TryGetValue(name, out var bindingPoint)) return;
+        var blockIndex = Gl.GetUniformBlockIndex((uint)program, name);
+        Gl.UniformBlockBinding((uint)program, blockIndex, bindingPoint);
     }
 
     public void Dispose()
@@ -120,13 +94,11 @@ public class UniformBufferService : IDisposable
         {
             if (_viewProjectionBuffers[i] != 0)
             {
-                GL.DeleteBuffer(_viewProjectionBuffers[i]);
+                Gl.DeleteBuffer((uint)_viewProjectionBuffers[i]);
                 _viewProjectionBuffers[i] = 0;
             }
         }
     }
-    
-    
 }
 
 public static class UniformNameTypeDictionary

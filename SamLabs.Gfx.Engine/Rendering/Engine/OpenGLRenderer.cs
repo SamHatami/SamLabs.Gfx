@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using Silk.NET.OpenGL;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Rendering.Abstractions;
 using SamLabs.Gfx.Engine.SceneGraph;
@@ -14,14 +14,8 @@ public class OpenGLRenderer : IDisposable, IRenderer
     private readonly FrameBufferService _frameBufferService;
     private readonly MaterialLibrary _materialLibrary;
     private readonly ILogger<OpenGLRenderer> _logger;
-    private int _mvpLocation = -1;
-    private int _vbo = 0;
-    private int _vao = 0;
-    private Matrix4? _view = Matrix4.Identity;
-    private Matrix4? _proj = Matrix4.Identity;
-    private int _vertexCount = 0;
 
-    private List<IRenderPass> _renderPasses = []; //Sorted renderpasses 
+    private static GL Gl => SilkGlContextProvider.GetGl();
 
     public OpenGLRenderer(ShaderService shaderService, UniformBufferService uniformBufferService,
         FrameBufferService frameBufferService, MaterialLibrary materialLibrary, ILogger<OpenGLRenderer> logger)
@@ -40,64 +34,47 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _shaderService.RegisterShaders();
         _materialLibrary.InitializeLibrary();
 
-
-        //bind View-Projection uniform to all the shader programs
         foreach (var shader in _shaderService.GetShaderPrograms())
             _uniformBufferService.BindUniformToProgram(shader.ProgramId, UniformBufferService.ViewProjectionName);
-
     }
 
     public GLShader? GetShader(string shaderName) => _shaderService.GetShader(shaderName);
 
-    public void SetWireframes(bool wireframe)
-    {
-        if (wireframe)
-            GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Line);
-        else
-            GL.PolygonMode(TriangleFace.FrontAndBack, PolygonMode.Fill);
-    }
+    public void SetWireframes(bool wireframe) =>
+        Gl.PolygonMode(GLEnum.FrontAndBack, wireframe ? GLEnum.Line : GLEnum.Fill);
 
     public void SetViewProjection(Matrix4 view, Matrix4 proj, Vector3 cameraPosition)
     {
-        _view = view;
-        _proj = proj;
         _uniformBufferService.UpdateViewProjectionBuffer(view, proj, cameraPosition);
     }
 
     public IViewPort CreateViewportBuffers(string name, int width, int height)
     {
-        // var fullRenderViewInfo = _frameBufferHandler.CreateFrameBuffer(width, height); //handeled by Avalonia
         var pickingRenderViewInfo = _frameBufferService.CreateFrameBuffer(width, height, true);
-
-        var viewport = new ViewPort(width, height)
+        return new ViewPort(width, height)
         {
             Name = name,
             FullRenderView = new FrameBufferInfo(1, 1, 1, width, height),
             SelectionRenderView = pickingRenderViewInfo
         };
-        return viewport;
     }
 
-    public void Dispose()
-    {
-    }
+    public void Dispose() { }
 
-
-    public void ClearViewportBuffer(IViewPort mainViewport)
-    {
+    public void ClearViewportBuffer(IViewPort mainViewport) =>
         _frameBufferService.ClearViewportBuffer(mainViewport.FullRenderView);
-    }
 
     public void RenderToPickingBuffer(IViewPort mainViewport)
     {
-        if (mainViewport == null)
+        if (mainViewport?.SelectionRenderView == null)
         {
             _frameBufferService.ClearRenderBuffer(0);
+            return;
         }
-        else
-        {
-            _frameBufferService.RenderToPickingBuffer(mainViewport.SelectionRenderView);
-        }
+        var info = mainViewport.SelectionRenderView;
+        // Set viewport to match picking FBO exactly - stays bound for the picking draw + ReadPixels
+        Gl.Viewport(0, 0, (uint)info.Width, (uint)info.Height);
+        _frameBufferService.RenderToPickingBuffer(info);
     }
 
     public void RenderToViewportBuffer(IViewPort mainViewport)
@@ -106,21 +83,16 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _frameBufferService.RenderToFrameBuffer(mainViewport.FullRenderView);
     }
 
-    public void StopRenderToBuffer()
-    {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-    }
+    public void StopRenderToBuffer() => Gl.BindFramebuffer(GLEnum.Framebuffer, 0);
 
     public void ResizeViewportBuffers(IViewPort mainViewport, int viewportSizeX, int viewportSizeY)
     {
-        // _frameBufferHandler.ResizeFrameBuffer(mainViewport.FullRenderView, viewportSizeX, viewportSizeY);
+        mainViewport.Width = viewportSizeX;
+        mainViewport.Height = viewportSizeY;
         _frameBufferService.ResizeFrameBuffer(mainViewport.SelectionRenderView, viewportSizeX, viewportSizeY, true);
     }
-    public void ReloadShader(string fullShaderPath)
-    {
-        _shaderService.ReloadShader(fullShaderPath);
-    }
-    
-    public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
 
+    public void ReloadShader(string fullShaderPath) => _shaderService.ReloadShader(fullShaderPath);
+
+    public IReadOnlyCollection<IRenderPass> RenderPasses { get; } = [];
 }

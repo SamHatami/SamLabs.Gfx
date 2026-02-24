@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -27,27 +27,30 @@ public class MainGridBlueprint : EntityBlueprint
 
     public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
-        var spacing = 1f; // Grid line spacing
-        var gridSize = 100f; // Large quad size
-
-        // Create a single quad that covers a large area
-        var quadVertices = CreateGridQuad(gridSize);
-
-        var gridData = new GridComponent(gridSize, spacing, 10);
-
-        meshData = new MeshDataComponent()
+        Console.WriteLine($"[MainGridBlueprint] Building grid for entity {entity.Id}");
+        try
         {
-            TriangleIndices = new int[]{0, 1, 2, 2, 3, 0}, // Two triangles
-            Vertices = quadVertices,
-            Name = "Main Grid"
-        };
+            var spacing = 1f; // Grid line spacing
+            var gridSize = 100f; // Large quad size
 
-        var transformComponent = new TransformComponent
-        {
-            Position = Vector3.Zero,
-            Scale = Vector3.One,
-            Rotation = Quaternion.Identity
-        };
+            // Create a single quad that covers a large area
+            var quadVertices = CreateGridQuad(gridSize);
+
+            var gridData = new GridComponent(gridSize, spacing, 10);
+
+            meshData = new MeshDataComponent()
+            {
+                TriangleIndices = new int[]{0, 1, 2, 2, 3, 0}, // Two triangles
+                Vertices = quadVertices,
+                Name = "Main Grid"
+            };
+
+            var transformComponent = new TransformComponent
+            {
+                Position = Vector3.Zero,
+                Scale = Vector3.One,
+                Rotation = Quaternion.Identity
+            };
 
         var material = _materialLibrary.GetDefaultMaterialForShader("grid");
         material.UniformValues["uGridSize"] = gridSize;
@@ -71,6 +74,15 @@ public class MainGridBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(gridData, entity.Id);
         _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
+            
+            Console.WriteLine($"[MainGridBlueprint] Successfully built grid. Entity now has mesh and flag.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[MainGridBlueprint] Error building grid: {e.Message}");
+            Console.WriteLine(e.StackTrace);
+            throw;
+        }
     }
 
     private Vertex[] CreateGridQuad(float size) //Move to a MeshUtility class?

@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
@@ -194,6 +194,7 @@ public class EditorControl : OpenTkControlBase
 
     private RenderContext CaptureRenderContext(int mainScreenFrameBuffer)
     {
+        var scaling = (float)(TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0);
         return new RenderContext()
         {
             ViewHeight = _height,
@@ -201,7 +202,7 @@ public class EditorControl : OpenTkControlBase
             ResizeRequested = _resizeRequested,
             ViewPort = _mainViewport,
             MainViewFrameBuffer = mainScreenFrameBuffer,
-            RenderScaling = (float)(TopLevel.GetTopLevel(this)?.RenderScaling ?? 1.0)
+            RenderScaling = scaling
         };
     }
 
@@ -249,7 +250,7 @@ public class EditorControl : OpenTkControlBase
 
         _renderer.Initialize();
         _systemScheduler.InitializeRenderSystems(_renderer);
-        _mainViewport = _renderer.CreateViewportBuffers("Main", (int)Bounds.Width, (int)Bounds.Height);
+        _mainViewport = _renderer.CreateViewportBuffers("Main", Math.Max(1, (int)Bounds.Width), Math.Max(1, (int)Bounds.Height));
         SceneManager.GetCurrentScene();
 
         CommandManager.EnqueueCommand(new CreateMainCameraCommand(CommandManager, EngineContext.EntityFactory));
@@ -409,6 +410,12 @@ public class EditorControl : OpenTkControlBase
 
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
     {
+        if (_mainViewport != null)
+        {
+            var w = Math.Max(1, (int)e.NewSize.Width);
+            var h = Math.Max(1, (int)e.NewSize.Height);
+            _renderer.ResizeViewportBuffers(_mainViewport, w, h);
+        }
         _resizeRequested = true;
         NotifyActivity();
     }

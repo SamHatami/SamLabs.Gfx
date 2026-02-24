@@ -31,7 +31,8 @@ public class GLRenderMeshSystem : RenderSystem
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
         var meshEntities = _entityRegistry.Query.With<GlMeshDataComponent>().With<GpuMeshHandleComponent>().Without<ManipulatorChildComponent>().Get();
-        if (meshEntities.Length == 0) return;
+        if (meshEntities.Length == 0)
+            return;
 
         var pickingEntity = ComponentRegistry.GetEntityIdsForComponentType<PickingDataComponent>();
         var pickingData = ComponentRegistry.GetComponent<PickingDataComponent>(pickingEntity[0]);

@@ -1,28 +1,25 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using Silk.NET.OpenGL;
 using SamLabs.Gfx.Engine.Rendering.Abstractions;
 using SamLabs.Gfx.Engine.SceneGraph;
-using Buffer = OpenTK.Graphics.OpenGL.Buffer;
 
 namespace SamLabs.Gfx.Engine.Rendering.Engine;
 
-// https://learnopengl.com/Advanced-OpenGL/Framebuffers
 public class FrameBufferService
 {
+    private static GL Gl => SilkGlContextProvider.GetGl();
+
     public bool CreateViewPortBuffer(ViewPort viewport)
     {
         var info = CreateFrameBuffer(viewport.Width, viewport.Height);
-
         if (info == null) return false;
-
         viewport.FullRenderView = info;
-
         return true;
     }
 
     public FrameBufferInfo? CreateFrameBuffer(int width, int height, bool isPickingBuffer = false)
     {
-        var fbo = GL.GenFramebuffer();
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
+        var fbo = Gl.GenFramebuffer();
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
 
         int textureId;
         var pbo0 = 0;
@@ -30,12 +27,10 @@ public class FrameBufferService
         var renderBufferId = 0;
         if (isPickingBuffer)
         {
-            textureId = CreatePickingTextureBuffer(width,
-                height); //TODO: TextureBufferStrategy for different texture types
+            textureId = CreatePickingTextureBuffer(width, height);
             pbo0 = CreatePixelBufferObject();
             pbo1 = CreatePixelBufferObject();
             renderBufferId = CreateRenderBufferExtraDepth(width, height);
-            Console.WriteLine($"[DEBUG] Creating PICKING FBO: Using R32UI Texture ID {textureId}");
         }
         else
         {
@@ -43,198 +38,133 @@ public class FrameBufferService
             renderBufferId = CreateRenderBuffer(width, height);
         }
 
-        
+        Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, (uint)textureId, 0);
+        Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, (uint)renderBufferId);
+        Gl.DrawBuffer(DrawBufferMode.ColorAttachment0);
 
-        GL.FramebufferTexture2D(
-            FramebufferTarget.Framebuffer,
-            FramebufferAttachment.ColorAttachment0,
-            TextureTarget.Texture2d,
-            textureId,
-            0
-        );
-
-        GL.FramebufferRenderbuffer(
-            FramebufferTarget.Framebuffer,
-            FramebufferAttachment.DepthStencilAttachment, // Using combined D24S8
-            RenderbufferTarget.Renderbuffer,
-            renderBufferId
-        );
-
-        GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
-        
-        if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferStatus.FramebufferComplete)
+        if (Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
             return null;
 
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-        return new FrameBufferInfo(fbo, textureId, renderBufferId, width, height)
+        return new FrameBufferInfo((int)fbo, textureId, renderBufferId, width, height)
         {
             PixelBuffers = [pbo0, pbo1]
         };
     }
 
-
     private int CreateTextureBuffer(int width, int height)
     {
-        var textureColorBuffer = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2d, textureColorBuffer);
-        GL.TexImage2D(TextureTarget.Texture2d, 0, InternalFormat.Rgba8, width, height, 0, PixelFormat.Rgba,
-            PixelType.UnsignedByte, IntPtr.Zero);
-
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
-        GL.BindTexture(TextureTarget.Texture2d, 0);
-
-
-        return textureColorBuffer;
+        var tex = Gl.GenTexture();
+        Gl.BindTexture(TextureTarget.Texture2D, tex);
+        Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint)width, (uint)height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ReadOnlySpan<byte>.Empty);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+        Gl.BindTexture(TextureTarget.Texture2D, 0);
+        return (int)tex;
     }
 
     private int CreatePickingTextureBuffer(int width, int height)
     {
-        var textureColorBuffer = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2d, textureColorBuffer);
-        GL.TexImage2D(
-            TextureTarget.Texture2d,
-            0,
-            InternalFormat.Rg32i,
-            width,
-            height,
-            0,
-            PixelFormat.RgInteger,
-            PixelType.Int,
-            IntPtr.Zero);
-
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-        GL.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
-        GL.BindTexture(TextureTarget.Texture2d, 0);
-
-
-        return textureColorBuffer;
+        var tex = Gl.GenTexture();
+        Gl.BindTexture(TextureTarget.Texture2D, tex);
+        Gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.RG32i, (uint)width, (uint)height, 0, PixelFormat.RGInteger, PixelType.Int, ReadOnlySpan<byte>.Empty);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+        Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+        Gl.BindTexture(TextureTarget.Texture2D, 0);
+        return (int)tex;
     }
 
     private int CreateRenderBuffer(int width, int height)
     {
-        var renderBufferId = GL.GenRenderbuffer();
-        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderBufferId);
-        GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, InternalFormat.Depth24Stencil8, width, height);
-        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-        return renderBufferId;
-    }
-    
-    private int CreateRenderBufferExtraDepth(int width, int height)
-    {
-        var renderBufferId = GL.GenRenderbuffer();
-        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderBufferId);
-        GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, InternalFormat.Depth32fStencil8, width, height);
-        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-        return renderBufferId;
+        var rbo = Gl.GenRenderbuffer();
+        Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+        Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, InternalFormat.Depth24Stencil8, (uint)width, (uint)height);
+        Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+        return (int)rbo;
     }
 
+    private int CreateRenderBufferExtraDepth(int width, int height)
+    {
+        var rbo = Gl.GenRenderbuffer();
+        Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
+        Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, InternalFormat.Depth32fStencil8, (uint)width, (uint)height);
+        Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+        return (int)rbo;
+    }
 
     public void RenderToFrameBuffer(IFrameBufferInfo info)
     {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, info.FrameBufferId);
-        GL.Viewport(0, 0, info.Width, info.Height);
-        GL.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint)info.FrameBufferId);
+        Gl.Viewport(0, 0, (uint)info.Width, (uint)info.Height);
+        Gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
     }
-    
+
     public void ResizeFrameBuffer(IFrameBufferInfo info, int newWidth, int newHeight, bool isPickingBuffer = false)
     {
-        if (info.Width == newWidth && info.Height == newHeight)
-            return;
+        if (info.Width == newWidth && info.Height == newHeight) return;
 
-        if (info.TextureColorBufferId > 0)
-            GL.DeleteTexture(info.TextureColorBufferId);
-        if (info.RenderBufferId > 0)
-            GL.DeleteRenderbuffer(info.RenderBufferId);
+        if (info.TextureColorBufferId > 0) Gl.DeleteTexture((uint)info.TextureColorBufferId);
+        if (info.RenderBufferId > 0) Gl.DeleteRenderbuffer((uint)info.RenderBufferId);
 
         info.Width = newWidth;
         info.Height = newHeight;
 
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, info.FrameBufferId);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint)info.FrameBufferId);
 
-        int textureId;
-        if (isPickingBuffer)
-            textureId = CreatePickingTextureBuffer(newWidth, newHeight);
-        else
-            textureId = CreateTextureBuffer(newWidth, newHeight);
-
+        var textureId = isPickingBuffer ? CreatePickingTextureBuffer(newWidth, newHeight) : CreateTextureBuffer(newWidth, newHeight);
         var renderBufferId = CreateRenderBuffer(newWidth, newHeight);
 
-        GL.FramebufferTexture2D(
-            FramebufferTarget.Framebuffer,
-            FramebufferAttachment.ColorAttachment0,
-            TextureTarget.Texture2d,
-            textureId,
-            0
-        );
-
-        GL.FramebufferRenderbuffer(
-            FramebufferTarget.Framebuffer,
-            FramebufferAttachment.DepthStencilAttachment,
-            RenderbufferTarget.Renderbuffer,
-            renderBufferId
-        );
+        Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, (uint)textureId, 0);
+        Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, (uint)renderBufferId);
 
         info.TextureColorBufferId = textureId;
         info.RenderBufferId = renderBufferId;
 
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
     public void RenderToPickingBuffer(IFrameBufferInfo pickingBufferInfo)
     {
-        int[] clearValues = [-1, -1, -1, -1];
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, pickingBufferInfo.FrameBufferId);
-        GL.Disable(EnableCap.ScissorTest);
-        GL.ColorMask(true, true, true, true);
-        GL.ClearBufferi(Buffer.Color, 0, clearValues);
-        GL.Clear(ClearBufferMask.DepthBufferBit);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint)pickingBufferInfo.FrameBufferId);
+        Gl.Disable(EnableCap.ScissorTest);
+        Gl.ColorMask(true, true, true, true);
+        Gl.ClearBuffer(GLEnum.Color, 0, new int[] { -1, -1, -1, -1 });
+        Gl.Clear(ClearBufferMask.DepthBufferBit);
     }
 
     public void ClearRenderBuffer(int renderBufferId)
     {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, renderBufferId);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint)renderBufferId);
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
     public void ClearViewportBuffer(IFrameBufferInfo mainViewportFullRenderView)
     {
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, mainViewportFullRenderView.FrameBufferId);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, (uint)mainViewportFullRenderView.FrameBufferId);
+        Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
     }
 
     public int CreatePixelBufferObject()
     {
-        var pboId = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, pboId);
-        GL.BufferData(
-            BufferTarget.PixelPackBuffer,
-            sizeof(int)*2,
-            IntPtr.Zero, BufferUsage.StreamRead
-        );
-
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0); // Unbind the PBO
-
-        return pboId;
+        var pbo = Gl.GenBuffer();
+        Gl.BindBuffer(BufferTargetARB.PixelPackBuffer, pbo);
+        Gl.BufferData(BufferTargetARB.PixelPackBuffer, (nuint)(sizeof(int) * 2), ReadOnlySpan<byte>.Empty, BufferUsageARB.StreamRead);
+        Gl.BindBuffer(BufferTargetARB.PixelPackBuffer, 0);
+        return (int)pbo;
     }
 
     public void DeleteFrameBuffer(FrameBufferInfo info)
     {
-        if (info.FrameBufferId > 0)
-            GL.DeleteFramebuffer(info.FrameBufferId);
-        if (info.TextureColorBufferId > 0)
-            GL.DeleteTexture(info.TextureColorBufferId);
-        if (info.RenderBufferId > 0)
-            GL.DeleteRenderbuffer(info.RenderBufferId);
+        if (info.FrameBufferId > 0) Gl.DeleteFramebuffer((uint)info.FrameBufferId);
+        if (info.TextureColorBufferId > 0) Gl.DeleteTexture((uint)info.TextureColorBufferId);
+        if (info.RenderBufferId > 0) Gl.DeleteRenderbuffer((uint)info.RenderBufferId);
     }
 }

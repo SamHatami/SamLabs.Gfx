@@ -53,59 +53,68 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
 
     public unsafe GpuMeshHandle UploadMesh(MeshUploadDescriptor descriptor)
     {
-        var vao = (int)Gl.GenVertexArray();
-        var vbo = (int)Gl.GenBuffer();
-        Gl.BindVertexArray((uint)vao);
-        Gl.BindBuffer(GLEnum.ArrayBuffer, (uint)vbo);
-        unsafe
+        try
         {
-            fixed (float* ptr = descriptor.Vertices)
-                Gl.BufferData(GLEnum.ArrayBuffer, (nuint)(descriptor.Vertices.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
-        }
-
-        Gl.EnableVertexAttribArray(0);
-        Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, (uint)(descriptor.VertexStride * sizeof(float)), 0);
-        if (descriptor.VertexStride >= 6)
-        {
-            Gl.EnableVertexAttribArray(1);
-            Gl.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, (uint)(descriptor.VertexStride * sizeof(float)), (void*)(3 * sizeof(float)));
-        }
-
-        if (descriptor.VertexStride >= 8)
-        {
-            Gl.EnableVertexAttribArray(2);
-            Gl.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, (uint)(descriptor.VertexStride * sizeof(float)), (void*)(6 * sizeof(float)));
-        }
-
-        var ebo = 0;
-        if (descriptor.Indices is { Length: > 0 })
-        {
-            ebo = (int)Gl.GenBuffer();
-            Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)ebo);
+            var vao = (int)Gl.GenVertexArray();
+            var vbo = (int)Gl.GenBuffer();
+            Gl.BindVertexArray((uint)vao);
+            Gl.BindBuffer(GLEnum.ArrayBuffer, (uint)vbo);
             unsafe
             {
-                fixed (uint* ptr = descriptor.Indices)
-                    Gl.BufferData(GLEnum.ElementArrayBuffer, (nuint)(descriptor.Indices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
+                fixed (float* ptr = descriptor.Vertices)
+                    Gl.BufferData(GLEnum.ArrayBuffer, (nuint)(descriptor.Vertices.Length * sizeof(float)), ptr, GLEnum.StaticDraw);
             }
-        }
 
-        var edgeEbo = 0;
-        if (descriptor.EdgeIndices is { Length: > 0 })
-        {
-            edgeEbo = (int)Gl.GenBuffer();
-            Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)edgeEbo);
-            unsafe
+            Gl.EnableVertexAttribArray(0);
+            Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, (uint)(descriptor.VertexStride * sizeof(float)), 0);
+            if (descriptor.VertexStride >= 6)
             {
-                fixed (uint* ptr = descriptor.EdgeIndices)
-                    Gl.BufferData(GLEnum.ElementArrayBuffer, (nuint)(descriptor.EdgeIndices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
+                Gl.EnableVertexAttribArray(1);
+                Gl.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, (uint)(descriptor.VertexStride * sizeof(float)), (void*)(3 * sizeof(float)));
             }
+
+            if (descriptor.VertexStride >= 8)
+            {
+                Gl.EnableVertexAttribArray(2);
+                Gl.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, (uint)(descriptor.VertexStride * sizeof(float)), (void*)(6 * sizeof(float)));
+            }
+
+            var ebo = 0;
+            if (descriptor.Indices is { Length: > 0 })
+            {
+                ebo = (int)Gl.GenBuffer();
+                Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)ebo);
+                unsafe
+                {
+                    fixed (uint* ptr = descriptor.Indices)
+                        Gl.BufferData(GLEnum.ElementArrayBuffer, (nuint)(descriptor.Indices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
+                }
+            }
+
+            var edgeEbo = 0;
+            if (descriptor.EdgeIndices is { Length: > 0 })
+            {
+                edgeEbo = (int)Gl.GenBuffer();
+                Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)edgeEbo);
+                unsafe
+                {
+                    fixed (uint* ptr = descriptor.EdgeIndices)
+                        Gl.BufferData(GLEnum.ElementArrayBuffer, (nuint)(descriptor.EdgeIndices.Length * sizeof(uint)), ptr, GLEnum.StaticDraw);
+                }
+            }
+
+            Gl.BindVertexArray(0);
+
+            var handle = new GpuMeshHandle(_nextMeshId++);
+            _meshById[handle.Id] = new BackendMeshResource(vao, vbo, ebo, edgeEbo, descriptor.VertexStride, descriptor.Vertices.Length / descriptor.VertexStride, descriptor.Indices?.Length ?? 0, descriptor.EdgeIndices?.Length ?? 0);
+            return handle;
         }
-
-        Gl.BindVertexArray(0);
-
-        var handle = new GpuMeshHandle(_nextMeshId++);
-        _meshById[handle.Id] = new BackendMeshResource(vao, vbo, ebo, edgeEbo, descriptor.VertexStride, descriptor.Vertices.Length / descriptor.VertexStride, descriptor.Indices?.Length ?? 0, descriptor.EdgeIndices?.Length ?? 0);
-        return handle;
+        catch (Exception e)
+        {
+            Console.WriteLine($"ERROR in UploadMesh: {e.Message}");
+            Console.WriteLine(e.StackTrace);
+            throw;
+        }
     }
 
     public void UpdateMesh(GpuMeshHandle handle, MeshUploadDescriptor descriptor)
@@ -129,36 +138,48 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
 
     public unsafe void DrawMesh(GpuMeshHandle handle, DrawFlags flags)
     {
-        if (!_meshById.TryGetValue(handle.Id, out var mesh)) return;
-
-        Gl.BindVertexArray((uint)mesh.Vao);
-        if ((flags & DrawFlags.Faces) != 0)
+        if (!_meshById.TryGetValue(handle.Id, out var mesh))
         {
-            if (mesh.Ebo > 0)
+            Console.WriteLine($"ERROR: Mesh handle {handle.Id} not found in graphics backend");
+            return;
+        }
+
+        try
+        {
+            Gl.BindVertexArray((uint)mesh.Vao);
+            if ((flags & DrawFlags.Faces) != 0)
             {
-                Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)mesh.Ebo);
-                Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.IndexCount, DrawElementsType.UnsignedInt, (void*)0);
+                if (mesh.Ebo > 0)
+                {
+                    Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)mesh.Ebo);
+                    Gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.IndexCount, DrawElementsType.UnsignedInt, (void*)0);
+                }
+                else
+                {
+                    Gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)mesh.VertexCount);
+                }
             }
-            else
+
+            if ((flags & DrawFlags.Edges) != 0 && mesh.EdgeEbo > 0)
             {
-                Gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)mesh.VertexCount);
+                Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)mesh.EdgeEbo);
+                Gl.DrawElements(PrimitiveType.Lines, (uint)mesh.EdgeIndexCount, DrawElementsType.UnsignedInt, (void*)0);
             }
-        }
 
-        if ((flags & DrawFlags.Edges) != 0 && mesh.EdgeEbo > 0)
+            if ((flags & DrawFlags.Vertices) != 0)
+            {
+                Gl.PointSize(5f);
+                Gl.DrawArrays(PrimitiveType.Points, 0, (uint)mesh.VertexCount);
+                Gl.PointSize(1f);
+            }
+
+            Gl.BindVertexArray(0);
+        }
+        catch (Exception e)
         {
-            Gl.BindBuffer(GLEnum.ElementArrayBuffer, (uint)mesh.EdgeEbo);
-            Gl.DrawElements(PrimitiveType.Lines, (uint)mesh.EdgeIndexCount, DrawElementsType.UnsignedInt, (void*)0);
+            Console.WriteLine($"ERROR in DrawMesh: {e.Message}");
+            Console.WriteLine(e.StackTrace);
         }
-
-        if ((flags & DrawFlags.Vertices) != 0)
-        {
-            Gl.PointSize(5f);
-            Gl.DrawArrays(PrimitiveType.Points, 0, (uint)mesh.VertexCount);
-            Gl.PointSize(1f);
-        }
-
-        Gl.BindVertexArray(0);
     }
 
     public ShaderHandle GetShader(string name)
@@ -236,7 +257,8 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
         {
             fixed (int* ptr = data)
             {
-                Gl.ReadPixels(x, y, 1, 1, (GLEnum)0x8228, GLEnum.Int, ptr);
+                // RG_INTEGER = 0x8228, must be read as Int to match RG32i texture
+                Gl.ReadPixels(x, y, 1, 1, PixelFormat.RGInteger, PixelType.Int, ptr);
             }
         }
 

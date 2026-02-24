@@ -59,10 +59,11 @@ public class GLPickingSystem : RenderSystem
 
         _activeShaderProgram = new ShaderProgram(_pickingShader).Use();
 
-        foreach (var layer in Enum.GetValues<PickLayer>())
-        {
-            _graphicsBackend.BeginDepthPass();
+        // Clear depth once - earlier layers (Manipulator) draw first and occlude later layers (Scene)
+        _graphicsBackend.BeginDepthPass();
 
+        foreach (var layer in Enum.GetValues<PickLayer>().Reverse())
+        {
             var layerEntities = pickables
                 .Where(id => _componentRegistry.GetComponent<PickableComponent>(id).Layer == layer)
                 .OrderBy(id => _componentRegistry.GetComponent<PickableComponent>(id).Priority);
@@ -118,12 +119,16 @@ public class GLPickingSystem : RenderSystem
 
     private (int x, int y) GetPixelPosition(Point localMousePos, RenderContext renderContext)
     {
-        var x = (int)(localMousePos.X * renderContext.RenderScaling);
-        var y = (int)(localMousePos.Y * renderContext.RenderScaling);
-        y = renderContext.ViewHeight - y;
+        var x = (int)localMousePos.X;
+        var y = (int)localMousePos.Y;
 
-        x = Math.Clamp(x, 0, renderContext.ViewWidth - 1);
-        y = Math.Clamp(y, 0, renderContext.ViewHeight - 1);
+        // OpenGL origin is bottom-left; Avalonia origin is top-left
+        // Use the picking FBO height for the Y flip
+        var fboHeight = renderContext.ViewPort.SelectionRenderView?.Height ?? renderContext.ViewPort.Height;
+        y = fboHeight - y;
+
+        x = Math.Clamp(x, 0, renderContext.ViewPort.Width  - 1);
+        y = Math.Clamp(y, 0, fboHeight - 1);
         return (x, y);
     }
 }

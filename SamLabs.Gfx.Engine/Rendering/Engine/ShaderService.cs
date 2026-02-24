@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Logging;
-using OpenTK.Graphics.OpenGL;
+using Silk.NET.OpenGL;
 using SamLabs.Gfx.Engine.Rendering.Utility;
 
 namespace SamLabs.Gfx.Engine.Rendering.Engine;
@@ -13,6 +13,8 @@ public class ShaderService : IDisposable
     public Dictionary<string, GLShader> ShadersProgram => _shadersProgram;
 
     public bool Started { get; private set; } = false;
+
+    private static GL Gl => SilkGlContextProvider.GetGl();
 
     public ShaderService(ILogger<ShaderService> logger)
     {
@@ -58,36 +60,32 @@ public class ShaderService : IDisposable
     private int CreateAndRegisterShader(string vertPath, string fragPath)
     {
         var vertShader = Path.GetFileNameWithoutExtension(vertPath);
-        var programLocation = 0;
 
-        programLocation = CreateShaderProgram(vertPath, fragPath);
-        if (programLocation == -1)
-            return -1;
+        var programLocation = CreateShaderProgram(vertPath, fragPath);
+        if (programLocation == -1) return -1;
+
         var uniformLocations = RegisterUniformLocations(programLocation);
-
         var shader = new GLShader(vertShader, programLocation, uniformLocations);
+
         _shadersProgram.TryGetValue(vertShader, out var existingShader);
-        
         if (existingShader != null)
         {
             _shadersProgram.Remove(vertShader);
-            GL.DeleteProgram(existingShader.ProgramId);
-        }   
+            Gl.DeleteProgram((uint)existingShader.ProgramId);
+        }
         _shadersProgram.Add(vertShader, shader);
-
         return programLocation;
     }
 
     private Dictionary<string, Uniform> RegisterUniformLocations(int programLocation)
     {
-        Dictionary<string, Uniform> uniformLocations = new();
+        var uniformLocations = new Dictionary<string, Uniform>();
         foreach (var uniformName in UniformNameTypeDictionary.UniformInfo.Keys)
         {
-            var shaderLocation = GL.GetUniformLocation(programLocation, uniformName);
+            var shaderLocation = (int)Gl.GetUniformLocation((uint)programLocation, uniformName);
             var uniformType = UniformNameTypeDictionary.UniformInfo[uniformName];
             uniformLocations.Add(uniformName, new Uniform(shaderLocation, uniformName, uniformType));
         }
-
         return uniformLocations;
     }
 
@@ -106,45 +104,43 @@ public class ShaderService : IDisposable
         var vert = ShaderUtility.LoadFromTextureSource(vertPath);
         var frag = ShaderUtility.LoadFromTextureSource(fragPath);
 
-        var v = GL.CreateShader(ShaderType.VertexShader);
-        GL.ShaderSource(v, vert);
-        GL.CompileShader(v);
-
-        GL.GetShaderi(v, ShaderParameterName.CompileStatus, out var ok);
+        var v = Gl.CreateShader(ShaderType.VertexShader);
+        Gl.ShaderSource(v, vert);
+        Gl.CompileShader(v);
+        Gl.GetShader(v, ShaderParameterName.CompileStatus, out var ok);
         if (ok == 0)
         {
-            GL.GetShaderInfoLog(v, out var info);
-            _logger.LogError($"Shader compile error: {info}");
+            var info = Gl.GetShaderInfoLog(v);
+            _logger.LogError($"Vertex shader compile error: {info}");
             return -1;
         }
 
-        var f = GL.CreateShader(ShaderType.FragmentShader);
-        GL.ShaderSource(f, frag);
-        GL.CompileShader(f);
-        GL.GetShaderi(f, ShaderParameterName.CompileStatus, out ok);
+        var f = Gl.CreateShader(ShaderType.FragmentShader);
+        Gl.ShaderSource(f, frag);
+        Gl.CompileShader(f);
+        Gl.GetShader(f, ShaderParameterName.CompileStatus, out ok);
         if (ok == 0)
         {
-            GL.GetShaderInfoLog(f, out var info);
+            var info = Gl.GetShaderInfoLog(f);
             _logger.LogError($"Fragment shader compile error: {info}");
             return -1;
         }
 
-        var program = GL.CreateProgram();
-        GL.AttachShader(program, v);
-        GL.AttachShader(program, f);
-        GL.LinkProgram(program);
-
-        GL.GetProgrami(program, ProgramProperty.LinkStatus, out ok);
+        var program = Gl.CreateProgram();
+        Gl.AttachShader(program, v);
+        Gl.AttachShader(program, f);
+        Gl.LinkProgram(program);
+        Gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out ok);
         if (ok == 0)
         {
-            GL.GetProgramInfoLog(program, out var info);
-            _logger.LogError($"Could not compile shader. Program link error: {info}");
+            var info = Gl.GetProgramInfoLog(program);
+            _logger.LogError($"Program link error: {info}");
             return -1;
         }
 
-        GL.DeleteShader(v);
-        GL.DeleteShader(f);
-        return program;
+        Gl.DeleteShader(v);
+        Gl.DeleteShader(f);
+        return (int)program;
     }
 
     public void ReloadShader(string fullShaderPath)
@@ -183,6 +179,7 @@ public class ShaderService : IDisposable
 
     public void Dispose()
     {
-        foreach (var shader in _shadersProgram.Values) GL.DeleteProgram(shader.ProgramId);
+        foreach (var shader in _shadersProgram.Values)
+            Gl.DeleteProgram((uint)shader.ProgramId);
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+﻿﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using SamLabs.Gfx.Engine.Core;
 
@@ -36,7 +36,6 @@ public class CommandManager
             try
             {
                 command.Execute();
-                //Don't record internal commands
                 if (command.Internal) continue;
                 _undoCommands.Push(command);
             }
