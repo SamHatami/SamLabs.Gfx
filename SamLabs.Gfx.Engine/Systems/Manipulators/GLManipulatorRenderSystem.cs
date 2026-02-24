@@ -142,7 +142,7 @@ public class GLManipulatorRenderSystem : RenderSystem
     {
         var isHovered = isDragging
             ? (isSelected ? 1 : 0) // During drag: only selected is highlighted
-            : (pickingData.HoveredEntityId == entityId ? 1 : 0); // Not dragging: use picking
+            : (pickingData.Hovered.EntityId == entityId ? 1 : 0); // Not dragging: use picking
         var axis = manipulatorChildComponent.Axis.ToInt();
         var selected = isSelected ? 1 : 0;
 

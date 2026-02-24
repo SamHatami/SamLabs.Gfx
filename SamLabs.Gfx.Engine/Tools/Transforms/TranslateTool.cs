@@ -84,14 +84,14 @@ public class TranslateTool : TransformTool //SubUpdateSystem
 
         if (input.IsMouseLeftButtonDown && !_isTransforming)
         {
-            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
+            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.Hovered.EntityId))
             {
                 _preChangeTransform = entityTransform;
                 _startPosition = entityTransform.Position;
                 _currentPosition = entityTransform.Position;
                 _deltaThisSession = Vector3.Zero;
                 _isTransforming = true;
-                _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
+                _selectedManipulatorSubEntity = pickingData.Hovered.EntityId;
                 SetState(ToolState.InputCapture);
             }
         }

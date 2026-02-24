@@ -57,7 +57,7 @@ public class GLRenderMeshSystem : RenderSystem
             using var shaderProgram = new ShaderProgram(shader).Use();
             var modelMatrix = transform.WorldMatrix;
             var selected = _cachedSelectedIds.Contains(meshEntity) ? 1 : 0;
-            var hovered = (!_cachedSelectedIds.Contains(meshEntity) && pickingData.HoveredEntityId == meshEntity) ? 1 : 0;
+            var hovered = (!_cachedSelectedIds.Contains(meshEntity) && pickingData.Hovered.EntityId == meshEntity) ? 1 : 0;
             shaderProgram
                 .SetMatrix4(UniformNames.uModel, ref modelMatrix)
                 .SetInt(UniformNames.uIsHovered, ref hovered)

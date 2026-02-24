@@ -78,14 +78,14 @@ public class ScaleTool : TransformTool
 
         if (input.IsMouseLeftButtonDown && !_isTransforming)
         {
-            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
+            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.Hovered.EntityId))
             {
                 _preChangeTransform = entityTransform;
                 _startScale = entityTransform.Scale;
                 _currentScale = entityTransform.Scale;
                 _deltaScale = Vector3.Zero;
                 _isTransforming = true;
-                _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
+                _selectedManipulatorSubEntity = pickingData.Hovered.EntityId;
                 SetState(ToolState.InputCapture);
             }
         }

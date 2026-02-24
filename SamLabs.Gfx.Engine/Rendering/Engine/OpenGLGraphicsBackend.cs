@@ -205,7 +205,7 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
     public void BeginPickingPass(FrameBufferHandle handle) => BindFrameBuffer(handle);
     public void EndPickingPass() => UnbindFrameBuffer();
 
-    public PickReadResult ReadPickPixel(int x, int y)
+    public PickResult ReadPickPixel(int x, int y)
     {
         Span<int> data = stackalloc int[2];
         unsafe
@@ -216,8 +216,14 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
             }
         }
 
-        var type = data[1] >= 0 ? (SelectionType)data[1] : SelectionType.None;
-        return new PickReadResult(data[0], data[1], type);
+        var entityId = data[0];
+        if (entityId < 0)
+            return PickResult.Empty;
+
+        var packedId = data[1];
+        var type = (SelectionType)((packedId >> 28) & 0xF);
+        var subElementId = packedId & 0x0FFFFFFF;
+        return new PickResult(entityId, subElementId, type);
     }
 
     public void SetWireframe(bool enabled) => GL.PolygonMode(TriangleFace.FrontAndBack, enabled ? PolygonMode.Line : PolygonMode.Fill);
@@ -261,7 +267,7 @@ public sealed class MockGraphicsBackend : IGraphicsBackend
     public void ClearFrameBuffer(FrameBufferHandle handle) { }
     public void BeginPickingPass(FrameBufferHandle handle) { }
     public void EndPickingPass() { }
-    public PickReadResult ReadPickPixel(int x, int y) => new(-1, -1, SelectionType.None);
+    public PickResult ReadPickPixel(int x, int y) => new(-1, -1, SelectionType.None);
     public void SetWireframe(bool enabled) { }
     public void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in NumericsVector3 cameraPos) { }
     public void SetViewport(int x, int y, int width, int height) { }

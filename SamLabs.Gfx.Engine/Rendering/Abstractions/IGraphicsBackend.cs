@@ -26,7 +26,7 @@ public interface IGraphicsBackend
 
     void BeginPickingPass(FrameBufferHandle handle);
     void EndPickingPass();
-    PickReadResult ReadPickPixel(int x, int y);
+    PickResult ReadPickPixel(int x, int y);
 
     void SetWireframe(bool enabled);
     void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in Vector3 cameraPos);
@@ -36,7 +36,6 @@ public interface IGraphicsBackend
 public readonly record struct GpuMeshHandle(int Id);
 public readonly record struct ShaderHandle(int Id);
 public readonly record struct FrameBufferHandle(int Id);
-public readonly record struct PickReadResult(int EntityId, int SubElementId, SelectionType Type);
 
 [Flags]
 public enum DrawFlags
