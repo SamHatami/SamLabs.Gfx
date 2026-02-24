@@ -125,7 +125,7 @@ public class EditorControl : OpenTkControlBase
         RequestNextFrameRendering();
     }
 
-    protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
+    protected override void OpenGlRender(int mainScreenFrameBuffer, int width, int height)
     {
         if(!_pendingShaderReloads.IsEmpty)
             NotifyActivity();
@@ -160,7 +160,7 @@ public class EditorControl : OpenTkControlBase
         _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
         ClearInputData();
         RequestNextFrameRendering();
-        base.OpenTkRender(mainScreenFrameBuffer, width, height);
+        base.OpenGlRender(mainScreenFrameBuffer, width, height);
     }
 
     private bool Idle()
@@ -241,7 +241,7 @@ public class EditorControl : OpenTkControlBase
         _keyUp = Key.None; // reset key-up so Cancellation is only true for single frame
     }
 
-    protected override void InitializeOpenTk()
+    protected override void InitializeOpenGl()
     {
         _systemScheduler = EngineContext.SystemScheduler;
         _renderer = EngineContext.Renderer;
@@ -413,9 +413,9 @@ public class EditorControl : OpenTkControlBase
         NotifyActivity();
     }
 
-    protected override void OpenTkTeardown()
+    protected override void OpenGlTeardown()
     {
-        base.OpenTkTeardown();
+        base.OpenGlTeardown();
         
         SizeChanged -= OnSizeChanged;
         
