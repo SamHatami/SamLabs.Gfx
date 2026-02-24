@@ -28,7 +28,7 @@ public class GLPickingSystem : RenderSystem
     private (int x, int y) _lastMousePos = (-1, -1);
     private bool _mouseMovedThisFrame;
 
-    public GLPickingSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry,
+    public GLPickingSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, IGraphicsBackend graphicsBackend) : base(entityRegistry,
         componentRegistry)
     {
         _entityRegistry = entityRegistry;

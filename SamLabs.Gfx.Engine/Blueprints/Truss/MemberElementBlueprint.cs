@@ -99,13 +99,13 @@ public class MemberElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, entity.Id);
 
-        var endNodeId = CreateEndNode(nodeMesh, entity.Id, endA, shader, pickingShader);
-        var startNodeId = CreateEndNode(nodeMesh, entity.Id, endB, shader, pickingShader);
+        var endNodeId = CreateEndNode(nodeMesh, entity.Id, endA);
+        var startNodeId = CreateEndNode(nodeMesh, entity.Id, endB);
 
         _componentRegistry.SetComponentToEntity(new TrussMemberComponent { StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId }, entity.Id);
     }
 
-    private int CreateEndNode(MeshDataComponent nodeMesh, int connectedMemberId, Vector3 position, GLShader? shader, GLShader? pickingShader)
+    private int CreateEndNode(MeshDataComponent nodeMesh, int connectedMemberId, Vector3 position)
     {
         var nodeEntity = _entityRegistry.CreateEntity();
         nodeEntity.Type = EntityType.SceneObject;

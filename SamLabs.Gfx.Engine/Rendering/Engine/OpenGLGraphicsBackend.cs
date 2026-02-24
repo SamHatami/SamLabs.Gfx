@@ -1,4 +1,5 @@
-using System.Numerics;
+using Matrix4x4 = System.Numerics.Matrix4x4;
+using NumericsVector3 = System.Numerics.Vector3;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -13,7 +14,7 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
     private readonly UniformBufferService _uniformBufferService;
     private readonly FrameBufferService _frameBufferService;
     private readonly Dictionary<int, GLShader> _shaderById = new();
-    private readonly Dictionary<int, Components.Common.FrameBufferInfo> _frameBufferById = new();
+    private readonly Dictionary<int, FrameBufferInfo> _frameBufferById = new();
     private readonly Dictionary<int, BackendMeshResource> _meshById = new();
     private int _nextShaderId = 1;
     private int _nextFrameBufferId = 1;
@@ -164,7 +165,7 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
     {
         if (!_shaderById.TryGetValue(shader.Id, out var glShader)) return;
         var location = GL.GetUniformLocation(glShader.ProgramId, name);
-        if (location >= 0) GL.Uniform1(location, value);
+        if (location >= 0) GL.Uniform1i(location, 1, ref value);
     }
 
     public void SetUniformMatrix4(ShaderHandle shader, string name, in Matrix4x4 value)
@@ -173,7 +174,7 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
         var location = GL.GetUniformLocation(glShader.ProgramId, name);
         if (location < 0) return;
         var matrix = ToOpenTk(value);
-        GL.UniformMatrix4(location, false, ref matrix);
+        GL.UniformMatrix4f(location, 1, false, ref matrix);
     }
 
     public FrameBufferHandle CreateFrameBuffer(int width, int height, bool isPicking)
@@ -221,7 +222,7 @@ public class OpenGLGraphicsBackend : IGraphicsBackend
 
     public void SetWireframe(bool enabled) => GL.PolygonMode(TriangleFace.FrontAndBack, enabled ? PolygonMode.Line : PolygonMode.Fill);
 
-    public void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in Vector3 cameraPos)
+    public void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in NumericsVector3 cameraPos)
     {
         var viewMatrix = ToOpenTk(view);
         var projectionMatrix = ToOpenTk(projection);
@@ -262,6 +263,6 @@ public sealed class MockGraphicsBackend : IGraphicsBackend
     public void EndPickingPass() { }
     public PickReadResult ReadPickPixel(int x, int y) => new(-1, -1, SelectionType.None);
     public void SetWireframe(bool enabled) { }
-    public void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in Vector3 cameraPos) { }
+    public void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in NumericsVector3 cameraPos) { }
     public void SetViewport(int x, int y, int width, int height) { }
 }

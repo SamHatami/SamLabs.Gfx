@@ -50,7 +50,6 @@ public class ConstructionPlaneBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
 
-        if (shader == null) throw new InvalidOperationException("Construction plane shader not found.");
         var material = new MaterialComponent { ShaderName = "construction", PickingShaderName = "picking" };
         _componentRegistry.SetComponentToEntity(material, entity.Id);
     }

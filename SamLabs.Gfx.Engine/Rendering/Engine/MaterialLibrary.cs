@@ -42,7 +42,7 @@ public class MaterialLibrary
             {
                 Name =  shaderProgram.Key + "_Mat",
                 ShaderName = shaderProgram.Key,
-                PickingShaderName = "picking"
+                PickingShaderName = "picking",
                 UniformValues = uniformsValues
             };
             
