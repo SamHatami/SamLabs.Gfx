@@ -31,6 +31,11 @@ public interface IGraphicsBackend
     void SetWireframe(bool enabled);
     void SetViewProjection(in Matrix4x4 view, in Matrix4x4 projection, in Vector3 cameraPos);
     void SetViewport(int x, int y, int width, int height);
+    void BeginMainRenderPass(int frameBufferId, int viewWidth, int viewHeight);
+    void EndMainRenderPass();
+    void BeginDepthPass();
+    void EndDepthPass();
+
 }
 
 public readonly record struct GpuMeshHandle(int Id);

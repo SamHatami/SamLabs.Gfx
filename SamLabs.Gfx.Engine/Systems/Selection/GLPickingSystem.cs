@@ -1,5 +1,4 @@
 using Avalonia;
-using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -62,8 +61,7 @@ public class GLPickingSystem : RenderSystem
 
         foreach (var layer in Enum.GetValues<PickLayer>())
         {
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-            GL.Enable(EnableCap.DepthTest);
+            _graphicsBackend.BeginDepthPass();
 
             var layerEntities = pickables
                 .Where(id => _componentRegistry.GetComponent<PickableComponent>(id).Layer == layer)
@@ -86,7 +84,7 @@ public class GLPickingSystem : RenderSystem
             }
         }
 
-        GL.Disable(EnableCap.DepthTest);
+        _graphicsBackend.EndDepthPass();
         _activeShaderProgram.Dispose();
         _activeShaderProgram = null;
 

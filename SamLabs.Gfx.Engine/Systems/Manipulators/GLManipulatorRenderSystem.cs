@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -60,8 +59,7 @@ public class GLManipulatorRenderSystem : RenderSystem
         UpdateChildmanipulators(activemanipulator, manipulatorSubEntities, childBuffer,
             ref parentTransform); //Special case for the manipulator
 
-        GL.Clear(ClearBufferMask.DepthBufferBit);
-        GL.Enable(EnableCap.DepthTest);
+        _graphicsBackend.BeginDepthPass();
         foreach (var manipulatorSubEntity in manipulatorSubEntities)
         {
             var isSelected = CheckSelection(manipulatorSubEntity, pickingData);
@@ -75,7 +73,7 @@ public class GLManipulatorRenderSystem : RenderSystem
                 pickingData, manipulatorSubEntity, manipulatorChildComponent);
         }
 
-        GL.Disable(EnableCap.DepthTest);
+        _graphicsBackend.EndDepthPass();
     }
 
     private bool CheckSelection(int manipulatorSubEntity, PickingDataComponent pickingData)

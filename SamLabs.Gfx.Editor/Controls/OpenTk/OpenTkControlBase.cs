@@ -7,8 +7,7 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering;
 using Avalonia.Threading;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+using Silk.NET.OpenGL;
 
 namespace SamLabs.Gfx.Editor.Controls.OpenTk;
 
@@ -33,7 +32,7 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         var size = GetPlatformSpecificBounds();
 
         //Set up the aspect ratio so shapes aren't stretched.
-        GL.Viewport(0, 0, size.width, size.height);
+        _avaloniaTkContext?.Gl.Viewport(0, 0, (uint)size.width, (uint)size.height);
 
         //Tell our subclass to render
         if (Bounds.Width != 0 && Bounds.Height != 0)
@@ -92,7 +91,6 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     protected override void OnOpenGlInit(GlInterface gl)
     {
         _avaloniaTkContext = new AvaloniaTkContext(gl);
-        GLLoader.LoadBindings(_avaloniaTkContext);
         _nextFrameAction = RequestNextFrameRendering;
         InitializeOpenTk();
     }
