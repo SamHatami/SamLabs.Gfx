@@ -1,102 +1,101 @@
-﻿using OpenTK.Graphics.OpenGL;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Core;
-using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
+using SamLabs.Gfx.Engine.Rendering.Abstractions;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Engine.Systems.OpenGL;
 
-[RenderPassAttributes.RenderOrder(SystemOrders.Init)]
-public class GLInitializeMeshDataSystem : RenderSystem
+[RenderPassAttributes.RenderOrder(SystemOrders.MeshUpload)]
+public class MeshUploadSystem : RenderSystem
 {
-    public override int SystemPosition => SystemOrders.Init;
-    private readonly IComponentRegistry _componentRegistry;
+    public override int SystemPosition => SystemOrders.MeshUpload;
+    private readonly IGraphicsBackend _graphicsBackend;
 
-    public GLInitializeMeshDataSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(
-        entityRegistry, componentRegistry)
+    public MeshUploadSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, IGraphicsBackend graphicsBackend)
+        : base(entityRegistry, componentRegistry)
     {
-        _componentRegistry = componentRegistry;
+        _graphicsBackend = graphicsBackend;
     }
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
     {
-        var glMeshDataEntities = _componentRegistry.GetEntityIdsForComponentType<CreateGlMeshDataFlag>();
-        if (glMeshDataEntities.IsEmpty) return;
+        var newMeshes = EntityRegistry.Query.With<MeshDataComponent>().With<GlMeshDataComponent>().Without<GpuMeshHandleComponent>().Get();
+        foreach (var id in newMeshes)
+            UploadNew(id);
 
-        for (var i = 0; i < glMeshDataEntities.Length; i++)
+        var dirtyMeshes = EntityRegistry.Query.With<MeshDataComponent>().With<GpuMeshHandleComponent>().Get();
+        foreach (var id in dirtyMeshes)
         {
-            ref var glMeshData = ref _componentRegistry.GetComponent<GlMeshDataComponent>(glMeshDataEntities[i]);
-            ref var meshData = ref _componentRegistry.GetComponent<MeshDataComponent>(glMeshDataEntities[i]);
+            ref var h = ref ComponentRegistry.GetComponent<GpuMeshHandleComponent>(id);
+            if (!h.IsDirty) continue;
 
-            CreateGlMeshData(ref glMeshData, ref meshData);
+            var descriptor = BuildUploadDescriptor(id);
+            _graphicsBackend.UpdateMesh(h.Handle, descriptor);
+            h.IsDirty = false;
+        }
 
-            _componentRegistry.RemoveComponentFromEntity<CreateGlMeshDataFlag>(glMeshDataEntities[i]);
+        var removed = ComponentRegistry.GetEntityIdsForComponentType<GlMeshRemoved>();
+        foreach (var id in removed)
+        {
+            if (ComponentRegistry.HasComponent<GpuMeshHandleComponent>(id))
+            {
+                var handle = ComponentRegistry.GetComponent<GpuMeshHandleComponent>(id).Handle;
+                _graphicsBackend.DeleteMesh(handle);
+                ComponentRegistry.RemoveComponentFromEntity<GpuMeshHandleComponent>(id);
+            }
+            ComponentRegistry.RemoveComponentFromEntity<GlMeshRemoved>(id);
         }
     }
 
-    //TBD transient mesh data for dynamic draw (?)
-    private void CreateGlMeshData(ref GlMeshDataComponent glMeshData, ref MeshDataComponent meshData)
+    private void UploadNew(int entityId)
     {
-        glMeshData.Vao = OpenTK.Graphics.OpenGL.GL.GenVertexArray();
-        glMeshData.Vbo = OpenTK.Graphics.OpenGL.GL.GenBuffer();
-
-        OpenTK.Graphics.OpenGL.GL.BindVertexArray(glMeshData.Vao);
-        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTarget.ArrayBuffer, glMeshData.Vbo);
-        OpenTK.Graphics.OpenGL.GL.BufferData(BufferTarget.ArrayBuffer, glMeshData.VertexCount * SizeOf.Vertex, meshData.Vertices,
-            BufferUsage.StaticDraw);
-
-        SetupVertexAttributes();
-
-        if (meshData.TriangleIndices.Length > 0)
-            IndexVertices(ref glMeshData, ref meshData);
-        if (meshData.EdgeIndices != null && meshData.EdgeIndices.Length > 0)
-            IndexEdges(ref glMeshData, meshData.EdgeIndices);
-        // else
-        //     glMeshData.Ebo = 0;
-
-        OpenTK.Graphics.OpenGL.GL.BindVertexArray(0);
-
+        var descriptor = BuildUploadDescriptor(entityId);
+        var handle = _graphicsBackend.UploadMesh(descriptor);
+        ComponentRegistry.SetComponentToEntity(new GpuMeshHandleComponent { Handle = handle, IsDirty = false }, entityId);
+        ComponentRegistry.RemoveComponentFromEntity<CreateGlMeshDataFlag>(entityId);
     }
 
-    private void IndexVertices(ref GlMeshDataComponent glMeshData, ref MeshDataComponent meshData)
+    private MeshUploadDescriptor BuildUploadDescriptor(int entityId)
     {
-        glMeshData.Ebo = OpenTK.Graphics.OpenGL.GL.GenBuffer();
-        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTarget.ElementArrayBuffer, glMeshData.Ebo);
-        OpenTK.Graphics.OpenGL.GL.BufferData(BufferTarget.ElementArrayBuffer, meshData.TriangleIndices.Length * sizeof(uint),
-            meshData.TriangleIndices, BufferUsage.StaticDraw);
+        ref var meshData = ref ComponentRegistry.GetComponent<MeshDataComponent>(entityId);
+        ref var glMeshData = ref ComponentRegistry.GetComponent<GlMeshDataComponent>(entityId);
+
+        var flat = FlattenVertices(meshData.Vertices);
+        var tri = meshData.TriangleIndices?.Select(i => (uint)i).ToArray();
+        var edge = meshData.EdgeIndices?.Select(i => (uint)i).ToArray();
+
+        glMeshData.VertexCount = meshData.Vertices?.Length ?? 0;
+        glMeshData.IndexCount = meshData.TriangleIndices?.Length ?? 0;
+        glMeshData.EdgeIndexCount = meshData.EdgeIndices?.Length ?? 0;
+
+        return new MeshUploadDescriptor(flat, tri, edge, 8);
     }
 
-    private void IndexEdges(ref GlMeshDataComponent glMeshData, int[] edgeIndices)
+    private static float[] FlattenVertices(SamLabs.Gfx.Geometry.Mesh.Vertex[] vertices)
     {
-        glMeshData.EdgeEbo = OpenTK.Graphics.OpenGL.GL.GenBuffer();
-        glMeshData.EdgeIndexCount = edgeIndices.Length;
+        if (vertices == null || vertices.Length == 0)
+            return Array.Empty<float>();
 
-        OpenTK.Graphics.OpenGL.GL.BindBuffer(BufferTarget.ElementArrayBuffer, glMeshData.EdgeEbo);
-        OpenTK.Graphics.OpenGL.GL.BufferData(BufferTarget.ElementArrayBuffer, edgeIndices.Length * sizeof(uint),
-            edgeIndices, BufferUsage.StaticDraw);
-    }
+        var data = new float[vertices.Length * 8];
+        var d = 0;
+        foreach (var vertex in vertices)
+        {
+            data[d++] = vertex.Position.X;
+            data[d++] = vertex.Position.Y;
+            data[d++] = vertex.Position.Z;
+            data[d++] = vertex.Normal.X;
+            data[d++] = vertex.Normal.Y;
+            data[d++] = vertex.Normal.Z;
+            data[d++] = vertex.TextureCoordinate.X;
+            data[d++] = vertex.TextureCoordinate.Y;
+        }
 
-    private void SetupVertexAttributes()
-    {
-        // Position
-        OpenTK.Graphics.OpenGL.GL.EnableVertexAttribArray(0);
-        OpenTK.Graphics.OpenGL.GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false,
-            SizeOf.Vertex, 0);
-
-        // Normal
-        OpenTK.Graphics.OpenGL.GL.EnableVertexAttribArray(1);
-        OpenTK.Graphics.OpenGL.GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false,
-            SizeOf.Vertex, 3 * sizeof(float));
-
-        // TexCoord
-        OpenTK.Graphics.OpenGL.GL.EnableVertexAttribArray(2);
-        OpenTK.Graphics.OpenGL.GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false,
-            SizeOf.Vertex, 6 * sizeof(float));
+        return data;
     }
 }

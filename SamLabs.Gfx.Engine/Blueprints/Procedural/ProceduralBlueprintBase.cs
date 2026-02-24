@@ -1,27 +1,23 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Procedural;
 
 public abstract class ProceduralBlueprintBase : EntityBlueprint, IProceduralGeometry
 {
-    protected readonly ShaderService ShaderService;
     protected readonly IComponentRegistry ComponentRegistry;
 
     public abstract string GeometryType { get; }
     public abstract Dictionary<string, float> GetDefaultParameters();
     public abstract MeshDataComponent GenerateMesh(Dictionary<string, float> parameters);
 
-    protected ProceduralBlueprintBase(ShaderService shaderService, IComponentRegistry componentRegistry)
+    protected ProceduralBlueprintBase(IComponentRegistry componentRegistry)
     {
-        ShaderService = shaderService;
         ComponentRegistry = componentRegistry;
     }
 
@@ -34,15 +30,15 @@ public abstract class ProceduralBlueprintBase : EntityBlueprint, IProceduralGeom
 
         var glMeshData = new GlMeshDataComponent()
         {
-            PrimitiveType = PrimitiveType.Triangles,
+            DrawMode = DrawMode.Triangles,
             VertexCount = mesh.Vertices.Length,
             IndexCount = mesh.TriangleIndices.Length
         };
 
         var material = new MaterialComponent
         {
-            Shader = ShaderService.GetShader("flat"),
-            PickingShader = ShaderService.GetShader("picking")
+            ShaderName = "flat",
+            PickingShaderName = "picking"
         };
 
         var transform = new TransformComponent

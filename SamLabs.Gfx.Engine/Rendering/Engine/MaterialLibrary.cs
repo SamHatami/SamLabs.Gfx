@@ -41,8 +41,8 @@ public class MaterialLibrary
             var material = new MaterialComponent
             {
                 Name =  shaderProgram.Key + "_Mat",
-                Shader = shaderProgram.Value,
-                PickingShader = _shaderService.GetShader("pickingShader")!, //All materials use the same picking shader for now
+                ShaderName = shaderProgram.Key,
+                PickingShaderName = "picking"
                 UniformValues = uniformsValues
             };
             

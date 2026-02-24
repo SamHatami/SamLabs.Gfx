@@ -8,7 +8,6 @@ using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 // Need this for the flag
 
@@ -16,14 +15,12 @@ namespace SamLabs.Gfx.Engine.Blueprints.Manipulators;
 
 public class ScaleManipulatorBlueprint:EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
-    private readonly EntityRegistry _entityRegistry;
+        private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
 
-    public ScaleManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
+    public ScaleManipulatorBlueprint(EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
-        _entityRegistry = entityRegistry;
+                _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
     }
 
@@ -51,7 +48,6 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
        var importedPlaneMesh = await ModelLoader.LoadObjFromResource("ScalePlane.obj"); 
        
        var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
-       var manipulatorShader = _shaderService.GetShader("manipulator");
        // var highlightShader = _shaderService.GetShader("Highlight");
        
        var xAxisEntity = _entityRegistry.CreateEntity();
@@ -61,13 +57,13 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            ParentId = parentManipulator.Id,
            Position =  new Vector3(10,0,0),
        };
-       var materialX = new MaterialComponent { Shader = manipulatorShader };
+       var materialX = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        var glArrowMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
            IndexCount = importedArrowMesh.TriangleIndices.Length,
            VertexCount = importedArrowMesh.Vertices.Length,
-           PrimitiveType = PrimitiveType.Triangles
+           DrawMode = DrawMode.Triangles
        };
        _componentRegistry.SetComponentToEntity(parentIdComponent, xAxisEntity.Id);
        _componentRegistry.SetComponentToEntity(transformX, xAxisEntity.Id);
@@ -86,7 +82,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,10,0),
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(90f)) 
        };
-       var materialY = new MaterialComponent { Shader = manipulatorShader };
+       var materialY = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
        _componentRegistry.SetComponentToEntity(transformY, yAxisEntity.Id);
@@ -107,7 +103,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,0,10),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f))
        };
-       var materialZ = new MaterialComponent { Shader = manipulatorShader};
+       var materialZ = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking"};
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
        _componentRegistry.SetComponentToEntity(transformZ, zAxisEntity.Id);
@@ -126,13 +122,13 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position =  new Vector3(2,2,0),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(180f)) 
        };
-       var materialXY = new MaterialComponent { Shader = manipulatorShader };
+       var materialXY = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        var glPlaneMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
            IndexCount = importedPlaneMesh.TriangleIndices.Length,
            VertexCount = importedPlaneMesh.Vertices.Length,
-           PrimitiveType = PrimitiveType.Triangles
+           DrawMode = DrawMode.Triangles
        };
        _componentRegistry.SetComponentToEntity(parentIdComponent, xyPlaneEntity.Id);
        _componentRegistry.SetComponentToEntity(transformXY, xyPlaneEntity.Id);
@@ -152,7 +148,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position =  new Vector3(2,0,2),
            Rotation =  Quaternion.FromEulerAngles(meshRotation) 
        };
-       var materialXZ = new MaterialComponent { Shader = manipulatorShader };
+       var materialXZ = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, xzPlaneEntity.Id);
        _componentRegistry.SetComponentToEntity(transformXZ, xzPlaneEntity.Id);
@@ -171,7 +167,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position =  new Vector3(0,2,2),
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
        };
-       var materialYZ = new MaterialComponent { Shader = manipulatorShader };
+       var materialYZ = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, yzPlaneEntity.Id);
        _componentRegistry.SetComponentToEntity(transformYZ, yzPlaneEntity.Id);

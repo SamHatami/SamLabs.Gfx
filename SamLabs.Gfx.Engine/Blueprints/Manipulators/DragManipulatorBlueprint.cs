@@ -9,23 +9,20 @@ using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Manipulators;
 
 public class DragManipulatorBlueprint:EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
-    private readonly EntityRegistry _entityRegistry;
+        private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
     private readonly ILogger<DragManipulatorBlueprint> _logger;
     public override string Name { get; } = EntityNames.DragManipulator;
 
-    public DragManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry,
+    public DragManipulatorBlueprint(EntityRegistry entityRegistry,
         IComponentRegistry componentRegistry, ILogger<DragManipulatorBlueprint> logger)
     {
-         _shaderService = shaderService;
-         _entityRegistry = entityRegistry;
+                  _entityRegistry = entityRegistry;
          _componentRegistry = componentRegistry;
          _logger = logger;
     }
@@ -44,15 +41,14 @@ public class DragManipulatorBlueprint:EntityBlueprint
            
             };
             
-            var manipulatorShader = _shaderService.GetShader("manipulator");
-            
-            var materialComponent = new MaterialComponent { Shader = manipulatorShader };
+                 
+            var materialComponent = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
             var glMeshData = new GlMeshDataComponent()
             {
                 IsManipulator = true,
                 IndexCount = meshData.TriangleIndices.Length,
                 VertexCount = meshData.Vertices.Length,
-                PrimitiveType = PrimitiveType.Triangles
+                DrawMode = DrawMode.Triangles
             };
             _componentRegistry.SetComponentToEntity(transformComponent, dragEntity.Id);
             _componentRegistry.SetComponentToEntity(materialComponent, dragEntity.Id);

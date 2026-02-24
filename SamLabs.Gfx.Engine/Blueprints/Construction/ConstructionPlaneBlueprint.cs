@@ -7,21 +7,18 @@ using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Construction;
 
 public class ConstructionPlaneBlueprint : EntityBlueprint
 {
     private readonly IComponentRegistry _componentRegistry;
-    private readonly ShaderService _shaderService;
-    private const int PlaneSize = 5;
+        private const int PlaneSize = 5;
 
-    public ConstructionPlaneBlueprint(IComponentRegistry componentRegistry, ShaderService shaderService)
+    public ConstructionPlaneBlueprint(IComponentRegistry componentRegistry)
     {
         _componentRegistry = componentRegistry;
-        _shaderService = shaderService;
-    }
+            }
 
     public override string Name { get; } = EntityNames.ConstructionPlane;
 
@@ -36,7 +33,7 @@ public class ConstructionPlaneBlueprint : EntityBlueprint
             IsManipulator = false,
             IndexCount = meshData.TriangleIndices.Length,
             VertexCount = meshData.Vertices.Length,
-            PrimitiveType = PrimitiveType.Triangles
+            DrawMode = DrawMode.Triangles
         };
         
         var transformComponent = new TransformComponent
@@ -53,9 +50,8 @@ public class ConstructionPlaneBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
 
-        var shader = _shaderService.GetShader("construction");
         if (shader == null) throw new InvalidOperationException("Construction plane shader not found.");
-        var material = new MaterialComponent { Shader = shader };
+        var material = new MaterialComponent { ShaderName = "construction", PickingShaderName = "picking" };
         _componentRegistry.SetComponentToEntity(material, entity.Id);
     }
 }

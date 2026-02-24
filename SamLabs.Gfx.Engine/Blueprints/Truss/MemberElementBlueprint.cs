@@ -8,21 +8,18 @@ using SamLabs.Gfx.Engine.Components.Structural;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Truss;
 
 public class MemberElementBlueprint : EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
-    private readonly EntityRegistry _entityRegistry;
+        private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
     private const float ScreenPixelSize = 250f;
 
-    public MemberElementBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
+    public MemberElementBlueprint(EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
-        _entityRegistry = entityRegistry;
+                _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
     }
 
@@ -84,13 +81,11 @@ public class MemberElementBlueprint : EntityBlueprint
 
     private void BuildMember(Entity entity, MeshDataComponent memberMesh, MeshDataComponent nodeMesh, Vector3 endA, Vector3 endB)
     {
-        var shader = _shaderService.GetShader("unlit");
-        var pickingShader = _shaderService.GetShader("picking");
 
-        var memberMaterial = new MaterialComponent { Shader = shader, PickingShader = pickingShader };
+        var memberMaterial = new MaterialComponent { ShaderName = "unlit", PickingShaderName = "picking" };
         var memberGlMesh = new GlMeshDataComponent
         {
-            PrimitiveType = PrimitiveType.Triangles,
+            DrawMode = DrawMode.Triangles,
             VertexCount = memberMesh.Vertices.Length,
             IndexCount = memberMesh.TriangleIndices.Length
         };
@@ -116,10 +111,10 @@ public class MemberElementBlueprint : EntityBlueprint
         nodeEntity.Type = EntityType.SceneObject;
 
         var transform = new TransformComponent { Position = position, Scale = Vector3.One, Rotation = Quaternion.Identity };
-        var material = new MaterialComponent { Shader = shader, PickingShader = pickingShader };
+        var material = new MaterialComponent { ShaderName = "unlit", PickingShaderName = "picking" };
         var glMesh = new GlMeshDataComponent
         {
-            PrimitiveType = PrimitiveType.Triangles,
+            DrawMode = DrawMode.Triangles,
             VertexCount = nodeMesh.Vertices.Length,
             IndexCount = nodeMesh.TriangleIndices.Length
         };

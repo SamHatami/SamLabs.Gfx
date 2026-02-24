@@ -5,19 +5,16 @@ using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints;
 
 public class ImportedBlueprint : EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
-    private readonly IComponentRegistry _componentRegistry;
+        private readonly IComponentRegistry _componentRegistry;
 
-    public ImportedBlueprint(ShaderService shaderService,IComponentRegistry componentRegistry)
+    public ImportedBlueprint(IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
-        _componentRegistry = componentRegistry;
+                _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.Imported;
@@ -33,15 +30,15 @@ public class ImportedBlueprint : EntityBlueprint
 
         var glMeshData = new GlMeshDataComponent()
         {
-            PrimitiveType = PrimitiveType.Triangles,
+            DrawMode = DrawMode.Triangles,
             VertexCount = meshData.Vertices.Length,
             IndexCount = meshData.TriangleIndices.Length 
             
         };
 
         var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("flat");
-        material.PickingShader = _shaderService.GetShader("picking");
+        material.ShaderName = "flat";
+        material.PickingShaderName = "picking";
             
         _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
         _componentRegistry.SetComponentToEntity(meshData, entity.Id);

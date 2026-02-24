@@ -9,6 +9,7 @@ using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
+using SamLabs.Gfx.Engine.Rendering.Abstractions;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.SceneGraph;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
@@ -19,6 +20,7 @@ public class GLPickingSystem : RenderSystem
 {
     private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
+    private readonly IGraphicsBackend _graphicsBackend;
     public override int SystemPosition => SystemOrders.PickingRender;
     private IViewPort _viewport;
     private GLShader? _pickingShader = null;
@@ -31,6 +33,7 @@ public class GLPickingSystem : RenderSystem
     {
         _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
+        _graphicsBackend = graphicsBackend;
     }
 
     private ShaderProgram? _activeShaderProgram;
@@ -126,9 +129,11 @@ public class GLPickingSystem : RenderSystem
             .SetInt(UniformNames.uPickingType, ref selectionEnumInt)
             .SetMatrix4(UniformNames.uModel, ref modelMatrix);
 
-        var rendererContext = MeshRenderer.Begin(mesh);
-        rendererContext.Faces();//.Edges().Vertices();
-        rendererContext.Dispose();
+        if (_componentRegistry.HasComponent<GpuMeshHandleComponent>(entityId))
+        {
+            var handle = _componentRegistry.GetComponent<GpuMeshHandleComponent>(entityId).Handle;
+            _graphicsBackend.DrawMesh(handle, DrawFlags.Faces);
+        }
     }
 
 
