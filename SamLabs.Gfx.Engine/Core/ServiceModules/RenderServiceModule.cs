@@ -14,6 +14,7 @@ public class RenderServiceModule : IServiceModule
         services.AddSingleton<ShaderService>();
         services.AddSingleton<UniformBufferService>();
         services.AddSingleton<FrameBufferService>();
+        services.AddSingleton<IGraphicsBackend, OpenGLGraphicsBackend>();
         services.AddSingleton<IRenderer,OpenGLRenderer>();
         services.AddSingleton<ISceneManager, SceneManager>();
         return services;
