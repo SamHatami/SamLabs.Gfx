@@ -5,6 +5,7 @@ using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Structural;
+using SamLabs.Gfx.Engine.Components.Structural.Flags;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
@@ -19,6 +20,10 @@ public class MemberElementBlueprint : EntityBlueprint
     private readonly IComponentRegistry _componentRegistry;
     private const float ScreenPixelSize = 250f;
 
+    private MeshDataComponent _memberMesh;
+    private MeshDataComponent _nodeMesh;
+    private bool _meshesLoaded;
+
     public MemberElementBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
         _shaderService = shaderService;
@@ -28,16 +33,23 @@ public class MemberElementBlueprint : EntityBlueprint
 
     public override string Name { get; } = EntityNames.MemberElement;
 
+    public async Task EnsureMeshesLoaded()
+    {
+        if (_meshesLoaded) return;
+        _memberMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
+        _nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
+        _meshesLoaded = true;
+    }
+
     public override async void Build(Entity entity, MeshDataComponent meshData = default)
     {
         entity.Type = EntityType.SceneObject;
 
-        var memberMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
-        var nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
+        await EnsureMeshesLoaded();
 
         var min = new Vector3(float.MaxValue);
         var max = new Vector3(float.MinValue);
-        foreach (var vertex in memberMesh.Vertices)
+        foreach (var vertex in _memberMesh.Vertices)
         {
             var pos = vertex.Position;
             min.X = MathF.Min(min.X, pos.X);
@@ -48,6 +60,7 @@ public class MemberElementBlueprint : EntityBlueprint
             max.Z = MathF.Max(max.Z, pos.Z);
         }
 
+        // Place end nodes at the body's min/max along its longest axis.
         var size = max - min;
         var center = (min + max) * 0.5f;
         var endA = center;
@@ -69,17 +82,21 @@ public class MemberElementBlueprint : EntityBlueprint
             endB.Z = max.Z;
         }
 
-        BuildMember(entity, memberMesh, nodeMesh, endA, endB);
+        BuildMember(entity, _memberMesh, _nodeMesh, endA, endB);
     }
 
     public async void BuildAtPositions(Entity entity, Vector3 startPosition, Vector3 endPosition)
     {
         entity.Type = EntityType.SceneObject;
+        await EnsureMeshesLoaded();
+        BuildMember(entity, _memberMesh, _nodeMesh, startPosition, endPosition);
+    }
 
-        var memberMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
-        var nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
-
-        BuildMember(entity, memberMesh, nodeMesh, startPosition, endPosition);
+    /// <summary>Call only after EnsureMeshesLoaded() has been awaited.</summary>
+    public void BuildMemberSync(Entity entity, Vector3 startPosition, Vector3 endPosition)
+    {
+        entity.Type = EntityType.SceneObject;
+        BuildMember(entity, _memberMesh, _nodeMesh, startPosition, endPosition);
     }
 
     private void BuildMember(Entity entity, MeshDataComponent memberMesh, MeshDataComponent nodeMesh, Vector3 endA, Vector3 endB)
@@ -104,10 +121,13 @@ public class MemberElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), entity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, entity.Id);
 
-        var endNodeId = CreateEndNode(nodeMesh, entity.Id, endA, shader, pickingShader);
-        var startNodeId = CreateEndNode(nodeMesh, entity.Id, endB, shader, pickingShader);
-
-        _componentRegistry.SetComponentToEntity(new TrussMemberComponent { StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId }, entity.Id);
+        var startNodeId =CreateEndNode(nodeMesh, entity.Id, endA, shader, pickingShader);
+        var endNodeId= CreateEndNode(nodeMesh, entity.Id, endB, shader, pickingShader);
+        
+        _componentRegistry.SetComponentToEntity(new FrameMemberComponent() {StartNodeEntityId = startNodeId, EndNodeEntityId = endNodeId}, entity.Id);
+        
+        _componentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, startNodeId);
+        _componentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, endNodeId);
     }
 
     private int CreateEndNode(MeshDataComponent nodeMesh, int connectedMemberId, Vector3 position, GLShader? shader, GLShader? pickingShader)
@@ -129,8 +149,7 @@ public class MemberElementBlueprint : EntityBlueprint
         _componentRegistry.SetComponentToEntity(nodeMesh, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(material, nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(glMesh, nodeEntity.Id);
-        _componentRegistry.SetComponentToEntity(new TrussNodeComponent { ConnectedMemberIds = [connectedMemberId] }, nodeEntity.Id);
-        _componentRegistry.SetComponentToEntity(new DependencyComponent { UpdateType = DependencyUpdateType.TrussNodeMembers }, nodeEntity.Id);
+        _componentRegistry.SetComponentToEntity(new FrameNodeTag(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(new SelectableDataComponent(), nodeEntity.Id);
         _componentRegistry.SetComponentToEntity(screenScale, nodeEntity.Id);

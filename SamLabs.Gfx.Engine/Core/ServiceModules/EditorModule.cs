@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿﻿using Microsoft.Extensions.DependencyInjection;
 using SamLabs.Gfx.Core.Framework;
+using SamLabs.Gfx.Engine.Blueprints.Truss;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Systems;
 using SamLabs.Gfx.Engine.Components;
@@ -26,6 +27,7 @@ public class EditorModule:IServiceModule
         
       
         //Creators
+        services.AddSingleton<MemberElementBlueprint>();
         services.AddSingleton<EntityFactory>();
         
         //Editor services

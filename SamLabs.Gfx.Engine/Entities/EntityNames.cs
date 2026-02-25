@@ -23,7 +23,7 @@ public static class EntityNames
     public const string ConstructionPoint = "ConstructionPoint";
     public const string Sketch = "Sketch";
     public const string MemberElement = "MemberElement";
-    public const string FrameTower = "FrameTower";
+    public const string FrameTower = "Frame Tower";
 
     public const string Icosphere = "Icosphere";
     public const string Tetrahedron = "Tetrahedron";

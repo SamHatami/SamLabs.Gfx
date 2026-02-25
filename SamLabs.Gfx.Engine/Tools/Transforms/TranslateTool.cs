@@ -1,10 +1,11 @@
-﻿﻿using OpenTK.Mathematics;
+﻿﻿﻿﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Commands;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Manipulators;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Structural;
+using SamLabs.Gfx.Engine.Components.Structural.Flags;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Components.Transform.Flags;
 using SamLabs.Gfx.Engine.Core;
@@ -21,6 +22,7 @@ public class TranslateTool : TransformTool //SubUpdateSystem
     private Vector3 _currentPosition = Vector3.Zero;
     private Vector3 _startPosition = Vector3.Zero;
     private Vector3 _deltaThisSession = Vector3.Zero;
+    private Vector3 _previousFramePosition = Vector3.Zero;
     private bool _isRelativeMode = true;
     
     public override string ToolId => ToolIds.TransformTranslate;
@@ -89,6 +91,7 @@ public class TranslateTool : TransformTool //SubUpdateSystem
                 _preChangeTransform = entityTransform;
                 _startPosition = entityTransform.Position;
                 _currentPosition = entityTransform.Position;
+                _previousFramePosition = entityTransform.Position;
                 _deltaThisSession = Vector3.Zero;
                 _isTransforming = true;
                 _selectedManipulatorSubEntity = pickingData.HoveredEntityId;
@@ -115,12 +118,25 @@ public class TranslateTool : TransformTool //SubUpdateSystem
                 OnPropertyChanged(nameof(DeltaX));
                 OnPropertyChanged(nameof(DeltaY));
                 OnPropertyChanged(nameof(DeltaZ));
-                if(!ComponentRegistry.HasComponent<TranslateChangedFlag>(_selectedManipulatorSubEntity))
-                    ComponentRegistry.SetComponentToEntity(new TranslateChangedFlag(), selectedEntities[0]);
-                if (ComponentRegistry.HasComponent<DependencyComponent>(selectedEntities[0]))
+                
+                // Calculate frame-by-frame delta
+                var frameDelta = entityTransform.Position - _previousFramePosition;
+                _previousFramePosition = entityTransform.Position;
+                
+                var entityId = selectedEntities[0];
+                
+                // Set NodeMovedFlag if this is a frame node
+                if (ComponentRegistry.HasComponent<FrameNodeTag>(entityId))
                 {
-                    var dep = ComponentRegistry.GetComponent<DependencyComponent>(selectedEntities[0]);
-                    DependencyUpdateDispatcher.UpdateDependencies(ComponentRegistry, selectedEntities[0], dep.UpdateType);
+                    ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, entityId);
+                }
+                
+                // Set MemberTransformedFlag if this is a frame member
+                if (ComponentRegistry.HasComponent<FrameMemberComponent>(entityId))
+                {
+                    ComponentRegistry.SetComponentToEntity(
+                        new MemberTransformedFlag { Delta = frameDelta, OriginatingMemberId = entityId },
+                        entityId);
                 }
             }
         }
@@ -178,6 +194,23 @@ public class TranslateTool : TransformTool //SubUpdateSystem
             OnPropertyChanged(nameof(DeltaX));
             OnPropertyChanged(nameof(DeltaY));
             OnPropertyChanged(nameof(DeltaZ));
+            
+            // Calculate frame-by-frame delta
+            var frameDelta = entityTransform.Position - preChangeTransform.Position;
+            
+            // Set NodeMovedFlag if this is a frame node
+            if (ComponentRegistry.HasComponent<FrameNodeTag>(entityId))
+            {
+                ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, entityId);
+            }
+            
+            // Set MemberTransformedFlag if this is a frame member
+            if (ComponentRegistry.HasComponent<FrameMemberComponent>(entityId))
+            {
+                ComponentRegistry.SetComponentToEntity(
+                    new MemberTransformedFlag { Delta = frameDelta, OriginatingMemberId = entityId },
+                    entityId);
+            }
         }
     }
 

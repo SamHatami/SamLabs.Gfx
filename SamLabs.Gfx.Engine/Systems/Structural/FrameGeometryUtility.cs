@@ -5,37 +5,25 @@ using SamLabs.Gfx.Engine.Components.Transform;
 
 namespace SamLabs.Gfx.Engine.Systems.Structural;
 
-public static class TrussNodeUtility
+/// <summary>
+/// Utility methods for frame geometry calculations and transformations.
+/// </summary>
+public static class FrameGeometryUtility
 {
-    public static bool CanMergeNodes(TrussNodeComponent targetNode, TrussNodeComponent nodeToMerge)
-    {
-        foreach (var elementId in targetNode.ConnectedMemberIds)
-            if (nodeToMerge.ConnectedMemberIds.Contains(elementId))
-                return false;
-        return true;
-    }
-
-    public static void UpdateConnectedMembers(IComponentRegistry componentRegistry, TrussNodeComponent nodeComponent)
-    {
-        foreach (var memberEntityId in nodeComponent.ConnectedMemberIds)
-            UpdateMemberTransform(componentRegistry, memberEntityId);
-    }
-
+    /// <summary>
+    /// Updates the transform of a frame member based on its connected nodes.
+    /// </summary>
     public static void UpdateMemberTransform(IComponentRegistry componentRegistry, int memberId)
     {
-        ref var memberComponent = ref componentRegistry.GetComponent<TrussMemberComponent>(memberId);
+        ref var memberComponent = ref componentRegistry.GetComponent<FrameMemberComponent>(memberId);
         var startNodeId = memberComponent.StartNodeEntityId;
         var endNodeId = memberComponent.EndNodeEntityId;
-
+        
         var startTransform = componentRegistry.GetComponent<TransformComponent>(startNodeId);
         var endTransform = componentRegistry.GetComponent<TransformComponent>(endNodeId);
-
-        var delta = endTransform.Position - startTransform.Position;
-        var length = delta.Length;
-        if (length <= 1e-6f)
-            return;
-
-        var direction = delta / length;
+        
+        var direction = Vector3.Normalize(endTransform.Position - startTransform.Position);
+        var length = Vector3.Distance(startTransform.Position, endTransform.Position);
         var memberPosition = startTransform.Position + direction * (length / 2.0f);
 
         ref var memberTransform = ref componentRegistry.GetComponent<TransformComponent>(memberId);
@@ -46,16 +34,25 @@ public static class TrussNodeUtility
         memberComponent.Length = length;
     }
 
+    /// <summary>
+    /// Calculates a rotation quaternion from a direction vector.
+    /// </summary>
     public static Quaternion CalculateRotationFromDirection(Vector3 direction)
     {
+        if (direction.Z < 0 || (direction.Z == 0 && direction.X < 0))
+            direction = -direction;
+        
         var dot = Vector3.Dot(direction, Vector3.UnitZ);
-        return dot switch
+        switch (dot)
         {
-            > 0.9999999f => Quaternion.Identity,
-            < -0.9999999f => Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI),
-            _ => Quaternion.FromAxisAngle(
-                Vector3.Normalize(Vector3.Cross(Vector3.UnitZ, direction)),
-                MathF.Acos(Math.Clamp(dot, -1.0f, 1.0f)))
-        };
+            case > 0.9999999f:
+                return Quaternion.Identity;
+            case < -0.9999999f:
+                return Quaternion.FromAxisAngle(Vector3.UnitX, MathF.PI);
+            default:
+                var axis = Vector3.Normalize(Vector3.Cross(Vector3.UnitZ, direction));
+                var angle = MathF.Acos(Math.Clamp(dot, -1.0f, 1.0f));
+                return Quaternion.FromAxisAngle(axis, angle);
+        }
     }
 }

@@ -1,27 +1,11 @@
-﻿using SamLabs.Gfx.Engine.Components;
-using SamLabs.Gfx.Engine.Components.Common;
-using SamLabs.Gfx.Engine.Components.Structural;
+﻿﻿namespace SamLabs.Gfx.Engine.Core;
 
-namespace SamLabs.Gfx.Engine.Core;
-
+/// <summary>
+/// DEPRECATED: This dispatcher has been replaced by the Frame architecture system.
+/// The dependency pattern is no longer needed as frame geometry updates are handled
+/// by FrameGeometrySystem and FrameMergeSystem.
+/// </summary>
+[Obsolete("Replaced by Frame architecture system", true)]
 public static class DependencyUpdateDispatcher
 {
-    //Note to self: this was to quickly update entities that depenend on each other without actually having a child-parent relationship
-    public static void UpdateDependencies(IComponentRegistry registry, int entityId, DependencyUpdateType type)
-    {
-        switch (type)
-        {
-            case DependencyUpdateType.TrussNodeMembers:
-                if (registry.HasComponent<TrussNodeComponent>(entityId))
-                {
-                    var node = registry.GetComponent<TrussNodeComponent>(entityId);
-                    Systems.Structural.TrussNodeUtility.UpdateConnectedMembers(registry, node);
-                }
-                break;
-                
-            case DependencyUpdateType.None:
-            default:
-                break;
-        }
-    }
 }

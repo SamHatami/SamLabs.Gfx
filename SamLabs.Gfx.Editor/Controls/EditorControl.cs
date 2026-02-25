@@ -428,20 +428,17 @@ public class EditorControl : OpenTkControlBase
             _shaderWatcher.Dispose();
             _shaderWatcher = null;
         }
-        
-        if (CommandManager != null)
 
-        if (EngineContext?.EditorEvents != null)
-        {
-            EngineContext.EditorEvents.EntityAdded -= OnEditorEvent;
-            EngineContext.EditorEvents.EntityRemoved -= OnEditorEvent;
-            EngineContext.EditorEvents.EntityUpdated -= OnEditorEvent;
-            EngineContext.EditorEvents.EntityDeleted -= OnEditorEvent;
-            EngineContext.EditorEvents.SelectedEntityChanged -= OnEditorEvent;
-            EngineContext.EditorEvents.SelectedEntityAdded -= OnEditorEvent;
-            EngineContext.EditorEvents.TransformUpdating -= OnEditorEvent;
-            EngineContext.EditorEvents.ToolActivated -= OnEditorEvent;
-            EngineContext.EditorEvents.ToolDeactivated -= OnEditorEvent;
-        }
+        if (EngineContext?.EditorEvents == null) return;
+        
+        EngineContext.EditorEvents.EntityAdded -= OnEditorEvent;
+        EngineContext.EditorEvents.EntityRemoved -= OnEditorEvent;
+        EngineContext.EditorEvents.EntityUpdated -= OnEditorEvent;
+        EngineContext.EditorEvents.EntityDeleted -= OnEditorEvent;
+        EngineContext.EditorEvents.SelectedEntityChanged -= OnEditorEvent;
+        EngineContext.EditorEvents.SelectedEntityAdded -= OnEditorEvent;
+        EngineContext.EditorEvents.TransformUpdating -= OnEditorEvent;
+        EngineContext.EditorEvents.ToolActivated -= OnEditorEvent;
+        EngineContext.EditorEvents.ToolDeactivated -= OnEditorEvent;
     }
 }
