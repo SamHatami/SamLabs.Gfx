@@ -1,5 +1,10 @@
-﻿namespace SamLabs.Gfx.Engine.Components.Structural;
+﻿﻿namespace SamLabs.Gfx.Engine.Components.Structural;
 
+/// <summary>
+/// DEPRECATED: Use FrameMemberComponent instead.
+/// This component has been replaced by the Frame architecture system.
+/// </summary>
+[Obsolete("Use FrameMemberComponent instead", true)]
 public struct TrussBarComponent : IComponent
 {
     public int StartNodeEntityId;
