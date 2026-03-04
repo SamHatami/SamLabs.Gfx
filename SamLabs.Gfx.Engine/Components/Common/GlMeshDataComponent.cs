@@ -1,33 +1,21 @@
-using OpenTK.Graphics.OpenGL;
-
 namespace SamLabs.Gfx.Engine.Components.Common;
 
 /// <summary>
-/// Contains OpenGL data for a mesh
+/// Pure ECS mesh metadata. Contains no GPU/backend handle details.
 /// </summary>
 public struct GlMeshDataComponent : IComponent
 {
     public bool IsManipulator { get; set; }
     public bool IsGrid { get; set; }
-    
-    //Vertex buffer
-    public int Vao;
-    public int Vbo;
-    
-    //Face buffer
-    public int Ebo;
+    public int VertexCount { get; set; }
     public int IndexCount { get; set; }
-    
-    //Edge buffer
-    public int EdgeEbo { get; set; }
     public int EdgeIndexCount { get; set; }
-    
-    public int VertexCount;
+    public DrawMode DrawMode { get; set; }
+}
 
-    public PrimitiveType PrimitiveType { get; set; }
-    public GlMeshDataComponent(int vertexCount)
-    {
-        VertexCount = vertexCount;
-    }
-
+public enum DrawMode
+{
+    Triangles,
+    Lines,
+    Points
 }

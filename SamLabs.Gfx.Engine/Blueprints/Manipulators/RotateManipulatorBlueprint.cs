@@ -8,20 +8,17 @@ using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Manipulators;
 
 public class RotateManipulatorBlueprint:EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
-    private readonly EntityRegistry _entityRegistry;
+        private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
 
-    public RotateManipulatorBlueprint(ShaderService shaderService, EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
+    public RotateManipulatorBlueprint(EntityRegistry entityRegistry, IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
-        _entityRegistry = entityRegistry;
+                _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
     }
 
@@ -48,7 +45,6 @@ public class RotateManipulatorBlueprint:EntityBlueprint
        var importedRotateMesh = await ModelLoader.LoadObjFromResource("Rotate.obj"); 
        
        var parentIdComponent = new ParentIdComponent(parentManipulator.Id);
-       var manipulatorShader = _shaderService.GetShader("manipulator");
        // var highlightShader = _shaderService.GetShader("Highlight");
        
        var rotateX = _entityRegistry.CreateEntity();
@@ -60,13 +56,13 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
            
        };
-       var materialX = new MaterialComponent { Shader = manipulatorShader };
+       var materialX = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        var glRotateMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
            IndexCount = importedRotateMesh.TriangleIndices.Length,
            VertexCount = importedRotateMesh.Vertices.Length,
-           PrimitiveType = PrimitiveType.Triangles
+           DrawMode = DrawMode.Triangles
        };
        _componentRegistry.SetComponentToEntity(parentIdComponent, rotateX.Id);
        _componentRegistry.SetComponentToEntity(transformX, rotateX.Id);
@@ -87,7 +83,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
-       var materialY = new MaterialComponent { Shader = manipulatorShader };
+       var materialY = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking" };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, rotateY.Id);
        _componentRegistry.SetComponentToEntity(transformY, rotateY.Id);
@@ -108,7 +104,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
-       var materialZ = new MaterialComponent { Shader = manipulatorShader};
+       var materialZ = new MaterialComponent { ShaderName = "manipulator", PickingShaderName = "picking"};
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, rotateZ.Id);
        _componentRegistry.SetComponentToEntity(transformZ, rotateZ.Id);

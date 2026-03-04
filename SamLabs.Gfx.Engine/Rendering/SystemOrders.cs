@@ -3,6 +3,7 @@
 public static class SystemOrders
 {
     public const int Init = -100;
+    public const int MeshUpload = -100 + 1;
     public const int PreRenderUpdate = -99;
     public const int ManipulatorSelectionUpdate = 0;
     public const int SelectionUpdate = 1;

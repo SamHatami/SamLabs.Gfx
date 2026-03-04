@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Camera;
 using SamLabs.Gfx.Engine.Components.Common;
@@ -10,6 +9,7 @@ using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
 using SamLabs.Gfx.Engine.Rendering;
+using SamLabs.Gfx.Engine.Rendering.Abstractions;
 using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
@@ -20,10 +20,12 @@ public class GLManipulatorRenderSystem : RenderSystem
     public override int SystemPosition => SystemOrders.ManipulatorRender;
     private const float manipulatorBaseSize = 0.01f;
     private readonly EntityRegistry _entityRegistry;
+    private readonly IGraphicsBackend _graphicsBackend;
 
-    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry, componentRegistry)
+    public GLManipulatorRenderSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, IGraphicsBackend graphicsBackend) : base(entityRegistry, componentRegistry)
     {
         _entityRegistry = entityRegistry;
+        _graphicsBackend = graphicsBackend;
     }
 
 
@@ -57,8 +59,7 @@ public class GLManipulatorRenderSystem : RenderSystem
         UpdateChildmanipulators(activemanipulator, manipulatorSubEntities, childBuffer,
             ref parentTransform); //Special case for the manipulator
 
-        GL.Clear(ClearBufferMask.DepthBufferBit);
-        GL.Enable(EnableCap.DepthTest);
+        _graphicsBackend.BeginDepthPass();
         foreach (var manipulatorSubEntity in manipulatorSubEntities)
         {
             var isSelected = CheckSelection(manipulatorSubEntity, pickingData);
@@ -72,7 +73,7 @@ public class GLManipulatorRenderSystem : RenderSystem
                 pickingData, manipulatorSubEntity, manipulatorChildComponent);
         }
 
-        GL.Disable(EnableCap.DepthTest);
+        _graphicsBackend.EndDepthPass();
     }
 
     private bool CheckSelection(int manipulatorSubEntity, PickingDataComponent pickingData)
@@ -139,15 +140,21 @@ public class GLManipulatorRenderSystem : RenderSystem
     {
         var isHovered = isDragging
             ? (isSelected ? 1 : 0) // During drag: only selected is highlighted
-            : (pickingData.HoveredEntityId == entityId ? 1 : 0); // Not dragging: use picking
+            : (pickingData.Hovered.EntityId == entityId ? 1 : 0); // Not dragging: use picking
         var axis = manipulatorChildComponent.Axis.ToInt();
         var selected = isSelected ? 1 : 0;
 
-        using var shader = new ShaderProgram(materialComponent.Shader).Use();
+        var shaderRef = Renderer.GetShader(materialComponent.ShaderName);
+        if (shaderRef == null) return;
+        using var shader = new ShaderProgram(shaderRef).Use();
         shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
             .SetInt(UniformNames.uIsHovered, ref isHovered)
             .SetInt(UniformNames.uIsSelected, ref selected)
             .SetInt(UniformNames.uManipulatorAxis, ref axis);
-        MeshRenderer.Draw(mesh);
+        if (ComponentRegistry.HasComponent<GpuMeshHandleComponent>(entityId))
+        {
+            var handle = ComponentRegistry.GetComponent<GpuMeshHandleComponent>(entityId).Handle;
+            _graphicsBackend.DrawMesh(handle, DrawFlags.Faces);
+        }
     }
 }

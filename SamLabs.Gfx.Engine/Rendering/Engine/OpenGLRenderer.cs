@@ -116,14 +116,6 @@ public class OpenGLRenderer : IDisposable, IRenderer
         // _frameBufferHandler.ResizeFrameBuffer(mainViewport.FullRenderView, viewportSizeX, viewportSizeY);
         _frameBufferService.ResizeFrameBuffer(mainViewport.SelectionRenderView, viewportSizeX, viewportSizeY, true);
     }
-
-    public static void DrawMesh(GlMeshDataComponent mesh)
-    {
-        GL.BindVertexArray(mesh.Vao);
-        GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-        GL.BindVertexArray(0);
-    }
-    
     public void ReloadShader(string fullShaderPath)
     {
         _shaderService.ReloadShader(fullShaderPath);

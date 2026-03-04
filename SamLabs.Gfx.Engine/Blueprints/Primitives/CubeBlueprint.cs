@@ -6,7 +6,6 @@ using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Components.Selection;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 using SamLabs.Gfx.Geometry.Mesh;
 using Vector3 = OpenTK.Mathematics.Vector3;
 
@@ -14,13 +13,11 @@ namespace SamLabs.Gfx.Engine.Blueprints.Primitives;
 
 public class CubeBlueprint : EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
-    private readonly IComponentRegistry _componentRegistry;
+        private readonly IComponentRegistry _componentRegistry;
 
-    public CubeBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry)
+    public CubeBlueprint(IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
-        _componentRegistry = componentRegistry;
+                _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.Cube;
@@ -41,15 +38,15 @@ public class CubeBlueprint : EntityBlueprint
 
         var glMeshData = new GlMeshDataComponent()
         {
-            PrimitiveType = PrimitiveType.Triangles,
+            DrawMode = DrawMode.Triangles,
             VertexCount = meshData.Vertices.Length,
             IndexCount = meshData.TriangleIndices.Length 
             
         };
 
         var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("flat");
-        material.PickingShader = _shaderService.GetShader("picking");
+        material.ShaderName = "flat";
+        material.PickingShaderName = "picking";
             
         _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
         _componentRegistry.SetComponentToEntity(meshData, entity.Id);

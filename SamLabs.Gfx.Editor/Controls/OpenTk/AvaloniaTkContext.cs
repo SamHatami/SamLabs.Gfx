@@ -1,22 +1,16 @@
-﻿using System;
 using Avalonia.OpenGL;
-using OpenTK;
+using Silk.NET.OpenGL;
+using SamLabs.Gfx.Engine.Rendering.Engine;
 
-//Source: https://github.com/DigitalBox98/Avalonia-OpenTK-Sample/tree/main
-//https://opentk.net/api/OpenTK.IBindingsContext.html
 namespace SamLabs.Gfx.Editor.Controls.OpenTk;
 
-/// <summary>
-/// Wrapper to expose GetProcAddress from Avalonia in a manner that OpenTK can consume. 
-/// </summary>
-class AvaloniaTkContext : IBindingsContext
+internal sealed class AvaloniaTkContext
 {
-    private readonly GlInterface _glInterface;
-
     public AvaloniaTkContext(GlInterface glInterface)
     {
-        _glInterface = glInterface;
+        SilkGlContextProvider.SetResolver(procName => glInterface.GetProcAddress(procName));
+        Gl = SilkGlContextProvider.GetGl();
     }
 
-    public IntPtr GetProcAddress(string procName) => _glInterface.GetProcAddress(procName);
+    public GL Gl { get; }
 }

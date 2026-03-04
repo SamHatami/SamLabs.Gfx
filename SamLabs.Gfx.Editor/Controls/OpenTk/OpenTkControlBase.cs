@@ -7,21 +7,21 @@ using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering;
 using Avalonia.Threading;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
+using Silk.NET.OpenGL;
 
 namespace SamLabs.Gfx.Editor.Controls.OpenTk;
 
 public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
 {
+    // Transitional class name kept for compatibility; this now runs Silk.NET via Avalonia GL resolver.
     private GlInterface? _gl;
     public AvaloniaKeyboardState KeyboardState = new();
     private AvaloniaTkContext? _avaloniaTkContext;
     /// <summary>
-    /// OpenTkRender is called once a frame to draw to the control.
+    /// OpenGlRender is called once a frame to draw to the control.
     /// You can do anything you want here, but make sure you undo any configuration changes after, or you may get weirdness with other controls.
     /// </summary>
-    protected virtual void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
+    protected virtual void OpenGlRender(int mainScreenFrameBuffer, int width, int height)
     {
         //Main rendering logic goes here
     }
@@ -33,14 +33,14 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
         var size = GetPlatformSpecificBounds();
 
         //Set up the aspect ratio so shapes aren't stretched.
-        GL.Viewport(0, 0, size.width, size.height);
+        _avaloniaTkContext?.Gl.Viewport(0, 0, (uint)size.width, (uint)size.height);
 
         //Tell our subclass to render
         if (Bounds.Width != 0 && Bounds.Height != 0)
         {
             try
             {
-                OpenTkRender(fb, size.width, size.height);
+                OpenGlRender(fb, size.width, size.height);
             }
             catch (Exception e)
             {
@@ -69,17 +69,17 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
                 Math.Max(1, (int)(Bounds.Height * RenderScaling)));
     
 
-    protected virtual void InitializeOpenTk()
+    protected virtual void InitializeOpenGl()
     {
     }
 
     /// <summary>
-    /// OpenTkTeardown is called once when the control is destroyed.
+    /// OpenGlTeardown is called once when the control is destroyed.
     /// Though GL bindings are still valid, as OpenTK provides no way to clear them, you should not invoke GL functions after this function finishes executing.
     /// At best, they will do nothing, at worst, something could go wrong.
     /// You should use this function as a last chance to clean up any GL resources you have allocated - delete buffers, vertex arrays, programs, and textures.
     /// </summary>
-    protected virtual void OpenTkTeardown()
+    protected virtual void OpenGlTeardown()
     {
     }
 
@@ -92,16 +92,15 @@ public class OpenTkControlBase : OpenGlControlBase, ICustomHitTest
     protected override void OnOpenGlInit(GlInterface gl)
     {
         _avaloniaTkContext = new AvaloniaTkContext(gl);
-        GLLoader.LoadBindings(_avaloniaTkContext);
         _nextFrameAction = RequestNextFrameRendering;
-        InitializeOpenTk();
+        InitializeOpenGl();
     }
 
 
     //Simply call the subclass' teardown function
     protected sealed override void OnOpenGlDeinit(GlInterface gl)
     {
-        OpenTkTeardown();
+        OpenGlTeardown();
     }
 
     protected override void OnKeyDown(KeyEventArgs e)

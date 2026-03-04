@@ -34,7 +34,8 @@ public class ManipulatorSelectionSystem : UpdateSystem
 
         if (_pickingEntity == -1) return;
         ref var pickingData = ref ComponentRegistry.GetComponent<PickingDataComponent>(_pickingEntity);
-        if (pickingData.ManipualtorSelected() && frameInput.IsDragging) return;
+        var hasManipulatorSelection = !_entityRegistry.Query.With<SelectedManipulatorChildComponent>().Get().IsEmpty();
+        if (hasManipulatorSelection && frameInput.IsDragging) return;
 
         if (frameInput.IsMouseLeftButtonDown) //TODO: ctrl-click to do add to selection
         {
@@ -47,22 +48,18 @@ public class ManipulatorSelectionSystem : UpdateSystem
                 return;
             }
 
-            if (pickingData.HoveredEntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
+            if (pickingData.Hovered.EntityId < 0) //Clear if clicked outside any selectable, add esc key to clear
                 ClearPreviousSelection();
 
             //Are we hovering over a manpulator ?
-            if (ComponentRegistry.HasComponent<ManipulatorComponent>(pickingData.HoveredEntityId) ||
-                ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.HoveredEntityId))
+            if (ComponentRegistry.HasComponent<ManipulatorComponent>(pickingData.Hovered.EntityId) ||
+                ComponentRegistry.HasComponent<ManipulatorChildComponent>(pickingData.Hovered.EntityId))
             {
-                pickingData.SelectedManipulatorId = pickingData.HoveredEntityId;
-                ComponentRegistry.SetComponentToEntity(pickingData, _pickingEntity);
-                SetNewManipulatorSelection(pickingData.HoveredEntityId);
+                SetNewManipulatorSelection(pickingData.Hovered.EntityId);
                 return;
             }
         }
 
-        pickingData.SelectedManipulatorId = -1;
-        ComponentRegistry.SetComponentToEntity(pickingData, _pickingEntity);
         ClearPreviousSelection();
     }
 

@@ -59,7 +59,7 @@ public class MainGridBlueprint : EntityBlueprint
         var glMeshData = new GlMeshDataComponent()
         {
             IsGrid = true,
-            PrimitiveType = PrimitiveType.Triangles,
+            DrawMode = DrawMode.Triangles,
             VertexCount = 4,
             IndexCount = 6
             

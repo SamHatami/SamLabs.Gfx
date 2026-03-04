@@ -2,14 +2,13 @@
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints.Procedural;
 
 public class IcosphereBlueprint : ProceduralBlueprintBase
 {
-    public IcosphereBlueprint(ShaderService shaderService, IComponentRegistry componentRegistry)
-        : base(shaderService, componentRegistry)
+    public IcosphereBlueprint(IComponentRegistry componentRegistry)
+        : base(componentRegistry)
     {
     }
 
