@@ -59,32 +59,14 @@ public class GLPickingSystem : RenderSystem
 
         _activeShaderProgram = new ShaderProgram(_pickingShader).Use();
 
-        // Clear depth once - earlier layers (Manipulator) draw first and occlude later layers (Scene)
+        // Pass 1: draw scene pickables.
         _graphicsBackend.BeginDepthPass();
+        DrawScenePickables(pickables);
+        _graphicsBackend.EndDepthPass();
 
-        foreach (var layer in Enum.GetValues<PickLayer>().Reverse())
-        {
-            var layerEntities = pickables
-                .Where(id => _componentRegistry.GetComponent<PickableComponent>(id).Layer == layer)
-                .OrderBy(id => _componentRegistry.GetComponent<PickableComponent>(id).Priority);
-
-            foreach (var entityId in layerEntities)
-            {
-                var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(entityId).WorldMatrix;
-                var selectionType = LayerToSelectionType(layer);
-
-                var selectionEnumInt = (int)selectionType;
-                var entityUniformId = entityId;
-                _activeShaderProgram
-                    .SetInt(UniformNames.uEntityId, ref entityUniformId)
-                    .SetInt(UniformNames.uPickingType, ref selectionEnumInt)
-                    .SetMatrix4(UniformNames.uModel, ref modelMatrix);
-
-                var handle = _componentRegistry.GetComponent<GpuMeshHandleComponent>(entityId).Handle;
-                _graphicsBackend.DrawMesh(handle, DrawFlags.Faces);
-            }
-        }
-
+        // Pass 2: draw only active manipulator children so hidden/inactive manipulators do not interfere.
+        _graphicsBackend.BeginDepthPass();
+        DrawActiveManipulatorChildren();
         _graphicsBackend.EndDepthPass();
         _activeShaderProgram.Dispose();
         _activeShaderProgram = null;
@@ -93,11 +75,51 @@ public class GLPickingSystem : RenderSystem
         _pickingOutput.Submit(result);
     }
 
-    private static SelectionType LayerToSelectionType(PickLayer layer) => layer switch
+    private void DrawScenePickables(IEnumerable<int> pickables)
     {
-        PickLayer.Manipulator => SelectionType.Manipulator,
-        _ => SelectionType.Object,
-    };
+        var sceneEntities = pickables
+            .Where(id => _componentRegistry.GetComponent<PickableComponent>(id).Layer == PickLayer.Scene)
+            .OrderBy(id => _componentRegistry.GetComponent<PickableComponent>(id).Priority);
+
+        foreach (var entityId in sceneEntities)
+            DrawPickableEntity(entityId, SelectionType.Object);
+    }
+
+    private void DrawActiveManipulatorChildren()
+    {
+        var activeManipulatorId = _entityRegistry.Query.With<ActiveManipulatorComponent>().First();
+        if (activeManipulatorId < 0)
+            return;
+
+        var childEntities = _entityRegistry.GetChildrenIds(activeManipulatorId);
+        foreach (var childId in childEntities)
+        {
+            if (!_componentRegistry.HasComponent<ManipulatorChildComponent>(childId)
+                || !_componentRegistry.HasComponent<GpuMeshHandleComponent>(childId)
+                || !_componentRegistry.HasComponent<TransformComponent>(childId))
+                continue;
+
+            DrawPickableEntity(childId, SelectionType.Manipulator);
+        }
+    }
+
+    private void DrawPickableEntity(int entityId, SelectionType selectionType)
+    {
+        if (_activeShaderProgram == null)
+            return;
+
+        var modelMatrix = _componentRegistry.GetComponent<TransformComponent>(entityId).WorldMatrix;
+        var selectionEnumInt = (int)selectionType;
+        var entityUniformId = entityId;
+
+        _activeShaderProgram
+            .SetInt(UniformNames.uEntityId, ref entityUniformId)
+            .SetInt(UniformNames.uPickingType, ref selectionEnumInt)
+            .SetMatrix4(UniformNames.uModel, ref modelMatrix);
+
+        var handle = _componentRegistry.GetComponent<GpuMeshHandleComponent>(entityId).Handle;
+        _graphicsBackend.DrawMesh(handle, DrawFlags.Faces);
+    }
 
 
     private void EnsurePickableTags()
@@ -119,15 +141,15 @@ public class GLPickingSystem : RenderSystem
 
     private (int x, int y) GetPixelPosition(Point localMousePos, RenderContext renderContext)
     {
-        var x = (int)localMousePos.X;
-        var y = (int)localMousePos.Y;
+        var x = (int)(localMousePos.X * renderContext.RenderScaling);
+        var y = (int)(localMousePos.Y * renderContext.RenderScaling);
 
         // OpenGL origin is bottom-left; Avalonia origin is top-left
         // Use the picking FBO height for the Y flip
         var fboHeight = renderContext.ViewPort.SelectionRenderView?.Height ?? renderContext.ViewPort.Height;
         y = fboHeight - y;
 
-        x = Math.Clamp(x, 0, renderContext.ViewPort.Width  - 1);
+        x = Math.Clamp(x, 0, renderContext.ViewPort.Width - 1);
         y = Math.Clamp(y, 0, fboHeight - 1);
         return (x, y);
     }
