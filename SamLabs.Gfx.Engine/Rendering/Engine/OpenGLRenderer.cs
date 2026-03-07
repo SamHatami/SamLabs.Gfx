@@ -23,6 +23,8 @@ public class OpenGLRenderer : IDisposable, IRenderer
 
     private List<IRenderPass> _renderPasses = []; //Sorted renderpasses 
 
+    public IPickingBackend Picking { get; private set; } = null!;
+
     public OpenGLRenderer(ShaderService shaderService, UniformBufferService uniformBufferService,
         FrameBufferService frameBufferService, MaterialLibrary materialLibrary, ILogger<OpenGLRenderer> logger)
     {
@@ -40,6 +42,8 @@ public class OpenGLRenderer : IDisposable, IRenderer
         _shaderService.RegisterShaders();
         _materialLibrary.InitializeLibrary();
 
+        var pickingShader = _shaderService.GetShader("picking") ?? throw new InvalidOperationException("Picking shader was not registered.");
+        Picking = new OpenGLPickingBackend(this, pickingShader);
 
         //bind View-Projection uniform to all the shader programs
         foreach (var shader in _shaderService.GetShaderPrograms())

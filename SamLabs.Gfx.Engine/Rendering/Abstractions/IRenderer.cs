@@ -15,6 +15,7 @@ public interface IRenderer
     public void ResizeViewportBuffers(IViewPort mainViewport, int viewportSizeX, int viewportSizeY);
     
     public IReadOnlyCollection<IRenderPass> RenderPasses { get; }
+    public IPickingBackend Picking { get; }
 
     GLShader? GetShader(string shaderName);
     void ReloadShader(string fullShaderPath);
