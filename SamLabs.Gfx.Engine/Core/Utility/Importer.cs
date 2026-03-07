@@ -56,6 +56,23 @@ public static class ModelLoader
         return await LoadObj(stream, Path.GetFileNameWithoutExtension(resourceName));
     }
 
+
+    public static MeshDataComponent LoadObjFromResourceSync(string resourceName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var fullResourceName = assembly.GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith(resourceName, StringComparison.OrdinalIgnoreCase));
+
+        if (string.IsNullOrEmpty(fullResourceName))
+            throw new Exception($"Resource {resourceName} not found. Available resources: {string.Join(", ", assembly.GetManifestResourceNames())}");
+
+        using var stream = assembly.GetManifestResourceStream(fullResourceName);
+        if (stream == null)
+            throw new Exception($"Could not get manifest resource stream for {fullResourceName}");
+
+        return LoadObjSync(stream, Path.GetFileNameWithoutExtension(resourceName));
+    }
+
     public static async Task<MeshDataComponent> LoadObj(Stream stream, string name)
     {
         var importer = new AssimpContext();
@@ -78,6 +95,20 @@ public static class ModelLoader
             Console.WriteLine(e);
             throw;
         }
+
+        return ProcessScene(scene, name);
+    }
+
+    public static MeshDataComponent LoadObjSync(Stream stream, string name)
+    {
+        var importer = new AssimpContext();
+        var steps = PostProcessSteps.FlipUVs |
+                    PostProcessSteps.GenerateNormals |
+                    PostProcessSteps.JoinIdenticalVertices;
+
+        var scene = importer.ImportFileFromStream(stream, steps, "obj");
+        if (scene == null || scene.SceneFlags.HasFlag(SceneFlags.Incomplete) || scene.RootNode == null)
+            throw new Exception($"Error loading model from stream: {name}");
 
         return ProcessScene(scene, name);
     }

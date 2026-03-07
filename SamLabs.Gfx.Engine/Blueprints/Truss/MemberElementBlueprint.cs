@@ -33,19 +33,19 @@ public class MemberElementBlueprint : EntityBlueprint
 
     public override string Name { get; } = EntityNames.MemberElement;
 
-    public async Task EnsureMeshesLoaded()
+    public void EnsureMeshesLoaded()
     {
         if (_meshesLoaded) return;
-        _memberMesh = await ModelLoader.LoadObjFromResource("CylinderLow8.obj");
-        _nodeMesh = await ModelLoader.LoadObjFromResource("GeoSphereLow.Obj");
+        _memberMesh = ModelLoader.LoadObjFromResourceSync("CylinderLow8.obj");
+        _nodeMesh = ModelLoader.LoadObjFromResourceSync("GeoSphereLow.Obj");
         _meshesLoaded = true;
     }
 
-    public override async void Build(Entity entity, MeshDataComponent meshData = default)
+    public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
         entity.Type = EntityType.SceneObject;
 
-        await EnsureMeshesLoaded();
+        EnsureMeshesLoaded();
 
         var min = new Vector3(float.MaxValue);
         var max = new Vector3(float.MinValue);
@@ -85,14 +85,14 @@ public class MemberElementBlueprint : EntityBlueprint
         BuildMember(entity, _memberMesh, _nodeMesh, endA, endB);
     }
 
-    public async void BuildAtPositions(Entity entity, Vector3 startPosition, Vector3 endPosition)
+    public void BuildAtPositions(Entity entity, Vector3 startPosition, Vector3 endPosition)
     {
         entity.Type = EntityType.SceneObject;
-        await EnsureMeshesLoaded();
+        EnsureMeshesLoaded();
         BuildMember(entity, _memberMesh, _nodeMesh, startPosition, endPosition);
     }
 
-    /// <summary>Call only after EnsureMeshesLoaded() has been awaited.</summary>
+    /// <summary>Call only after EnsureMeshesLoaded() has been called.</summary>
     public void BuildMemberSync(Entity entity, Vector3 startPosition, Vector3 endPosition)
     {
         entity.Type = EntityType.SceneObject;
