@@ -5,6 +5,7 @@ using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Editor.Controls.OpenTk;
 using SamLabs.Gfx.Editor.ViewModels;
@@ -118,6 +119,9 @@ public class EditorControl : OpenTkControlBase
     
     private FileSystemWatcher? _shaderWatcher;
     private ConcurrentQueue<string> _pendingShaderReloads = new();
+    private DispatcherTimer? _updateTimer;
+    private FrameInput _latestFrameInput;
+
 
     private void NotifyActivity()
     {
@@ -127,10 +131,10 @@ public class EditorControl : OpenTkControlBase
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
-        if(!_pendingShaderReloads.IsEmpty)
+        if (!_pendingShaderReloads.IsEmpty)
             NotifyActivity();
-        
-        if(Idle())
+
+        if (Idle())
         {
             _wasIdling = true;
             return;
@@ -142,25 +146,27 @@ public class EditorControl : OpenTkControlBase
             _frameCount = 0;
             _wasIdling = false;
         }
-        
-        CalculateFps();
-        CommandManager.ProcessAllCommands();
-        ProcessPendingShaderReloads();
 
-        //Process commands
+        CalculateFps();
+
         _width = width;
         _height = height;
 
-        var frameInput = CaptureFrameInput();
-
-        _systemScheduler.Update(frameInput);
-
-        _systemScheduler.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
+        _systemScheduler.Render(_latestFrameInput, CaptureRenderContext(mainScreenFrameBuffer));
 
         _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
-        ClearInputData();
         RequestNextFrameRendering();
         base.OpenTkRender(mainScreenFrameBuffer, width, height);
+    }
+
+    private void OnUpdateTick(object? sender, EventArgs e)
+    {
+        CommandManager.ProcessAllCommands();
+        ProcessPendingShaderReloads();
+
+        _latestFrameInput = CaptureFrameInput();
+        _systemScheduler.Update(_latestFrameInput);
+        ClearInputData();
     }
 
     private bool Idle()
@@ -258,7 +264,14 @@ public class EditorControl : OpenTkControlBase
         SizeChanged += OnSizeChanged;
         
         SubscribeToEditorEvents();
-        
+
+        _updateTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(16)
+        };
+        _updateTimer.Tick += OnUpdateTick;
+        _updateTimer.Start();
+
         InitializeShaderWatcher();
     }
 
@@ -419,6 +432,13 @@ public class EditorControl : OpenTkControlBase
         
         SizeChanged -= OnSizeChanged;
         
+        if (_updateTimer != null)
+        {
+            _updateTimer.Stop();
+            _updateTimer.Tick -= OnUpdateTick;
+            _updateTimer = null;
+        }
+
         if (_shaderWatcher != null)
         {
             _shaderWatcher.EnableRaisingEvents = false;
