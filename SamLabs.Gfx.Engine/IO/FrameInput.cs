@@ -4,7 +4,7 @@ using OpenTK.Mathematics;
 
 namespace SamLabs.Gfx.Engine.IO;
 
-public ref struct FrameInput
+public struct FrameInput
 {
     public Key KeyDown { get; set; }
     public Key KeyUp { get; set; }
