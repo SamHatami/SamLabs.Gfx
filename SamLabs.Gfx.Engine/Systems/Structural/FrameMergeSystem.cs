@@ -22,7 +22,7 @@ public class FrameMergeSystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
     private Dictionary<int, Vector3> _nodePositionMap = new();
-    public override int SystemPosition { get; } = SystemOrders.TransformUpdate + 2; // Run after FrameGeometrySystem
+    public override int SystemPosition { get; } = SystemOrders.TransformUpdate + 2; // Runs after geometry, but merge triggering is independently flagged.
 
     public FrameMergeSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
@@ -34,23 +34,44 @@ public class FrameMergeSystem : UpdateSystem
     {
         RebuildNodePositionMap();
         
-        var movedNodes = _entityRegistry.Query.With<FrameNodeTag>().With<NodeMovedFlag>().GetSpan();
-        if (movedNodes.IsEmpty()) return;
+        var mergeCandidateNodes = _entityRegistry.Query.With<FrameNodeTag>().With<NodeMergeCandidateFlag>().GetSpan();
+        if (mergeCandidateNodes.IsEmpty()) return;
 
-        MergeNodes(movedNodes);
+        MergeNodes(mergeCandidateNodes);
     }
 
     /// <summary>
     /// Merges frame nodes that are within 0.1f distance of each other and have no shared members.
     /// </summary>
-    private void MergeNodes(ReadOnlySpan<int> movedNodeIds)
+    private void MergeNodes(ReadOnlySpan<int> mergeCandidateNodeIds)
     {
-        foreach (var sourceNodeId in movedNodeIds)
+        var mergedTargetNodes = new HashSet<int>();
+        foreach (var sourceNodeId in mergeCandidateNodeIds)
         {
-            var nearestNodeId = FindNearestNodeId(sourceNodeId, 0.1f);
-            if (nearestNodeId == -1) continue;
+            if (ComponentRegistry.HasComponent<PendingRemovalFlag>(sourceNodeId))
+            {
+                ComponentRegistry.RemoveComponentFromEntity<NodeMergeCandidateFlag>(sourceNodeId);
+                continue;
+            }
 
-            if (!CanMergeNodes(sourceNodeId, nearestNodeId)) continue;
+            if (!_nodePositionMap.ContainsKey(sourceNodeId))
+            {
+                ComponentRegistry.RemoveComponentFromEntity<NodeMergeCandidateFlag>(sourceNodeId);
+                continue;
+            }
+
+            var nearestNodeId = FindNearestNodeId(sourceNodeId, 0.1f);
+            if (nearestNodeId == -1)
+            {
+                ComponentRegistry.RemoveComponentFromEntity<NodeMergeCandidateFlag>(sourceNodeId);
+                continue;
+            }
+
+            if (!CanMergeNodes(sourceNodeId, nearestNodeId))
+            {
+                ComponentRegistry.RemoveComponentFromEntity<NodeMergeCandidateFlag>(sourceNodeId);
+                continue;
+            }
 
             // Redirect all members from source node to target node
             var allMembers = ComponentRegistry.GetEntityIdsForComponentType<FrameMemberComponent>();
@@ -65,10 +86,20 @@ public class FrameMergeSystem : UpdateSystem
 
             // Set flag on target node to update its members next frame
             ComponentRegistry.SetComponentToEntity(new NodeMovedFlag(), nearestNodeId);
+            ComponentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), nearestNodeId);
+            mergedTargetNodes.Add(nearestNodeId);
 
             // Mark source node for removal
             ComponentRegistry.SetComponentToEntity(new PendingRemovalFlag(), sourceNodeId);
+            ComponentRegistry.RemoveComponentFromEntity<NodeMergeCandidateFlag>(sourceNodeId);
             _nodePositionMap.Remove(sourceNodeId);
+        }
+
+        // Keep merged targets merge-eligible for the next pass/frame.
+        foreach (var targetNodeId in mergedTargetNodes)
+        {
+            if (ComponentRegistry.HasComponent<PendingRemovalFlag>(targetNodeId)) continue;
+            ComponentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), targetNodeId);
         }
     }
 

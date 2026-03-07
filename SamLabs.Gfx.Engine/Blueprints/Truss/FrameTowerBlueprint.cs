@@ -109,5 +109,7 @@ public class FrameTowerBlueprint : EntityBlueprint
         var member = _componentRegistry.GetComponent<FrameMemberComponent>(memberEntity.Id);
         _componentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, member.StartNodeEntityId);
         _componentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, member.EndNodeEntityId);
+        _componentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), member.StartNodeEntityId);
+        _componentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), member.EndNodeEntityId);
     }
 }

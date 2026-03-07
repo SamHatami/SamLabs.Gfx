@@ -83,6 +83,7 @@ public class FrameGeometrySystem : UpdateSystem
     /// <summary>
     /// Propagates rigid-body transforms from members to their connected nodes.
     /// Sets NodeMovedFlag on affected nodes so connected members can be updated in this update cycle.
+    /// Also marks moved nodes as merge candidates for FrameMergeSystem.
     /// </summary>
     private void ProcessMemberTransformedPath()
     {
@@ -111,6 +112,8 @@ public class FrameGeometrySystem : UpdateSystem
             // Set NodeMovedFlag on both nodes so they update their other connected members this cycle
             ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = originatingMemberId }, startNodeId);
             ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = originatingMemberId }, endNodeId);
+            ComponentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), startNodeId);
+            ComponentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), endNodeId);
 
             // Clear the member's flag
             ComponentRegistry.RemoveComponentFromEntity<MemberTransformedFlag>(memberId);

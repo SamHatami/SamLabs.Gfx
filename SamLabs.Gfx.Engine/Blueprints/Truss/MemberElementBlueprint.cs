@@ -128,6 +128,8 @@ public class MemberElementBlueprint : EntityBlueprint
         
         _componentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, startNodeId);
         _componentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, endNodeId);
+        _componentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), startNodeId);
+        _componentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), endNodeId);
     }
 
     private int CreateEndNode(MeshDataComponent nodeMesh, int connectedMemberId, Vector3 position, GLShader? shader, GLShader? pickingShader)
