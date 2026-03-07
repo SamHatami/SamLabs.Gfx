@@ -27,11 +27,11 @@ public class FrameTowerBlueprint : EntityBlueprint
 
     public override string Name => EntityNames.FrameTower;
 
-    public override void Build(Entity entity, MeshDataComponent meshData = default)
+    public override async void Build(Entity entity, MeshDataComponent meshData = default)
     {
         entity.Type = EntityType.SceneObject;
 
-        _memberBlueprint.EnsureMeshesLoaded();
+        await _memberBlueprint.EnsureMeshesLoaded();
 
         _componentRegistry.SetComponentToEntity(new TransformComponent
         {
