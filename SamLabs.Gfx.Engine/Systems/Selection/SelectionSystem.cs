@@ -6,6 +6,7 @@ using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
+using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Engine.Systems.Selection;
