@@ -5,7 +5,6 @@ using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Threading;
 using OpenTK.Mathematics;
 using SamLabs.Gfx.Editor.Controls.OpenTk;
 using SamLabs.Gfx.Editor.ViewModels;
@@ -112,72 +111,71 @@ public class EditorControl : OpenTkControlBase
     private bool _isDragging;
     private const bool IdleOptimizationEnabled = false;
     
-    private DateTime _lastActivityTime = DateTime.UtcNow;
-    private readonly TimeSpan _idleTimeout = TimeSpan.FromSeconds(1.5);
-    private bool _wasIdling = false;
     private EditorWorkState _editorWorkState;
     
     private FileSystemWatcher? _shaderWatcher;
     private ConcurrentQueue<string> _pendingShaderReloads = new();
-    private DispatcherTimer? _updateTimer;
-    private FrameInput _latestFrameInput;
+    private bool _activityRequested;
 
 
     private void NotifyActivity()
     {
-        _lastActivityTime = DateTime.UtcNow;
+        _activityRequested = true;
         RequestNextFrameRendering();
     }
 
     protected override void OpenTkRender(int mainScreenFrameBuffer, int width, int height)
     {
-        if (!_pendingShaderReloads.IsEmpty)
-            NotifyActivity();
-
-        if (Idle())
-        {
-            _wasIdling = true;
-            return;
-        }
-
-        if (_wasIdling)
-        {
-            _lastUpdateTime = DateTime.UtcNow;
-            _frameCount = 0;
-            _wasIdling = false;
-        }
-
-        CalculateFps();
-
-        _width = width;
-        _height = height;
-
-        _systemScheduler.Render(_latestFrameInput, CaptureRenderContext(mainScreenFrameBuffer));
-
-        _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
-        RequestNextFrameRendering();
-        base.OpenTkRender(mainScreenFrameBuffer, width, height);
-    }
-
-    private void OnUpdateTick(object? sender, EventArgs e)
-    {
         CommandManager.ProcessAllCommands();
         ProcessPendingShaderReloads();
 
-        _latestFrameInput = CaptureFrameInput();
-        _systemScheduler.Update(_latestFrameInput);
+        var frameInput = CaptureFrameInput();
+        _systemScheduler.Update(frameInput);
+
+        _width = width;
+        _height = height;
+        _systemScheduler.Render(frameInput, CaptureRenderContext(mainScreenFrameBuffer));
+
+        CalculateFps();
+        _lastFrameTime = _frameTimer.Elapsed.TotalMilliseconds;
+
         ClearInputData();
+
+        if (NeedsNextFrame(frameInput))
+            RequestNextFrameRendering();
+
+        base.OpenTkRender(mainScreenFrameBuffer, width, height);
     }
 
-    private bool Idle()
+    private bool NeedsNextFrame(in FrameInput frameInput)
     {
-        if (!IdleOptimizationEnabled) return false;
-        if(_editorWorkState.ShouldUpdate()) return false;
-        if (CommandManager?.HasPendingCommands == true) return false;
-        if(EngineContext.ToolManager.ActiveTool != null) return false; // Don't idle while a tool is active (e.g. transform tool) 
-        if (DateTime.UtcNow - _lastActivityTime < _idleTimeout) return false;
-        
-        return true;
+        if (!IdleOptimizationEnabled)
+            return true;
+
+        if (_activityRequested)
+            return true;
+
+        if (_pendingShaderReloads.Count > 0)
+            return true;
+
+        if (CommandManager?.HasPendingCommands == true)
+            return true;
+
+        if (_editorWorkState.ShouldUpdate())
+            return true;
+
+        if (EngineContext.ToolManager.ActiveTool != null)
+            return true;
+
+        if (frameInput.IsDragging
+            || frameInput.LeftClickOccured
+            || frameInput.MouseWheelDelta != 0
+            || frameInput.KeyDown != Key.None
+            || frameInput.KeyUp != Key.None
+            || frameInput.DeltaMouseMove != Vector2.Zero)
+            return true;
+
+        return false;
     }
 
     private void CalculateFps()
@@ -245,6 +243,7 @@ public class EditorControl : OpenTkControlBase
         _leftClickOccured  = false;
         _mouseWheelDelta = 0;
         _keyUp = Key.None; // reset key-up so Cancellation is only true for single frame
+        _activityRequested = false;
     }
 
     protected override void InitializeOpenTk()
@@ -264,13 +263,6 @@ public class EditorControl : OpenTkControlBase
         SizeChanged += OnSizeChanged;
         
         SubscribeToEditorEvents();
-
-        _updateTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(16)
-        };
-        _updateTimer.Tick += OnUpdateTick;
-        _updateTimer.Start();
 
         InitializeShaderWatcher();
     }
@@ -431,13 +423,6 @@ public class EditorControl : OpenTkControlBase
         base.OpenTkTeardown();
         
         SizeChanged -= OnSizeChanged;
-        
-        if (_updateTimer != null)
-        {
-            _updateTimer.Stop();
-            _updateTimer.Tick -= OnUpdateTick;
-            _updateTimer = null;
-        }
 
         if (_shaderWatcher != null)
         {
