@@ -64,6 +64,9 @@ public class GLRenderMeshSystem : RenderSystem
         {
             var mesh = ComponentRegistry.GetComponent<GlMeshDataComponent>(meshEntity);
 
+            if (!IsMeshReadyForRender(mesh))
+                continue;
+
             if(mesh.IsGrid) continue;
             if (mesh.IsManipulator) continue;
 
@@ -164,8 +167,22 @@ public class GLRenderMeshSystem : RenderSystem
         // }
     }
 
+    private static bool IsMeshReadyForRender(in GlMeshDataComponent mesh)
+    {
+        if (mesh.Vao <= 0 || mesh.Vbo <= 0)
+            return false;
+
+        if (mesh.IndexCount > 0)
+            return mesh.Ebo > 0;
+
+        return mesh.VertexCount > 0;
+    }
+
     private void RenderGridMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, Matrix4 modelMatrix)
     {
+        if (!IsMeshReadyForRender(mesh))
+            return;
+
         var resolvedShader = materialComponent.Shader ?? Renderer.GetShader(materialComponent.ShaderName ?? "grid");
         if (resolvedShader == null)
             return;
