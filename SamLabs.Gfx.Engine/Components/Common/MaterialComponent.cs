@@ -15,7 +15,8 @@ public struct MaterialComponent:IComponent
     //Material library with different shaders fordifferent purposes created directly? we only take copies and place them on
     //each entity that needs them.
     //Materiallibrary can be called on when a blueprints is created to assign the correct shaders and uniform values.
-    public GLShader Shader { get; set; }
-    public GLShader PickingShader { get; set; }
+    public string ShaderName { get; set; }
+    public GLShader? Shader { get; set; }
+    public GLShader? PickingShader { get; set; }
     
 }

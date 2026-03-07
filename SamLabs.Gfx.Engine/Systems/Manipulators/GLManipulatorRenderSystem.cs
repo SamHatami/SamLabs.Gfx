@@ -143,7 +143,11 @@ public class GLManipulatorRenderSystem : RenderSystem
         var axis = manipulatorChildComponent.Axis.ToInt();
         var selected = isSelected ? 1 : 0;
 
-        using var shader = new ShaderProgram(materialComponent.Shader).Use();
+        var resolvedShader = materialComponent.Shader ?? Renderer.GetShader(materialComponent.ShaderName ?? "manipulator");
+        if (resolvedShader == null)
+            return;
+
+        using var shader = new ShaderProgram(resolvedShader).Use();
         shader.SetMatrix4(UniformNames.uModel, ref modelMatrix)
             .SetInt(UniformNames.uIsHovered, ref isHovered)
             .SetInt(UniformNames.uIsSelected, ref selected)

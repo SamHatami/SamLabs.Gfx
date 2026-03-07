@@ -46,7 +46,7 @@ public class DragManipulatorBlueprint:EntityBlueprint
             
             var manipulatorShader = _shaderService.GetShader("manipulator");
             
-            var materialComponent = new MaterialComponent { Shader = manipulatorShader };
+            var materialComponent = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
             var glMeshData = new GlMeshDataComponent()
             {
                 IsManipulator = true,

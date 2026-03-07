@@ -104,7 +104,7 @@ public class MemberElementBlueprint : EntityBlueprint
         var shader = _shaderService.GetShader("unlit");
         var pickingShader = _shaderService.GetShader("picking");
 
-        var memberMaterial = new MaterialComponent { Shader = shader, PickingShader = pickingShader };
+        var memberMaterial = new MaterialComponent { ShaderName = "unlit", Shader = shader, PickingShader = pickingShader };
         var memberGlMesh = new GlMeshDataComponent
         {
             PrimitiveType = PrimitiveType.Triangles,
@@ -136,7 +136,7 @@ public class MemberElementBlueprint : EntityBlueprint
         nodeEntity.Type = EntityType.SceneObject;
 
         var transform = new TransformComponent { Position = position, Scale = Vector3.One, Rotation = Quaternion.Identity };
-        var material = new MaterialComponent { Shader = shader, PickingShader = pickingShader };
+        var material = new MaterialComponent { ShaderName = "unlit", Shader = shader, PickingShader = pickingShader };
         var glMesh = new GlMeshDataComponent
         {
             PrimitiveType = PrimitiveType.Triangles,
