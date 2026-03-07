@@ -6,7 +6,6 @@ using SamLabs.Gfx.Engine.Core;
 using SamLabs.Gfx.Engine.Core.Utility;
 using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.IO;
-using SamLabs.Gfx.Engine.Rendering;
 using SamLabs.Gfx.Engine.Systems.Abstractions;
 
 namespace SamLabs.Gfx.Engine.Systems.Selection;
@@ -38,11 +37,12 @@ public class SelectionSystem : UpdateSystem
 
         if(_isManipulatorDragging) return; 
         
-        var validEntities = FilterSelection(new[] {_pickingData.HoveredEntityId});
+        var hovered = _pickingData.Hovered;
+        var validEntities = FilterSelection(new[] { hovered.EntityId });
 
         if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
         {
-            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(_pickingData.HoveredEntityId))
+            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(hovered.EntityId))
                 return;
 
             SetNewSelection(validEntities);

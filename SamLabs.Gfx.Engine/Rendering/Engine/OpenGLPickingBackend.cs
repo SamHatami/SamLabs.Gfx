@@ -39,38 +39,32 @@ public sealed class OpenGLPickingBackend : IPickingBackend
         rendererContext.Dispose();
     }
 
-    public void EndPickingPass(IViewPort viewport, int pixelX, int pixelY, ref PickingDataComponent pickingData)
+    public PickResult EndPickingPass(IViewPort viewport, int pixelX, int pixelY, int bufferPickingIndex)
     {
         _activeShaderProgram?.Dispose();
         _activeShaderProgram = null;
 
-        var writeIndex = pickingData.BufferPickingIndex;
-        var readIndex = pickingData.BufferPickingIndex ^ 1;
+        var writeIndex = bufferPickingIndex;
+        var readIndex = bufferPickingIndex ^ 1;
 
         GL.BindBuffer(BufferTarget.PixelPackBuffer, viewport.SelectionRenderView.PixelBuffers[writeIndex]);
         GL.ReadPixels(pixelX, pixelY, 1, 1, PixelFormat.RgInteger, PixelType.Int, IntPtr.Zero);
         GL.BindBuffer(BufferTarget.PixelPackBuffer, viewport.SelectionRenderView.PixelBuffers[readIndex]);
-        pickingData.BufferPickingIndex = readIndex;
 
         var readPixelId = ReadPickedIdFromPbo();
 
         var entityId = readPixelId[0];
         var packedId = readPixelId[1];
 
+        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+
         if (entityId == -1)
-        {
-            pickingData.ClearHoveredIds();
-            GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
-            return;
-        }
+            return PickResult.Empty;
 
         var type = (packedId >> 28) & 0xF;
         var id = packedId & 0x0FFFFFFF;
 
-        pickingData.HoveredEntityId = entityId;
-        pickingData.HoveredElementId = id;
-        pickingData.HoveredType = (SelectionType)type;
-        GL.BindBuffer(BufferTarget.PixelPackBuffer, 0);
+        return new PickResult(entityId, id, (SelectionType)type);
     }
 
     private static int[] ReadPickedIdFromPbo()

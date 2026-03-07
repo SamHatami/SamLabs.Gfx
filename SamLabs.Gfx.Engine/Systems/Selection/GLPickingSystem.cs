@@ -16,17 +16,19 @@ public class GLPickingSystem : RenderSystem
 {
     private readonly EntityRegistry _entityRegistry;
     private readonly IComponentRegistry _componentRegistry;
+    private readonly IPickingOutput _pickingOutput;
     public override int SystemPosition => SystemOrders.PickingRender;
     private IViewPort _viewport;
     private int _pickingEntity = -1;
     private (int x, int y) _lastMousePos = (-1, -1);
     private bool _mouseMovedThisFrame;
 
-    public GLPickingSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry) : base(entityRegistry,
+    public GLPickingSystem(EntityRegistry entityRegistry, IComponentRegistry componentRegistry, IPickingOutput pickingOutput) : base(entityRegistry,
         componentRegistry)
     {
         _entityRegistry = entityRegistry;
         _componentRegistry = componentRegistry;
+        _pickingOutput = pickingOutput;
     }
 
     public override void Update(FrameInput frameInput, RenderContext renderContext)
@@ -66,7 +68,10 @@ public class GLPickingSystem : RenderSystem
 
         RenderActiveManipulatorToPickingBuffer();
 
-        Renderer.Picking.EndPickingPass(_viewport, x, y, ref pickingData);
+        var pickResult = Renderer.Picking.EndPickingPass(_viewport, x, y, pickingData.BufferPickingIndex);
+        pickingData.BufferPickingIndex ^= 1;
+        _componentRegistry.SetComponentToEntity(pickingData, _pickingEntity);
+        _pickingOutput.Submit(pickResult);
     }
 
     private void RenderActiveManipulatorToPickingBuffer()

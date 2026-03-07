@@ -9,5 +9,5 @@ public interface IPickingBackend
 {
     void BeginPickingPass(IViewPort viewport);
     void RenderPickingEntity(GlMeshDataComponent mesh, Matrix4 modelMatrix, int entityId, SelectionType selectionType = SelectionType.None);
-    void EndPickingPass(IViewPort viewport, int pixelX, int pixelY, ref PickingDataComponent pickingData);
+    PickResult EndPickingPass(IViewPort viewport, int pixelX, int pixelY, int bufferPickingIndex);
 }
