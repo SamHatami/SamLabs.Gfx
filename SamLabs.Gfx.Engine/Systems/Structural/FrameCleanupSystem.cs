@@ -17,7 +17,7 @@ namespace SamLabs.Gfx.Engine.Systems.Structural;
 public class FrameCleanupSystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
-    public override int SystemPosition { get; } = SystemOrders.PreRenderUpdate + 1; // Run after FrameGeometrySystem
+    public override int SystemPosition { get; } = SystemOrders.TransformUpdate + 3; // Run after FrameMergeSystem
 
     public FrameCleanupSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)

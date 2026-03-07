@@ -22,7 +22,7 @@ public class FrameMergeSystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
     private Dictionary<int, Vector3> _nodePositionMap = new();
-    public override int SystemPosition { get; } = SystemOrders.PreRenderUpdate - 2; // Run before FrameGeometrySystem
+    public override int SystemPosition { get; } = SystemOrders.TransformUpdate + 2; // Run after FrameGeometrySystem
 
     public FrameMergeSystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)

@@ -21,7 +21,7 @@ namespace SamLabs.Gfx.Engine.Systems.Structural;
 public class FrameGeometrySystem : UpdateSystem
 {
     private readonly EntityRegistry _entityRegistry;
-    public override int SystemPosition { get; } = SystemOrders.PreRenderUpdate - 1; // Run before PreRenderUpdate
+    public override int SystemPosition { get; } = SystemOrders.TransformUpdate + 1; // Run after transform/manipulator updates
 
     public FrameGeometrySystem(EntityRegistry entityRegistry, CommandManager commandManager, EditorEvents editorEvents,
         IComponentRegistry componentRegistry) : base(entityRegistry, commandManager, editorEvents, componentRegistry)
@@ -33,6 +33,14 @@ public class FrameGeometrySystem : UpdateSystem
     {
         ProcessMemberTransformedPath();
         ProcessNodeMovedPath();
+
+        // Catch any additional node flags raised during this update so connected members
+        // are refreshed in the same frame and do not visually lag one frame behind drag input.
+        var remainingMovedNodes = _entityRegistry.Query.With<FrameNodeTag>().With<NodeMovedFlag>().GetSpan();
+        if (!remainingMovedNodes.IsEmpty())
+        {
+            ProcessNodeMovedPath();
+        }
     }
 
     /// <summary>
@@ -74,7 +82,7 @@ public class FrameGeometrySystem : UpdateSystem
 
     /// <summary>
     /// Propagates rigid-body transforms from members to their connected nodes.
-    /// Sets NodeMovedFlag on affected nodes for the next frame to update other members.
+    /// Sets NodeMovedFlag on affected nodes so connected members can be updated in this update cycle.
     /// </summary>
     private void ProcessMemberTransformedPath()
     {
@@ -100,7 +108,7 @@ public class FrameGeometrySystem : UpdateSystem
             endTransform.Position += delta;
             endTransform.WorldMatrix = endTransform.LocalMatrix;
             
-            // Set NodeMovedFlag on both nodes so they update their other members next frame
+            // Set NodeMovedFlag on both nodes so they update their other connected members this cycle
             ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = originatingMemberId }, startNodeId);
             ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = originatingMemberId }, endNodeId);
 
