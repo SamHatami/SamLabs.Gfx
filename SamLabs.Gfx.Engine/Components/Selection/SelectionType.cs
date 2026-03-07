@@ -9,4 +9,6 @@ public enum SelectionType
     Edge,
     Line,
     Polygon,
+    Manipulator,
+    SnapPoint,
 }

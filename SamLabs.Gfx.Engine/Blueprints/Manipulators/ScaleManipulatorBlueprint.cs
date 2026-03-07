@@ -61,7 +61,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            ParentId = parentManipulator.Id,
            Position =  new Vector3(10,0,0),
        };
-       var materialX = new MaterialComponent { Shader = manipulatorShader };
+       var materialX = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        var glArrowMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
@@ -86,7 +86,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,10,0),
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(90f)) 
        };
-       var materialY = new MaterialComponent { Shader = manipulatorShader };
+       var materialY = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, yAxisEntity.Id);
        _componentRegistry.SetComponentToEntity(transformY, yAxisEntity.Id);
@@ -107,7 +107,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,0,10),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(-90f))
        };
-       var materialZ = new MaterialComponent { Shader = manipulatorShader};
+       var materialZ = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, zAxisEntity.Id);
        _componentRegistry.SetComponentToEntity(transformZ, zAxisEntity.Id);
@@ -126,7 +126,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position =  new Vector3(2,2,0),
            Rotation = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(180f)) 
        };
-       var materialXY = new MaterialComponent { Shader = manipulatorShader };
+       var materialXY = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        var glPlaneMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
@@ -152,7 +152,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position =  new Vector3(2,0,2),
            Rotation =  Quaternion.FromEulerAngles(meshRotation) 
        };
-       var materialXZ = new MaterialComponent { Shader = manipulatorShader };
+       var materialXZ = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, xzPlaneEntity.Id);
        _componentRegistry.SetComponentToEntity(transformXZ, xzPlaneEntity.Id);
@@ -171,7 +171,7 @@ public class ScaleManipulatorBlueprint:EntityBlueprint
            Position =  new Vector3(0,2,2),
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
        };
-       var materialYZ = new MaterialComponent { Shader = manipulatorShader };
+       var materialYZ = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, yzPlaneEntity.Id);
        _componentRegistry.SetComponentToEntity(transformYZ, yzPlaneEntity.Id);

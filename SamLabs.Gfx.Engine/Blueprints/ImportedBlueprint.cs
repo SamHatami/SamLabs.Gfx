@@ -1,55 +1,52 @@
-﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Components.Common;
 using SamLabs.Gfx.Engine.Components.Flags.OpenGl;
 using SamLabs.Gfx.Engine.Components.Transform;
 using SamLabs.Gfx.Engine.Entities;
-using SamLabs.Gfx.Engine.Rendering.Engine;
 
 namespace SamLabs.Gfx.Engine.Blueprints;
 
 public class ImportedBlueprint : EntityBlueprint
 {
-    private readonly ShaderService _shaderService;
     private readonly IComponentRegistry _componentRegistry;
 
-    public ImportedBlueprint(ShaderService shaderService,IComponentRegistry componentRegistry)
+    public ImportedBlueprint(IComponentRegistry componentRegistry)
     {
-        _shaderService = shaderService;
         _componentRegistry = componentRegistry;
     }
 
     public override string Name { get; } = EntityNames.Imported;
+
     public override void Build(Entity entity, MeshDataComponent meshData = default)
     {
         var transformComponent = new TransformComponent
         {
             Position = new Vector3(0, 0, 0),
             Scale = new Vector3(1, 1, 1),
-            Rotation = new Quaternion(0, 0, 0), //This should be quaternion instead.
+            Rotation = new Quaternion(0, 0, 0),
         };
 
+        meshData.RefreshDerivedData();
+        if (meshData.DrawMode == default)
+            meshData.DrawMode = DrawMode.Triangles;
 
-        var glMeshData = new GlMeshDataComponent()
+        var gpuMesh = new GpuMeshHandleComponent
         {
-            PrimitiveType = PrimitiveType.Triangles,
-            VertexCount = meshData.Vertices.Length,
-            IndexCount = meshData.TriangleIndices.Length 
-            
+            IsDirty = true
         };
 
-        var material = new MaterialComponent();
-        material.Shader = _shaderService.GetShader("flat");
-        material.PickingShader = _shaderService.GetShader("picking");
-            
-        _componentRegistry.SetComponentToEntity(glMeshData, entity.Id);
+        var material = new MaterialComponent
+        {
+            ShaderName = "flat"
+        };
+
+        _componentRegistry.SetComponentToEntity(gpuMesh, entity.Id);
         _componentRegistry.SetComponentToEntity(meshData, entity.Id);
         _componentRegistry.SetComponentToEntity(transformComponent, entity.Id);
         _componentRegistry.SetComponentToEntity(material, entity.Id);
-        
-        //add the creational flag to the entity
+
+        // Transitional flag still used by legacy GL init path until full Phase 2 cutover.
         _componentRegistry.SetComponentToEntity(new CreateGlMeshDataFlag(), entity.Id);
-        
     }
 }

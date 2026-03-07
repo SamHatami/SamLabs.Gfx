@@ -39,8 +39,11 @@ public abstract class ProceduralBlueprintBase : EntityBlueprint, IProceduralGeom
             IndexCount = mesh.TriangleIndices.Length
         };
 
+        meshData.RefreshDerivedData();
+
         var material = new MaterialComponent
         {
+            ShaderName = "flat",
             Shader = ShaderService.GetShader("flat"),
             PickingShader = ShaderService.GetShader("picking")
         };

@@ -60,7 +60,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Rotation =  Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90f)) 
            
        };
-       var materialX = new MaterialComponent { Shader = manipulatorShader };
+       var materialX = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        var glRotateMesh = new GlMeshDataComponent()
        {
            IsManipulator = true,
@@ -87,7 +87,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
-       var materialY = new MaterialComponent { Shader = manipulatorShader };
+       var materialY = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, rotateY.Id);
        _componentRegistry.SetComponentToEntity(transformY, rotateY.Id);
@@ -108,7 +108,7 @@ public class RotateManipulatorBlueprint:EntityBlueprint
            Position = new Vector3(0,0,0),
            Rotation = Quaternion.FromEulerAngles(meshRotation)
        };
-       var materialZ = new MaterialComponent { Shader = manipulatorShader};
+       var materialZ = new MaterialComponent { ShaderName = "manipulator", Shader = manipulatorShader };
        
        _componentRegistry.SetComponentToEntity(parentIdComponent, rotateZ.Id);
        _componentRegistry.SetComponentToEntity(transformZ, rotateZ.Id);

@@ -5,6 +5,7 @@ using SamLabs.Gfx.Engine.Entities;
 using SamLabs.Gfx.Engine.Systems;
 using SamLabs.Gfx.Engine.Components;
 using SamLabs.Gfx.Engine.Tools;
+using SamLabs.Gfx.Engine.Systems.Selection;
 
 namespace SamLabs.Gfx.Engine.Core.ServiceModules;
 
@@ -24,6 +25,7 @@ public class EditorModule:IServiceModule
         services.AddSingleton<SystemScheduler>();
         services.AddSingleton<ToolManager>();
         services.AddSingleton<IComponentRegistry, ComponentRegistry>();
+        services.AddSingleton<IPickingOutput, EcsPickingOutput>();
         
       
         //Creators

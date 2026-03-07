@@ -47,7 +47,9 @@ public class CubeBlueprint : EntityBlueprint
             
         };
 
+        meshData.RefreshDerivedData();
         var material = new MaterialComponent();
+        material.ShaderName = "flat";
         material.Shader = _shaderService.GetShader("flat");
         material.PickingShader = _shaderService.GetShader("picking");
             

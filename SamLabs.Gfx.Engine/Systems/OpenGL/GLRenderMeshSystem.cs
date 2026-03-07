@@ -64,22 +64,28 @@ public class GLRenderMeshSystem : RenderSystem
         {
             var mesh = ComponentRegistry.GetComponent<GlMeshDataComponent>(meshEntity);
 
+            if (!IsMeshReadyForRender(mesh))
+                continue;
+
             if(mesh.IsGrid) continue;
             if (mesh.IsManipulator) continue;
 
             var transform = ComponentRegistry.GetComponent<TransformComponent>(meshEntity);
             var materials = ComponentRegistry.GetComponent<MaterialComponent>(meshEntity);
+            var shader = materials.Shader ?? Renderer.GetShader(materials.ShaderName ?? "flat");
+            if (shader == null)
+                continue;
 
             var isSelected = _cachedSelectedIds.Contains(meshEntity) ? 1 : 0;
             var isHovered = (!_cachedSelectedIds.Contains(meshEntity) && hoveredId == meshEntity) ? 1 : 0;
 
-            if (!shaderBatches.ContainsKey(materials.Shader))
-                shaderBatches[materials.Shader] = new Dictionary<int, List<(int, GlMeshDataComponent, TransformComponent, MaterialComponent, int, int)>>();
-            
-            if (!shaderBatches[materials.Shader].ContainsKey(mesh.Vao))
-                shaderBatches[materials.Shader][mesh.Vao] = new List<(int, GlMeshDataComponent, TransformComponent, MaterialComponent, int, int)>();
+            if (!shaderBatches.ContainsKey(shader))
+                shaderBatches[shader] = new Dictionary<int, List<(int, GlMeshDataComponent, TransformComponent, MaterialComponent, int, int)>>();
 
-            shaderBatches[materials.Shader][mesh.Vao].Add((meshEntity, mesh, transform, materials, isSelected, isHovered));
+            if (!shaderBatches[shader].ContainsKey(mesh.Vao))
+                shaderBatches[shader][mesh.Vao] = new List<(int, GlMeshDataComponent, TransformComponent, MaterialComponent, int, int)>();
+
+            shaderBatches[shader][mesh.Vao].Add((meshEntity, mesh, transform, materials, isSelected, isHovered));
         }
         
         var batchingTime = stopwatch.Elapsed.TotalMilliseconds - queryTime - pickingLookupTime - selectionCacheTime;
@@ -161,9 +167,27 @@ public class GLRenderMeshSystem : RenderSystem
         // }
     }
 
+    private static bool IsMeshReadyForRender(in GlMeshDataComponent mesh)
+    {
+        if (mesh.Vao <= 0 || mesh.Vbo <= 0)
+            return false;
+
+        if (mesh.IndexCount > 0)
+            return mesh.Ebo > 0;
+
+        return mesh.VertexCount > 0;
+    }
+
     private void RenderGridMesh(GlMeshDataComponent mesh, MaterialComponent materialComponent, Matrix4 modelMatrix)
     {
-        using var shader = new ShaderProgram(materialComponent.Shader).Use();
+        if (!IsMeshReadyForRender(mesh))
+            return;
+
+        var resolvedShader = materialComponent.Shader ?? Renderer.GetShader(materialComponent.ShaderName ?? "grid");
+        if (resolvedShader == null)
+            return;
+
+        using var shader = new ShaderProgram(resolvedShader).Use();
         
         GL.Enable(EnableCap.Blend);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);

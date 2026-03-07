@@ -55,7 +55,7 @@ public class ConstructionPlaneBlueprint : EntityBlueprint
 
         var shader = _shaderService.GetShader("construction");
         if (shader == null) throw new InvalidOperationException("Construction plane shader not found.");
-        var material = new MaterialComponent { Shader = shader };
+        var material = new MaterialComponent { ShaderName = "construction", Shader = shader };
         _componentRegistry.SetComponentToEntity(material, entity.Id);
     }
 }

@@ -38,11 +38,12 @@ public class SelectionSystem : UpdateSystem
 
         if(_isManipulatorDragging) return; 
         
-        var validEntities = FilterSelection(new[] {_pickingData.HoveredEntityId});
+        var hovered = _pickingData.Hovered;
+        var validEntities = FilterSelection(new[] { hovered.EntityId });
 
         if (frameInput.LeftClickOccured) //TODO: ctrl-click to do add to selection
         {
-            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(_pickingData.HoveredEntityId))
+            if (ComponentRegistry.HasComponent<ManipulatorChildComponent>(hovered.EntityId))
                 return;
 
             SetNewSelection(validEntities);

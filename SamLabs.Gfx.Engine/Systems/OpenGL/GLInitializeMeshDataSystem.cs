@@ -35,6 +35,7 @@ public class GLInitializeMeshDataSystem : RenderSystem
             ref var meshData = ref _componentRegistry.GetComponent<MeshDataComponent>(glMeshDataEntities[i]);
 
             CreateGlMeshData(ref glMeshData, ref meshData);
+            SyncGpuHandle(glMeshDataEntities[i], glMeshData);
 
             _componentRegistry.RemoveComponentFromEntity<CreateGlMeshDataFlag>(glMeshDataEntities[i]);
         }
@@ -98,5 +99,23 @@ public class GLInitializeMeshDataSystem : RenderSystem
         OpenTK.Graphics.OpenGL.GL.EnableVertexAttribArray(2);
         OpenTK.Graphics.OpenGL.GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false,
             SizeOf.Vertex, 6 * sizeof(float));
+    }
+
+    private void SyncGpuHandle(int entityId, in GlMeshDataComponent glMeshData)
+    {
+        if (!_componentRegistry.HasComponent<GpuMeshHandleComponent>(entityId))
+            return;
+
+        var gpuHandle = _componentRegistry.GetComponent<GpuMeshHandleComponent>(entityId);
+        gpuHandle.Handle = new Rendering.Abstractions.GpuMeshHandle
+        {
+            VertexArrayId = glMeshData.Vao,
+            VertexBufferId = glMeshData.Vbo,
+            ElementBufferId = glMeshData.Ebo,
+            EdgeElementBufferId = glMeshData.EdgeEbo
+        };
+        gpuHandle.IsDirty = false;
+
+        _componentRegistry.SetComponentToEntity(gpuHandle, entityId);
     }
 }

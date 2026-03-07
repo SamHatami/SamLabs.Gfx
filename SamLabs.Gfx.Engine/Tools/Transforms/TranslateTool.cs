@@ -129,6 +129,7 @@ public class TranslateTool : TransformTool //SubUpdateSystem
                 if (ComponentRegistry.HasComponent<FrameNodeTag>(entityId))
                 {
                     ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, entityId);
+                    ComponentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), entityId);
                 }
                 
                 // Set MemberTransformedFlag if this is a frame member
@@ -202,6 +203,7 @@ public class TranslateTool : TransformTool //SubUpdateSystem
             if (ComponentRegistry.HasComponent<FrameNodeTag>(entityId))
             {
                 ComponentRegistry.SetComponentToEntity(new NodeMovedFlag { OriginatingMemberId = -1 }, entityId);
+                ComponentRegistry.SetComponentToEntity(new NodeMergeCandidateFlag(), entityId);
             }
             
             // Set MemberTransformedFlag if this is a frame member
